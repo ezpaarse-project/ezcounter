@@ -86,7 +86,7 @@
     "import/no-mutable-exports": "warn",
     "import/no-named-default": "error",
     "import/no-namespace": "warn",
-    "import/no-default-export": "warn", // TODO: move to error once migrated
+    "import/no-default-export": "error",
     "promise/avoid-new": "warn", // Maybe error ?
     "promise/no-nesting": "error",
     "promise/no-return-wrap": "error",

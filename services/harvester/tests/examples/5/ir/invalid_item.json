@@ -1,0 +1,144 @@
+{
+  "Report_Header": {
+    "Created": "2016-09-08T22:47:31Z",
+    "Created_By": "EBSCO Informtion Services",
+    "Customer_ID": "12345",
+    "Report_ID": "IR",
+    "Release": "5",
+    "Report_Name": "Journal Requests (Excluding \"OA_Gold\")",
+    "Institution_Name": "Mt. Laurel University",
+    "Institution_ID": [
+      {
+        "Type": "ISNI",
+        "Value": "1234 1234 1234 1234"
+      }
+    ],
+    "Report_Filters": [
+      {
+        "Name": "Begin_Date",
+        "Value": "2015-01-01"
+      }
+    ],
+    "Report_Attributes": [
+      {
+        "Name": "Attributes_To_Show",
+        "Value": "Data_Type|Access_Method"
+      }
+    ]
+  },
+  "Report_Items": [
+    {
+      "Item_ID": [
+        {
+          "Type": "Print_ISSN",
+          "Value": "0931-865"
+        }
+      ],
+      "Item_Contributors": [
+        {
+          "Type": "Author",
+          "Name": "John Smith",
+          "Identifier": "ORCID:0000-0001-2345-6789"
+        }
+      ],
+      "Item_Dates": [
+        {
+          "Type": "Publication_Date",
+          "Value": "2002-01-15"
+        }
+      ],
+      "Item_Attributes": [
+        {
+          "Type": "Article_Version",
+          "Value": "VoR"
+        }
+      ],
+      "Platform": "EBSCOhost",
+      "Publisher": "Springer",
+      "Publisher_ID": [
+        {
+          "Type": "ISNI",
+          "Value": "1234 1234 1234 1234"
+        }
+      ],
+      "Item_Parent": {
+        "Item_Name": "Journal of Economics",
+        "Item_ID": [
+          {
+            "Type": "Print_ISSN",
+            "Value": "0931-865"
+          }
+        ],
+        "Item_Contributors": [
+          {
+            "Type": "Author",
+            "Name": "John Smith",
+            "Identifier": "ORCID:0000-0001-2345-6789"
+          }
+        ],
+        "Item_Dates": [
+          {
+            "Type": "Publication_Date",
+            "Value": "2002-01-15"
+          }
+        ],
+        "Item_Attributes": [
+          {
+            "Type": "Article_Version",
+            "Value": "VoR"
+          }
+        ],
+        "Data_Type": "Journal"
+      },
+      "Item_Component": [
+        {
+          "Item_Name": "Journal of Economics",
+          "Item_ID": [
+            {
+              "Type": "Print_ISSN",
+              "Value": "0931-865"
+            }
+          ],
+          "Item_Contributors": [
+            {
+              "Type": "Author",
+              "Name": "John Smith",
+              "Identifier": "ORCID:0000-0001-2345-6789"
+            }
+          ],
+          "Item_Dates": [
+            {
+              "Type": "Publication_Date",
+              "Value": "2002-01-15"
+            }
+          ],
+          "Item_Attributes": [
+            {
+              "Type": "Article_Version",
+              "Value": "VoR"
+            }
+          ],
+          "Data_Type": "Dataset",
+          "Performance": [
+            {
+              "Period": {
+                "Begin_Date": "2015-01-01",
+                "End_Date": "2015-01-31"
+              },
+              "Instance": [
+                {
+                  "Metric_Type": "Total_Item_Requests",
+                  "Count": 21
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "Data_Type": "Article",
+      "YOP": "2010",
+      "Access_Type": "Controlled",
+      "Access_Method": "Regular"
+    }
+  ]
+}

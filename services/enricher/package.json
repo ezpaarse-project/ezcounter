@@ -1,5 +1,5 @@
 {
-  "name": "app-enricher",
+  "name": "ezcounter-enricher",
   "version": "0.1.0",
   "private": false,
   "type": "module",

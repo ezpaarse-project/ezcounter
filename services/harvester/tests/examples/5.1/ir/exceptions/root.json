@@ -1,0 +1,6 @@
+{
+  "Code": 2020,
+  "Message": "APIKey Invalid",
+  "Help_URL": "http://example.com",
+  "Data": "string"
+}

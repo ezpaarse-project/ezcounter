@@ -1,0 +1,59 @@
+{
+  "Report_Header": {
+    "Created": "2016-09-08T22:47:31Z",
+    "Created_By": "EBSCO Informtion Services",
+    "Customer_ID": "12345",
+    "Report_ID": "PR",
+    "Release": "5",
+    "Report_Name": "Journal Requests (Excluding \"OA_Gold\")",
+    "Institution_Name": "Mt. Laurel University",
+    "Institution_ID": [
+      {
+        "Type": "ISNI",
+        "Value": "1234 1234 1234 1234"
+      }
+    ],
+    "Report_Filters": [
+      {
+        "Name": "Begin_Date",
+        "Value": "2015-01-01"
+      }
+    ],
+    "Report_Attributes": [
+      {
+        "Name": "Attributes_To_Show",
+        "Value": "Data_Type|Access_Method"
+      }
+    ],
+    "Exceptions": [
+      {
+        "Code": 3031,
+        "Severity": "Warning",
+        "Message": "Usage Not Ready for Requested Dates",
+        "Help_URL": "string",
+        "Data": "Request was for 2016-01-01 to 2016-12-31; however, usage is only available to 2016-08-31."
+      }
+    ]
+  },
+  "Report_Items": [
+    {
+      "Platform": "EBSCOhost",
+      "Data_Type": "Platform",
+      "Access_Method": "Regular",
+      "Performance": [
+        {
+          "Period": {
+            "Begin_Date": "2015-01-01",
+            "End_Date": "2015-01-31"
+          },
+          "Instance": [
+            {
+              "Metric_Type": "Total_Item_Requests",
+              "Count": 21
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
