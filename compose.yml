@@ -1,0 +1,83 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:18.0-alpine3.22
+    env_file:
+      - .env
+      - path: .env.local
+        required: false
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:4.1.4-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    container_name: redis
+    image: redis:8.4.0-alpine3.22
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  api:
+    container_name: api
+    build:
+      target: api
+    env_file:
+      - .env
+      - path: .env.local
+        required: false
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+
+  enricher:
+    container_name: enricher
+    build:
+      target: enricher
+    env_file:
+      - .env
+      - path: .env.local
+        required: false
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  harvester:
+    container_name: harvester
+    build:
+      target: harvester
+    env_file:
+      - .env
+      - path: .env.local
+        required: false
+    restart: unless-stopped
+    volumes:
+      - ./data/harvester:/var/lib/app-harvester/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

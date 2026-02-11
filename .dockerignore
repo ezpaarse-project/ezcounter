@@ -1,0 +1,30 @@
+# Dependencies
+**/node_modules/
+
+# Build results
+**/.prisma/
+**/.turbo/
+**/dist/
+
+**/.env.*.local
+**/.env.local
+**/local*.json
+
+# Git files
+.git/
+**/.gitignore
+
+# Docs
+**/docs/
+**/*.md
+
+# Dev volumes
+data/
+logs/
+_bak*/
+
+# Dev tools
+**/.oxlint*
+docker*
+**/*.test.ts
+**/examples/

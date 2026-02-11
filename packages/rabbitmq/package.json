@@ -1,0 +1,35 @@
+{
+  "name": "@ezcounter/rabbitmq",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "lint": "oxlint",
+    "type-check": "tsc --noEmit --skipLibCheck"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@ezcounter/logger": "workspace:*",
+    "amqplib": "^0.10.9",
+    "typescript": "catalog:",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.8",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": "^20 || ^22 || ^24"
+  }
+}

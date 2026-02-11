@@ -1,0 +1,54 @@
+include:
+  - compose.yml
+
+services:
+  api:
+    build:
+      target: api-pnpm
+    working_dir: /usr/build/api/services/api
+    command: pnpm run dev
+    ports:
+      - 8080:8080
+      - 9230:9229 # Debugger port
+    develop:
+      watch:
+        - action: sync
+          path: ./services/api/src
+          target: /usr/build/api/services/api/src
+          initial_sync: true
+        - action: rebuild
+          path: ./services/api/package.json
+
+  enricher:
+    build:
+      target: enricher-pnpm
+    working_dir: /usr/build/enricher/services/enricher
+    command: pnpm run dev
+    ports:
+      - 8081:8080
+      - 9231:9229 # Debugger port
+    develop:
+      watch:
+        - action: sync
+          path: ./services/enricher/src
+          target: /usr/build/enricher/services/enricher/src
+          initial_sync: true
+        - action: rebuild
+          path: ./services/enricher/package.json
+
+  harvester:
+    build:
+      target: harvester-pnpm
+    working_dir: /usr/build/harvester/services/harvester
+    command: pnpm run dev
+    ports:
+      - 8082:8080
+      - 9232:9229 # Debugger port
+    develop:
+      watch:
+        - action: sync
+          path: ./services/harvester/src
+          target: /usr/build/harvester/services/harvester/src
+          initial_sync: true
+        - action: rebuild
+          path: ./services/harvester/package.json

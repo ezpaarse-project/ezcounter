@@ -1,0 +1,45 @@
+{
+  "name": "app-enricher",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
+    "lint": "oxlint",
+    "start": "tsx src/app.ts",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@ezcounter/config": "workspace:*",
+    "@ezcounter/heartbeats": "workspace:*",
+    "@ezcounter/logger": "workspace:*",
+    "@ezcounter/models": "workspace:*",
+    "@ezcounter/rabbitmq": "workspace:*",
+    "@ezcounter/simple-http": "workspace:*",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "ioredis": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "pino-pretty": "catalog:",
+    "vitest": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  },
+  "engines": {
+    "node": "^24"
+  }
+}

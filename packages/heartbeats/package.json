@@ -1,0 +1,39 @@
+{
+  "name": "@ezcounter/heartbeats",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "lint": "oxlint",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@ezcounter/logger": "workspace:*",
+    "@ezcounter/models": "workspace:*",
+    "@ezcounter/rabbitmq": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": "^20 || ^22 || ^24"
+  }
+}

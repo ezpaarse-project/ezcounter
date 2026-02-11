@@ -1,0 +1,33 @@
+{
+  "name": "@ezcounter/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "",
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "lint": "oxlint",
+    "type-check": "tsc --noEmit --skipLibCheck"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "config": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/config": "^3.3.5",
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": "^20 || ^22 || ^24"
+  }
+}

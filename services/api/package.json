@@ -1,0 +1,51 @@
+{
+  "name": "app-api",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
+    "lint": "oxlint",
+    "start": "tsx src/app.ts",
+    "type-check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest run",
+    "test:watch": "vitest watch"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@ezcounter/config": "workspace:*",
+    "@ezcounter/database": "workspace:*",
+    "@ezcounter/heartbeats": "workspace:*",
+    "@ezcounter/logger": "workspace:*",
+    "@ezcounter/models": "workspace:*",
+    "@ezcounter/rabbitmq": "workspace:*",
+    "@fastify/cors": "^11.2.0",
+    "@fastify/swagger": "^9.6.1",
+    "@fastify/swagger-ui": "^5.2.4",
+    "fastify": "^5.7.1",
+    "fastify-plugin": "^5.1.0",
+    "fastify-type-provider-zod": "^6.1.0",
+    "http-status-codes": "^2.3.0",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "pino-pretty": "catalog:",
+    "vitest": "catalog:",
+    "vite-tsconfig-paths": "catalog:"
+  },
+  "engines": {
+    "node": "^24"
+  }
+}
