@@ -2,10 +2,18 @@
   "name": "@ezcounter/simple-http",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "",
+  "homepage": "https://github.com/ezpaarse-project/ezcounter#readme",
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/ezcounter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
+  },
   "license": "CeCILL",
   "author": "oxypomme",
+  "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
     "lint": "oxlint",

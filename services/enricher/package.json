@@ -2,17 +2,25 @@
   "name": "ezcounter-enricher",
   "version": "0.1.0",
   "private": false,
-  "type": "module",
+  "homepage": "https://github.com/ezpaarse-project/ezcounter#readme",
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/ezcounter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
+  },
   "license": "CeCILL",
   "author": "oxypomme",
+  "type": "module",
   "main": "src/app.ts",
   "scripts": {
     "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
     "lint": "oxlint",
     "start": "tsx src/app.ts",
-    "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "type-check": "tsc --noEmit --skipLibCheck"
   },
   "lint-staged": {
     "*.{js,ts}": [
@@ -29,15 +37,15 @@
     "@ezcounter/models": "workspace:*",
     "@ezcounter/rabbitmq": "workspace:*",
     "@ezcounter/simple-http": "workspace:*",
+    "ioredis": "^5.9.2",
     "tsx": "catalog:",
-    "typescript": "catalog:",
-    "ioredis": "^5.9.2"
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "pino-pretty": "catalog:",
-    "vitest": "catalog:",
-    "vite-tsconfig-paths": "catalog:"
+    "vite-tsconfig-paths": "catalog:",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": "^24"

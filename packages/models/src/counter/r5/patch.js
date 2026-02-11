@@ -1,3 +1,6 @@
+// oxlint-disable-next-line no-abusive-eslint-disable
+// oxlint-disable
+
 import r5Schema from './schema.json' with { type: 'json' };
 
 const {

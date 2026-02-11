@@ -7,19 +7,25 @@ import { compile } from 'json-schema-to-typescript';
 const generateTypeName = (from: string): string =>
   from
     // replace chars which are not valid for typescript identifiers
-    .replace(/(^\s*[^a-zA-Z_$])|([^a-zA-Z_$\d])/g, '')
+    .replaceAll(/(^\s*[^a-zA-Z_$])|([^a-zA-Z_$\d])/g, '')
     // uppercase leading underscores followed by lowercase
-    .replace(/_[a-z]/g, (match) => match.toUpperCase())
+    .replaceAll(/_[a-z]/g, (match) => match.toUpperCase())
     // removes any underscore
-    .replace(/_/g, '');
+    .replaceAll('_', '');
 
 async function readSchema(
   schemaPath: string
 ): Promise<{ schema: Record<string, unknown>; patched: boolean }> {
-  const patchPath = schemaPath.replace('schema.json', 'patch.ts');
+  const tsPatchPath = schemaPath.replace('schema.json', 'patch.ts');
+  const jsPatchPath = schemaPath.replace('schema.json', 'patch.js');
 
-  if (existsSync(patchPath)) {
-    const { schema } = await import(patchPath);
+  if (existsSync(tsPatchPath)) {
+    const { schema } = await import(tsPatchPath);
+    return { schema, patched: true };
+  }
+
+  if (existsSync(jsPatchPath)) {
+    const { schema } = await import(jsPatchPath);
     return { schema, patched: true };
   }
 
@@ -38,7 +44,7 @@ async function generateTypescriptFile(
     "import Ajv from 'ajv';",
     "import addFormats from 'ajv-formats';",
     patched
-      ? `import { schema } from '../../src/counter/${module}/patch';`
+      ? `import { schema } from '../../src/counter/${module}/patch.js';`
       : `import schema from '../../src/counter/${module}/schema.json' with { type: 'json' };`,
   ].join('\n');
 
@@ -52,6 +58,7 @@ async function generateTypescriptFile(
   const validationCode = [
     'const ajv = new Ajv({ schemas: [schema], strict: false });',
     'addFormats(ajv);',
+    // oxlint-disable-next-line no-explicit-any
     ...Object.entries(openapi.definitions as Record<string, any>).map(
       ([key, value]) => {
         const name = generateTypeName(value.title || value.$id || key);

@@ -2,21 +2,29 @@
   "name": "@ezcounter/models",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "",
+  "homepage": "https://github.com/ezpaarse-project/ezcounter#readme",
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/ezcounter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
+  },
   "license": "CeCILL",
   "author": "oxypomme",
+  "type": "module",
   "exports": {
     "./lib/*": "./src/lib/*.ts",
     "./*": "./src/types/*.ts",
     "./counter/*": "./dist/counter/*.ts"
   },
   "scripts": {
+    "build:schemas": "tsx src/counter/build.ts",
     "lint": "oxlint",
-    "type-check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "build:schemas": "tsx src/counter/build.ts"
+    "type-check": "tsc --noEmit --skipLibCheck"
   },
   "lint-staged": {
     "*.ts": [

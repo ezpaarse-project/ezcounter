@@ -3,7 +3,7 @@
 # Base image for node, enable usage of pnpm and allow to run apps
 FROM node:24.4.1-alpine3.22 AS base
 LABEL maintainer="ezTeam <ezteam@couperin.org>"
-# LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/..."
+LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
 
 ENV HUSKY=0
 ENV TURBO_UI=false
