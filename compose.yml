@@ -19,8 +19,11 @@ services:
     container_name: rabbitmq
     image: rabbitmq:4.1.4-alpine
     restart: unless-stopped
+    volumes:
+      # ezCOUNTER needs specific plugins to be enabled
+      - ./config/rabbitmq/enabled_plugins.erl:/etc/rabbitmq/enabled_plugins:ro
     healthcheck:
-      test: rabbitmq-diagnostics -q ping
+      test: ['CMD-SHELL', 'rabbitmq-diagnostics -q ping']
       interval: 1s
       timeout: 3s
       retries: 5
@@ -51,6 +54,7 @@ services:
         condition: service_healthy
     ports:
       - 8080:8080
+    # Health check is built-in the image
 
   enricher:
     container_name: enricher
@@ -66,6 +70,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    # Health check is built-in the image
 
   harvester:
     container_name: harvester
@@ -81,3 +86,4 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    # Health check is built-in the image
