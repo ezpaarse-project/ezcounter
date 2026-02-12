@@ -8,6 +8,11 @@ type HarvestLockEvents = {
 export class HarvestLock {
   private events = new EventEmitter<HarvestLockEvents>();
 
+  /**
+   * In memory lock
+   *
+   * @param locked - Initial status
+   */
   constructor(private locked = false) {
     this.events.on('lock', () => {
       this.locked = true;
@@ -17,10 +22,16 @@ export class HarvestLock {
     });
   }
 
+  /**
+   * Status of the lock
+   */
   get isLocked(): boolean {
     return this.locked === true;
   }
 
+  /**
+   * Release lock and notify that lock was release, if not locked do nothing
+   */
   release(): void {
     if (!this.locked) {
       return;
@@ -29,6 +40,9 @@ export class HarvestLock {
     this.events.emit('release');
   }
 
+  /**
+   * Lock and notify that lock, if already locked do nothing
+   */
   lock(): void {
     if (this.locked) {
       return;
@@ -37,6 +51,9 @@ export class HarvestLock {
     this.events.emit('lock');
   }
 
+  /**
+   * Waits for the next release of the lock, if not locked return immediately
+   */
   waitForRelease(): Promise<void> {
     if (!this.locked) {
       return Promise.resolve();
