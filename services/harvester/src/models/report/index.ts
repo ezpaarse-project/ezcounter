@@ -8,8 +8,9 @@ import { config } from '~/lib/config';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import type { CacheResult } from './steps/download';
 import { HarvestIdleTimeout } from '~/models/timeout';
+
+import type { CacheResult } from './steps/download';
 import { asHarvestError, CounterCodes } from './exceptions';
 import {
   cacheReportToFile,
@@ -90,7 +91,7 @@ function getReportPath({
   const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
 
   return resolve(
-    config.paths.reports,
+    config.download.dir,
     `${cacheKey}/${report.reportId}/${filename}`
   );
 }

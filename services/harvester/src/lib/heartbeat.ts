@@ -15,17 +15,23 @@ const { heartbeat: frequency } = config;
 const logger = appLogger.child({ scope: 'heartbeat' });
 
 const service: HeartbeatService = {
-  name: 'worker',
+  name: 'harvester',
   version,
   filesystems: {
     logs: config.log.dir,
+    download: config.download.dir,
   },
 };
 
-export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
-
 let heartbeat: HeartbeatSender | undefined;
 
+export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
+
+/**
+ * Init Heartbeats - emitting events as long that service is alive
+ *
+ * @param connection - The RabbitMQ connection
+ */
 export async function initHeartbeat(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {

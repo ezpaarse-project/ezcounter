@@ -1,5 +1,7 @@
 {
   "port": 8080,
+  "allowedOrigins": "*",
+  "allowedProxies": "*",
   "heartbeat": {
     "self": 5000,
     "connected": {

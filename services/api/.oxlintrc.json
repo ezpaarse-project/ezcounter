@@ -1,4 +1,19 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "extends": ["../../.oxlintrc.json"],
+
+  "overrides": [
+    {
+      "files": ["src/routes/*.ts", "src/routes/**/*.ts"],
+      "rules": {
+        // Route definitions can be large and are in one function
+        "max-lines": "off",
+        "max-lines-per-function": "off",
+        // Routes must return a `Promise`, to ease readability every route is async (even if no await is used)
+        "require-await": "off",
+        // Auto-load plugin expect routers to be the default export
+        "no-default-export": "off",
+      },
+    },
+  ],
 }

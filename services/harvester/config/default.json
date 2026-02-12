@@ -25,9 +25,7 @@
     "unavailableBackoff": 600000,
     "detachDelay": 1000,
     "jobDelay": 500,
-    "maxTries": 5
-  },
-  "paths": {
-    "reports": "/var/lib/app-harvester/data/reports"
+    "maxTries": 5,
+    "dir": "/var/lib/app-harvester/data/reports"
   }
 }
