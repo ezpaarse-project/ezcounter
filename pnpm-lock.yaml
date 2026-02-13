@@ -194,6 +194,9 @@ importers:
       '@ezcounter/rabbitmq':
         specifier: workspace:*
         version: link:../../packages/rabbitmq
+      '@fastify/autoload':
+        specifier: ^6.3.1
+        version: 6.3.1
       '@fastify/cors':
         specifier: ^11.2.0
         version: 11.2.0
@@ -203,6 +206,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.4
         version: 5.2.4
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       fastify:
         specifier: ^5.7.1
         version: 5.7.1
@@ -674,6 +680,9 @@ packages:
 
   '@fastify/ajv-compiler@4.0.5':
     resolution: {integrity: sha512-KoWKW+MhvfTRWL4qrhUwAAZoaChluo0m0vbiJlGMt2GXvL4LVPQEjt8kSpHI3IBq5Rez8fg+XeH3cneztq+C7A==}
+
+  '@fastify/autoload@6.3.1':
+    resolution: {integrity: sha512-0fsG+lO3m5yEZVjXKpltCe+2eHhM6rfAPQhvlGUgLUFTw/N2wA9WqPTObMtrF3oUCUrxbSDv60HlUIoh+aFM1A==}
 
   '@fastify/cors@11.2.0':
     resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
@@ -3093,6 +3102,8 @@ snapshots:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
       fast-uri: 3.1.0
+
+  '@fastify/autoload@6.3.1': {}
 
   '@fastify/cors@11.2.0':
     dependencies:

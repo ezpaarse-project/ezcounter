@@ -126,7 +126,9 @@
     {
       "files": ["*.test.ts"],
       "rules": {
+        // Tests files can have a lot of tests, and it's more readable to have only 1 test file per TS file
         "max-lines": "off",
+        // Tests files can have a global `describe` to encapsulate
         "max-lines-per-function": "off",
       },
     },
