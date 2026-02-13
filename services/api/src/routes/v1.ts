@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
 import { StatusCodes } from 'http-status-codes';
-import type { FastifyPluginAsync } from 'fastify';
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import autoLoad from '@fastify/autoload';
 import {
   jsonSchemaTransform,
@@ -9,7 +9,6 @@ import {
   validatorCompiler,
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
-  type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 
 import { openapiPlugin } from '~/plugins/openapi';
@@ -17,17 +16,18 @@ import { openapiPlugin } from '~/plugins/openapi';
 import { buildResponse } from './v1/responses';
 import { HTTPError } from './v1/errors';
 
-export const v1: FastifyPluginAsync = async (fastify) => {
-  const app = fastify.withTypeProvider<ZodTypeProvider>();
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
-
-  // Register openapi and doc
-  app.register(openapiPlugin, { transform: jsonSchemaTransform });
+/**
+ * Prepare validation, error handling, etc.
+ *
+ * @param fastify - The fastify instance
+ */
+export function setupResponses(fastify: FastifyInstance): void {
+  fastify.setValidatorCompiler(validatorCompiler);
+  fastify.setSerializerCompiler(serializerCompiler);
 
   // Handle errors
   // oxlint-disable-next-line promise/prefer-await-to-callbacks
-  app.setErrorHandler((err, req, reply) => {
+  fastify.setErrorHandler((err, req, reply) => {
     // Unknown error
     if (!(err instanceof Error)) {
       return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`${err}`);
@@ -76,13 +76,28 @@ export const v1: FastifyPluginAsync = async (fastify) => {
   });
 
   // Handle not found
-  app.setNotFoundHandler(() => {
+  fastify.setNotFoundHandler(() => {
     throw new HTTPError(StatusCodes.NOT_FOUND, 'Route not found');
   });
+}
+
+/**
+ * Fastify Plugin that register routes for the API v1
+ *
+ * @param fastify - The fastify instance
+ */
+export const v1: FastifyPluginAsync = async (fastify) => {
+  // Prepare validation, error handling, etc.
+  setupResponses(fastify);
+
+  // Register openapi and doc
+  fastify.register(openapiPlugin, { transform: jsonSchemaTransform });
 
   // Register routes
-  app.register(autoLoad, {
-    dir: join(import.meta.dirname, 'v2'),
+  fastify.register(autoLoad, {
+    dir: join(import.meta.dirname, 'v1'),
+    // Avoid importing test files
+    ignorePattern: /^.*test.ts$/,
     routeParams: true,
     maxDepth: 2,
   });

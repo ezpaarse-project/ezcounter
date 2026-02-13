@@ -1,11 +1,11 @@
-export { parser as jsonParser } from 'stream-json/Parser';
+import Parser from 'stream-json/Parser';
 
-export { pick as jsonPick } from 'stream-json/filters/Pick';
-export { filter as jsonFilter } from 'stream-json/filters/Filter';
-export { ignore as jsonIgnore } from 'stream-json/filters/Ignore';
+import Pick from 'stream-json/filters/Pick';
+import Filter from 'stream-json/filters/Filter';
+import Ignore from 'stream-json/filters/Ignore';
 
-export { streamValues as jsonStreamValues } from 'stream-json/streamers/StreamValues';
-export { streamArray as jsonStreamArray } from 'stream-json/streamers/StreamArray';
+import StreamValues from 'stream-json/streamers/StreamValues';
+import StreamArray from 'stream-json/streamers/StreamArray';
 
 export type JSONToken = {
   name: 'startArray' | 'endArray' | 'keyValue';
@@ -16,3 +16,11 @@ export type JSONStreamedValue = {
   key: number | string;
   value: unknown;
 };
+
+// Simplify exports
+export const jsonParser = Parser.parser;
+export const jsonPick = Pick.pick;
+export const jsonFilter = Filter.filter;
+export const jsonIgnore = Ignore.ignore;
+export const jsonStreamValues = StreamValues.streamValues;
+export const jsonStreamArray = StreamArray.streamArray;

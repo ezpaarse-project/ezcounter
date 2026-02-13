@@ -19,6 +19,7 @@
     "lint": "oxlint",
     "start": "tsx src/app.ts",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
   },

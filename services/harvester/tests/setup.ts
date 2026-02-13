@@ -6,6 +6,8 @@ import { vol } from 'memfs';
 
 // Mocking FS
 vi.mock(import('~/lib/fs'));
+// Mocking config
+vi.mock(import('~/lib/config'));
 // Mocking logger
 vi.mock(import('~/lib/logger'));
 

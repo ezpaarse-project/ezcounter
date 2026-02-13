@@ -11,7 +11,7 @@ import { config } from '~/lib/config';
 const { level, dir, ignore } = config.log;
 
 const options: Omit<LoggerOptions, 'name'> = {
-  pretty: isPrettierInstalled(require),
+  pretty: isPrettierInstalled(import.meta.resolve),
   ignore: ensureArray(ignore),
   level: level as Level,
   dir,

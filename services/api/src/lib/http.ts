@@ -9,21 +9,25 @@ import { config } from '~/lib/config';
 
 import { loggerPlugin } from '~/plugins/logger';
 
-const { port, allowedOrigins, allowedProxies } = config;
 const logger = appLogger.child({ scope: 'http' });
 
-// Split origins while allowing *
-const corsOrigin: '*' | string[] =
-  allowedOrigins === '*' ? '*' : allowedOrigins.split(',');
-
-// Split proxies while allowing *
-let trustProxy: true | string[] =
-  allowedProxies === '*' ? true : allowedProxies.split(',');
-
-export async function initHTTPServer(
+/**
+ * Create HTTP server, register plugins and provided routes
+ *
+ * @param routes - Routes to register
+ *
+ * @returns The HTTP server
+ */
+export async function createServer(
   routes: FastifyPluginAsync
 ): Promise<FastifyInstance> {
-  const start = process.uptime();
+  // Split origins while allowing *
+  const corsOrigin: '*' | string[] =
+    config.allowedOrigins === '*' ? '*' : config.allowedOrigins.split(',');
+
+  // Split proxies while allowing *
+  let trustProxy: true | string[] =
+    config.allowedProxies === '*' ? true : config.allowedProxies.split(',');
 
   // Create Fastify instance
   const fastify = createFastify({
@@ -43,8 +47,25 @@ export async function initHTTPServer(
   // Register routes
   await fastify.register(routes);
 
+  return fastify;
+}
+
+/**
+ * Initialize HTTP server, making it listen to configured port and gracefully stop
+ *
+ * @param routes - Routes to register
+ *
+ * @returns The HTTP server
+ */
+export async function initHTTPServer(
+  routes: FastifyPluginAsync
+): Promise<FastifyInstance> {
+  const start = process.uptime();
+
+  const fastify = await createServer(routes);
+
   // Start server and wait for it to be ready
-  const address = await fastify.listen({ port, host: '::' });
+  const address = await fastify.listen({ port: config.port, host: '::' });
   await fastify.ready();
 
   // Register graceful shutdown
@@ -59,7 +80,7 @@ export async function initHTTPServer(
 
   logger.info({
     address,
-    port,
+    port: config.port,
     initDuration: process.uptime() - start,
     initDurationUnit: 's',
     msg: 'Service listening',

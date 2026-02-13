@@ -4,11 +4,9 @@ import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
 import { fetchReportAsStream } from '~/models/data-host';
 
-// ==== Mocked functions
-import { createGunzip } from 'node:zlib';
-import { createWriteStream, createReadStream } from '~/lib/fs';
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
-// ====
+import { createGunzip } from '~/../__mocks__/zlib';
+import { createWriteStream, createReadStream } from '~/lib/__mocks__/fs';
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
 import { cacheReport } from './download';

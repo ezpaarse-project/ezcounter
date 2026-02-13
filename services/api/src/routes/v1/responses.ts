@@ -1,7 +1,13 @@
-import type { FastifyReply } from 'fastify';
-import { type StatusCodes, getReasonPhrase } from 'http-status-codes';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
 import { z } from '@ezcounter/models/lib/zod';
+
+/**
+ * Type for the expected reply from the HTTP server
+ */
+type MinimalReply = {
+  statusCode: number;
+};
 
 /**
  * Validation for an empty response
@@ -11,18 +17,18 @@ export const EmptyResponse = z.null().describe('Success response');
 /**
  * Validation for a basic response from the API
  */
-export const BaseResponse = z.object({
+const BaseResponse = z.object({
   apiVersion: z.int().min(1),
 
   status: z
-    .object({ code: z.int(), message: z.string() })
+    .object({ code: z.enum(StatusCodes), message: z.string() })
     .describe('HTTP Status'),
 });
 
 /**
  * Type for a basic response from the API
  */
-type baseResponse = z.infer<typeof BaseResponse>;
+type BaseResponse = z.infer<typeof BaseResponse>;
 
 /**
  * Build a basic response from the API
@@ -31,7 +37,7 @@ type baseResponse = z.infer<typeof BaseResponse>;
  *
  * @returns The response that will be sent to clients
  */
-const buildBaseResponse = (reply: FastifyReply): baseResponse => ({
+const buildBaseResponse = (reply: MinimalReply): BaseResponse => ({
   apiVersion: 1,
   status: {
     code: reply.statusCode,
@@ -61,7 +67,7 @@ export type ErrorResponse = z.infer<typeof ErrorResponse>;
 /**
  * Type for a successful response without metadata from the API
  */
-type SuccessBaseResponse<Content> = baseResponse & {
+type SuccessBaseResponse<Content> = BaseResponse & {
   content: Content;
 };
 
@@ -89,7 +95,7 @@ export type SuccessResponse<Content, Meta = undefined> = Meta extends undefined
  * @returns The response that will be sent to clients
  */
 export function buildResponse<Content, Meta = undefined>(
-  reply: FastifyReply,
+  reply: MinimalReply,
   content: Content,
   meta?: Meta
 ): SuccessResponse<Content, Meta>;
@@ -101,7 +107,7 @@ export function buildResponse<Content, Meta = undefined>(
  *
  * @returns The response that will be sent to clients
  */
-export function buildResponse(reply: FastifyReply, error: Error): ErrorResponse;
+export function buildResponse(reply: MinimalReply, error: Error): ErrorResponse;
 /**
  * Build a response from the API
  *
@@ -112,7 +118,7 @@ export function buildResponse(reply: FastifyReply, error: Error): ErrorResponse;
  * @returns The response that will be sent to clients
  */
 export function buildResponse<Content, Meta = undefined>(
-  reply: FastifyReply,
+  reply: MinimalReply,
   content: Content | Error,
   meta?: Meta
 ): SuccessResponse<Content, Meta> | ErrorResponse {
@@ -140,13 +146,17 @@ export function buildResponse<Content, Meta = undefined>(
  *
  * @returns The validation
  */
-export const describeSuccess = <Content, Meta = undefined>(
+export function describeSuccess<Content, Meta = undefined>(
   content: z.ZodType<Content>,
   meta?: z.ZodType<Meta>
 ):
   | z.ZodType<SuccessResponse<Content>>
-  | z.ZodType<SuccessResponse<Content, Meta>> =>
-  z.object({ ...BaseResponse.shape, content, meta });
+  | z.ZodType<SuccessResponse<Content, Meta>> {
+  if (meta) {
+    return z.object({ ...BaseResponse.shape, content, meta });
+  }
+  return z.object({ ...BaseResponse.shape, content });
+}
 
 /**
  * Describe errors responses that the route can send
