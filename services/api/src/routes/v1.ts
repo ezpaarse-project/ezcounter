@@ -30,7 +30,9 @@ export function setupResponses(fastify: FastifyInstance): void {
   fastify.setErrorHandler((err, req, reply) => {
     // Unknown error
     if (!(err instanceof Error)) {
-      return reply.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`${err}`);
+      return reply
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send(buildResponse(reply, new Error(`${err}`)));
     }
 
     // If it's a request validation error
