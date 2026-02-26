@@ -183,9 +183,8 @@ export async function cacheReport(
 ): Promise<CacheResult> {
   const archivePath = `${report.path}.gz`;
 
-  const isForced = options.report.forceDownload;
-  const isFile = !isForced && (await exists(report.path));
-  const isArchived = !isForced && (await exists(archivePath));
+  const isFile = !options.forceDownload && (await exists(report.path));
+  const isArchived = !options.forceDownload && (await exists(archivePath));
 
   const result: CacheResult = { source: 'file' };
   // If current version of report doesn't exists

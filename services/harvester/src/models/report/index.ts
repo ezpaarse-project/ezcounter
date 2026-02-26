@@ -55,13 +55,13 @@ function handleExceptions(
 ): HarvestResult | null {
   if (exceptions.some(({ code }) => PROCESSING_CODES.has(code))) {
     // Force download of a new report
-    options.download.report.forceDownload = true;
+    options.download.forceDownload = true;
     return { success: false, processing: true };
   }
 
   if (exceptions.some(({ code }) => UNAVAILABLE_CODES.has(code))) {
     // Force download of a new report
-    options.download.report.forceDownload = true;
+    options.download.forceDownload = true;
     return { success: false, unavailable: true };
   }
 
@@ -90,10 +90,7 @@ function getReportPath({
   const release = report.release.replaceAll('.', '');
   const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
 
-  return resolve(
-    config.download.dir,
-    `${cacheKey}/${report.reportId}/${filename}`
-  );
+  return resolve(config.download.dir, `${cacheKey}/${report.id}/${filename}`);
 }
 
 /**
@@ -183,7 +180,7 @@ async function reharvestOrError(
     err,
   });
 
-  options.download.report.forceDownload = true;
+  options.download.forceDownload = true;
   return harvestReport(options);
 }
 

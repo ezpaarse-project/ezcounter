@@ -4,7 +4,7 @@ import { getCounterValidation } from './validate';
 
 describe('COUNTER unknown', () => {
   test('should throws if release is unknown', () => {
-    const fnc = () => getCounterValidation('foo', 'bar');
+    const fnc = (): unknown => getCounterValidation('foo', 'bar');
 
     expect(fnc).toThrow('COUNTER Release foo is unknown');
   });

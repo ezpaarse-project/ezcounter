@@ -23,7 +23,7 @@ const OPTIONS: HarvestDownloadOptions = {
   dataHost: { auth: {}, baseUrl: '' },
   report: {
     period: { start: '', end: '' },
-    reportId: 'ir',
+    id: 'ir',
     release: '5.1',
   },
 };
@@ -203,10 +203,7 @@ describe('Cache report (cacheReport)', () => {
   describe('force download', () => {
     const FORCE_OPTIONS: HarvestDownloadOptions = {
       ...OPTIONS,
-      report: {
-        ...OPTIONS.report,
-        forceDownload: true,
-      },
+      forceDownload: true,
     };
     const REPORT = { id: '', path: '/examples/5.1/ir/valid.json' };
 

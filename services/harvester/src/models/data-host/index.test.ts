@@ -61,8 +61,8 @@ const generateOptions = (
     baseUrl,
   },
   report: {
+    id: reportId,
     period: { start: '2025-01', end: '2025-12' },
-    reportId,
     release,
   },
 });

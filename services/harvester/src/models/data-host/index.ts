@@ -125,7 +125,7 @@ export async function fetchReportAsStream(
 ): Promise<ReportStreamResponse> {
   const $fetch = createDataHostFetch(dataHost);
 
-  const response = await $fetch.raw(`/reports/${report.reportId}`, {
+  const response = await $fetch.raw(`/reports/${report.id}`, {
     responseType: 'stream',
     ignoreResponseError: true,
     query: {

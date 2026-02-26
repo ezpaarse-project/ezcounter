@@ -10,7 +10,7 @@ describe('COUNTER 5', () => {
     dataHost: { auth: {}, baseUrl: '' },
     report: {
       period: { start: '', end: '' },
-      reportId: 'ir',
+      id: 'ir',
       release: '5',
     },
   };
@@ -20,7 +20,7 @@ describe('COUNTER 5', () => {
         ...OPTIONS,
         report: {
           ...OPTIONS.report,
-          reportId: 'pr',
+          id: 'pr',
         },
       };
 
@@ -63,7 +63,7 @@ describe('COUNTER 5', () => {
         ...OPTIONS,
         report: {
           ...OPTIONS.report,
-          reportId: 'custom:ir',
+          id: 'custom:ir',
         },
       };
 
@@ -138,7 +138,7 @@ describe('COUNTER 5.1', () => {
     dataHost: { auth: {}, baseUrl: '' },
     report: {
       period: { start: '', end: '' },
-      reportId: 'ir',
+      id: 'ir',
       release: '5.1',
     },
   };
@@ -148,7 +148,7 @@ describe('COUNTER 5.1', () => {
         ...OPTIONS,
         report: {
           ...OPTIONS.report,
-          reportId: 'pr',
+          id: 'pr',
         },
       };
 
@@ -246,7 +246,7 @@ describe('COUNTER 5.1', () => {
         ...OPTIONS,
         report: {
           ...OPTIONS.report,
-          reportId: 'custom:ir',
+          id: 'custom:ir',
         },
       };
 

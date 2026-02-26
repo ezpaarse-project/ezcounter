@@ -1,26 +1,40 @@
 import { z } from '../lib/zod';
 
+/**
+ * Validation for a date of the period of a report
+ */
 export const HarvestReportPeriodDate = z.stringFormat(
   'date-month',
   /^[0-9]{4}-[0-9]{2}$/
 );
 
 /**
+ * Type for a date of the period of a report
+ */
+export type HarvestReportPeriodDate = z.infer<typeof HarvestReportPeriodDate>;
+
+/**
+ * Validation for a period of a report
+ */
+export const HarvestReportPeriod = z.object({
+  start: HarvestReportPeriodDate.describe('First month to harvest'),
+  end: HarvestReportPeriodDate.describe('Last month to harvest'),
+});
+
+/**
+ * Type for a period of a report
+ */
+export type HarvestReportPeriod = z.infer<typeof HarvestReportPeriod>;
+
+/**
  * Validation for the options to harvest a COUNTER report
  */
 export const HarvestReportOptions = z.object({
-  reportId: z.string(),
+  id: z.string(),
 
-  period: z
-    .object({
-      start: HarvestReportPeriodDate.describe('First month to harvest'),
-      end: HarvestReportPeriodDate.describe('Last month to harvest'),
-    })
-    .describe('Period of the harvest'),
+  period: HarvestReportPeriod.describe('Period of the harvest'),
 
   release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
-
-  forceDownload: z.boolean().optional(),
 
   params: z
     .object({
@@ -94,13 +108,20 @@ export type HarvestDataHostOptions = z.infer<typeof HarvestDataHostOptions>;
 export const HarvestDownloadOptions = z.object({
   cacheKey: z.string().describe('Key to get/set cache data'),
 
-  timeout: z.int().optional().describe('Maximum idle time of a job'),
-
   report: HarvestReportOptions.describe('Information on report to harvest'),
 
   dataHost: HarvestDataHostOptions.describe(
     'Information on how to harvest the report'
   ),
+
+  timeout: z.int().optional().describe('Maximum idle time of a job'),
+
+  forceDownload: z
+    .boolean()
+    .optional()
+    .describe(
+      'Should force the download of the report even if cache is present'
+    ),
 });
 
 /**

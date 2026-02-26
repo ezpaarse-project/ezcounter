@@ -21,7 +21,7 @@ describe('Archive report (archiveReport)', () => {
     dataHost: { auth: {}, baseUrl: '' },
     report: {
       period: { start: '', end: '' },
-      reportId: 'ir',
+      id: 'ir',
       release: '5.1',
     },
   };

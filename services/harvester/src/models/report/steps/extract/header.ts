@@ -56,9 +56,9 @@ export async function extractReportHeader(
       `Expected Release ${options.report.release}, got ${min.Release}`
     );
   }
-  if (min.Report_ID.toUpperCase() !== options.report.reportId.toUpperCase()) {
+  if (min.Report_ID.toUpperCase() !== options.report.id.toUpperCase()) {
     throw new Error(
-      `Expected Report_ID ${options.report.reportId.toUpperCase()}, got ${min.Report_ID}`
+      `Expected Report_ID ${options.report.id.toUpperCase()}, got ${min.Report_ID}`
     );
   }
 

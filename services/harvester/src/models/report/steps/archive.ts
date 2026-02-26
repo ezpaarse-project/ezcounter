@@ -65,8 +65,7 @@ export async function archiveReport(
 
   const archivePath = `${report.path}.gz`;
 
-  const isForced = options.report.forceDownload;
-  const isArchived = !isForced && (await exists(archivePath));
+  const isArchived = !options.forceDownload && (await exists(archivePath));
 
   if (!isArchived) {
     await zipReport(report, archivePath, timeout);

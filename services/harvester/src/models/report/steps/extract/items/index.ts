@@ -97,7 +97,8 @@ export async function* extractReportItems(
   options: HarvestDownloadOptions,
   signal?: AbortSignal
 ): AsyncGenerator<{ item: RawReportItem; parent?: RawReportItemParent }> {
-  const reportId = options.report.reportId.toUpperCase();
+  const reportId = options.report.id.toUpperCase();
+
   const { item: validateItem, parent: validateParent } = getCounterValidation(
     options.report.release,
     reportId
