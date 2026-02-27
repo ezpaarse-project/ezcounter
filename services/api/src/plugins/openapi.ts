@@ -34,6 +34,11 @@ const OPENAPI_INFOS = {
   description: 'COUNTER harvesting service',
 };
 
+const OPENAPI_TAGS = [
+  { name: 'health', description: 'Health management' },
+  { name: 'harvest', description: 'Harvest management' },
+];
+
 /**
  * Fastify plugin to setup openapi
  *
@@ -47,6 +52,7 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
     openapi: {
       info: OPENAPI_INFOS,
       servers: [{ url: '/', description: 'Direct' }],
+      tags: OPENAPI_TAGS,
     },
     transformObject: opts.transformObject,
     transform: opts.transform,

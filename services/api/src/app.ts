@@ -6,6 +6,7 @@ import { useRabbitMQ } from '~/lib/rabbitmq';
 import { initHeartbeat } from '~/lib/heartbeat';
 
 import { routes } from '~/routes';
+import { initQueues } from '~/queues';
 
 async function start(): Promise<void> {
   appLogger.info({
@@ -22,6 +23,7 @@ async function start(): Promise<void> {
 
     // Initialize other services (if fails, service is degraded)
     await useRabbitMQ(async (connection) => {
+      await initQueues(connection);
       await initHeartbeat(connection);
     });
 

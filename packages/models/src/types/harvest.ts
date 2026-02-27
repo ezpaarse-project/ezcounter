@@ -68,6 +68,19 @@ export const HarvestReportOptions = z.object({
 export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
 
 /**
+ * Validation for additional params when requesting a report
+ */
+export const HarvestAdditionalParams = z.record(
+  z.string(),
+  z.union([z.string(), z.boolean(), z.array(z.string())])
+);
+
+/**
+ * Type for additional params when requesting a report
+ */
+export type HarvestAdditionalParams = z.infer<typeof HarvestAdditionalParams>;
+
+/**
  * Validation for the options to harvest a COUNTER endpoint
  */
 export const HarvestDataHostOptions = z.object({
@@ -91,10 +104,9 @@ export const HarvestDataHostOptions = z.object({
     .optional()
     .describe('Separator used for multivaluated params (defaults to "|")'),
 
-  additionalParams: z
-    .record(z.string(), z.union([z.string(), z.boolean(), z.array(z.string())]))
-    .optional()
-    .describe('Query parameters to add on requests'),
+  additionalParams: HarvestAdditionalParams.optional().describe(
+    'Query parameters to add on requests'
+  ),
 });
 
 /**
@@ -114,7 +126,7 @@ export const HarvestDownloadOptions = z.object({
     'Information on how to harvest the report'
   ),
 
-  timeout: z.int().optional().describe('Maximum idle time of a job'),
+  timeout: z.int().min(100).optional().describe('Maximum idle time of a job'),
 
   forceDownload: z
     .boolean()
@@ -182,7 +194,7 @@ export type HarvestException = z.infer<typeof HarvestException>;
 export const HarvestError = z.object({
   code: z.string(),
   message: z.string(),
-  cause: z.unknown().optional(),
+  cause: z.json().optional(),
 });
 
 /**
