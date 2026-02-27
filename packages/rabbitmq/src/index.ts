@@ -152,7 +152,7 @@ export function sendJSONMessage<DataType>(
  * @returns The parsed data
  */
 export function parseJSONMessage<DataType>(
-  msg: amqp.ConsumeMessage,
+  msg: amqp.Message,
   schema: z.ZodSchema<DataType>
 ): { data?: DataType; raw: unknown; parseError?: unknown } {
   const raw = JSON.parse(msg.content.toString());

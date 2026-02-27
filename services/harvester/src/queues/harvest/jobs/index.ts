@@ -133,9 +133,9 @@ async function requeueHarvestJob(
  * @param msg - The message
  * @param queueName - The name of the queue (used to delay jobs)
  */
-async function onMessage(
+async function processHarvestMessage(
   channel: rabbitmq.Channel,
-  msg: rabbitmq.ConsumeMessage,
+  msg: rabbitmq.Message,
   queueName: string
 ): Promise<void> {
   // Parse message
@@ -178,37 +178,31 @@ async function onMessage(
 }
 
 /**
- * Delete queue if no jobs are in queue
+ * Delete queue if no jobs are delayed
  *
  * @param channel - The rabbitmq channel
  * @param queueName - The name of the queue
  *
  * @returns `true` if queue was deleted
  */
-async function detachHarvestJobsQueue(
+async function deleteHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
 ): Promise<boolean> {
-  // Don't detach if there's still delayed jobs
+  // Don't delete if there's still delayed jobs
   const delayed = delayedJobs.get(queueName);
   if (delayed && delayed.size > 0) {
     return false;
   }
 
   try {
-    // Check if there's messages in queue
-    const { messageCount } = await channel.checkQueue(queueName);
-    if (messageCount > 0) {
-      return false;
-    }
-
     // Delete queue - ifEmpty will close channel if there's still jobs
     await channel.deleteQueue(queueName, {
       ifEmpty: true,
     });
 
     logger.info({
-      msg: 'Harvest queue detached',
+      msg: 'Harvest queue deleted',
       queueName,
     });
 
@@ -217,7 +211,7 @@ async function detachHarvestJobsQueue(
     return true;
   } catch (err) {
     logger.error({
-      msg: 'Unable to detach queue',
+      msg: 'Unable to delete queue',
       queueName,
       err,
     });
@@ -226,13 +220,13 @@ async function detachHarvestJobsQueue(
 }
 
 /**
- * Consume queue to handle harvest jobs
+ * Process all messages in harvest queue
  *
  * @param channel - The rabbitmq channel
  *
  * @return Promise that resolves when all jobs in target queue are processed
  */
-export async function attachHarvestJobsQueue(
+export async function proccessHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
 ): Promise<void> {
@@ -241,35 +235,29 @@ export async function attachHarvestJobsQueue(
     exclusive: true,
   });
 
-  // Consume harvest queue as a promise that resolve when all jobs are processed
-  // oxlint-disable-next-line promise/avoid-new
-  const promise = new Promise<void>((resolve, reject) => {
-    channel.consume(queue, async (msg) => {
-      if (!msg) {
-        return;
-      }
-
-      // Process message
-      await onMessage(channel, msg, queue);
-
-      // Wait for some time to let possible messages to enter in queue
-      setTimeout(async () => {
-        // Detach queue if needed
-        try {
-          if (await detachHarvestJobsQueue(channel, queue)) {
-            resolve();
-          }
-        } catch (err) {
-          reject(err);
-        }
-      }, detachDelay);
-    });
-  });
-
   logger.info({
-    msg: 'Harvest queue attached',
+    msg: 'Processing harvest queue',
     queueName,
   });
 
-  return promise;
+  // oxlint-disable no-await-in-loop
+  while (true) {
+    // Wait for some time to let possible messages to enter in queue
+    await sleep(detachDelay);
+
+    // Get last message
+    const msg = await channel.get(queue);
+    if (msg) {
+      await processHarvestMessage(channel, msg, queueName);
+      continue;
+    }
+
+    // There was no message left in queue
+    const deleted = await deleteHarvestQueue(channel, queueName);
+    if (!deleted) {
+      // There's still work to do
+      continue;
+    }
+  }
+  // oxlint-enable no-await-in-loop
 }

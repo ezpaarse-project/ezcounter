@@ -3,7 +3,7 @@ import { HarvestDispatchData } from '@ezcounter/models/queues';
 
 import { appLogger } from '~/lib/logger';
 
-import { attachHarvestJobsQueue } from './jobs';
+import { proccessHarvestQueue } from './jobs';
 
 const QUEUE_NAME = 'ezcounter.harvest:dispatch';
 
@@ -38,7 +38,7 @@ async function onMessage(
   }
 
   // Wait for all harvest jobs in queue to be processed
-  await attachHarvestJobsQueue(jobsChannel, data.queueName);
+  await proccessHarvestQueue(jobsChannel, data.queueName);
 
   // Acknowledge message as all jobs are complete
   dispatchChannel.ack(msg);
