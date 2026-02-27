@@ -1,6 +1,6 @@
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 
-import type { HarvestError, HarvestException } from '@ezcounter/models/harvest';
+import type { HarvestException } from '@ezcounter/models/harvest';
 
 import type { RawReportException } from './types';
 
@@ -238,26 +238,4 @@ export function asHarvestException(
   };
 }
 
-/**
- * Normalise error from execution
- *
- * @param err - The error that was thrown
- *
- * @returns The normalised error
- */
-export function asHarvestError(err: unknown): HarvestError {
-  if (err instanceof Error) {
-    const code = 'code' in err ? err.code : err.name.toUpperCase();
-
-    return {
-      code: `app:${code}`,
-      message: err.message,
-      cause: err.cause,
-    };
-  }
-
-  return {
-    code: `app:UNKNOWN_ERROR`,
-    message: `${err}`,
-  };
-}
+export { asHarvestError } from '@ezcounter/models/lib/harvest';
