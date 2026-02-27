@@ -1,0 +1,50 @@
+/// Status of a Harvest Job
+enum HarvestJobStatus {
+  pending
+  delayed
+  processing
+  error
+  done
+}
+
+/// Step of a Harvest Job
+enum HarvestJobStep {
+  download
+  extract
+}
+
+/// Information about a harvest job
+model HarvestJob {
+  /// ID of the job
+  id              String           @id
+  /// ID of the report harvested
+  reportId        String
+  /// Period of the report
+  period          Json
+  /// Format of the period
+  periodFormat    String           @default("yyyy-MM-dd")
+  /// COUNTER release of the report
+  release         String
+  /// Additional params of the report
+  params          Json             @default("{}")
+  /// Separator for multi-valuated params
+  paramsSeparator String           @default("|")
+  /// URL to use to harvest
+  baseUrl         String
+  /// Timeout of the job in ms
+  timeout         Int              @default(60000)
+  /// Should force download the report
+  forceDownload   Boolean          @default(false)
+  /// Target Elastic index
+  index           String
+  /// Status of the job
+  status          HarvestJobStatus
+  /// Current step of the job
+  current         HarvestJobStep?
+  /// Error that occurred while harvesting
+  error           Json?
+  /// Information about download step
+  download        Json             @default("{ \"done\": false }")
+  /// Information about extract step
+  extract         Json             @default("{ \"done\": false }")
+}

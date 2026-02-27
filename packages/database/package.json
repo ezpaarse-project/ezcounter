@@ -1,0 +1,53 @@
+{
+  "name": "@ezcounter/database",
+  "version": "0.1.0",
+  "private": false,
+  "description": "",
+  "homepage": "https://github.com/ezpaarse-project/ezcounter#readme",
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/ezcounter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
+  },
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "db:deploy": "prisma migrate deploy",
+    "db:diff": "dotenvx run -- prisma migrate diff --from-schema-datasource prisma --to-schema-datamodel prisma",
+    "db:generate": "dotenvx run -- prisma generate",
+    "db:gui": "dotenvx run -- prisma studio",
+    "db:migrate": "dotenvx run -- prisma migrate dev --skip-generate",
+    "db:push": "dotenvx run -- prisma db push --skip-generate",
+    "db:reset": "dotenvx run -- prisma migrate reset --skip-generate",
+    "lint": "oxlint",
+    "type-check": "tsc --noEmit --skipLibCheck"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@ezcounter/heartbeats": "workspace:*",
+    "@ezcounter/logger": "workspace:*",
+    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/client": "^7.4.1"
+  },
+  "devDependencies": {
+    "@dotenvx/dotenvx": "^1.52.0",
+    "prisma": "^7.4.1",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": "^24"
+  }
+}

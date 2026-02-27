@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@ezcounter/config": "workspace:*",
+    "@ezcounter/database": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
     "@ezcounter/logger": "workspace:*",
     "@ezcounter/models": "workspace:*",
@@ -54,7 +55,8 @@
     "@vitest/coverage-v8": "catalog:",
     "pino-pretty": "catalog:",
     "vite-tsconfig-paths": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vitest-mock-extended": "catalog:"
   },
   "engines": {
     "node": "^24"

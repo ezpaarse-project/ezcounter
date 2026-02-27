@@ -4,3 +4,5 @@ import { vi } from 'vitest';
 vi.mock(import('~/lib/config'));
 // Mocking logger
 vi.mock(import('~/lib/logger'));
+// Mocking DB
+vi.mock(import('~/lib/prisma'));

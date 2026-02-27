@@ -1,5 +1,4 @@
-import type { FastifyInstance } from 'fastify';
-import { describe, expect, test, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, expect, test, beforeEach, vi } from 'vitest';
 
 import {
   getAllServices,
@@ -7,22 +6,15 @@ import {
   service,
 } from '~/lib/__mocks__/heartbeat';
 
-import { createServer } from '~/lib/http';
-
+import { createTestServer } from '~/../tests/fastify/v1';
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
-import { setupResponses } from '~/routes/v1';
 
 import router from '.';
 
 vi.mock(import('~/lib/heartbeat'));
 
-let server: FastifyInstance;
-beforeAll(async () => {
-  // Setup server before any test - not using autoload cause it have issues with vitest
-  server = await createServer(async (fastify) => {
-    setupResponses(fastify);
-    fastify.register(router);
-  });
+let server = await createTestServer(async (fastify) => {
+  fastify.register(router);
 });
 
 beforeEach(() => {
