@@ -39,6 +39,7 @@ function markHarvestJobAsProcessing(
   sendHarvestJobStatusEvent({
     id: job.id,
     status: 'processing',
+    startedAt: new Date(),
   });
 
   // Keep track of delayed jobs

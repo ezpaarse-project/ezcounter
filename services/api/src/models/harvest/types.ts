@@ -73,16 +73,22 @@ export const HarvestJob = z.object({
 
   index: z.string().describe('Target Elastic index'),
 
+  createdAt: z.coerce.date().describe('Creation date'),
+
+  updatedAt: z.coerce.date().nullable().describe('Last update date'),
+
   // Status of job
   status: HarvestJobStatusEvent.shape.status,
 
-  current: HarvestJobStatusEvent.shape.current,
+  current: HarvestJobStatusEvent.shape.current.nullish(),
 
-  error: HarvestJobStatusEvent.shape.error,
+  error: HarvestJobStatusEvent.shape.error.nullish(),
 
   download: HarvestJobStatusEvent.shape.download.unwrap(),
 
   extract: HarvestJobStatusEvent.shape.extract.unwrap(),
+
+  startedAt: HarvestJobStatusEvent.shape.startedAt.nullish(),
 });
 
 /**

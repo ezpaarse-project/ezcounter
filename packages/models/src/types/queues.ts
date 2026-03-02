@@ -61,6 +61,11 @@ export const HarvestJobStatusEvent = z.object({
     .optional()
     .describe('Current step being processed'),
 
+  startedAt: z.coerce
+    .date()
+    .optional()
+    .describe('When job started to be processed'),
+
   error: HarvestError.optional().describe(
     'The error that occurred while harvesting'
   ),

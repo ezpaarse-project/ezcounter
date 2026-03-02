@@ -47,4 +47,8 @@ model HarvestJob {
   download        Json             @default("{ \"done\": false }")
   /// Information about extract step
   extract         Json             @default("{ \"done\": false }")
+  /// When the harvest job was created/queued
+  createdAt       DateTime         @default(now())
+  /// When the harvest hib was updated for the last time
+  updatedAt       DateTime?        @updatedAt
 }
