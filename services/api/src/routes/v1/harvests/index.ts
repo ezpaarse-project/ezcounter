@@ -10,6 +10,7 @@ import type { HarvestJobData } from '@ezcounter/models/queues';
 import {
   createManyHarvestJob,
   failManyHarvestJob,
+  findManyHarvestJobById,
   splitPeriodByMonths,
 } from '~/models/harvest';
 import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
@@ -82,7 +83,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       );
 
       reply.statusCode = StatusCodes.CREATED;
-      return buildResponse(reply, []);
+      return buildResponse(
+        reply,
+        await findManyHarvestJobById(queued.map(({ id }) => id))
+      );
     },
   });
 };

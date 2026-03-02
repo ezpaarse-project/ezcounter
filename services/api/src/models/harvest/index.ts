@@ -6,11 +6,61 @@ import type { Prisma } from '@ezcounter/database/types';
 import { dbClient } from '~/lib/prisma';
 import { appLogger } from '~/lib/logger';
 
-import type { HarvestError, HarvestReportPeriod } from './types';
+import {
+  HarvestJob,
+  type HarvestError,
+  type HarvestReportPeriod,
+} from './types';
 
 const PERIOD_FORMAT = 'yyyy-MM';
 
 const logger = appLogger.child({ scope: 'models', model: 'harvest' });
+
+/**
+ * Get all harvest jobs with pagination options
+ *
+ * @returns The harvest jobs
+ */
+export async function findAllHarvestJob(): Promise<HarvestJob[]> {
+  const jobs = await dbClient.harvestJob.findMany();
+
+  return jobs.map((job) => {
+    const { data, error } = HarvestJob.safeParse(job);
+    if (!data) {
+      throw new Error(`Failed to parse ${job.id}`, {
+        cause: error,
+      });
+    }
+    return data;
+  });
+}
+
+/**
+ * Get many Harvest Jobs from ids
+ *
+ * @param ids - The ids of the jobs
+ *
+ * @returns The jobs
+ */
+export async function findManyHarvestJobById(
+  ids: string[]
+): Promise<HarvestJob[]> {
+  const jobs = await dbClient.harvestJob.findMany({
+    where: {
+      id: { in: ids },
+    },
+  });
+
+  return jobs.map((job) => {
+    const { data, error } = HarvestJob.safeParse(job);
+    if (!data) {
+      throw new Error(`Failed to parse ${job.id}`, {
+        cause: error,
+      });
+    }
+    return data;
+  });
+}
 
 /**
  * Create many Harvest Jobs from data that will be passed in queues
@@ -48,16 +98,6 @@ export async function createManyHarvestJob(
     msg: 'Created multiple harvests',
     count: items.length,
   });
-
-  // return jobs.map((job) => {
-  //   const { data, error } = HarvestJob.safeParse(job);
-  //   if (!data) {
-  //     throw new Error(`Failed to parse ${job.id}`, {
-  //       cause: error,
-  //     });
-  //   }
-  //   return data;
-  // });
 }
 
 /**

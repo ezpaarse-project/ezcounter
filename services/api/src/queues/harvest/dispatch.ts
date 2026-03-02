@@ -28,7 +28,7 @@ export async function getHarvestDispatchQueue(
   channel = chan;
 
   await chan.assertQueue(QUEUE_NAME, { durable: false });
-  logger.debug('Harvest queue created');
+  logger.debug('Harvest dispatch queue created');
 }
 
 type HarvestQueueInfo = {
@@ -80,13 +80,16 @@ async function ensureDataHostQueues(
         try {
           const { consumerCount, messageCount } = await channel!.assertQueue(
             queue,
-            {
-              durable: false,
-              exclusive: true,
-            }
+            { durable: false }
           );
 
-          const created = consumerCount > 0 && messageCount > 0;
+          const created = consumerCount <= 0 && messageCount <= 0;
+
+          logger.debug({
+            msg: 'Asserted harvest queue',
+            queue,
+            created,
+          });
 
           return [host, { name: queue, created }];
         } catch (err) {
@@ -168,10 +171,11 @@ async function sendDispatchEvent(
       { channel, queue: { name: QUEUE_NAME } },
       { queueName: queue.name }
     );
-    logger.trace({
+    logger.debug({
       msg: 'Queued harvest dispatch',
       size,
       sizeUnit: 'B',
+      queue,
     });
 
     return {};

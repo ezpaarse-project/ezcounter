@@ -3,7 +3,10 @@ import { describe, expect, test, beforeEach, vi } from 'vitest';
 import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
 
 import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';
-import { createManyHarvestJob } from '~/models/harvest/__mocks__';
+import {
+  findManyHarvestJobById,
+  createManyHarvestJob,
+} from '~/models/harvest/__mocks__';
 
 import type { HarvestRequest } from '~/models/harvest/types';
 
@@ -92,6 +95,8 @@ describe('POST /harvests/_bulk', () => {
   });
 
   test('should return array of statuses', async () => {
+    findManyHarvestJobById.mockResolvedValue([]);
+
     const response = await server.inject({
       method: 'POST',
       url: '/_bulk',
@@ -100,6 +105,7 @@ describe('POST /harvests/_bulk', () => {
 
     const { content } = response.json<SuccessResponse<HarvestJobStatusEvent>>();
 
+    expect(findManyHarvestJobById).toBeCalledTimes(1);
     expect(content).toBeInstanceOf(Array);
   });
 
