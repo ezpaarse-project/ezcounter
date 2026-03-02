@@ -13,6 +13,7 @@
   },
   "license": "CeCILL",
   "author": "oxypomme",
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./types": "./src/types.ts"
@@ -22,9 +23,9 @@
     "db:diff": "dotenvx run -- prisma migrate diff --from-schema-datasource prisma --to-schema-datamodel prisma",
     "db:generate": "dotenvx run -- prisma generate",
     "db:gui": "dotenvx run -- prisma studio",
-    "db:migrate": "dotenvx run -- prisma migrate dev --skip-generate",
-    "db:push": "dotenvx run -- prisma db push --skip-generate",
-    "db:reset": "dotenvx run -- prisma migrate reset --skip-generate",
+    "db:migrate": "dotenvx run -- prisma migrate dev",
+    "db:push": "dotenvx run -- prisma db push",
+    "db:reset": "dotenvx run -- prisma migrate reset",
     "lint": "oxlint",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.52.0",
+    "@types/pg": "^8.18.0",
     "prisma": "^7.4.1",
     "typescript": "catalog:"
   },

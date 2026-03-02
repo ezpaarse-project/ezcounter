@@ -5,21 +5,29 @@ import type { Heartbeat } from '@ezreeport/heartbeats/types';
 
 import { PrismaClient } from '../.prisma/client';
 
-const DATABASE_URL = new URL(process.env.DATABASE_URL ?? '');
+type DatabaseConfig = {
+  user: string;
+  database: string;
+  password: string;
+  port: number;
+  host: string;
+  schema?: string;
+};
 
 /**
  * Setup DB connection
  *
  * @param logger - The app logger
+ * @param logger - The app logger
  *
  * @returns The DB client
  */
-export function setupDB(logger: Logger): PrismaClient {
+export function setupDB(
+  logger: Logger,
+  { schema, ...config }: DatabaseConfig
+): PrismaClient {
   const client = new PrismaClient({
-    adapter: new PrismaPg(
-      { connectionString: DATABASE_URL.href },
-      { schema: DATABASE_URL.searchParams.get('schema') || undefined }
-    ),
+    adapter: new PrismaPg(config, { schema }),
     // Disable logger of Prisma, in order to events to our own
     log: [
       { level: 'query', emit: 'event' },
@@ -74,18 +82,19 @@ export async function pingDB(
   client: PrismaClient
 ): Promise<Omit<Heartbeat, 'nextAt' | 'updatedAt'>> {
   const response = await client.$queryRaw<
-    { version: string; db: string; usage: string }[]
+    { hostname: string; version: string; db: string; usage: string }[]
   >`
-  SELECT version()::text,
+  SELECT inet_server_addr() AS hostname,
+    version()::text,
     current_database()::text AS db,
     pg_database_size(current_database())::text AS usage
   `;
 
-  const { version, usage, db } = response[0];
+  const { hostname, version, usage, db } = response[0];
   const versionMatch = /^PostgreSQL (\S+) /.exec(version);
 
   return {
-    hostname: DATABASE_URL.hostname,
+    hostname,
     service: 'database',
     version: versionMatch?.[1],
     filesystems: [

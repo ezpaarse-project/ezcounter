@@ -25,5 +25,13 @@
     "vhost": "RABBITMQ_VHOST",
     "username": "RABBITMQ_USERNAME",
     "password": "RABBITMQ_PASSWORD"
+  },
+  "postgres": {
+    "user": "POSTGRES_USER",
+    "database": "POSTGRES_DB",
+    "password": "POSTGRES_PASSWORD",
+    "port": { "__name": "POSTGRES_PORT", "__format": "number" },
+    "host": "POSTGRES_HOST",
+    "schema": "POSTGRES_SCHEMA"
   }
 }

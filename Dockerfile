@@ -66,6 +66,48 @@ RUN pnpm run build:schemas
 
 # endregion
 # ---
+# region Database
+
+# Extract database from repo
+FROM turbo AS database-turbo
+
+RUN turbo prune @ezcounter/database --docker --out-dir ./database
+# ---
+# Prepare dependencies for DATABASE
+FROM turbo AS database-pnpm
+WORKDIR /usr/build/database
+
+COPY --from=database-turbo /usr/src/database/json .
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+COPY --from=database-turbo /usr/src/database/full .
+
+RUN pnpm deploy --legacy --filter @ezcounter/database ./dev
+# ---
+# Generate prisma client using dev dependencies
+FROM turbo AS database-prisma
+WORKDIR /usr/build/database/dev
+
+# Install prisma dependencies
+RUN apk add --no-cache --update python3 \
+  && ln -sf python3 /usr/bin/python
+
+COPY --from=database-pnpm /usr/build/database/dev .
+
+# Shared TS config
+COPY ./tsconfig.json /usr/build/tsconfig.json
+
+# Generate prisma-client
+RUN pnpm run db:generate
+# ---
+# Final image to run migrations
+FROM database-prisma AS migrate
+
+CMD [ "npm", "run", "db:deploy" ]
+
+# endregion
+# ---
 # region API
 
 # Extract api from repo
@@ -86,6 +128,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY --from=api-turbo /usr/src/api/full .
 
 COPY --from=models-builder /usr/build/models/dev/dist ./packages/models/dist
+COPY --from=database-prisma /usr/build/database/dev/.prisma /usr/build/api/packages/database/.prisma
 
 RUN pnpm deploy --legacy --filter ezcounter-api --prod ./prod
 

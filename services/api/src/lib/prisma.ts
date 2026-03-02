@@ -2,10 +2,11 @@ import { setupDB, pingDB } from '@ezcounter/database';
 import type { Heartbeat } from '@ezcounter/heartbeats/types';
 
 import { appLogger } from '~/lib/logger';
+import { config } from '~/lib/config';
 
 const logger = appLogger.child({ scope: 'prisma' });
 
-export const dbClient = setupDB(logger);
+export const dbClient = setupDB(logger, config.postgres);
 
 /**
  * Execute a dummy query to check if the database connection is working
