@@ -1,6 +1,6 @@
 import { access } from 'node:fs/promises';
 
-export { stat, unlink } from 'node:fs/promises';
+export { stat, unlink, mkdir } from 'node:fs/promises';
 export { createWriteStream, createReadStream } from 'node:fs';
 
 /**

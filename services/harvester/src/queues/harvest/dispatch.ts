@@ -38,7 +38,14 @@ async function onMessage(
   }
 
   // Wait for all harvest jobs in queue to be processed
-  await proccessHarvestQueue(jobsChannel, data.queueName);
+  try {
+    await proccessHarvestQueue(jobsChannel, data.queueName);
+  } catch (err) {
+    logger.error({
+      msg: 'Unable to proccess harvest queue',
+      err,
+    });
+  }
 
   // Acknowledge message as all jobs are complete
   dispatchChannel.ack(msg);
@@ -63,5 +70,5 @@ export async function getHarvestDispatchQueue(
     onMessage(dispatchChannel, jobsChannel, msg)
   );
 
-  logger.debug('Harvest queue created');
+  logger.debug('Harvest dispatch queue created');
 }

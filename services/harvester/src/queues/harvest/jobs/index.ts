@@ -202,7 +202,7 @@ async function deleteHarvestQueue(
       ifEmpty: true,
     });
 
-    logger.info({
+    logger.debug({
       msg: 'Harvest queue deleted',
       queueName,
     });
@@ -233,7 +233,6 @@ export async function proccessHarvestQueue(
 ): Promise<void> {
   const { queue } = await channel.assertQueue(queueName, {
     durable: false,
-    exclusive: true,
   });
 
   logger.info({
@@ -255,9 +254,8 @@ export async function proccessHarvestQueue(
 
     // There was no message left in queue
     const deleted = await deleteHarvestQueue(channel, queueName);
-    if (!deleted) {
-      // There's still work to do
-      continue;
+    if (deleted) {
+      return;
     }
   }
   // oxlint-enable no-await-in-loop

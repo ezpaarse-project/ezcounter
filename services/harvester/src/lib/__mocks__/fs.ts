@@ -11,6 +11,8 @@ export const stat = vi.fn().mockImplementation(fs.promises.stat);
 
 export const unlink = vi.fn().mockImplementation(fs.promises.unlink);
 
+export const mkdir = vi.fn().mockImplementation(fs.promises.mkdir);
+
 export const exists = vi
   .fn()
   .mockImplementation(async (path: string): Promise<boolean> => {

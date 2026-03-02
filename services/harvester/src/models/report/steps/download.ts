@@ -1,12 +1,18 @@
 import { createGunzip } from 'node:zlib';
 import { PassThrough } from 'node:stream';
-
+import { dirname } from 'node:path';
 import chain from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
 import { appLogger } from '~/lib/logger';
-import { createWriteStream, createReadStream, exists, stat } from '~/lib/fs';
+import {
+  createWriteStream,
+  createReadStream,
+  exists,
+  stat,
+  mkdir,
+} from '~/lib/fs';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import { fetchReportAsStream } from '~/models/data-host';
@@ -194,6 +200,9 @@ export async function cacheReport(
       await unzipReport(report, archivePath, timeout);
     } else {
       result.source = 'remote';
+
+      await mkdir(dirname(report.path), { recursive: true });
+
       const { httpCode } = await downloadReport(report, options, timeout);
       result.httpCode = httpCode;
     }
