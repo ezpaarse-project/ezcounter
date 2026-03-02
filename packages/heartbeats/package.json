@@ -21,6 +21,7 @@
   "scripts": {
     "lint": "oxlint",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
@@ -38,6 +39,7 @@
     "@ezcounter/rabbitmq": "workspace:*"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

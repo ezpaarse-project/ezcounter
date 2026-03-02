@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import type { Logger } from '@ezreeport/logger';
-import type { HeartbeatType } from '@ezreeport/heartbeats/types';
+import type { Heartbeat } from '@ezreeport/heartbeats/types';
 
 import { PrismaClient } from '../.prisma/client';
 
@@ -72,7 +72,7 @@ export function setupDB(logger: Logger): PrismaClient {
  */
 export async function pingDB(
   client: PrismaClient
-): Promise<Omit<HeartbeatType, 'nextAt' | 'updatedAt'>> {
+): Promise<Omit<Heartbeat, 'nextAt' | 'updatedAt'>> {
   const response = await client.$queryRaw<
     { version: string; db: string; usage: string }[]
   >`

@@ -1,5 +1,5 @@
 import { setupDB, pingDB } from '@ezcounter/database';
-import type { HeartbeatType } from '@ezcounter/heartbeats/types';
+import type { Heartbeat } from '@ezcounter/heartbeats/types';
 
 import { appLogger } from '~/lib/logger';
 
@@ -12,6 +12,5 @@ export const dbClient = setupDB(logger);
  *
  * @returns If the connection is working
  */
-export const dbPing = (): Promise<
-  Omit<HeartbeatType, 'nextAt' | 'updatedAt'>
-> => pingDB(dbClient);
+export const dbPing = (): Promise<Omit<Heartbeat, 'nextAt' | 'updatedAt'>> =>
+  pingDB(dbClient);

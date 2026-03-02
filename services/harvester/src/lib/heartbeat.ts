@@ -28,8 +28,8 @@ let heartbeat: HeartbeatSender | undefined;
 export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
 
 /**
- * Init Heartbeats - emitting events as long that service is alive
  *
+ * Init Heartbeats - emitting events as long that service is alive
  * @param connection - The RabbitMQ connection
  */
 export async function initHeartbeat(
@@ -40,9 +40,13 @@ export async function initHeartbeat(
   const channel = await connection.createChannel();
   logger.debug('Channel created');
 
-  heartbeat = setupHeartbeat(channel, service, logger, true, frequency);
+  heartbeat = await setupHeartbeat(channel, logger, {
+    service,
+    frequency,
+    isRabbitMQMandatory: false,
+  });
 
-  heartbeat.send();
+  heartbeat.emit('send');
 
   logger.info({
     initDuration: process.uptime() - start,

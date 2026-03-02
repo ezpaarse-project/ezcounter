@@ -3,10 +3,16 @@ import { hostname } from 'node:os';
 import { isBefore } from 'date-fns';
 
 import type { rabbitmq } from '@ezcounter/rabbitmq';
-import { setupHeartbeat, listenToHeartbeats } from '@ezcounter/heartbeats';
+import {
+  setupHeartbeat,
+  listenToHeartbeats,
+  mandatoryService,
+} from '@ezcounter/heartbeats';
 import type {
+  Heartbeat as CommonHeartbeat,
   HeartbeatService,
   HeartbeatSender,
+  HeartbeatListener,
 } from '@ezcounter/heartbeats/types';
 
 import { config } from '~/lib/config';
@@ -15,6 +21,7 @@ import { appLogger } from '~/lib/logger';
 import type { Heartbeat } from '~/models/heartbeat/types';
 
 import { version } from '~/../package.json' with { type: 'json' };
+import { dbPing } from './prisma';
 
 const { heartbeat: frequency } = config;
 
@@ -27,40 +34,37 @@ export const service: HeartbeatService = {
   filesystems: {
     logs: config.log.dir,
   },
+  connectedServices: {
+    database: mandatoryService('database', dbPing),
+  },
 };
 
 const services = new Map<string, Heartbeat>();
-let heartbeat: HeartbeatSender | undefined;
+let sender: HeartbeatSender | undefined;
+let listener: HeartbeatListener | undefined;
 
 export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
 
-/**
- * Init Heartbeats listener to track which services are up
- *
- * @param channel - The RabbitMQ channel
- */
-function initHeartbeatListener(channel: rabbitmq.Channel): void {
-  listenToHeartbeats(channel, logger, function onHeartbeat(beat) {
-    // If it's the same machine, then we can consider RabbitMQ as working
-    if (beat.hostname === nodeId) {
-      const now = new Date();
+function onHeartbeat(channel: rabbitmq.Channel, beat: CommonHeartbeat): void {
+  // If it's the same machine, then we can consider RabbitMQ as working
+  if (beat.hostname === nodeId) {
+    const now = new Date();
 
-      const { cluster_name, version } = channel.connection.serverProperties;
+    const { cluster_name, version } = channel.connection.serverProperties;
 
-      onHeartbeat({
-        service: 'rabbitmq',
-        hostname: cluster_name || 'rabbitmq',
-        version: version,
-        updatedAt: now,
-        nextAt: new Date(now.getTime() + frequency.self),
-      });
-    }
+    onHeartbeat(channel, {
+      service: 'rabbitmq',
+      hostname: cluster_name || 'rabbitmq',
+      version: version,
+      updatedAt: now,
+      nextAt: new Date(now.getTime() + frequency.self),
+    });
+  }
 
-    const { createdAt } = services.get(beat.hostname) ?? {
-      createdAt: new Date(),
-    };
-    services.set(`${beat.hostname}_${beat.service}`, { ...beat, createdAt });
-  });
+  const { createdAt } = services.get(beat.hostname) ?? {
+    createdAt: new Date(),
+  };
+  services.set(`${beat.hostname}_${beat.service}`, { ...beat, createdAt });
 }
 
 /**
@@ -76,10 +80,16 @@ export async function initHeartbeat(
   const channel = await connection.createChannel();
   logger.debug('Channel created');
 
-  heartbeat = setupHeartbeat(channel, service, logger, true, frequency);
-  initHeartbeatListener(channel);
+  sender = await setupHeartbeat(channel, logger, {
+    service,
+    frequency,
+    isRabbitMQMandatory: false,
+  });
 
-  heartbeat.send();
+  listener = listenToHeartbeats(channel, logger);
+
+  listener.on('heartbeat', (beat) => onHeartbeat(channel, beat));
+  sender.emit('send');
 
   logger.info({
     initDuration: process.uptime() - start,

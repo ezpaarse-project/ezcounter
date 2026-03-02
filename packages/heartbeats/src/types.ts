@@ -10,7 +10,7 @@ export const FileSystemUsage = z.object({
   available: z.int().min(-1).describe('Available space in bytes'),
 });
 
-export type FileSystemUsageType = z.infer<typeof FileSystemUsage>;
+export type FileSystemUsage = z.infer<typeof FileSystemUsage>;
 
 export const Heartbeat = z.object({
   service: z.string().min(1).describe('Service sending the heartbeat'),
@@ -30,10 +30,10 @@ export const Heartbeat = z.object({
   nextAt: z.coerce.date().describe('When the next heartbeat should happen'),
 });
 
-export type HeartbeatType = z.infer<typeof Heartbeat>;
+export type Heartbeat = z.infer<typeof Heartbeat>;
 
 export type HeartbeatConnectedServicePing = () => Promise<
-  Omit<HeartbeatType, 'nextAt' | 'updatedAt'>
+  Omit<Heartbeat, 'nextAt' | 'updatedAt'>
 >;
 
 export type HeartbeatService = {
@@ -43,9 +43,6 @@ export type HeartbeatService = {
   connectedServices?: Record<string, HeartbeatConnectedServicePing>;
 };
 
-export type { HeartbeatSender } from './HeartBeat/Sender';
-export type { HeartbeatListener } from './HeartBeat/Listener';
-
 export type HeartbeatFrequency = {
   self: number;
   connected: {
@@ -53,3 +50,7 @@ export type HeartbeatFrequency = {
     max: number;
   };
 };
+
+export { type HeartbeatSender } from './models/sender';
+
+export { type HeartbeatListener } from './models/listener';
