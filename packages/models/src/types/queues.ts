@@ -86,7 +86,7 @@ export const HarvestJobStatusEvent = z.object({
       progress: z
         .number()
         .min(0)
-        .max(0)
+        .max(1)
         .optional()
         .describe('Progress of download'),
     })

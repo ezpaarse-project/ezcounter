@@ -49,6 +49,10 @@ model HarvestJob {
   extract         Json             @default("{ \"done\": false }")
   /// When the harvest job was created/queued
   createdAt       DateTime         @default(now())
-  /// When the harvest hib was updated for the last time
+  /// When the harvest job was updated for the last time
   updatedAt       DateTime?        @updatedAt
+  /// When the harvest job was started
+  startedAt     DateTime?
+  /// Time harvest took
+  took            Int?
 }
