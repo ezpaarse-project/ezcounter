@@ -33,7 +33,7 @@ async function onMessage(
       data: process.env.NODE_ENV === 'production' ? undefined : raw,
       err: parseError,
     });
-    dispatchChannel.reject(msg);
+    dispatchChannel.reject(msg, false);
     return;
   }
 

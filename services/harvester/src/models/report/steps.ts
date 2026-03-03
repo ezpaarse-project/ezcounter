@@ -60,6 +60,12 @@ export async function cacheReportToFile(
   }
 }
 
+/**
+ * Shorthand to send exceptions found in report
+ *
+ * @param id - The job id
+ * @param exceptions - The exceptions found
+ */
 const sendExceptionsStatus = (
   id: string,
   exceptions: HarvestException[]
@@ -129,6 +135,12 @@ export async function getReportExceptions(
   }
 }
 
+/**
+ * Shorthand to send header found in report
+ *
+ * @param id - The job id
+ * @param registryId - The id of the registry found in header
+ */
 const sendHeaderStatus = (id: string, registryId: string | null): void =>
   sendHarvestJobStatusEvent({
     id,
@@ -185,6 +197,12 @@ export async function getReportHeader(
   }
 }
 
+/**
+ * Shorthand to send items count found in report
+ *
+ * @param id - The job id
+ * @param count - The count of items
+ */
 const sendItemsStatus = (id: string, count: number): void =>
   sendHarvestJobStatusEvent({
     id: id,
@@ -226,7 +244,7 @@ export async function queueReportItems(
     let count = 0;
     for await (const { item, parent } of reportItems) {
       // Send status every 2000 items
-      if (count % 2000 === 0) {
+      if (count > 0 && count % 2000 === 0) {
         sendItemsStatus(options.id, count);
       }
 

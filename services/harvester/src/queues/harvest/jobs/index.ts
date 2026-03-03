@@ -147,7 +147,7 @@ async function processHarvestMessage(
       data: process.env.NODE_ENV === 'production' ? undefined : raw,
       err: parseError,
     });
-    channel.reject(msg);
+    channel.reject(msg, false);
     return;
   }
 

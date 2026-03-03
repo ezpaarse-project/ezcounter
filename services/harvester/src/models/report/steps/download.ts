@@ -6,6 +6,7 @@ import chain from 'stream-chain';
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
 import { appLogger } from '~/lib/logger';
+import { waitForStreamEnd } from '~/lib/stream/utils';
 import {
   createWriteStream,
   createReadStream,
@@ -13,7 +14,6 @@ import {
   stat,
   mkdir,
 } from '~/lib/fs';
-import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import { fetchReportAsStream } from '~/models/data-host';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
@@ -30,6 +30,31 @@ type EventStreamData = {
 };
 
 /**
+ * Shorthand to send event that report is currently downloading
+ *
+ * @param id - The id of the job
+ * @param data - The data used to setup event stream
+ * @param progress - The current progress of stream
+ */
+const sendDownloadStatus = (
+  id: string,
+  data: EventStreamData,
+  progress: number
+): void =>
+  sendHarvestJobStatusEvent({
+    id,
+    current: 'download',
+    status: 'processing',
+    download: {
+      done: progress === 1,
+      source: data.source,
+      url: data.url,
+      httpCode: data.httpCode,
+      progress,
+    },
+  });
+
+/**
  * Create a stream that will send events about download
  *
  * @param id - The id of the job
@@ -43,43 +68,42 @@ function createEventStream(
   data: EventStreamData,
   timeout?: HarvestIdleTimeout
 ): PassThrough {
+  const expectedSize =
+    Number.isNaN(data.expectedSize) || data.expectedSize <= 0
+      ? null
+      : data.expectedSize;
+
+  let chunkCount = 0;
   let totalSize = 0;
   const stream = new PassThrough();
 
   // Send event on data
-  stream.on('data', (chunk) => {
-    totalSize += chunk.length;
+  stream.on('data', (chunk: Buffer) => {
     timeout?.tick();
+    chunkCount += 1;
+    totalSize += chunk.length;
 
-    sendHarvestJobStatusEvent({
-      id,
-      current: 'download',
-      status: 'processing',
-      download: {
-        done: false,
-        source: data.source,
-        url: data.url,
-        httpCode: data.httpCode,
-        progress:
-          Number.isNaN(data.expectedSize) && data.expectedSize > 0
-            ? 0
-            : totalSize / data.expectedSize,
-      },
-    });
+    let shouldNotify = false;
+    let progress = 0;
+
+    if (expectedSize) {
+      progress = totalSize / expectedSize;
+      // Notify every 10%
+      shouldNotify = 0 === Math.round(progress * 100) % 10;
+    } else {
+      // Notify every 1000 chunks
+      shouldNotify = 0 === chunkCount % 1000;
+    }
+
+    if (shouldNotify) {
+      sendDownloadStatus(id, data, progress);
+    }
   });
 
   // Send final event
   stream.on('end', () => {
     timeout?.tick();
-    sendHarvestJobStatusEvent({
-      id,
-      current: 'download',
-      status: 'processing',
-      download: {
-        done: true,
-        progress: 1,
-      },
-    });
+    sendDownloadStatus(id, data, 1);
   });
 
   return stream;

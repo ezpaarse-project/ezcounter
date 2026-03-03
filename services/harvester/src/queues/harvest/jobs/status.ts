@@ -3,7 +3,7 @@ import { sendJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
-const EXCHANGE_NAME = 'ezcounter.harvest:event';
+const EXCHANGE_NAME = 'ezcounter.harvest:status';
 
 const logger = appLogger.child({ scope: 'queues', exchange: EXCHANGE_NAME });
 
