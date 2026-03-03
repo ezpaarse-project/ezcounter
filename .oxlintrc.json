@@ -5,7 +5,7 @@
     "correctness": "error",
     "suspicious": "error",
     "pedantic": "warn",
-    "perf": "warn",
+    "perf": "warn"
   },
   "rules": {
     // Project is a TypeScript app, it should use ECMA imports
@@ -66,8 +66,8 @@
         "ignoreDefaultValues": true,
         "ignoreClassFieldInitialValues": true,
         "ignoreEnums": true,
-        "ignoreNumericLiteralTypes": true,
-      },
+        "ignoreNumericLiteralTypes": true
+      }
     ],
     "no-multi-assign": "error",
     "no-nested-ternary": "error",
@@ -119,7 +119,7 @@
     "unicorn/no-process-exit": "error",
     "unicorn/prefer-modern-math-apis": "error",
     "unicorn/prefer-node-protocol": "error",
-    "typescript/explicit-function-return-type": "warn",
+    "typescript/explicit-function-return-type": "warn"
   },
 
   "overrides": [
@@ -129,8 +129,8 @@
         // Tests files can have a lot of tests, and it's more readable to have only 1 test file per TS file
         "max-lines": "off",
         // Tests files can have a global `describe` to encapsulate
-        "max-lines-per-function": "off",
-      },
-    },
-  ],
+        "max-lines-per-function": "off"
+      }
+    }
+  ]
 }

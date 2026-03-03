@@ -1,4 +1,3 @@
-import { ensureArray } from '@ezcounter/models/lib/utils';
 import {
   createLogger,
   isPrettierInstalled,
@@ -12,7 +11,7 @@ const { level, dir, ignore } = config.log;
 
 const options: Omit<LoggerOptions, 'name'> = {
   pretty: isPrettierInstalled(import.meta.resolve),
-  ignore: ensureArray(ignore),
+  ignore: Array.isArray(ignore) ? ignore : [ignore],
   level: level as Level,
   dir,
 };

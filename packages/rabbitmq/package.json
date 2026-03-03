@@ -7,25 +7,17 @@
   "bugs": {
     "url": "https://github.com/ezpaarse-project/ezcounter/issues"
   },
+  "license": "CeCILL",
+  "author": "oxypomme",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
-  "license": "CeCILL",
-  "author": "oxypomme",
   "type": "module",
   "exports": "./src/index.ts",
   "scripts": {
     "lint": "oxlint",
     "type-check": "tsc --noEmit --skipLibCheck"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "oxlint --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
   },
   "dependencies": {
     "@ezcounter/logger": "workspace:*",
@@ -36,6 +28,15 @@
   "devDependencies": {
     "@types/amqplib": "^0.10.8",
     "typescript": "catalog:"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxlint --fix",
+      "oxfmt --no-error-on-unmatched-pattern"
+    ],
+    "package.json": [
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

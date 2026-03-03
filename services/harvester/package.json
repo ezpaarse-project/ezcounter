@@ -6,12 +6,12 @@
   "bugs": {
     "url": "https://github.com/ezpaarse-project/ezcounter/issues"
   },
+  "license": "CeCILL",
+  "author": "oxypomme",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
-  "license": "CeCILL",
-  "author": "oxypomme",
   "type": "module",
   "main": "src/app.ts",
   "scripts": {
@@ -22,14 +22,6 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "oxlint --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
-    ]
   },
   "dependencies": {
     "@ezcounter/config": "workspace:*",
@@ -55,6 +47,16 @@
     "pino-pretty": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "oxlint --fix",
+      "oxfmt --no-error-on-unmatched-pattern",
+      "oxfmt --no-error-on-unmatched-pattern"
+    ],
+    "package.json": [
+      "oxfmt --no-error-on-unmatched-pattern"
+    ]
   },
   "engines": {
     "node": "^24"

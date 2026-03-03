@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "noImplicitOverride": true,
-  },
+    "noImplicitOverride": true
+  }
 }
