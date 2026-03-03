@@ -2,6 +2,10 @@ include:
   - compose.yml
 
 services:
+  postgres:
+    ports:
+      - 5432:5432
+
   api:
     build:
       target: api-pnpm

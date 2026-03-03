@@ -119,6 +119,7 @@ export async function* extractReportItems(
     const ctx = { itemKey: item.key, parentKey: parent?.key };
     isItem(item.value, validateItem, ctx);
     isParent(parent?.value, validateParent, ctx);
+    hasItem = true;
 
     yield { item: item.value, parent: parent?.value };
   }

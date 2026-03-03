@@ -234,23 +234,25 @@ export async function queueReportItems(
       options.download,
       timeout?.signal
     );
-
-    logger.info({
-      msg: 'Extracting report items...',
-      id: options.id,
-    });
     timeout?.tick();
 
     let count = 0;
     for await (const { item, parent } of reportItems) {
+      count += 1;
       // Send status every 2000 items
-      if (count > 0 && count % 2000 === 0) {
+      if (count % 2000 === 0) {
         sendItemsStatus(options.id, count);
       }
 
       queueEnrichJob({ item, parent, header: report.header });
       timeout?.tick();
     }
+
+    logger.info({
+      msg: 'Extracted report items',
+      id: options.id,
+      count,
+    });
 
     // Send status with final count
     sendItemsStatus(options.id, count);

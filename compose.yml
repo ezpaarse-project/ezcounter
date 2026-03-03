@@ -1,6 +1,6 @@
 services:
   postgres:
-    container_name: postgres
+    container_name: ezcounter_postgres
     image: postgres:18.0-alpine3.22
     env_file:
       - .env
@@ -16,7 +16,7 @@ services:
       retries: 5
 
   rabbitmq:
-    container_name: rabbitmq
+    container_name: ezcounter_rabbitmq
     image: rabbitmq:4.1.4-alpine
     restart: unless-stopped
     volumes:
@@ -29,7 +29,7 @@ services:
       retries: 5
 
   redis:
-    container_name: redis
+    container_name: ezcounter_redis
     image: redis:8.4.0-alpine3.22
     restart: unless-stopped
     healthcheck:
@@ -39,7 +39,7 @@ services:
       retries: 5
 
   api:
-    container_name: api
+    container_name: ezcounter_api
     build:
       target: api
     env_file:
@@ -57,7 +57,7 @@ services:
     # Health check is built-in the image
 
   enricher:
-    container_name: enricher
+    container_name: ezcounter_enricher
     build:
       target: enricher
     env_file:
@@ -73,7 +73,7 @@ services:
     # Health check is built-in the image
 
   harvester:
-    container_name: harvester
+    container_name: ezcounter_harvester
     build:
       target: harvester
     env_file:
