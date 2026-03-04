@@ -77,6 +77,8 @@ export const HarvestJob = z.object({
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
 
+  took: z.int().min(0).nullable().describe('Time that harvesting took'),
+
   // Status of job
   status: HarvestJobStatusEvent.shape.status,
 

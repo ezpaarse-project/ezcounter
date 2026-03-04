@@ -1,0 +1,55 @@
+/**
+ * Limits function execution to occur at most once per specified time interval
+ *
+ * @param fnc - The function
+ * @param interval - Min interval between 2 calls
+ */
+export function createThrottledFunction<Args extends unknown[], Return>(
+  fnc: (...args: Args) => Return | Promise<Return>,
+  interval: number
+): (...args: Args) => Promise<Return> {
+  let nextArgs: Args | undefined;
+  let nextInvocation: Promise<Return> | undefined;
+  let delay: Promise<void> | undefined;
+
+  const setupDelay = async (promise: Promise<Return>): Promise<void> => {
+    try {
+      await promise;
+    } catch {
+      // We don't need error for delay
+    }
+
+    // Not using `node:timers/promise` cause it have issues with Vitest
+    // oxlint-disable-next-line promise/avoid-new
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, interval);
+    });
+  };
+
+  const handler = (): Promise<Return> => {
+    if (!nextArgs) {
+      return Promise.reject(new Error('args are undefined'));
+    }
+
+    nextInvocation = undefined;
+
+    // Wrapping in a promise to support sync and async functions
+    // oxlint-disable-next-line promise/prefer-await-to-then
+    const result = Promise.resolve(fnc(...nextArgs));
+    delay = setupDelay(result);
+
+    return result;
+  };
+
+  return (...args) => {
+    nextArgs = args;
+
+    if (!nextInvocation) {
+      // oxlint-disable-next-line promise/prefer-await-to-then
+      nextInvocation = (delay || Promise.resolve()).then(handler);
+    }
+    return nextInvocation;
+  };
+}

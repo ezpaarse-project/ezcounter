@@ -3,6 +3,7 @@ import type { rabbitmq } from '@ezcounter/rabbitmq';
 import { appLogger } from '~/lib/logger';
 
 import { getHarvestDispatchQueue } from './harvest/dispatch';
+import { getHarvestJobStatusEventExchange } from './harvest/jobs/status';
 
 const logger = appLogger.child({ scope: 'queues' });
 
@@ -17,10 +18,27 @@ async function initDispatchQueue(
   const channel = await connection.createChannel();
   logger.debug({
     msg: 'Channel created',
-    for: 'harvest.jobs:status',
+    for: 'harvest.dispatch',
   });
 
   await getHarvestDispatchQueue(channel);
+}
+
+/**
+ * Init Harvest Status events
+ *
+ * @param connection - The RabbitMQ connection
+ */
+async function initHarvestJobStatusExchange(
+  connection: rabbitmq.ChannelModel
+): Promise<void> {
+  const channel = await connection.createChannel();
+  logger.debug({
+    msg: 'Channel created',
+    for: 'harvest.jobs:status',
+  });
+
+  await getHarvestJobStatusEventExchange(channel);
 }
 
 /**
@@ -34,6 +52,7 @@ export async function initQueues(
   const start = process.uptime();
 
   await initDispatchQueue(connection);
+  await initHarvestJobStatusExchange(connection);
 
   logger.info({
     initDuration: process.uptime() - start,

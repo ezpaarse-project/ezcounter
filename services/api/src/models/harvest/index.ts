@@ -1,7 +1,7 @@
 import { addMonths, differenceInMonths, format, parse } from 'date-fns';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
-import type { Prisma } from '@ezcounter/database/types';
+import { HarvestJobStep, Prisma } from '@ezcounter/database/types';
 
 import { dbClient } from '~/lib/prisma';
 import { appLogger } from '~/lib/logger';
@@ -13,6 +13,7 @@ import {
 } from './types';
 
 const PERIOD_FORMAT = 'yyyy-MM';
+const JOB_STEPS = Object.keys(HarvestJobStep) as HarvestJobStep[];
 
 const logger = appLogger.child({ scope: 'models', model: 'harvest' });
 
@@ -22,17 +23,11 @@ const logger = appLogger.child({ scope: 'models', model: 'harvest' });
  * @returns The harvest jobs
  */
 export async function findAllHarvestJob(): Promise<HarvestJob[]> {
-  const jobs = await dbClient.harvestJob.findMany();
-
-  return jobs.map((job) => {
-    const { data, error } = HarvestJob.safeParse(job);
-    if (!data) {
-      throw new Error(`Failed to parse ${job.id}`, {
-        cause: error,
-      });
-    }
-    return data;
+  const jobs = await dbClient.harvestJob.findMany({
+    orderBy: [{ createdAt: 'desc' }, { startedAt: 'desc' }],
   });
+
+  return jobs.map((job) => HarvestJob.parse(job));
 }
 
 /**
@@ -51,15 +46,7 @@ export async function findManyHarvestJobById(
     },
   });
 
-  return jobs.map((job) => {
-    const { data, error } = HarvestJob.safeParse(job);
-    if (!data) {
-      throw new Error(`Failed to parse ${job.id}`, {
-        cause: error,
-      });
-    }
-    return data;
-  });
+  return jobs.map((job) => HarvestJob.parse(job));
 }
 
 /**
@@ -98,6 +85,56 @@ export async function createManyHarvestJob(
     msg: 'Created multiple harvests',
     count: items.length,
   });
+}
+
+/**
+ * Update one Harvest Job
+ *
+ * @param item - The data to update in harvest job
+ *
+ * @returns The full harvest job
+ */
+export async function updateOneHarvestJob(
+  item: Partial<HarvestJob> & { id: string }
+): Promise<HarvestJob> {
+  // Get job
+  const job = HarvestJob.parse(
+    await dbClient.harvestJob.findUniqueOrThrow({
+      where: { id: item.id },
+    })
+  );
+
+  // Prevent updates to ended jobs
+  if (job.status === 'done' || job.status === 'error') {
+    throw new Error(`Unable to update a job with status: ${job.status}`);
+  }
+
+  const input = { ...job, ...item };
+  // Check if have error or every step is completed
+  const completed =
+    input.error || JOB_STEPS.every((step) => input[step].done === true);
+  // Calculate time took to harvest
+  if (input.startedAt && completed) {
+    input.status = input.error ? 'error' : 'done';
+    input.took = Date.now() - input.startedAt.getTime();
+  }
+
+  // Update status
+  const updated = await dbClient.harvestJob.update({
+    where: { id: item.id },
+    data: {
+      ...input,
+      error: input.error || Prisma.DbNull,
+    },
+  });
+
+  logger.debug({
+    action: 'Updated',
+    msg: 'Updated harvest',
+    id: item.id,
+  });
+
+  return HarvestJob.parse(updated);
 }
 
 /**
