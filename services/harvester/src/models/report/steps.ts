@@ -94,6 +94,14 @@ export async function getReportExceptions(
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
 ): Promise<HarvestException[]> {
+  const exceptions: HarvestException[] = [];
+  if (report.httpCode) {
+    const httpException = asHarvestException(report.httpCode);
+    if (httpException) {
+      exceptions.push(httpException);
+    }
+  }
+
   try {
     const raw = await extractReportExceptions(
       report.path,
@@ -108,18 +116,7 @@ export async function getReportExceptions(
       count: raw.length,
     });
 
-    const exceptions = raw.map((ex) => asHarvestException(ex));
-    if (report.httpCode) {
-      const httpException = asHarvestException(report.httpCode);
-      if (httpException) {
-        exceptions.push(httpException);
-      }
-    }
-
-    timeout?.tick();
-    sendExceptionsStatus(options.id, exceptions);
-
-    return exceptions;
+    exceptions.push(...raw.map((ex) => asHarvestException(ex)));
   } catch (err) {
     logger.error({
       msg: 'Unable to extract exceptions',
@@ -131,8 +128,11 @@ export async function getReportExceptions(
       // Throw abort error if was aborted
       throw err;
     }
-    return [];
   }
+
+  timeout?.tick();
+  sendExceptionsStatus(options.id, exceptions);
+  return exceptions;
 }
 
 /**

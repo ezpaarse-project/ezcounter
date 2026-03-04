@@ -70,11 +70,7 @@ function handleExceptions(
     return null;
   }
 
-  throw new Error('Error exception found in report', {
-    cause: {
-      exceptions: errors,
-    },
-  });
+  throw errors[0];
 }
 
 /**
