@@ -66,11 +66,10 @@ function handleExceptions(
   }
 
   const errors = exceptions.filter(({ severity }) => severity === 'error');
-  if (errors.length <= 0) {
-    return null;
+  if (errors.length > 0) {
+    throw errors.at(-1);
   }
-
-  throw errors[0];
+  return null;
 }
 
 /**
