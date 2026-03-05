@@ -2,9 +2,9 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { HarvestJobData } from '@ezcounter/models/queues';
 import {
+  rabbitmq,
   parseJSONMessage,
   sendJSONMessage,
-  type rabbitmq,
 } from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
@@ -147,7 +147,7 @@ async function processHarvestMessage(
       data: process.env.NODE_ENV === 'production' ? undefined : raw,
       err: parseError,
     });
-    channel.reject(msg, false);
+    rabbitmq.rejectMessage(channel, msg, false);
     return;
   }
 
@@ -177,7 +177,7 @@ async function processHarvestMessage(
     });
   }
   // Acknowledge message as it was successfully processed
-  channel.ack(msg);
+  rabbitmq.ackMessage(channel, msg);
 }
 
 /**
@@ -200,7 +200,7 @@ async function deleteHarvestQueue(
 
   try {
     // Delete queue - ifEmpty will close channel if there's still jobs
-    await channel.deleteQueue(queueName, {
+    await rabbitmq.deleteQueue(channel, queueName, {
       ifEmpty: true,
     });
 
@@ -233,7 +233,7 @@ export async function proccessHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
 ): Promise<void> {
-  const { queue } = await channel.assertQueue(queueName, {
+  const { queue } = await rabbitmq.assertQueue(channel, queueName, {
     durable: false,
   });
 
@@ -248,7 +248,7 @@ export async function proccessHarvestQueue(
     await sleep(detachDelay);
 
     // Get last message
-    const msg = await channel.get(queue);
+    const msg = await rabbitmq.getMessage(channel, queue);
     if (msg) {
       await processHarvestMessage(channel, msg, queueName);
       continue;

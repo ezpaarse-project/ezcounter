@@ -1,8 +1,8 @@
 import type { Logger } from '@ezcounter/logger';
-import type {
+import {
   rabbitmq,
-  JSONMessageTransport,
-  JSONMessageTransportExchange,
+  type JSONMessageTransport,
+  type JSONMessageTransportExchange,
 } from '@ezcounter/rabbitmq';
 
 import type { HeartbeatConnectedServicePing, Heartbeat } from '../types';
@@ -61,7 +61,8 @@ export async function assertTransport(
   isRabbitMQMandatory = false
 ): Promise<HeartbeatTransport> {
   try {
-    const { exchange } = await channel.assertExchange(
+    const { exchange } = await rabbitmq.assertExchange(
+      channel,
       'ezreeport.heartbeat',
       'fanout',
       { durable: false }

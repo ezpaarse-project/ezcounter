@@ -1,4 +1,4 @@
-import type { rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -16,7 +16,7 @@ const logger = appLogger.child({ scope: 'queues' });
 async function initEnrichQueue(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {
-  const channel = await connection.createChannel();
+  const channel = await rabbitmq.createChannel(connection);
   logger.debug({
     msg: 'Channel created',
     for: 'enrich.jobs',
@@ -33,7 +33,7 @@ async function initEnrichQueue(
 async function initJobsStatusExchange(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {
-  const channel = await connection.createChannel();
+  const channel = await rabbitmq.createChannel(connection);
   logger.debug({
     msg: 'Channel created',
     for: 'harvest.jobs:status',
@@ -50,18 +50,18 @@ async function initJobsStatusExchange(
 async function initDispatchQueue(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {
-  const dispatchChannel = await connection.createChannel();
+  const dispatchChannel = await rabbitmq.createChannel(connection);
   // Handle one harvest dispatch at the time
-  await dispatchChannel.prefetch(1);
+  await rabbitmq.setPrefetchCount(dispatchChannel, 1);
   logger.debug({
     msg: 'Channel created',
     prefetch: 1,
     for: 'harvest.dispatch',
   });
 
-  const jobsChannel = await connection.createChannel();
+  const jobsChannel = await rabbitmq.createChannel(connection);
   // Handle one harvest jobs at the time
-  await jobsChannel.prefetch(1);
+  await rabbitmq.setPrefetchCount(jobsChannel, 1);
   logger.debug({
     msg: 'Channel created',
     prefetch: 1,

@@ -6,7 +6,7 @@ import type {
   HarvestJobData,
 } from '@ezcounter/models/queues';
 import { asHarvestError } from '@ezcounter/models/lib/harvest';
-import { sendJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { sendJSONMessage, rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -27,7 +27,7 @@ export async function getHarvestDispatchQueue(
 ): Promise<void> {
   channel = chan;
 
-  await chan.assertQueue(QUEUE_NAME, { durable: false });
+  await rabbitmq.assertQueue(chan, QUEUE_NAME, { durable: false });
   logger.debug('Harvest dispatch queue created');
 }
 
@@ -78,7 +78,8 @@ async function ensureDataHostQueues(
       hostNames.map(async (host): Promise<[string, HarvestQueueInfo]> => {
         const queue = getDataHostQueueName(host);
         try {
-          const { consumerCount, messageCount } = await channel!.assertQueue(
+          const { consumerCount, messageCount } = await rabbitmq.assertQueue(
+            channel!,
             queue,
             { durable: false }
           );
@@ -171,6 +172,7 @@ async function sendDispatchEvent(
       { channel, queue: { name: QUEUE_NAME } },
       { queueName: queue.name }
     );
+
     logger.debug({
       msg: 'Queued harvest dispatch',
       size,
@@ -185,7 +187,7 @@ async function sendDispatchEvent(
       err,
     });
 
-    await channel.deleteQueue(queue.name);
+    await rabbitmq.deleteQueue(channel, queue.name);
 
     const error = asHarvestError(err);
     return { error };

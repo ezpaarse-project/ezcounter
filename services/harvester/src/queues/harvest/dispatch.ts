@@ -1,5 +1,5 @@
 import { HarvestDispatchData } from '@ezcounter/models/queues';
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq, consumeJSONQueue } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -12,31 +12,13 @@ const logger = appLogger.child({ scope: 'queues', queue: QUEUE_NAME });
 /**
  * Process Harvest dispatch
  *
- * @param dispatchChannel - The RabbitMQ channel for dispatch messages
+ * @param data - The dispatch event
  * @param jobsChannel - The RabbitMQ channel for jobs messages
- * @param msg - The message
  */
-async function onMessage(
-  dispatchChannel: rabbitmq.Channel,
-  jobsChannel: rabbitmq.Channel,
-  msg: rabbitmq.ConsumeMessage | null
+async function onHarvestDispatch(
+  data: HarvestDispatchData,
+  jobsChannel: rabbitmq.Channel
 ): Promise<void> {
-  if (!msg) {
-    return;
-  }
-
-  // Parse message
-  const { data, raw, parseError } = parseJSONMessage(msg, HarvestDispatchData);
-  if (!data) {
-    logger.error({
-      msg: 'Invalid data',
-      data: process.env.NODE_ENV === 'production' ? undefined : raw,
-      err: parseError,
-    });
-    dispatchChannel.reject(msg, false);
-    return;
-  }
-
   // Wait for all harvest jobs in queue to be processed
   try {
     await proccessHarvestQueue(jobsChannel, data.queueName);
@@ -46,9 +28,6 @@ async function onMessage(
       err,
     });
   }
-
-  // Acknowledge message as all jobs are complete
-  dispatchChannel.ack(msg);
 }
 
 /**
@@ -61,14 +40,18 @@ export async function getHarvestDispatchQueue(
   dispatchChannel: rabbitmq.Channel,
   jobsChannel: rabbitmq.Channel
 ): Promise<void> {
-  const { queue } = await dispatchChannel.assertQueue(QUEUE_NAME, {
+  await rabbitmq.assertQueue(dispatchChannel, QUEUE_NAME, {
     durable: false,
   });
 
   // Consume harvest queue
-  dispatchChannel.consume(queue, (msg) =>
-    onMessage(dispatchChannel, jobsChannel, msg)
-  );
+  await consumeJSONQueue({
+    channel: dispatchChannel,
+    queue: QUEUE_NAME,
+    logger,
+    schema: HarvestDispatchData,
+    onMessage: (data) => onHarvestDispatch(data, jobsChannel),
+  });
 
   logger.debug('Harvest dispatch queue created');
 }

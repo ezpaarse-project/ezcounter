@@ -1,4 +1,4 @@
-import { sendJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -17,7 +17,7 @@ let channel: rabbitmq.Channel | undefined;
 export async function getEnrichJobQueue(chan: rabbitmq.Channel): Promise<void> {
   channel = chan;
 
-  await chan.assertQueue(QUEUE_NAME, { durable: false });
+  await rabbitmq.assertQueue(chan, QUEUE_NAME, { durable: false });
   logger.debug('Enrich queue created');
 }
 

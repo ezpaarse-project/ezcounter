@@ -1,4 +1,4 @@
-import type { rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -15,7 +15,7 @@ const logger = appLogger.child({ scope: 'queues' });
 async function initDispatchQueue(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {
-  const channel = await connection.createChannel();
+  const channel = await rabbitmq.createChannel(connection);
   logger.debug({
     msg: 'Channel created',
     for: 'harvest.dispatch',
@@ -32,7 +32,7 @@ async function initDispatchQueue(
 async function initHarvestJobStatusExchange(
   connection: rabbitmq.ChannelModel
 ): Promise<void> {
-  const channel = await connection.createChannel();
+  const channel = await rabbitmq.createChannel(connection);
   logger.debug({
     msg: 'Channel created',
     for: 'harvest.jobs:status',

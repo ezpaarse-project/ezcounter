@@ -1,5 +1,5 @@
 import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
-import { sendJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -20,7 +20,9 @@ export async function getHarvestJobStatusEventExchange(
 ): Promise<void> {
   channel = chan;
 
-  await chan.assertExchange(EXCHANGE_NAME, 'fanout', { durable: false });
+  await rabbitmq.assertExchange(chan, EXCHANGE_NAME, 'fanout', {
+    durable: false,
+  });
   logger.debug('Event exchange created');
 }
 

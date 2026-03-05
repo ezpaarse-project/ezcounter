@@ -1,6 +1,6 @@
 import { createThrottledFunction } from '@ezcounter/models/lib/utils';
 import { HarvestJobStatusEvent } from '@ezcounter/models/queues';
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
@@ -74,32 +74,9 @@ async function updateHarvestJobStatus(
  *
  * Throttle updates per harvest job
  *
- * @param channel - The RabbitMQ channel
- * @param msg - The message
+ * @param data - The event
  */
-function onMessage(
-  channel: rabbitmq.Channel,
-  msg: rabbitmq.ConsumeMessage | null
-): void {
-  if (!msg) {
-    return;
-  }
-
-  // Parse message
-  const { data, raw, parseError } = parseJSONMessage(
-    msg,
-    HarvestJobStatusEvent
-  );
-  if (!data) {
-    logger.error({
-      msg: 'Invalid data',
-      data: process.env.NODE_ENV === 'production' ? undefined : raw,
-      err: parseError,
-    });
-    channel.reject(msg, false);
-    return;
-  }
-
+function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
   // Merge new status with previous updates
   let event = data;
   const previous = patchs.get(data.id);
@@ -116,7 +93,6 @@ function onMessage(
   }
 
   update(event);
-  channel.ack(msg);
 }
 
 /**
@@ -127,15 +103,23 @@ function onMessage(
 export async function getHarvestJobStatusEventExchange(
   channel: rabbitmq.Channel
 ): Promise<void> {
-  await channel.assertExchange(EXCHANGE_NAME, 'fanout', { durable: false });
-
-  const { queue } = await channel.assertQueue('', {
+  await rabbitmq.assertExchange(channel, EXCHANGE_NAME, 'fanout', {
     durable: false,
   });
-  channel.bindQueue(queue, EXCHANGE_NAME, '');
+
+  const { queue } = await rabbitmq.assertQueue(channel, '', {
+    durable: false,
+  });
+  rabbitmq.bindQueueToExchange(channel, queue, EXCHANGE_NAME, '');
 
   // Consume harvest queue
-  channel.consume(queue, (msg) => onMessage(channel, msg));
+  await consumeJSONQueue({
+    channel,
+    queue,
+    logger,
+    schema: HarvestJobStatusEvent,
+    onMessage: (data) => onHarvestJobStatus(data),
+  });
 
   logger.debug('Harvest status queue created');
 }

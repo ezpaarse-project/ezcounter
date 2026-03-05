@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 
 import type { Logger } from '@ezcounter/logger';
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
 
 import { Heartbeat } from '../types';
 import { assertTransport } from './utils';
@@ -28,33 +28,28 @@ export async function listenToHeartbeats(
     isRabbitMQMandatory
   );
 
-  const { queue } = await channel.assertQueue('', { exclusive: true });
-
-  await channel.bindQueue(queue, exchange.name, exchange.routingKey);
-  await channel.consume(
+  const { queue } = await rabbitmq.assertQueue(channel, '', {
+    exclusive: true,
+  });
+  await rabbitmq.bindQueueToExchange(
+    channel,
     queue,
-    (msg) => {
-      if (!msg) {
-        return;
-      }
+    exchange.name,
+    exchange.routingKey
+  );
 
-      // Parse message
-      const { data, raw, parseError } = parseJSONMessage(msg, Heartbeat);
-      if (!data) {
-        logger.error({
-          msg: 'Invalid data',
-          data: process.env.NODE_ENV === 'production' ? undefined : raw,
-          err: parseError,
-        });
-        return;
-      }
-
+  await consumeJSONQueue({
+    channel,
+    queue,
+    logger,
+    schema: Heartbeat,
+    onMessage: (data) => {
       listener.emit('heartbeat', data);
     },
-    {
+    options: {
       noAck: true,
-    }
-  );
+    },
+  });
 }
 
 /**

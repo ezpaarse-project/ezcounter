@@ -1,10 +1,13 @@
 import { setTimeout } from 'node:timers/promises';
 
-// oxlint-disable-next-line id-length
-import type { z } from 'zod';
 import amqp from 'amqplib';
 
 import type { Logger } from '@ezcounter/logger';
+
+import { closeConnection } from './wrapper';
+
+export * as rabbitmq from './wrapper';
+export * from './json-messages';
 
 /**
  * Attempts to connect to RabbitMQ, reconnecting on failure
@@ -34,6 +37,13 @@ async function connectToRabbitMQ(
   }
 }
 
+/**
+ * Initialize RabbitMQ connection
+ *
+ * @param connectOpts - The options to connect to RabbitMQ
+ * @param useRabbitMQ - The callback to use the RabbitMQ connection
+ * @param logger - The logger
+ */
 export function setupRabbitMQ(
   connectOpts: amqp.Options.Connect,
   useRabbitMQ: (connection: amqp.ChannelModel) => Promise<void>,
@@ -55,7 +65,7 @@ export function setupRabbitMQ(
     const gracefullyStop = async (): Promise<void> => {
       stopping = true;
       try {
-        await connection.close();
+        await closeConnection(connection);
         logger.debug('Connection closed');
       } catch (err) {
         logger.error({ msg: 'Failed to close connection', err });
@@ -82,83 +92,3 @@ export function setupRabbitMQ(
 
   return init();
 }
-
-export type JSONMessageTransportQueue = {
-  /** Queue to use to send message */
-  queue: {
-    name: string;
-  };
-};
-
-export type JSONMessageTransportExchange = {
-  /** Exchange to use to send message */
-  exchange: {
-    name: string;
-    routingKey: string;
-  };
-};
-
-export type JSONMessageTransport<
-  TransportType extends
-    | JSONMessageTransportQueue
-    | JSONMessageTransportExchange,
-> = {
-  /** Channel used for connection */
-  channel: amqp.Channel;
-} & TransportType;
-
-/**
- * Shorthand to send data as JSON to a queue or exchange
- *
- * @param transport Transport options
- * @param content The data
- * @param options The options
- *
- * @returns Information about data
- */
-export function sendJSONMessage<DataType>(
-  transport: JSONMessageTransport<
-    JSONMessageTransportQueue | JSONMessageTransportExchange
-  >,
-  content: DataType,
-  opts?: Omit<amqp.Options.Publish, 'contentType'>
-): { sent: boolean; size: number } {
-  const options: amqp.Options.Publish = {
-    ...opts,
-    contentType: 'application/json',
-  };
-
-  const buf = Buffer.from(JSON.stringify(content));
-
-  let sent = false;
-  if ('queue' in transport) {
-    const { name } = transport.queue;
-    sent = transport.channel.sendToQueue(name, buf, options);
-  }
-  if ('exchange' in transport) {
-    const { name, routingKey } = transport.exchange;
-    sent = transport.channel.publish(name, routingKey, buf, options);
-  }
-
-  return { sent, size: buf.byteLength };
-}
-
-/**
- * Shorthand to parse JSON data from a message
- *
- * @param msg The message
- * @param schema The schema
- *
- * @returns The parsed data
- */
-export function parseJSONMessage<DataType>(
-  msg: amqp.Message,
-  schema: z.ZodSchema<DataType>
-): { data?: DataType; raw: unknown; parseError?: z.ZodError<DataType> } {
-  const raw = JSON.parse(msg.content.toString());
-
-  const { error, data } = schema.safeParse(raw);
-  return { data, raw, parseError: error };
-}
-
-export * as rabbitmq from 'amqplib';
