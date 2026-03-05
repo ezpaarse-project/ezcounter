@@ -45,23 +45,16 @@ const UNAVAILABLE_CODES = new Set(
 /**
  * Handle various exceptions that were found in report
  *
- * @param options - The options to harvest
- *
  * @returns Information about harvest and future actions that need to be done. `null` if nothing to be done
  */
-function handleExceptions(
-  options: HarvestJobData,
+export function handleExceptions(
   exceptions: HarvestException[]
 ): HarvestResult | null {
   if (exceptions.some(({ code }) => PROCESSING_CODES.has(code))) {
-    // Force download of a new report
-    options.download.forceDownload = true;
     return { success: false, processing: true };
   }
 
   if (exceptions.some(({ code }) => UNAVAILABLE_CODES.has(code))) {
-    // Force download of a new report
-    options.download.forceDownload = true;
     return { success: false, unavailable: true };
   }
 
@@ -80,12 +73,23 @@ function handleExceptions(
  * @returns The path to file
  */
 function getReportPath({
+  id,
   download: { cacheKey, report },
 }: HarvestJobData): string {
   const release = report.release.replaceAll('.', '');
   const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
 
-  return resolve(config.download.dir, `${cacheKey}/${report.id}/${filename}`);
+  const reportPath = resolve(
+    config.download.dir,
+    `${cacheKey}/${report.id}/${filename}`
+  );
+  logger.debug({
+    msg: 'Resolved report path',
+    id,
+    reportPath,
+  });
+
+  return reportPath;
 }
 
 /**
@@ -142,21 +146,21 @@ function markHarvestAsSuccess(options: HarvestJobData): HarvestResult {
 }
 
 /**
- * Reharvest if report is coming from archive, mark as error if not
+ * Re-harvest if report is coming from archive, mark as error if not
  *
  * @param report - Information about report
  * @param report.path - The path to the report
  * @param report.cache - How report was sourced
  * @param options - Options to harvest
- * @param err - Error that occured
+ * @param err - Error that occurred
  *
- * @returns Information about harvest and future actions that need to be done
+ * @returns Information about harvest and future actions that need to be done - or null if need to reharvest
  */
-async function reharvestOrError(
+export function reharvestOrError(
   report: { path: string; cache: CacheResult },
   options: HarvestJobData,
   err: unknown
-): Promise<HarvestResult> {
+): HarvestResult | null {
   if (report.cache.source === 'remote') {
     logger.error({
       msg: 'Error occurred after downloading report',
@@ -164,19 +168,16 @@ async function reharvestOrError(
       err,
     });
 
-    await archiveReportToFile(report.path, options);
-
     return markHarvestAsError(options, asHarvestError(err));
   }
 
+  options.download.forceDownload = true;
   logger.error({
     msg: 'Unable to use cache to harvest, re-downloading report',
     id: options.id,
     err,
   });
-
-  options.download.forceDownload = true;
-  return harvestReport(options);
+  return null;
 }
 
 /**
@@ -192,11 +193,6 @@ export async function harvestReport(
   const timeout = new HarvestIdleTimeout(options.download.timeout);
 
   const reportPath = getReportPath(options);
-  logger.debug({
-    msg: 'Resolved report path',
-    id: options.id,
-    reportPath,
-  });
   timeout.tick();
 
   let cache;
@@ -214,25 +210,30 @@ export async function harvestReport(
       timeout
     );
 
-    const harvestResult = handleExceptions(options, exceptions);
+    const harvestResult = handleExceptions(exceptions);
     if (harvestResult) {
       timeout.clear();
       return harvestResult;
     }
 
     const reportHeader = await getReportHeader(reportPath, options, timeout);
-
     await queueReportItems(
       { path: reportPath, header: reportHeader },
       options,
       timeout
     );
-  } catch (err) {
-    timeout.clear();
-    return reharvestOrError({ path: reportPath, cache }, options, err);
-  }
 
-  await archiveReportToFile(reportPath, options, timeout);
-  timeout.clear();
-  return markHarvestAsSuccess(options);
+    return markHarvestAsSuccess(options);
+  } catch (err) {
+    const harvestResult = reharvestOrError(
+      { path: reportPath, cache },
+      options,
+      err
+    );
+
+    return harvestResult || harvestReport(options);
+  } finally {
+    timeout.clear();
+    await archiveReportToFile(reportPath, options, timeout);
+  }
 }

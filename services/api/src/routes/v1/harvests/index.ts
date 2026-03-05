@@ -7,13 +7,14 @@ import { z } from '@ezcounter/models/lib/zod';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
+import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
 import {
   createManyHarvestJob,
   failManyHarvestJob,
+  findAllHarvestJob,
   findManyHarvestJobById,
   splitPeriodByMonths,
 } from '~/models/harvest';
-import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';
 
@@ -24,6 +25,21 @@ import {
 } from '~/routes/v1/responses';
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.route({
+    method: 'GET',
+    url: '/',
+    schema: {
+      summary: 'Get harvest jobs',
+      tags: ['harvest'],
+      response: {
+        ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
+        [StatusCodes.OK]: describeSuccess(z.array(HarvestJob)),
+      },
+    },
+    handler: async (request, reply) =>
+      buildResponse(reply, await findAllHarvestJob()),
+  });
+
   fastify.route({
     method: 'POST',
     url: '/_bulk',
@@ -56,17 +72,14 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
           for (const period of parts) {
             jobs.push({
               ...harvestOpts,
-
+              id: randomUUID(),
               download: {
                 ...downloadOpts,
-
                 report: {
                   ...reportOpts,
                   period,
                 },
               },
-
-              id: randomUUID(),
             });
           }
         }

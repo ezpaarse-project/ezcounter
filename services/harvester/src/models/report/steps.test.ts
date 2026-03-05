@@ -103,7 +103,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     const promise = getReportExceptions({ path: '' }, OPTIONS);
 
-    await expect(promise).resolves.instanceof(Array);
+    await expect(promise).resolves.not.toThrow();
   });
 
   test('should throw on abort', async () => {

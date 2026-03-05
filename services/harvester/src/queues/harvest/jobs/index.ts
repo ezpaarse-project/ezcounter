@@ -162,6 +162,8 @@ async function processHarvestMessage(
 
   // We need to requeue report and we have enough tries left
   if ((result.processing || result.unavailable) && data.try < maxTries) {
+    // Force download of a new report
+    data.download.forceDownload = true;
     // Mark job as delayed - It'll be picked up later
     markHarvestJobAsDelayed(data, queueName);
     // Requeue job

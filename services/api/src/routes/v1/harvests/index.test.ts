@@ -4,6 +4,7 @@ import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
 
 import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';
 import {
+  findAllHarvestJob,
   findManyHarvestJobById,
   createManyHarvestJob,
 } from '~/models/harvest/__mocks__';
@@ -25,6 +26,22 @@ const server = await createTestServer(async (fastify) => {
 beforeEach(() => {
   // Clear function history
   vi.clearAllMocks();
+});
+
+describe('GET /harvests', () => {
+  test('should return array of statuses', async () => {
+    findAllHarvestJob.mockResolvedValue([]);
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/',
+    });
+
+    const { content } = response.json<SuccessResponse<HarvestJobStatusEvent>>();
+
+    expect(findAllHarvestJob).toBeCalledTimes(1);
+    expect(content).toBeInstanceOf(Array);
+  });
 });
 
 describe('POST /harvests/_bulk', () => {
