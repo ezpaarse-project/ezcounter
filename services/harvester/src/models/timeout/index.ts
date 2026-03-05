@@ -37,4 +37,12 @@ export class HarvestIdleTimeout {
       this.controller.abort(`Timeout of ${this.delay}ms exceeded`);
     }, this.delay);
   }
+
+  /**
+   * Forcefully abort timeout
+   */
+  abort(reason?: string): void {
+    this.clear();
+    this.controller.abort(reason);
+  }
 }

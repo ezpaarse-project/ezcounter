@@ -14,6 +14,7 @@ describe('COUNTER 5', () => {
       release: '5',
     },
   };
+
   describe('Report Items (extractReportItems)', () => {
     test('should return iterator', async () => {
       const options = {

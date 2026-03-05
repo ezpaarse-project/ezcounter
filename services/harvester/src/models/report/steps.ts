@@ -130,7 +130,6 @@ export async function getReportExceptions(
     }
   }
 
-  timeout?.tick();
   sendExceptionsStatus(options.id, exceptions);
   return exceptions;
 }
@@ -176,13 +175,13 @@ export async function getReportHeader(
 
     const registryId = extractRegistryId(header);
 
+    timeout?.tick();
     logger.info({
       msg: 'Extracted report header',
       id: options.id,
       registryId,
     });
 
-    timeout?.tick();
     sendHeaderStatus(options.id, registryId);
 
     return header;

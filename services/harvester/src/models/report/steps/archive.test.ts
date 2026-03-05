@@ -10,10 +10,16 @@ import {
 } from '~/lib/__mocks__/fs';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
+
 import { archiveReport } from './archive';
 
 // Mocking unzip
 vi.mock(import('node:zlib'));
+
+beforeEach(() => {
+  // Clear function history
+  vi.clearAllMocks();
+});
 
 describe('Archive report (archiveReport)', () => {
   const OPTIONS: HarvestDownloadOptions = {
@@ -25,11 +31,6 @@ describe('Archive report (archiveReport)', () => {
       release: '5.1',
     },
   };
-
-  beforeEach(() => {
-    // Clear function history
-    vi.clearAllMocks();
-  });
 
   describe("archive doesn't exists", () => {
     const REPORT = { id: '', path: '/examples/5.1/ir/invalid_item.json' };

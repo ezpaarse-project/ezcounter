@@ -55,6 +55,14 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
     expect(timeout.signal.aborted).toBe(false);
   });
 
+  test('should be able to abort manually', () => {
+    const timeout = new HarvestIdleTimeout();
+
+    timeout.abort();
+
+    expect(timeout.signal.aborted).toBe(true);
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });

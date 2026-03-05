@@ -1,3 +1,6 @@
 import { vi } from 'vitest';
 
-export const sendHarvestJobStatusEvent = vi.fn();
+import type { sendHarvestJobStatusEvent as originalSendHarvestJobStatusEvent } from '../status';
+
+export const sendHarvestJobStatusEvent =
+  vi.fn<typeof originalSendHarvestJobStatusEvent>();

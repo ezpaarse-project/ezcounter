@@ -2,16 +2,11 @@ import { Readable, addAbortSignal } from 'node:stream';
 
 import { vi } from 'vitest';
 
-export const fetchReportAsStream = vi.fn().mockImplementation(
-  (
-    _options,
-    signal?: AbortSignal
-  ): Promise<{
-    url: string;
-    httpCode: number;
-    expectedSize: number;
-    data: Readable;
-  }> => {
+import type { fetchReportAsStream as originalFetchReportAsStream } from '..';
+
+export const fetchReportAsStream = vi
+  .fn<typeof originalFetchReportAsStream>()
+  .mockImplementation((_options, signal) => {
     // oxlint-disable-next-line no-empty-function
     const stream = new Readable({ read: (): void => {} });
     stream.push(null);
@@ -27,5 +22,4 @@ export const fetchReportAsStream = vi.fn().mockImplementation(
       expectedSize: 0,
       data: stream,
     });
-  }
-);
+  });

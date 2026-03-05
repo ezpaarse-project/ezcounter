@@ -28,12 +28,12 @@ const OPTIONS: HarvestDownloadOptions = {
   },
 };
 
-describe('Cache report (cacheReport)', () => {
-  beforeEach(() => {
-    // Clear function history
-    vi.clearAllMocks();
-  });
+beforeEach(() => {
+  // Clear function history
+  vi.clearAllMocks();
+});
 
+describe('Cache report (cacheReport)', () => {
   describe('file exists', () => {
     const REPORT = { id: '', path: '/examples/5.1/ir/valid.json' };
 
