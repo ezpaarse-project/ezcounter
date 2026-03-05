@@ -1,5 +1,5 @@
-import { vi } from 'vitest';
 import { fs } from 'memfs';
+import { vi } from 'vitest';
 
 export const createWriteStream = vi
   .fn()

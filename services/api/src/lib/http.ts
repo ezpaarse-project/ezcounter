@@ -1,11 +1,11 @@
+import fastifyCors from '@fastify/cors';
 import createFastify, {
   type FastifyInstance,
   type FastifyPluginAsync,
 } from 'fastify';
-import fastifyCors from '@fastify/cors';
 
-import { appLogger } from '~/lib/logger';
 import { config } from '~/lib/config';
+import { appLogger } from '~/lib/logger';
 
 import { loggerPlugin } from '~/plugins/logger';
 

@@ -1,15 +1,9 @@
-import { hostname } from 'node:os';
-import { statfs } from 'node:fs/promises';
 import { EventEmitter } from 'node:events';
+import { statfs } from 'node:fs/promises';
+import { hostname } from 'node:os';
 
 import type { Logger } from '@ezcounter/logger';
 import { type rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
-
-import {
-  doPingWithTimeout,
-  assertTransport,
-  type HeartbeatTransport,
-} from './utils';
 
 import type {
   FileSystemUsage,
@@ -18,6 +12,11 @@ import type {
   HeartbeatFrequency,
   HeartbeatConnectedServicePing,
 } from '../types';
+import {
+  doPingWithTimeout,
+  assertTransport,
+  type HeartbeatTransport,
+} from './utils';
 
 export type HeartbeatSender = EventEmitter<{
   send: [];

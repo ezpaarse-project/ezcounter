@@ -1,5 +1,5 @@
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 import { HarvestDispatchData } from '@ezcounter/models/queues';
+import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 

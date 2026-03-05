@@ -1,5 +1,4 @@
 import { setupConfig } from '@ezcounter/config';
-
 import { logLevels } from '@ezcounter/logger';
 
 import type defaultConfig from '../../config/default.json';

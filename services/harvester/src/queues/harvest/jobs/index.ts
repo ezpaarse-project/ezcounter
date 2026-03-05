@@ -7,8 +7,8 @@ import {
   type rabbitmq,
 } from '@ezcounter/rabbitmq';
 
-import { appLogger } from '~/lib/logger';
 import { config } from '~/lib/config';
+import { appLogger } from '~/lib/logger';
 
 import { harvestReport } from '~/models/report';
 

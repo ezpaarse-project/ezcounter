@@ -1,8 +1,7 @@
-import { z } from '@ezcounter/models/lib/zod';
-
 // oxlint-disable import/no-namespace
 import * as r5 from '@ezcounter/models/counter/r5';
 import * as r51 from '@ezcounter/models/counter/r51';
+import { z } from '@ezcounter/models/lib/zod';
 // oxlint-enable import/no-namespace
 
 /**

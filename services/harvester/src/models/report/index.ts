@@ -3,12 +3,12 @@ import { resolve } from 'node:path';
 import type { HarvestError, HarvestException } from '@ezcounter/models/harvest';
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
-import { appLogger } from '~/lib/logger';
 import { config } from '~/lib/config';
-
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
+import { appLogger } from '~/lib/logger';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
+
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import type { CacheResult } from './steps/download';
 import { asHarvestError, CounterCodes } from './exceptions';

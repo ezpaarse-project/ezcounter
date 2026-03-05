@@ -1,12 +1,11 @@
-import { createGunzip } from 'node:zlib';
-import { PassThrough } from 'node:stream';
 import { dirname } from 'node:path';
+import { PassThrough } from 'node:stream';
+import { createGunzip } from 'node:zlib';
+
 import chain from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
-import { appLogger } from '~/lib/logger';
-import { waitForStreamEnd } from '~/lib/stream/utils';
 import {
   createWriteStream,
   createReadStream,
@@ -14,11 +13,13 @@ import {
   stat,
   mkdir,
 } from '~/lib/fs';
-
-import { fetchReportAsStream } from '~/models/data-host';
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
+import { appLogger } from '~/lib/logger';
+import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { HarvestIdleTimeout } from '~/models/timeout';
+import { fetchReportAsStream } from '~/models/data-host';
+
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 const logger = appLogger.child({ scope: 'reports' });
 

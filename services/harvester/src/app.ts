@@ -1,8 +1,8 @@
-import { appLogger } from '~/lib/logger';
 import { config } from '~/lib/config';
-import { initHTTPServer } from '~/lib/http';
-import { useRabbitMQ } from '~/lib/rabbitmq';
 import { initHeartbeat, getMissingMandatoryServices } from '~/lib/heartbeat';
+import { initHTTPServer } from '~/lib/http';
+import { appLogger } from '~/lib/logger';
+import { useRabbitMQ } from '~/lib/rabbitmq';
 
 import { initQueues } from '~/queues';
 

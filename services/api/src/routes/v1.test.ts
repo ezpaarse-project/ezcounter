@@ -6,8 +6,8 @@ import { z } from '@ezcounter/models/lib/zod';
 import { createServer } from '~/lib/http';
 
 import type { ErrorResponse } from '~/routes/v1/responses';
-import { HTTPError } from '~/routes/v1/errors';
 import { setupResponses } from '~/routes/v1';
+import { HTTPError } from '~/routes/v1/errors';
 
 let server: FastifyInstance;
 beforeAll(async () => {

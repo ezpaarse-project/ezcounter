@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 import type { Logger } from '@ezcounter/logger';
+import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 
 import { Heartbeat } from '../types';
 import { assertTransport } from './utils';

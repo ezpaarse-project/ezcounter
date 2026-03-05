@@ -2,18 +2,18 @@ import { hostname } from 'node:os';
 
 import { isBefore } from 'date-fns';
 
-import type { rabbitmq } from '@ezcounter/rabbitmq';
-import {
-  setupHeartbeat,
-  listenToHeartbeats,
-  mandatoryService,
-} from '@ezcounter/heartbeats';
 import type {
   Heartbeat as CommonHeartbeat,
   HeartbeatService,
   HeartbeatSender,
   HeartbeatListener,
 } from '@ezcounter/heartbeats/types';
+import type { rabbitmq } from '@ezcounter/rabbitmq';
+import {
+  setupHeartbeat,
+  listenToHeartbeats,
+  mandatoryService,
+} from '@ezcounter/heartbeats';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
@@ -21,6 +21,7 @@ import { appLogger } from '~/lib/logger';
 import type { Heartbeat } from '~/models/heartbeat/types';
 
 import { version } from '~/../package.json' with { type: 'json' };
+
 import { dbPing } from './prisma';
 
 const { heartbeat: frequency } = config;

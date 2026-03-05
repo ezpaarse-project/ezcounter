@@ -1,10 +1,10 @@
-import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
+import { createThrottledFunction } from '@ezcounter/models/lib/utils';
 import { HarvestJobStatusEvent } from '@ezcounter/models/queues';
+import { parseJSONMessage, type rabbitmq } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
 import { updateOneHarvestJob } from '~/models/harvest';
-import { createThrottledFunction } from '@ezcounter/models/lib/utils';
 
 const EXCHANGE_NAME = 'ezcounter.harvest:status';
 

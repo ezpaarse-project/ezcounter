@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
-import type { IRReportHeader } from '@ezcounter/models/counter/r51';
 import type { SUSHIReportHeader } from '@ezcounter/models/counter/r5';
+import type { IRReportHeader } from '@ezcounter/models/counter/r51';
+import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
 import { extractReportHeader, extractRegistryId } from './header';
 

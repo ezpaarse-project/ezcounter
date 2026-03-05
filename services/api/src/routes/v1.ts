@@ -1,6 +1,5 @@
 import { join } from 'node:path';
 
-import { StatusCodes } from 'http-status-codes';
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import autoLoad from '@fastify/autoload';
 import {
@@ -10,11 +9,12 @@ import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
 } from 'fastify-type-provider-zod';
+import { StatusCodes } from 'http-status-codes';
 
 import { openapiPlugin } from '~/plugins/openapi';
 
-import { buildResponse } from './v1/responses';
 import { HTTPError } from './v1/errors';
+import { buildResponse } from './v1/responses';
 
 /**
  * Prepare validation, error handling, etc.

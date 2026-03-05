@@ -1,7 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import type { Logger } from '@ezreeport/logger';
-import type { Heartbeat } from '@ezreeport/heartbeats/types';
+import type { Heartbeat } from '@ezcounter/heartbeats/types';
+import type { Logger } from '@ezcounter/logger';
 
 import { PrismaClient } from '../.prisma/client';
 

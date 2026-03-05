@@ -1,9 +1,9 @@
-import type { rabbitmq } from '@ezcounter/rabbitmq';
-import { setupHeartbeat } from '@ezcounter/heartbeats';
 import type {
   HeartbeatService,
   HeartbeatSender,
 } from '@ezcounter/heartbeats/types';
+import type { rabbitmq } from '@ezcounter/rabbitmq';
+import { setupHeartbeat } from '@ezcounter/heartbeats';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';

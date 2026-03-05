@@ -6,8 +6,8 @@ import {
   service,
 } from '~/lib/__mocks__/heartbeat';
 
-import { createTestServer } from '~/../tests/fastify/v1';
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
+import { createTestServer } from '~/../tests/fastify/v1';
 
 import router from '.';
 

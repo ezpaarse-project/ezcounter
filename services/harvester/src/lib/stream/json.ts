@@ -1,11 +1,9 @@
-import Parser from 'stream-json/Parser';
-
-import Pick from 'stream-json/filters/Pick';
 import Filter from 'stream-json/filters/Filter';
 import Ignore from 'stream-json/filters/Ignore';
-
-import StreamValues from 'stream-json/streamers/StreamValues';
+import Pick from 'stream-json/filters/Pick';
+import Parser from 'stream-json/Parser';
 import StreamArray from 'stream-json/streamers/StreamArray';
+import StreamValues from 'stream-json/streamers/StreamValues';
 
 export type JSONToken = {
   name: 'startArray' | 'endArray' | 'keyValue';

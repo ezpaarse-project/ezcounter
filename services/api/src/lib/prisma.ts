@@ -1,8 +1,8 @@
-import { setupDB, pingDB } from '@ezcounter/database';
 import type { Heartbeat } from '@ezcounter/heartbeats/types';
+import { setupDB, pingDB } from '@ezcounter/database';
 
-import { appLogger } from '~/lib/logger';
 import { config } from '~/lib/config';
+import { appLogger } from '~/lib/logger';
 
 const logger = appLogger.child({ scope: 'prisma' });
 

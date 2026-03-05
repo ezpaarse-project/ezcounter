@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
-import { createGzip } from '~/../__mocks__/zlib';
 import {
   createWriteStream,
   createReadStream,
@@ -10,6 +9,8 @@ import {
 } from '~/lib/__mocks__/fs';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
+
+import { createGzip } from '~/../__mocks__/zlib';
 
 import { archiveReport } from './archive';
 

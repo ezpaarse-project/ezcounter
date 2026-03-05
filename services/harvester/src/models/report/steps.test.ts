@@ -3,18 +3,9 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
-import { cacheReport } from './steps/__mocks__/download';
-import { extractReportExceptions } from './steps/extract/__mocks__/exceptions';
-import {
-  extractRegistryId,
-  extractReportHeader,
-} from './steps/extract/__mocks__/header';
-import { extractReportItems } from './steps/extract/items/__mocks__';
-import { archiveReport } from './steps/__mocks__/archive';
-
-import { HarvestIdleTimeout } from '../timeout';
 
 import type { RawReportHeader } from './types';
+import { HarvestIdleTimeout } from '../timeout';
 import {
   cacheReportToFile,
   getReportExceptions,
@@ -22,6 +13,14 @@ import {
   queueReportItems,
   archiveReportToFile,
 } from './steps';
+import { archiveReport } from './steps/__mocks__/archive';
+import { cacheReport } from './steps/__mocks__/download';
+import { extractReportExceptions } from './steps/extract/__mocks__/exceptions';
+import {
+  extractRegistryId,
+  extractReportHeader,
+} from './steps/extract/__mocks__/header';
+import { extractReportItems } from './steps/extract/items/__mocks__';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
 vi.mock(import('~/queues/enrich'));

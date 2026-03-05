@@ -1,8 +1,8 @@
 import { glob, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 
-import { afterEach, beforeEach, vi } from 'vitest';
 import { vol } from 'memfs';
+import { afterEach, beforeEach, vi } from 'vitest';
 
 // Mocking FS
 vi.mock(import('~/lib/fs'));
