@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import {
   getAllServices,
@@ -15,11 +15,6 @@ vi.mock(import('~/lib/heartbeat'));
 
 let server = await createTestServer(async (fastify) => {
   fastify.register(router);
-});
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
 });
 
 describe('GET /health', () => {

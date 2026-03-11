@@ -1,69 +1,59 @@
-import type { FastifyInstance } from 'fastify';
-import { expect, test, beforeAll } from 'vitest';
+import { expect, test } from 'vitest';
 
 import { z } from '@ezcounter/models/lib/zod';
 
-import { createServer } from '~/lib/http';
-
 import type { ErrorResponse } from '~/routes/v1/responses';
-import { setupResponses } from '~/routes/v1';
+import { createTestServer } from '~/../tests/fastify/v1';
 import { HTTPError } from '~/routes/v1/errors';
 
-let server: FastifyInstance;
-beforeAll(async () => {
-  // Setup server before any test - not using autoload cause it have issues with vitest
-  server = await createServer(async (fastify) => {
-    setupResponses(fastify);
+let server = await createTestServer(async (fastify) => {
+  fastify.route({
+    method: 'POST',
+    url: '/',
+    schema: {
+      body: z.object({
+        foo: z.string(),
+      }),
+    },
+    handler: async () => ({ foo: 'bar' }),
+  });
 
-    // Test routes
-    fastify.route({
-      method: 'POST',
-      url: '/',
-      schema: {
-        body: z.object({
-          foo: z.string(),
+  fastify.route({
+    method: 'GET',
+    url: '/invalid-response',
+    schema: {
+      response: {
+        200: z.object({
+          ping: z.string(),
         }),
       },
-      handler: async () => ({ foo: 'bar' }),
-    });
+    },
+    handler: async () => ({ pong: '' }),
+  });
 
-    fastify.route({
-      method: 'GET',
-      url: '/invalid-response',
-      schema: {
-        response: {
-          200: z.object({
-            ping: z.string(),
-          }),
-        },
-      },
-      handler: async () => ({ pong: '' }),
-    });
+  fastify.route({
+    method: 'GET',
+    url: '/private',
+    handler: async () => {
+      throw new HTTPError(401, 'Need to auth');
+    },
+  });
 
-    fastify.route({
-      method: 'GET',
-      url: '/private',
-      handler: async () => {
-        throw new HTTPError(401, 'Need to auth');
-      },
-    });
+  fastify.route({
+    method: 'GET',
+    url: '/not-implemented',
+    handler: async () => {
+      throw new Error('Not implemented');
+    },
+  });
 
-    fastify.route({
-      method: 'GET',
-      url: '/not-implemented',
-      handler: async () => {
-        throw new Error('Not implemented');
-      },
-    });
-
-    fastify.route({
-      method: 'GET',
-      url: '/literal-error',
-      handler: async () => {
-        // oxlint-disable-next-line no-throw-literal
-        throw 'Not an error object';
-      },
-    });
+  fastify.route({
+    method: 'GET',
+    url: '/literal-error',
+    handler: async () => {
+      // oxlint-disable-next-line no-throw-literal
+      throw 'Not an error object';
+    },
   });
 });
 

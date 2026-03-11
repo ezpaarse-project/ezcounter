@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, beforeEach } from 'vitest';
 
 // Mocking config
 vi.mock(import('~/lib/config'));
@@ -6,3 +6,7 @@ vi.mock(import('~/lib/config'));
 vi.mock(import('~/lib/logger'));
 // Mocking DB
 vi.mock(import('~/lib/prisma'));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});

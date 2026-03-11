@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
 
@@ -20,11 +20,6 @@ vi.mock(import('~/models/harvest'));
 
 const server = await createTestServer(async (fastify) => {
   fastify.register(router);
-});
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
 });
 
 describe('GET /harvests', () => {
