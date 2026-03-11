@@ -1,9 +1,7 @@
 import { vi } from 'vitest';
 
-import type {
-  extractReportHeader as originalExtractReportHeader,
-  extractRegistryId as originalExtractRegistryId,
-} from '../header';
+import type * as original from '../header';
 
-export const extractReportHeader = vi.fn<typeof originalExtractReportHeader>();
-export const extractRegistryId = vi.fn<typeof originalExtractRegistryId>();
+export const extractReportHeader = vi.fn<typeof original.extractReportHeader>();
+
+export const extractRegistryId = vi.fn<typeof original.extractRegistryId>();

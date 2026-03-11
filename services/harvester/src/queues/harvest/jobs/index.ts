@@ -1,4 +1,4 @@
-import { setTimeout as sleep } from 'node:timers/promises';
+import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
 import { HarvestJobData } from '@ezcounter/models/queues';
 import {
@@ -15,14 +15,6 @@ import { harvestReport } from '~/models/report';
 import { sendHarvestJobStatusEvent } from './status';
 
 const logger = appLogger.child({ scope: 'queues' });
-
-const {
-  processingBackoff,
-  unavailableBackoff,
-  detachDelay,
-  jobDelay,
-  maxTries,
-} = config.download;
 
 const delayedJobs = new Map<string, Set<string>>();
 
@@ -104,7 +96,7 @@ async function requeueHarvestJob(
     // Meaning that if any job hangs, it'll block the whole job queue and prevent any other harvester to
     // pick it up.
     // As if data host is busy every request to it will fail, we want to block the whole queue here
-    await sleep(pause);
+    await setTimeoutAsync(pause);
   }
 
   try {
@@ -136,7 +128,7 @@ async function requeueHarvestJob(
  */
 async function processHarvestMessage(
   channel: rabbitmq.Channel,
-  msg: rabbitmq.Message,
+  msg: rabbitmq.GetMessage,
   queueName: string
 ): Promise<void> {
   // Parse message
@@ -154,19 +146,18 @@ async function processHarvestMessage(
   // Mark job as processing
   markHarvestJobAsProcessing(data, queueName);
 
-  // Just a little delay to avoid spamming too fast
-  await sleep(jobDelay);
-
   data.try = (data.try ?? 0) + 1;
   const result = await harvestReport(data);
 
   // We need to requeue report and we have enough tries left
-  if ((result.processing || result.unavailable) && data.try < maxTries) {
-    // Force download of a new report
+  if (
+    (result.processing || result.unavailable) &&
+    data.try < config.download.maxTries
+  ) {
     data.download.forceDownload = true;
-    // Mark job as delayed - It'll be picked up later
     markHarvestJobAsDelayed(data, queueName);
     // Requeue job
+    const { processingBackoff, unavailableBackoff } = config.download;
     await requeueHarvestJob(channel, {
       job: data,
       queueName,
@@ -176,7 +167,7 @@ async function processHarvestMessage(
       pause: result.unavailable ? unavailableBackoff : undefined,
     });
   }
-  // Acknowledge message as it was successfully processed
+
   rabbitmq.ackMessage(channel, msg);
 }
 
@@ -192,9 +183,16 @@ async function deleteHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
 ): Promise<boolean> {
-  // Don't delete if there's still delayed jobs
   const delayed = delayedJobs.get(queueName);
   if (delayed && delayed.size > 0) {
+    logger.debug({
+      msg: 'Some jobs are delayed, waiting for them before deleting queue',
+      queueName,
+    });
+
+    // Waiting a bit more before re-asking for messages
+    await setTimeoutAsync(config.download.detachDelay);
+
     return false;
   }
 
@@ -227,13 +225,13 @@ async function deleteHarvestQueue(
  *
  * @param channel - The rabbitmq channel
  *
- * @return Promise that resolves when all jobs in target queue are processed
+ * @return Iterator that will yield after each harvest (or attempt to get harvest), and return when all messages are processed
  */
-export async function proccessHarvestQueue(
+export async function* processHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
-): Promise<void> {
-  const { queue } = await rabbitmq.assertQueue(channel, queueName, {
+): AsyncGenerator<void> {
+  await rabbitmq.assertQueue(channel, queueName, {
     durable: false,
   });
 
@@ -244,21 +242,20 @@ export async function proccessHarvestQueue(
 
   // oxlint-disable no-await-in-loop
   while (true) {
-    // Wait for some time to let possible messages to enter in queue
-    await sleep(detachDelay);
-
     // Get last message
-    const msg = await rabbitmq.getMessage(channel, queue);
+    const msg = await rabbitmq.getMessage(channel, queueName);
     if (msg) {
+      // console.log({ messageCount: msg.fields.messageCount });
       await processHarvestMessage(channel, msg, queueName);
-      continue;
+    } else {
+      // There was no message left in queue
+      const deleted = await deleteHarvestQueue(channel, queueName);
+      if (deleted) {
+        return;
+      }
     }
 
-    // There was no message left in queue
-    const deleted = await deleteHarvestQueue(channel, queueName);
-    if (deleted) {
-      return;
-    }
+    yield;
   }
   // oxlint-enable no-await-in-loop
 }

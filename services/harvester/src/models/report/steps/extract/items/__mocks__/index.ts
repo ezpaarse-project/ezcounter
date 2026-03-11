@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
 
-import type { extractReportItems as originalExtractReportItems } from '..';
+import type * as original from '..';
 
-export const extractReportItems = vi.fn<typeof originalExtractReportItems>();
+export const extractReportItems = vi.fn<typeof original.extractReportItems>();

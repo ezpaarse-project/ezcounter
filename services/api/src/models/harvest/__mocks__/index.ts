@@ -1,13 +1,15 @@
 import { vi } from 'vitest';
 
-import { splitPeriodByMonths as originalSsplitPeriodByMonths } from '..';
+import * as original from '..';
 
-export const findAllHarvestJob = vi.fn();
+export const findAllHarvestJob = vi.fn<typeof original.findAllHarvestJob>();
 
-export const findManyHarvestJobById = vi.fn();
+export const findManyHarvestJobById =
+  vi.fn<typeof original.findManyHarvestJobById>();
 
-export const createManyHarvestJob = vi.fn();
+export const createManyHarvestJob =
+  vi.fn<typeof original.createManyHarvestJob>();
 
-export const failManyHarvestJob = vi.fn();
+export const failManyHarvestJob = vi.fn<typeof original.failManyHarvestJob>();
 
-export const splitPeriodByMonths = vi.fn(originalSsplitPeriodByMonths);
+export const splitPeriodByMonths = vi.fn(original.splitPeriodByMonths);

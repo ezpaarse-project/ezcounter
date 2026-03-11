@@ -4,6 +4,8 @@ import { join, relative } from 'node:path';
 import { vol } from 'memfs';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+// Mocking RabbitMQ
+vi.mock('@ezcounter/rabbitmq', () => import('@ezcounter/rabbitmq/__mocks__'));
 // Mocking FS
 vi.mock(import('~/lib/fs'));
 // Mocking config

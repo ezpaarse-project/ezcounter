@@ -22,7 +22,7 @@ import {
 
 const logger = appLogger.child({ scope: 'reports' });
 
-type HarvestResult = {
+export type HarvestResult = {
   success: boolean;
   processing?: true;
   unavailable?: true;

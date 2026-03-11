@@ -14,7 +14,10 @@
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./__mocks__": "./src/__mocks__.ts"
+  },
   "scripts": {
     "lint": "oxlint",
     "type-check": "tsc --noEmit --skipLibCheck"
@@ -27,7 +30,9 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.8",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vitest-mock-extended": "catalog:"
   },
   "lint-staged": {
     "*.ts": [

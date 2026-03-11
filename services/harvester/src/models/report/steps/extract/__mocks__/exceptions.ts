@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import type { extractReportExceptions as originalExtractReportExceptions } from '../exceptions';
+import type * as original from '../exceptions';
 
 export const extractReportExceptions =
-  vi.fn<typeof originalExtractReportExceptions>();
+  vi.fn<typeof original.extractReportExceptions>();

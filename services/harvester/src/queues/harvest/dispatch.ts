@@ -1,9 +1,12 @@
+import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
+
 import { HarvestDispatchData } from '@ezcounter/models/queues';
 import { rabbitmq, consumeJSONQueue } from '@ezcounter/rabbitmq';
 
+import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-import { proccessHarvestQueue } from './jobs';
+import { processHarvestQueue } from './jobs';
 
 const QUEUE_NAME = 'ezcounter.harvest:dispatch';
 
@@ -21,10 +24,21 @@ async function onHarvestDispatch(
 ): Promise<void> {
   // Wait for all harvest jobs in queue to be processed
   try {
-    await proccessHarvestQueue(jobsChannel, data.queueName);
+    const process = processHarvestQueue(jobsChannel, data.queueName);
+
+    // oxlint-disable no-await-in-loop
+    while (true) {
+      const { done } = await process.next();
+      if (done) {
+        break;
+      }
+      // Just a little delay to avoid spamming too fast
+      await setTimeoutAsync(config.download.jobDelay);
+    }
+    // oxlint-enable no-await-in-loop
   } catch (err) {
     logger.error({
-      msg: 'Unable to proccess harvest queue',
+      msg: 'Unable to process harvest queue',
       err,
     });
   }

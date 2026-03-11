@@ -26,5 +26,7 @@ _bak*/
 # Dev tools
 **/.oxlint*
 docker*
+**/__mocks__*
+**/coverage/
 **/*.test.ts
 **/examples/

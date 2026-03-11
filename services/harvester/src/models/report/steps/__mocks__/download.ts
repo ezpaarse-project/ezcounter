@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
 
-import type { cacheReport as originalCacheReport } from '../download';
+import type * as original from '../download';
 
-export const cacheReport = vi.fn<typeof originalCacheReport>();
+export const cacheReport = vi.fn<typeof original.cacheReport>();

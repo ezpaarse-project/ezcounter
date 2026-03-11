@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
 
-import type { archiveReport as originalArchiveReport } from '../archive';
+import type * as original from '../archive';
 
-export const archiveReport = vi.fn<typeof originalArchiveReport>();
+export const archiveReport = vi.fn<typeof original.archiveReport>();

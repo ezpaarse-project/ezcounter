@@ -23,7 +23,7 @@
   "download": {
     "processingBackoff": 600000,
     "unavailableBackoff": 600000,
-    "detachDelay": 1000,
+    "detachDelay": 5000,
     "jobDelay": 500,
     "maxTries": 5,
     "dir": "/var/lib/app-harvester/data/reports"
