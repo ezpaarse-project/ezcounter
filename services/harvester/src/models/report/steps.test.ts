@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
@@ -48,11 +48,6 @@ const OPTIONS: HarvestJobData = {
     index: '',
   },
 };
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
-});
 
 describe('Cache report (cacheReportToFile)', () => {
   test('should cache report', async () => {

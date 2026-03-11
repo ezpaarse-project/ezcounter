@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
@@ -16,11 +16,6 @@ import { archiveReport } from './archive';
 
 // Mocking unzip
 vi.mock(import('node:zlib'));
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
-});
 
 describe('Archive report (archiveReport)', () => {
   const OPTIONS: HarvestDownloadOptions = {
@@ -61,7 +56,6 @@ describe('Archive report (archiveReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
@@ -69,7 +63,6 @@ describe('Archive report (archiveReport)', () => {
       vi.runAllTimers();
 
       await expect(promise).rejects.toThrow('The operation was aborted');
-      vi.useRealTimers();
     });
   });
 
@@ -101,7 +94,6 @@ describe('Archive report (archiveReport)', () => {
     });
 
     test("shouldn't be able to be aborted", async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
@@ -109,7 +101,6 @@ describe('Archive report (archiveReport)', () => {
       vi.runAllTimers();
 
       await expect(promise).resolves.not.toThrow();
-      vi.useRealTimers();
     });
   });
 

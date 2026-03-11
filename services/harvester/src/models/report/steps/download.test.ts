@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
@@ -28,11 +28,6 @@ const OPTIONS: HarvestDownloadOptions = {
     release: '5.1',
   },
 };
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
-});
 
 describe('Cache report (cacheReport)', () => {
   describe('file exists', () => {
@@ -70,7 +65,6 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test("shouldn't be able to be aborted", async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = cacheReport(REPORT, OPTIONS, timeout);
@@ -121,7 +115,6 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
@@ -129,7 +122,6 @@ describe('Cache report (cacheReport)', () => {
       vi.runAllTimers();
 
       await expect(promise).rejects.toThrow('The operation was aborted');
-      vi.useRealTimers();
     });
 
     test('should tick timeout', async () => {
@@ -180,7 +172,6 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = cacheReport(NO_REPORT, OPTIONS, timeout);
@@ -188,7 +179,6 @@ describe('Cache report (cacheReport)', () => {
       vi.runAllTimers();
 
       await expect(promise).rejects.toThrow('The operation was aborted');
-      vi.useRealTimers();
     });
 
     test('should tick timeout', async () => {
@@ -240,7 +230,6 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      vi.useFakeTimers();
       const timeout = new HarvestIdleTimeout();
 
       const promise = cacheReport(REPORT, FORCE_OPTIONS, timeout);
@@ -248,7 +237,6 @@ describe('Cache report (cacheReport)', () => {
       vi.runAllTimers();
 
       await expect(promise).rejects.toThrow('The operation was aborted');
-      vi.useRealTimers();
     });
 
     test('should tick timeout', async () => {

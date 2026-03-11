@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
@@ -8,11 +8,6 @@ import { handleExceptions, reharvestOrError } from '.';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
 vi.mock(import('./steps'));
-
-beforeEach(() => {
-  // Clear function history
-  vi.clearAllMocks();
-});
 
 describe('Report Exceptions (handleExceptions)', () => {
   test('should return null if no exceptions', () => {

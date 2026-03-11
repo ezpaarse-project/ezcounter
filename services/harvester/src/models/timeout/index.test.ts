@@ -1,12 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { HarvestIdleTimeout } from '.';
 
 describe('Idle Timeout (HarvestIdleTimeout)', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
   test('should able to get signal', () => {
     const timeout = new HarvestIdleTimeout();
 
@@ -61,9 +57,5 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
     timeout.abort();
 
     expect(timeout.signal.aborted).toBe(true);
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 });

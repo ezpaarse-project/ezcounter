@@ -28,12 +28,16 @@ async function addExamplesToVol(): Promise<void> {
   vol.fromJSON(state, '/examples');
 }
 
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.clearAllMocks();
+});
+
 beforeEach(async () => {
-  // add default state of in-memory fs
   await addExamplesToVol();
 });
 
 afterEach(() => {
-  // reset the state of in-memory fs
   vol.reset();
+  vi.useRealTimers();
 });
