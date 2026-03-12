@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
@@ -6,17 +6,11 @@ import { rabbitmq as mq, sendJSONMessage } from '@ezcounter/rabbitmq/__mocks__';
 
 import {
   ensureDataHostQueues,
-  getHarvestDispatchQueue,
   sendDispatchEvent,
   sendHarvestJobsInQueue,
 } from './dispatch';
 
-beforeEach(async () => {
-  // Setup dummy channel
-  await getHarvestDispatchQueue({} as unknown as rabbitmq.Channel);
-  // Clearing mocks cause previous function calls some rabbitmq functions
-  vi.clearAllMocks();
-});
+const chan = {} as unknown as rabbitmq.Channel;
 
 describe('Create queues (ensureDataHostQueues)', () => {
   const hosts = ['dummy-counter-datahost.com', 'google.fr'];
@@ -28,7 +22,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
       queue: 'foobar',
     });
 
-    await ensureDataHostQueues(hosts);
+    await ensureDataHostQueues(chan, hosts);
 
     expect(mq.assertQueue).toBeCalledTimes(2);
   });
@@ -40,7 +34,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
       queue: 'foobar',
     });
 
-    const promise = ensureDataHostQueues(hosts);
+    const promise = ensureDataHostQueues(chan, hosts);
 
     await expect(promise).resolves.toBeInstanceOf(Map);
   });
@@ -59,7 +53,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
       queue: 'second.foobar',
     });
 
-    const result = await ensureDataHostQueues(hosts);
+    const result = await ensureDataHostQueues(chan, hosts);
 
     expect(result.get(hosts[0])).toHaveProperty('created', true);
     expect(result.get(hosts[1])).toHaveProperty('created', false);
@@ -72,7 +66,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
       queue: 'foobar',
     });
 
-    const result = await ensureDataHostQueues(hosts);
+    const result = await ensureDataHostQueues(chan, hosts);
 
     expect(result.get(hosts[0])?.name).toMatch(
       /^ezcounter\.harvest:job:[a-z0-9]{16}$/
@@ -82,7 +76,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
   test('should not throw but report error', async () => {
     mq.assertQueue.mockRejectedValueOnce(new Error('Creation error'));
 
-    const result = await ensureDataHostQueues(hosts);
+    const result = await ensureDataHostQueues(chan, hosts);
 
     const queue = result.get(hosts[0]);
     expect(queue).toHaveProperty('created', false);
@@ -97,13 +91,14 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   const jobs = [{ id: 'abcde' } as HarvestJobData];
 
   test('should send jobs', () => {
-    sendHarvestJobsInQueue({ name: 'foobar', created: true }, jobs);
+    sendHarvestJobsInQueue(chan, { name: 'foobar', created: true }, jobs);
 
     expect(sendJSONMessage).toBeCalled();
   });
 
   test('should return id of jobs', () => {
     const result = sendHarvestJobsInQueue(
+      chan,
       { name: 'foobar', created: true },
       jobs
     );
@@ -118,6 +113,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     };
 
     const result = sendHarvestJobsInQueue(
+      chan,
       { name: 'foobar', created: false, error },
       jobs
     );
@@ -131,6 +127,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     });
 
     const result = sendHarvestJobsInQueue(
+      chan,
       { name: 'foobar', created: true },
       jobs
     );
@@ -144,13 +141,13 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
 
 describe('Queue dispatch (sendDispatchEvent)', () => {
   test('should send dispatch', async () => {
-    await sendDispatchEvent({ name: 'foobar', created: true });
+    await sendDispatchEvent(chan, { name: 'foobar', created: true });
 
     expect(sendJSONMessage).toBeCalled();
   });
 
   test('should NOT send dispatch if queue existed', async () => {
-    await sendDispatchEvent({ name: 'foobar', created: false });
+    await sendDispatchEvent(chan, { name: 'foobar', created: false });
 
     expect(sendJSONMessage).not.toBeCalled();
   });
@@ -161,7 +158,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       message: 'Creation error',
     };
 
-    const promise = sendDispatchEvent({
+    const promise = sendDispatchEvent(chan, {
       name: 'foobar',
       created: false,
       error,
@@ -175,7 +172,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       throw new Error('Dispatch error');
     });
 
-    const promise = sendDispatchEvent({ name: 'foobar', created: true });
+    const promise = sendDispatchEvent(chan, { name: 'foobar', created: true });
 
     await expect(promise).resolves.toHaveProperty('error', {
       code: 'app:ERROR',
@@ -188,7 +185,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       throw new Error('Dispatch error');
     });
 
-    await sendDispatchEvent({ name: 'foobar', created: true });
+    await sendDispatchEvent(chan, { name: 'foobar', created: true });
 
     expect(mq.deleteQueue).toBeCalledWith({}, 'foobar');
   });

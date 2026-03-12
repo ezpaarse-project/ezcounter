@@ -62,17 +62,15 @@ function getDataHostQueueName(host: string): string {
 /**
  * Ensure a list of data host will have their own queues
  *
+ * @param chan - The RabbitMQ channel
  * @param hostNames - List of hosts to ensure queues
  *
  * @returns The information about queues
  */
 export async function ensureDataHostQueues(
+  chan: rabbitmq.Channel,
   hostNames: string[]
 ): Promise<Map<string, HarvestQueueInfo>> {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
   return new Map<string, HarvestQueueInfo>(
     await Promise.all(
       hostNames.map(async (host): Promise<[string, HarvestQueueInfo]> => {
@@ -116,13 +114,10 @@ export async function ensureDataHostQueues(
  * @returns Information about jobs
  */
 export function sendHarvestJobsInQueue(
+  chan: rabbitmq.Channel,
   queue: HarvestQueueInfo,
   jobs: HarvestJobData[]
 ): HarvestJobInfo[] {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
   return jobs.map((job) => {
     if (queue.error) {
       return { id: job.id, error: queue.error };
@@ -157,12 +152,9 @@ export function sendHarvestJobsInQueue(
  * Send dispatch events
  */
 export async function sendDispatchEvent(
+  channel: rabbitmq.Channel,
   queue: HarvestQueueInfo
 ): Promise<HarvestDispatchInfo> {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
   if (!queue.created || queue.error) {
     return { error: queue.error };
   }
@@ -209,6 +201,7 @@ export async function queueHarvestJobs(
   if (!channel) {
     throw new Error('Channel not initialised');
   }
+  const chan = channel;
 
   // Group jobs per host
   const jobsPerHost = Map.groupBy<string, HarvestJobData>(
@@ -217,15 +210,15 @@ export async function queueHarvestJobs(
   );
 
   // Create harvest queues
-  const queues = await ensureDataHostQueues([...jobsPerHost.keys()]);
+  const queues = await ensureDataHostQueues(chan, [...jobsPerHost.keys()]);
 
   const queuedJobs = await Promise.all(
     [...queues].map(async ([host, queue]): Promise<HarvestJobInfo[]> => {
       const jobs = jobsPerHost.get(host) ?? [];
 
-      const queued = sendHarvestJobsInQueue(queue, jobs);
+      const queued = sendHarvestJobsInQueue(chan, queue, jobs);
 
-      const event = await sendDispatchEvent(queue);
+      const event = await sendDispatchEvent(chan, queue);
 
       if (event.error) {
         return queued.map((info) => ({

@@ -52,7 +52,7 @@ model HarvestJob {
   /// When the harvest job was updated for the last time
   updatedAt       DateTime?        @updatedAt
   /// When the harvest job was started
-  startedAt     DateTime?
+  startedAt       DateTime?
   /// Time harvest took
   took            Int?
 }
