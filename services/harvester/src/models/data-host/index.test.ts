@@ -13,14 +13,14 @@ const server = setupServer(
   // COUNTER 5.1
   http.get('https://counter-example.com/r51/reports', () => {
     const path = '/examples/5.1/list.json';
-    const stream = fs.createReadStream(path);
+    const stream = Readable.toWeb(fs.createReadStream(path));
 
     return new HttpResponse(stream);
   }),
   http.get('https://counter-example.com/r51/reports/ir', async () => {
     const path = '/examples/5.1/ir/valid.json';
     const stat = await fs.promises.stat(path);
-    const stream = fs.createReadStream(path);
+    const stream = Readable.toWeb(fs.createReadStream(path));
 
     return new HttpResponse(stream, {
       headers: {
@@ -30,7 +30,7 @@ const server = setupServer(
   }),
   http.get('https://invalid.counter-example.com/r51/reports', () => {
     const path = '/examples/5.1/list_invalid.json';
-    const stream = fs.createReadStream(path);
+    const stream = Readable.toWeb(fs.createReadStream(path));
 
     return new HttpResponse(stream);
   }),
@@ -110,13 +110,19 @@ describe('COUNTER 5.1', () => {
       const { data } = await fetchReportAsStream(VALID_OPTIONS);
 
       expect(data).toBeInstanceOf(Readable);
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should return the URL used', async () => {
-      const { url } = await fetchReportAsStream(VALID_OPTIONS);
+      const { url, data } = await fetchReportAsStream(VALID_OPTIONS);
 
       expect(url).toBeTypeOf('string');
       expect(URL.canParse(url)).toBe(true);
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should accept param with multiple values', async () => {
@@ -130,10 +136,13 @@ describe('COUNTER 5.1', () => {
         },
       };
 
-      const { url } = await fetchReportAsStream(options);
+      const { url, data } = await fetchReportAsStream(options);
       const result = new URL(url);
 
       expect(result.searchParams.get('access_method')).toBe('Regular|TDM');
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should join params with custom separator', async () => {
@@ -151,10 +160,13 @@ describe('COUNTER 5.1', () => {
         },
       };
 
-      const { url } = await fetchReportAsStream(options);
+      const { url, data } = await fetchReportAsStream(options);
       const result = new URL(url);
 
       expect(result.searchParams.get('access_method')).toBe('Regular,TDM');
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should accept param as boolean', async () => {
@@ -168,17 +180,23 @@ describe('COUNTER 5.1', () => {
         },
       };
 
-      const { url } = await fetchReportAsStream(options);
+      const { url, data } = await fetchReportAsStream(options);
 
       expect(url).toContain('attributed=False');
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should format the period', async () => {
-      const { url } = await fetchReportAsStream(VALID_OPTIONS);
+      const { url, data } = await fetchReportAsStream(VALID_OPTIONS);
       const result = new URL(url);
 
       expect(result.searchParams.get('begin_date')).toBe('2025-01-01');
       expect(result.searchParams.get('end_date')).toBe('2025-12-31');
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should format the period using custom format', async () => {
@@ -190,29 +208,41 @@ describe('COUNTER 5.1', () => {
         },
       };
 
-      const { url } = await fetchReportAsStream(options);
+      const { url, data } = await fetchReportAsStream(options);
       const result = new URL(url);
 
       expect(result.searchParams.get('begin_date')).toBe('2025-01');
       expect(result.searchParams.get('end_date')).toBe('2025-12');
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should return the expected size', async () => {
-      const { expectedSize } = await fetchReportAsStream(VALID_OPTIONS);
+      const { expectedSize, data } = await fetchReportAsStream(VALID_OPTIONS);
 
       expect(expectedSize).toBeGreaterThan(0);
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should not throw if not found', async () => {
-      const { httpCode } = await fetchReportAsStream(ERROR_OPTIONS);
+      const { httpCode, data } = await fetchReportAsStream(ERROR_OPTIONS);
 
       expect(httpCode).toBe(404);
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should return NaN if size not available', async () => {
-      const { expectedSize } = await fetchReportAsStream(ERROR_OPTIONS);
+      const { expectedSize, data } = await fetchReportAsStream(ERROR_OPTIONS);
 
       expect(expectedSize).toBe(Number.NaN);
+
+      // Destroying stream to avoid EBADF errors
+      data.destroy();
     });
 
     test('should be able to be aborted', async () => {
