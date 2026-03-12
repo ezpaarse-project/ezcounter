@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/models/queues';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
@@ -18,10 +18,6 @@ import { sendHarvestJobStatusEvent } from './__mocks__/status';
 vi.mock(import('node:timers/promises'));
 vi.mock(import('~/models/report'));
 vi.mock(import('./status'));
-
-beforeEach(() => {
-  vi.resetAllMocks();
-});
 
 describe('Harvest Process (processHarvestQueue)', () => {
   const channel = {} as unknown as rabbitmq.Channel;

@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-import * as original from '..';
+import type * as original from '..';
 
 export const findAllHarvestJob = vi.fn<typeof original.findAllHarvestJob>();
 
@@ -10,6 +10,6 @@ export const findManyHarvestJobById =
 export const createManyHarvestJob =
   vi.fn<typeof original.createManyHarvestJob>();
 
-export const failManyHarvestJob = vi.fn<typeof original.failManyHarvestJob>();
+export const updateOneHarvestJob = vi.fn<typeof original.updateOneHarvestJob>();
 
-export const splitPeriodByMonths = vi.fn(original.splitPeriodByMonths);
+export const failManyHarvestJob = vi.fn<typeof original.failManyHarvestJob>();

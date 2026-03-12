@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { splitPeriodByMonths } from '.';
+import { splitPeriodByMonths } from './utils';
 
 describe('Split period by months (splitPeriodByMonths)', () => {
   test('should split by equal parts if possible', () => {

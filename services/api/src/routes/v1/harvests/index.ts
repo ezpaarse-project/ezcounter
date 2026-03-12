@@ -11,9 +11,9 @@ import {
   failManyHarvestJob,
   findAllHarvestJob,
   findManyHarvestJobById,
-  splitPeriodByMonths,
 } from '~/models/harvest';
 import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
+import { splitPeriodByMonths } from '~/models/harvest/utils';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';
 import {

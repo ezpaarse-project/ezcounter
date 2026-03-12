@@ -66,7 +66,7 @@ function getDataHostQueueName(host: string): string {
  *
  * @returns The information about queues
  */
-async function ensureDataHostQueues(
+export async function ensureDataHostQueues(
   hostNames: string[]
 ): Promise<Map<string, HarvestQueueInfo>> {
   if (!channel) {
@@ -115,7 +115,7 @@ async function ensureDataHostQueues(
  *
  * @returns Information about jobs
  */
-function sendHarvestJobsInQueue(
+export function sendHarvestJobsInQueue(
   queue: HarvestQueueInfo,
   jobs: HarvestJobData[]
 ): HarvestJobInfo[] {
@@ -156,7 +156,7 @@ function sendHarvestJobsInQueue(
 /**
  * Send dispatch events
  */
-async function sendDispatchEvent(
+export async function sendDispatchEvent(
   queue: HarvestQueueInfo
 ): Promise<HarvestDispatchInfo> {
   if (!channel) {
@@ -164,7 +164,7 @@ async function sendDispatchEvent(
   }
 
   if (!queue.created || queue.error) {
-    return {};
+    return { error: queue.error };
   }
 
   try {

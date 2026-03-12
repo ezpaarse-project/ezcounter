@@ -1,5 +1,7 @@
 import { vi, beforeEach } from 'vitest';
 
+// Mocking RabbitMQ
+vi.mock('@ezcounter/rabbitmq', () => import('@ezcounter/rabbitmq/__mocks__'));
 // Mocking config
 vi.mock(import('~/lib/config'));
 // Mocking logger

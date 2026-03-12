@@ -76,7 +76,7 @@ async function updateHarvestJobStatus(
  *
  * @param data - The event
  */
-function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
+export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
   // Merge new status with previous updates
   let event = data;
   const previous = patchs.get(data.id);
