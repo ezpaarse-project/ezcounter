@@ -116,6 +116,7 @@ describe('COUNTER 5.1', () => {
       const { url } = await fetchReportAsStream(VALID_OPTIONS);
 
       expect(url).toBeTypeOf('string');
+      expect(URL.canParse(url)).toBe(true);
     });
 
     test('should accept param with multiple values', async () => {
@@ -130,8 +131,30 @@ describe('COUNTER 5.1', () => {
       };
 
       const { url } = await fetchReportAsStream(options);
+      const result = new URL(url);
 
-      expect(url).toContain('access_method=Regular%7CTDM');
+      expect(result.searchParams.get('access_method')).toBe('Regular|TDM');
+    });
+
+    test('should join params with custom separator', async () => {
+      const options = {
+        ...VALID_OPTIONS,
+        report: {
+          ...VALID_OPTIONS.report,
+          params: {
+            access_method: ['Regular', 'TDM'],
+          },
+        },
+        dataHost: {
+          ...VALID_OPTIONS.dataHost,
+          paramsSeparator: ',',
+        },
+      };
+
+      const { url } = await fetchReportAsStream(options);
+      const result = new URL(url);
+
+      expect(result.searchParams.get('access_method')).toBe('Regular,TDM');
     });
 
     test('should accept param as boolean', async () => {
@@ -148,6 +171,30 @@ describe('COUNTER 5.1', () => {
       const { url } = await fetchReportAsStream(options);
 
       expect(url).toContain('attributed=False');
+    });
+
+    test('should format the period', async () => {
+      const { url } = await fetchReportAsStream(VALID_OPTIONS);
+      const result = new URL(url);
+
+      expect(result.searchParams.get('begin_date')).toBe('2025-01-01');
+      expect(result.searchParams.get('end_date')).toBe('2025-12-31');
+    });
+
+    test('should format the period using custom format', async () => {
+      const options = {
+        ...VALID_OPTIONS,
+        dataHost: {
+          ...VALID_OPTIONS.dataHost,
+          periodFormat: 'yyyy-MM',
+        },
+      };
+
+      const { url } = await fetchReportAsStream(options);
+      const result = new URL(url);
+
+      expect(result.searchParams.get('begin_date')).toBe('2025-01');
+      expect(result.searchParams.get('end_date')).toBe('2025-12');
     });
 
     test('should return the expected size', async () => {

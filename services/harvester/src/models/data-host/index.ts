@@ -1,11 +1,17 @@
 import { Readable } from 'node:stream';
 
-import { format as formatDate, parse as parseDate } from 'date-fns';
+import {
+  endOfMonth,
+  format as formatDate,
+  parse as parseDate,
+  startOfMonth,
+} from 'date-fns';
 import { ofetch, type $Fetch } from 'ofetch';
 
 import type {
   HarvestDataHostOptions,
   HarvestDownloadOptions,
+  HarvestReportPeriod,
 } from '@ezcounter/models/harvest';
 
 import { RawReportList } from '~/models/report/types';
@@ -94,15 +100,45 @@ export async function fetchReportList(
 }
 
 /**
- * Format date to request report
+ * Format start date to request report
  *
  * @param dateMonth - The month from DownloadOptions
  * @param [format] - The format, default to `yyyy-MM-dd`
  */
-function formatReportDate(dateMonth: string, format = 'yyyy-MM-dd'): string {
+function formatStartReportDate(
+  dateMonth: string,
+  format = 'yyyy-MM-dd'
+): string {
   const date = parseDate(dateMonth, 'yyyy-MM', new Date());
-  return formatDate(date, format);
+
+  return formatDate(startOfMonth(date), format);
 }
+
+/**
+ * Format end date to request report
+ *
+ * @param dateMonth - The month from DownloadOptions
+ * @param [format] - The format, default to `yyyy-MM-dd`
+ */
+function formatEndReportDate(dateMonth: string, format = 'yyyy-MM-dd'): string {
+  const date = parseDate(dateMonth, 'yyyy-MM', new Date());
+
+  return formatDate(endOfMonth(date), format);
+}
+
+/**
+ * Format period to request report
+ *
+ * @param period - The period from DownloadOptions
+ * @param [format] - The format, default to `yyyy-MM-dd`
+ */
+const formatReportPeriod = (
+  period: HarvestReportPeriod,
+  format = 'yyyy-MM-dd'
+): { begin_date: string; end_date: string } => ({
+  begin_date: formatStartReportDate(period.start, format),
+  end_date: formatEndReportDate(period.end, format),
+});
 
 type ReportStreamResponse = {
   url: string;
@@ -130,8 +166,7 @@ export async function fetchReportAsStream(
     ignoreResponseError: true,
     query: {
       ...report.params,
-      begin_date: formatReportDate(report.period.start, dataHost.periodFormat),
-      end_date: formatReportDate(report.period.end, dataHost.periodFormat),
+      ...formatReportPeriod(report.period, dataHost.periodFormat),
     },
     signal,
   });
