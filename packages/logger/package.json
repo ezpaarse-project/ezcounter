@@ -17,8 +17,6 @@
   "exports": "./src/index.ts",
   "scripts": {
     "lint": "oxlint",
-    "test": "vitest run",
-    "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
@@ -26,8 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   },
   "lint-staged": {
     "*.ts": [
