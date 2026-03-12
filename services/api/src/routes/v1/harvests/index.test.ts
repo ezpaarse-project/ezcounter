@@ -96,6 +96,8 @@ describe('POST /harvests/_bulk', () => {
   ];
 
   test('should return CREATED', async () => {
+    findManyHarvestJobById.mockResolvedValue([]);
+
     const promise = server.inject({
       method: 'POST',
       url: '/_bulk',
