@@ -117,7 +117,7 @@ export async function getReportExceptions(
 
     exceptions.push(...raw.map((ex) => asHarvestException(ex)));
   } catch (err) {
-    logger.error({
+    logger.warn({
       msg: 'Unable to extract exceptions',
       id: options.id,
       err,
@@ -185,7 +185,7 @@ export async function getReportHeader(
 
     return header;
   } catch (err) {
-    logger.error({
+    logger.warn({
       msg: 'Unable to extract report header',
       id: options.id,
       err,
@@ -255,7 +255,7 @@ export async function queueReportItems(
     // Send status with final count
     sendItemsStatus(options.id, count);
   } catch (err) {
-    logger.error({
+    logger.warn({
       msg: 'Unable to extract report items',
       err,
     });

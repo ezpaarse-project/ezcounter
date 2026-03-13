@@ -104,7 +104,7 @@ function markHarvestAsError(
   options: HarvestJobData,
   error: HarvestError
 ): HarvestResult {
-  logger.error({
+  logger.warn({
     msg: 'Error occurred while harvesting',
     id: options.id,
     err: error,
@@ -162,7 +162,7 @@ export function reharvestOrError(
   err: unknown
 ): HarvestResult | null {
   if (report.cache.source === 'remote') {
-    logger.error({
+    logger.warn({
       msg: 'Error occurred after downloading report',
       id: options.id,
       err,
@@ -172,7 +172,7 @@ export function reharvestOrError(
   }
 
   options.download.forceDownload = true;
-  logger.error({
+  logger.warn({
     msg: 'Unable to use cache to harvest, re-downloading report',
     id: options.id,
     err,
