@@ -274,13 +274,13 @@ export async function queueReportItems(
  * @returns `true` if no error occurred
  */
 export async function archiveReportToFile(
-  reportPath: string,
+  report: { path: string; cache: CacheResult },
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {
   try {
     await archiveReport(
-      { id: options.id, path: reportPath },
+      { id: options.id, path: report.path, cache: report.cache },
       options.download,
       timeout
     );

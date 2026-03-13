@@ -10,6 +10,8 @@ import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { HarvestIdleTimeout } from '~/models/timeout';
 
+import type { CacheResult } from './download';
+
 const logger = appLogger.child({ scope: 'reports' });
 
 /**
@@ -55,7 +57,7 @@ async function zipReport(
  * @param timeout - The timeout before an harvest job is considered as cancelled
  */
 export async function archiveReport(
-  report: { id: string; path: string },
+  report: { id: string; path: string; cache: CacheResult },
   options: HarvestDownloadOptions,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {
@@ -65,7 +67,9 @@ export async function archiveReport(
 
   const archivePath = `${report.path}.gz`;
 
-  const isArchived = !options.forceDownload && (await exists(archivePath));
+  const isFromRemote =
+    options.forceDownload || report.cache.source === 'remote';
+  const isArchived = !isFromRemote && (await exists(archivePath));
 
   if (!isArchived) {
     await zipReport(report, archivePath, timeout);

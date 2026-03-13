@@ -34,7 +34,7 @@ function getReportExceptionsJsonPath(release: '5' | '5.1'): RegExp {
   // List of known keys
   const keys = Object.keys(properties).join('|');
   // Supports root exception, root array of exceptions, exceptions in header
-  return new RegExp(`^(Report_Header.Exceptions?.)?(\\d+.)?(${keys})$`);
+  return new RegExp(`^(Report_Header.Exceptions?\\.)?(\\d+\\.)?(${keys})$`);
 }
 
 /**

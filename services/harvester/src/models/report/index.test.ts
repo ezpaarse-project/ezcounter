@@ -4,7 +4,7 @@ import type { HarvestJobData } from '@ezcounter/models/queues';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
-import { handleExceptions, reharvestOrError } from '.';
+import { handleExceptions, reharvestOrMarkAsError } from '.';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
 vi.mock(import('./steps'));
@@ -94,7 +94,7 @@ describe('Report Exceptions (handleExceptions)', () => {
   });
 });
 
-describe('Re-harvest or return error (reharvestOrError)', () => {
+describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getOptions = (): HarvestJobData => ({
     id: '',
@@ -118,7 +118,7 @@ describe('Re-harvest or return error (reharvestOrError)', () => {
   test('should return null if file is not from remote', () => {
     const options = getOptions();
 
-    const result = reharvestOrError(
+    const result = reharvestOrMarkAsError(
       { path: '', cache: { source: 'archive' } },
       options,
       new Error('Error')
@@ -130,7 +130,7 @@ describe('Re-harvest or return error (reharvestOrError)', () => {
   test('should set forceDownload if file is not from remote', () => {
     const options = getOptions();
 
-    reharvestOrError(
+    reharvestOrMarkAsError(
       { path: '', cache: { source: 'archive' } },
       options,
       new Error('Error')
@@ -142,7 +142,7 @@ describe('Re-harvest or return error (reharvestOrError)', () => {
   test('should set forceDownload if file is not from remote', () => {
     const options = getOptions();
 
-    reharvestOrError(
+    reharvestOrMarkAsError(
       { path: '', cache: { source: 'archive' } },
       options,
       new Error('Error')
@@ -154,7 +154,7 @@ describe('Re-harvest or return error (reharvestOrError)', () => {
   test('should return that harvest failed if from remote', () => {
     const options = getOptions();
 
-    const result = reharvestOrError(
+    const result = reharvestOrMarkAsError(
       { path: '', cache: { source: 'remote', httpCode: 500 } },
       options,
       new Error('Error')
@@ -166,7 +166,7 @@ describe('Re-harvest or return error (reharvestOrError)', () => {
   test('should notify that harvest failed if from remote', () => {
     const options = getOptions();
 
-    reharvestOrError(
+    reharvestOrMarkAsError(
       { path: '', cache: { source: 'remote', httpCode: 500 } },
       options,
       new Error('Error')

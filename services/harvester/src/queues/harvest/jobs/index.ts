@@ -245,7 +245,6 @@ export async function* processHarvestQueue(
     // Get last message
     const msg = await rabbitmq.getMessage(channel, queueName);
     if (msg) {
-      // console.log({ messageCount: msg.fields.messageCount });
       await processHarvestMessage(channel, msg, queueName);
     } else {
       // There was no message left in queue

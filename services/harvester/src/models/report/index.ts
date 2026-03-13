@@ -156,7 +156,7 @@ function markHarvestAsSuccess(options: HarvestJobData): HarvestResult {
  *
  * @returns Information about harvest and future actions that need to be done - or null if need to reharvest
  */
-export function reharvestOrError(
+export function reharvestOrMarkAsError(
   report: { path: string; cache: CacheResult },
   options: HarvestJobData,
   err: unknown
@@ -225,7 +225,7 @@ export async function harvestReport(
 
     return markHarvestAsSuccess(options);
   } catch (err) {
-    const harvestResult = reharvestOrError(
+    const harvestResult = reharvestOrMarkAsError(
       { path: reportPath, cache },
       options,
       err
@@ -233,7 +233,7 @@ export async function harvestReport(
 
     return harvestResult || harvestReport(options);
   } finally {
+    await archiveReportToFile({ path: reportPath, cache }, options, timeout);
     timeout.clear();
-    await archiveReportToFile(reportPath, options, timeout);
   }
 }

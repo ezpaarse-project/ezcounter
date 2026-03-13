@@ -196,7 +196,6 @@ export function asHarvestException(
   // Input is an HTTP Code
   if (typeof input === 'number') {
     const standard = EXCEPTION_PER_HTTP_STATUS[input];
-
     if (standard) {
       return standard;
     }

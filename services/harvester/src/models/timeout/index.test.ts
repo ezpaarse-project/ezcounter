@@ -26,7 +26,7 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
   test('should not abort before expected delay', () => {
     const timeout = new HarvestIdleTimeout(5);
 
-    vi.advanceTimersByTime(1);
+    vi.advanceTimersByTime(2);
     expect(timeout.signal.aborted).toBe(false);
   });
 
@@ -39,7 +39,7 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
     timeout.tick();
 
     // We're after the 5 mark, should not abort because we ticked
-    vi.advanceTimersByTime(2);
+    vi.advanceTimersByTime(3);
     expect(timeout.signal.aborted).toBe(false);
   });
 

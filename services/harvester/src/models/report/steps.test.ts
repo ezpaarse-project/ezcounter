@@ -268,9 +268,12 @@ describe('Report Items (queueReportItems)', () => {
   });
 });
 
-describe('(archiveReportToFile)', () => {
+describe('Archive Report (archiveReportToFile)', () => {
   test('should archive report', async () => {
-    await archiveReportToFile('', OPTIONS);
+    await archiveReportToFile(
+      { path: '', cache: { source: 'remote' } },
+      OPTIONS
+    );
 
     expect(archiveReport).toBeCalled();
   });
@@ -278,7 +281,10 @@ describe('(archiveReportToFile)', () => {
   test('should not throw on error', async () => {
     archiveReport.mockRejectedValueOnce(new Error('Something happened'));
 
-    const promise = archiveReportToFile('', OPTIONS);
+    const promise = archiveReportToFile(
+      { path: '', cache: { source: 'remote' } },
+      OPTIONS
+    );
 
     await expect(promise).resolves.not.toThrow();
   });
