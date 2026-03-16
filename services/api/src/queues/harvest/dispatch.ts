@@ -67,17 +67,17 @@ function getDataHostQueueName(host: string): string {
  *
  * @returns The information about queues
  */
-export async function ensureDataHostQueues(
+export const ensureDataHostQueues = async (
   chan: rabbitmq.Channel,
   hostNames: string[]
-): Promise<Map<string, HarvestQueueInfo>> {
-  return new Map<string, HarvestQueueInfo>(
+): Promise<Map<string, HarvestQueueInfo>> =>
+  new Map<string, HarvestQueueInfo>(
     await Promise.all(
       hostNames.map(async (host): Promise<[string, HarvestQueueInfo]> => {
         const queue = getDataHostQueueName(host);
         try {
           const { consumerCount, messageCount } = await rabbitmq.assertQueue(
-            channel!,
+            chan,
             queue,
             { durable: false }
           );
@@ -103,7 +103,6 @@ export async function ensureDataHostQueues(
       })
     )
   );
-}
 
 /**
  * Send harvest jobs into queues
@@ -113,19 +112,19 @@ export async function ensureDataHostQueues(
  *
  * @returns Information about jobs
  */
-export function sendHarvestJobsInQueue(
+export const sendHarvestJobsInQueue = (
   chan: rabbitmq.Channel,
   queue: HarvestQueueInfo,
   jobs: HarvestJobData[]
-): HarvestJobInfo[] {
-  return jobs.map((job) => {
+): HarvestJobInfo[] =>
+  jobs.map((job) => {
     if (queue.error) {
       return { id: job.id, error: queue.error };
     }
 
     try {
       const { size } = sendJSONMessage(
-        { channel: channel!, queue: { name: queue.name } },
+        { channel: chan, queue: { name: queue.name } },
         job
       );
 
@@ -146,13 +145,12 @@ export function sendHarvestJobsInQueue(
       return { id: job.id, error };
     }
   });
-}
 
 /**
  * Send dispatch events
  */
 export async function sendDispatchEvent(
-  channel: rabbitmq.Channel,
+  chan: rabbitmq.Channel,
   queue: HarvestQueueInfo
 ): Promise<HarvestDispatchInfo> {
   if (!queue.created || queue.error) {
@@ -161,7 +159,7 @@ export async function sendDispatchEvent(
 
   try {
     const { size } = sendJSONMessage<HarvestDispatchData>(
-      { channel, queue: { name: QUEUE_NAME } },
+      { channel: chan, queue: { name: QUEUE_NAME } },
       { queueName: queue.name }
     );
 
@@ -179,7 +177,7 @@ export async function sendDispatchEvent(
       err,
     });
 
-    await rabbitmq.deleteQueue(channel, queue.name);
+    await rabbitmq.deleteQueue(chan, queue.name);
 
     const error = asHarvestError(err);
     return { error };

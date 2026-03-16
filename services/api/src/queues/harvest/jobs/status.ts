@@ -109,6 +109,7 @@ export async function getHarvestJobStatusEventExchange(
 
   const { queue } = await rabbitmq.assertQueue(channel, '', {
     durable: false,
+    exclusive: true,
   });
   rabbitmq.bindQueueToExchange(channel, queue, EXCHANGE_NAME, '');
 

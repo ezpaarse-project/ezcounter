@@ -72,7 +72,7 @@ describe('Cache report (cacheReportToFile)', () => {
 
 describe('Report Exceptions (getReportExceptions)', () => {
   test('should extract exceptions from report', async () => {
-    extractReportExceptions.mockResolvedValue([]);
+    extractReportExceptions.mockResolvedValueOnce([]);
 
     await getReportExceptions({ path: '' }, OPTIONS);
 
@@ -80,7 +80,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should treat HTTP status as exception', async () => {
-    extractReportExceptions.mockResolvedValue([]);
+    extractReportExceptions.mockResolvedValueOnce([]);
 
     const result = await getReportExceptions(
       { path: '', httpCode: 418 },
@@ -118,7 +118,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    extractReportExceptions.mockResolvedValue([]);
+    extractReportExceptions.mockResolvedValueOnce([]);
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
@@ -126,7 +126,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should notify progress', async () => {
-    extractReportExceptions.mockResolvedValue([]);
+    extractReportExceptions.mockResolvedValueOnce([]);
 
     const res = await getReportExceptions({ path: '' }, OPTIONS);
 

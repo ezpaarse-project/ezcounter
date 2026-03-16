@@ -8,6 +8,7 @@ import {
   findManyHarvestJobById,
   createManyHarvestJob,
 } from '~/models/harvest/__mocks__';
+import { prepareHarvestJobs } from '~/models/harvest/__mocks__/utils';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../tests/fastify/v1';
@@ -17,6 +18,7 @@ import router from '.';
 
 vi.mock(import('~/queues/harvest/dispatch'));
 vi.mock(import('~/models/harvest'));
+vi.mock(import('~/models/harvest/utils'));
 
 const server = await createTestServer(async (fastify) => {
   fastify.register(router);
@@ -24,7 +26,7 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /harvests', () => {
   test('should return array of statuses', async () => {
-    findAllHarvestJob.mockResolvedValue([]);
+    findAllHarvestJob.mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',
@@ -57,11 +59,9 @@ describe('POST /harvests/_bulk', () => {
         ],
 
         dataHost: {
-          baseUrl: 'https://my-counter-datahost.com/',
+          id: 'my-counter-datahost',
           auth: { customer_id: 'foobar' },
         },
-
-        cacheKey: 'counter-datahost',
       },
       insert: {
         index: 'z-example-counter5',
@@ -82,12 +82,9 @@ describe('POST /harvests/_bulk', () => {
         ],
 
         dataHost: {
-          baseUrl: 'https://my-example-datahost.com/',
+          id: 'my-counter-datahost',
           auth: { customer_id: 'foobar' },
-          additionalParams: { platform: 'barfoo' },
         },
-
-        cacheKey: 'example-datahost.barfoo',
       },
       insert: {
         index: 'z-example-counter51',
@@ -96,7 +93,8 @@ describe('POST /harvests/_bulk', () => {
   ];
 
   test('should return CREATED', async () => {
-    findManyHarvestJobById.mockResolvedValue([]);
+    prepareHarvestJobs.mockResolvedValue([]);
+    findManyHarvestJobById.mockResolvedValueOnce([]);
 
     const promise = server.inject({
       method: 'POST',
@@ -108,7 +106,8 @@ describe('POST /harvests/_bulk', () => {
   });
 
   test('should return array of statuses', async () => {
-    findManyHarvestJobById.mockResolvedValue([]);
+    prepareHarvestJobs.mockResolvedValue([]);
+    findManyHarvestJobById.mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'POST',
@@ -123,6 +122,9 @@ describe('POST /harvests/_bulk', () => {
   });
 
   test('should create jobs', async () => {
+    prepareHarvestJobs.mockResolvedValue([]);
+    findManyHarvestJobById.mockResolvedValueOnce([]);
+
     await server.inject({
       method: 'POST',
       url: '/_bulk',
@@ -133,6 +135,9 @@ describe('POST /harvests/_bulk', () => {
   });
 
   test('should dispatch jobs', async () => {
+    prepareHarvestJobs.mockResolvedValue([]);
+    findManyHarvestJobById.mockResolvedValueOnce([]);
+
     await server.inject({
       method: 'POST',
       url: '/_bulk',

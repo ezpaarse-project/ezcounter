@@ -1,0 +1,73 @@
+/// Data Host to harvest
+model DataHost {
+  /// ID of the host
+  id              String    @id @default(cuid())
+  /// Format of the period
+  periodFormat    String    @default("yyyy-MM-dd")
+  /// Separator for multi-valuated params
+  paramsSeparator String    @default("|")
+  /// Additional params of the host
+  params          Json      @default("{}")
+  /// When the data host was created
+  createdAt       DateTime  @default(now())
+  /// When the data host was updated for the last time
+  updatedAt       DateTime? @updatedAt
+
+  /// The jobs that harvested data host
+  harvestJobs       HarvestJob[]
+  /// COUNTER releases supported by data host
+  supportedReleases DataHostSupportedRelease[]
+}
+
+/// COUNTER releases supported by data host
+model DataHostSupportedRelease {
+  /// ID of the data host
+  dataHostId String
+  /// COUNTER Release
+  release    String
+  /// URL to access data host
+  baseUrl    String
+  /// When the info was created
+  createdAt  DateTime  @default(now())
+  /// When the info was updated for the last time
+  updatedAt  DateTime? @updatedAt
+
+  /// Data Host
+  dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
+
+  /// Reports supported by datahost for this release
+  supportedReports DataHostSupportedReport[]
+
+  @@id([dataHostId, release])
+}
+
+/// Report (un)supported by data host
+model DataHostSupportedReport {
+  /// ID of the data host
+  dataHostId                  String
+  /// COUNTER Release
+  release                     String
+  /// COUNTER report ID
+  id                          String
+  /// Is the report supported
+  supported                   Boolean   @default(true)
+  /// Admin override of supported - null if no override
+  supportedOverride           Boolean?
+  /// First month available in report - empty if no date
+  firstMonthAvailable         String    @default("")
+  /// Admin override of firstMonthAvailable - null if no override
+  firstMonthAvailableOverride String?
+  /// Last month available in report - empty if no date
+  lastMonthAvailable          String    @default("")
+  /// Admin override of lastMonthAvailable - null if no override
+  lastMonthAvailableOverride  String?
+  /// When the info was created
+  createdAt                   DateTime  @default(now())
+  /// When the info was updated for the last time
+  updatedAt                   DateTime? @updatedAt
+
+  /// The release supported by data host
+  supportedRelease DataHostSupportedRelease @relation(fields: [dataHostId, release], references: [dataHostId, release])
+
+  @@id([dataHostId, release, id])
+}

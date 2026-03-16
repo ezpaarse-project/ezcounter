@@ -16,7 +16,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
   const hosts = ['dummy-counter-datahost.com', 'google.fr'];
 
   test('should create one queue per host', async () => {
-    mq.assertQueue.mockResolvedValue({
+    mq.assertQueue.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'foobar',
@@ -28,7 +28,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
   });
 
   test('should return Map', async () => {
-    mq.assertQueue.mockResolvedValue({
+    mq.assertQueue.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'foobar',

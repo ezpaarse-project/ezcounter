@@ -30,7 +30,7 @@ export type HarvestReportPeriod = z.infer<typeof HarvestReportPeriod>;
  * Validation for the options to harvest a COUNTER report
  */
 export const HarvestReportOptions = z.object({
-  id: z.string(),
+  id: z.string().describe('Report ID to harvest'),
 
   period: HarvestReportPeriod.describe('Period of the harvest'),
 

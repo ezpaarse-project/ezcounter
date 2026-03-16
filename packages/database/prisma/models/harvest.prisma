@@ -16,43 +16,41 @@ enum HarvestJobStep {
 /// Information about a harvest job
 model HarvestJob {
   /// ID of the job
-  id              String           @id
+  id            String           @id
   /// ID of the report harvested
-  reportId        String
+  reportId      String
   /// Period of the report
-  period          Json
-  /// Format of the period
-  periodFormat    String           @default("yyyy-MM-dd")
+  period        Json
   /// COUNTER release of the report
-  release         String
+  release       String
   /// Additional params of the report
-  params          Json             @default("{}")
-  /// Separator for multi-valuated params
-  paramsSeparator String           @default("|")
-  /// URL to use to harvest
-  baseUrl         String
+  params        Json             @default("{}")
+  /// Data Host used to harvest
+  dataHost      DataHost         @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
+  /// ID of the data host
+  dataHostId    String
   /// Timeout of the job in ms
-  timeout         Int              @default(60000)
+  timeout       Int              @default(60000)
   /// Should force download the report
-  forceDownload   Boolean          @default(false)
+  forceDownload Boolean          @default(false)
   /// Target Elastic index
-  index           String
+  index         String
   /// Status of the job
-  status          HarvestJobStatus
+  status        HarvestJobStatus
   /// Current step of the job
-  current         HarvestJobStep?
+  current       HarvestJobStep?
   /// Error that occurred while harvesting
-  error           Json?
+  error         Json?
   /// Information about download step
-  download        Json             @default("{ \"done\": false }")
+  download      Json             @default("{ \"done\": false }")
   /// Information about extract step
-  extract         Json             @default("{ \"done\": false }")
-  /// When the harvest job was created/queued
-  createdAt       DateTime         @default(now())
-  /// When the harvest job was updated for the last time
-  updatedAt       DateTime?        @updatedAt
-  /// When the harvest job was started
-  startedAt       DateTime?
+  extract       Json             @default("{ \"done\": false }")
   /// Time harvest took
-  took            Int?
+  took          Int?
+  /// When the harvest job was created/queued
+  createdAt     DateTime         @default(now())
+  /// When the harvest job was updated for the last time
+  updatedAt     DateTime?        @updatedAt
+  /// When the harvest job was started
+  startedAt     DateTime?
 }

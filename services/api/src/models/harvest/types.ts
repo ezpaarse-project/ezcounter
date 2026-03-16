@@ -1,5 +1,6 @@
 import {
   HarvestAdditionalParams,
+  HarvestDataHostOptions,
   HarvestDownloadOptions,
   HarvestReportOptions,
   HarvestReportPeriod,
@@ -17,7 +18,11 @@ export const HarvestRequest = z.object({
   ...HarvestJobData.omit({ id: true, try: true }).shape,
 
   download: z.object({
-    ...HarvestDownloadOptions.omit({ report: true }).shape,
+    ...HarvestDownloadOptions.omit({
+      report: true,
+      dataHost: true,
+      cacheKey: true,
+    }).shape,
 
     // Allow for multiple reports
     reports: z
@@ -37,6 +42,18 @@ export const HarvestRequest = z.object({
       )
       .min(1)
       .describe('Information about reports to harvest'),
+
+    // Ask for a registered Data Host
+    dataHost: z.object({
+      ...HarvestDataHostOptions.omit({
+        baseUrl: true,
+        periodFormat: true,
+        paramsSeparator: true,
+        additionalParams: true,
+      }).shape,
+
+      id: z.string().describe('ID of the data host'),
+    }),
   }),
 });
 
@@ -56,15 +73,11 @@ export const HarvestJob = z.object({
 
   period: HarvestReportPeriod.describe('Period of the report'),
 
-  periodFormat: z.string().describe('Format of the period'),
-
   release: z.string().describe('COUNTER release of the report'),
 
   params: HarvestAdditionalParams.describe('Additional params of the report'),
 
-  paramsSeparator: z.string().describe('Separator for multi-valuated params'),
-
-  baseUrl: z.url().describe('URL to use to harvest'),
+  dataHostId: z.string().describe('ID of the data host'),
 
   timeout: z.int().min(100).describe('Timeout of the job in ms'),
 
@@ -75,8 +88,6 @@ export const HarvestJob = z.object({
   createdAt: z.coerce.date().describe('Creation date'),
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
-
-  took: z.int().min(0).nullable().describe('Time that harvesting took'),
 
   // Status of job
   status: HarvestJobStatusEvent.shape.status,
@@ -90,6 +101,8 @@ export const HarvestJob = z.object({
   extract: HarvestJobStatusEvent.shape.extract.unwrap(),
 
   startedAt: HarvestJobStatusEvent.shape.startedAt.nullish(),
+
+  took: z.int().min(0).nullable().describe('Time that harvesting took'),
 });
 
 /**

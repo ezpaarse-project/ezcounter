@@ -85,7 +85,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: true });
+    harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     expect(harvestReport).toBeCalled();
@@ -97,7 +97,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: true });
+    harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     expect(mq.ackMessage).toBeCalled();
@@ -122,7 +122,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
     await process.next();
 
     const newJob = { ...job, try: 1 };
@@ -143,7 +143,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, unavailable: true });
+    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
     await process.next();
 
     const newJob = { ...job, try: 1 };
@@ -165,7 +165,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
     await process.next();
 
     expect(sendJSONMessage).not.toBeCalled();
@@ -177,7 +177,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, unavailable: true });
+    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
     sendJSONMessage.mockImplementationOnce(() => {
       throw new Error('Not Implemented');
     });
@@ -192,7 +192,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: true });
+    harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     // No messages left in queue
@@ -207,7 +207,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, unavailable: true });
+    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
     await process.next();
 
     // No messages left in queue - The first one was delayed
@@ -222,7 +222,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: true });
+    harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     // No messages left in queue
@@ -238,7 +238,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValue(getMessage(job));
-    harvestReport.mockResolvedValue({ success: true });
+    harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
@@ -254,7 +254,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValue({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
     await process.next();
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({

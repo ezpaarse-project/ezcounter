@@ -5,7 +5,7 @@ import { createThrottledFunction } from './utils';
 describe('createThrottledFunction', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   const spy = vi.fn().mockResolvedValue('foobar');

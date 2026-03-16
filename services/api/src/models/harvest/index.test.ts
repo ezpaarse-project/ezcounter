@@ -11,7 +11,7 @@ import {
   findAllHarvestJob,
   findManyHarvestJobById,
   updateOneHarvestJob,
-} from '.';
+} from '~/models/harvest';
 
 describe('CREATE Harvest Jobs', () => {
   describe('createManyHarvestJob', () => {
@@ -65,15 +65,11 @@ describe('CREATE Harvest Jobs', () => {
               start: 'download.report.period.start',
               end: 'download.report.period.end',
             },
-            periodFormat: 'download.dataHost.periodFormat',
             release: '5.1',
             params: {
               access_method: ['download.report.params.access_method.0'],
-              foo: 'download.dataHost.additionalParams.foo',
             },
-            paramsSeparator: 'download.dataHost.paramsSeparator',
-            baseUrl: 'download.dataHost.baseUrl',
-            timeout: 10,
+            dataHostId: 'download.cacheKey',
             forceDownload: true,
             index: 'insert.index',
             status: 'pending',
@@ -129,11 +125,9 @@ describe('UPDATE Harvest Jobs', () => {
       id: '',
       reportId: '',
       period: { start: '2025-01', end: '2025-12' },
-      periodFormat: 'yyyy-MM-dd',
       release: '5.1',
       params: {},
-      paramsSeparator: '|',
-      baseUrl: 'https://dummy-datahost.com/',
+      dataHostId: '',
       timeout: 60000,
       forceDownload: false,
       index: '',

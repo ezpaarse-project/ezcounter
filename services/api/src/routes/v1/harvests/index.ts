@@ -1,9 +1,6 @@
-import { randomUUID } from 'node:crypto';
-
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import type { HarvestJobData } from '@ezcounter/models/queues';
 import { z } from '@ezcounter/models/lib/zod';
 
 import {
@@ -13,7 +10,7 @@ import {
   findManyHarvestJobById,
 } from '~/models/harvest';
 import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
-import { splitPeriodByMonths } from '~/models/harvest/utils';
+import { prepareHarvestJobs } from '~/models/harvest/utils';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';
 import {
@@ -54,35 +51,12 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       },
     },
     handler: async (request, reply) => {
-      const jobs: HarvestJobData[] = [];
+      // oxlint-disable-next-line promise/prefer-await-to-then
+      const jobsPerRequest = await Promise.all(
+        request.body.map((req) => prepareHarvestJobs(req))
+      );
 
-      for (const harvestOpts of request.body) {
-        // Resolve reports
-        const { reports, ...downloadOpts } = harvestOpts.download;
-
-        for (const { splitPeriodBy, ...reportOpts } of reports) {
-          // Resolve periods
-          const parts = splitPeriodByMonths(
-            reportOpts.period,
-            splitPeriodBy || 0
-          );
-
-          for (const period of parts) {
-            jobs.push({
-              ...harvestOpts,
-              id: randomUUID(),
-              download: {
-                ...downloadOpts,
-                report: {
-                  ...reportOpts,
-                  period,
-                },
-              },
-            });
-          }
-        }
-      }
-
+      const jobs = jobsPerRequest.flat();
       await createManyHarvestJob(jobs);
       const queued = await queueHarvestJobs(jobs);
 

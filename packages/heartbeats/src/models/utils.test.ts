@@ -11,7 +11,7 @@ describe('Ping with timeout (doPingWithTimeout)', () => {
   });
 
   test('should execute ping', async () => {
-    const ping = vi.fn<HeartbeatConnectedServicePing>().mockResolvedValue({
+    const ping = vi.fn<HeartbeatConnectedServicePing>().mockResolvedValueOnce({
       hostname: 'foo',
       service: 'bar',
     });

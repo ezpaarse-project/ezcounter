@@ -56,15 +56,9 @@ export async function createManyHarvestJob(
         id: item.id,
         reportId: item.download.report.id,
         period: item.download.report.period,
-        periodFormat: item.download.dataHost.periodFormat,
         release: item.download.report.release,
-        params: {
-          ...item.download.dataHost.additionalParams,
-          ...item.download.report.params,
-        },
-        paramsSeparator: item.download.dataHost.paramsSeparator,
-        baseUrl: item.download.dataHost.baseUrl,
-        timeout: item.download.timeout,
+        params: item.download.report.params,
+        dataHostId: item.download.cacheKey,
         forceDownload: item.download.forceDownload,
         index: item.insert.index,
 
