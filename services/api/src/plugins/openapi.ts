@@ -37,6 +37,7 @@ const OPENAPI_INFOS = {
 const OPENAPI_TAGS = [
   { name: 'health', description: 'Health management' },
   { name: 'harvest', description: 'Harvest management' },
+  { name: 'data-host', description: 'Data host management' },
 ];
 
 /**

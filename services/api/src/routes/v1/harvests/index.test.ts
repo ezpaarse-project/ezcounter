@@ -21,7 +21,7 @@ vi.mock(import('~/models/harvest'));
 vi.mock(import('~/models/harvest/utils'));
 
 const server = await createTestServer(async (fastify) => {
-  fastify.register(router);
+  fastify.register(router, { prefix: '/harvests' });
 });
 
 describe('GET /harvests', () => {
@@ -30,10 +30,11 @@ describe('GET /harvests', () => {
 
     const response = await server.inject({
       method: 'GET',
-      url: '/',
+      url: '/harvests/',
     });
 
-    const { content } = response.json<SuccessResponse<HarvestJobStatusEvent>>();
+    const { content } =
+      response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
 
     expect(findAllHarvestJob).toBeCalledTimes(1);
     expect(content).toBeInstanceOf(Array);
@@ -98,7 +99,7 @@ describe('POST /harvests/_bulk', () => {
 
     const promise = server.inject({
       method: 'POST',
-      url: '/_bulk',
+      url: '/harvests/_bulk',
       body,
     });
 
@@ -111,11 +112,12 @@ describe('POST /harvests/_bulk', () => {
 
     const response = await server.inject({
       method: 'POST',
-      url: '/_bulk',
+      url: '/harvests/_bulk',
       body,
     });
 
-    const { content } = response.json<SuccessResponse<HarvestJobStatusEvent>>();
+    const { content } =
+      response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
 
     expect(findManyHarvestJobById).toBeCalledTimes(1);
     expect(content).toBeInstanceOf(Array);
@@ -127,7 +129,7 @@ describe('POST /harvests/_bulk', () => {
 
     await server.inject({
       method: 'POST',
-      url: '/_bulk',
+      url: '/harvests/_bulk',
       body,
     });
 
@@ -140,17 +142,17 @@ describe('POST /harvests/_bulk', () => {
 
     await server.inject({
       method: 'POST',
-      url: '/_bulk',
+      url: '/harvests/_bulk',
       body,
     });
 
     expect(queueHarvestJobs).toBeCalledTimes(1);
   });
 
-  test('should return BAD_REQUEST if request is invalid', async () => {
+  test('should return BAD_REQUEST if body is invalid', async () => {
     const response = await server.inject({
       method: 'POST',
-      url: '/_bulk',
+      url: '/harvests/_bulk',
       body: [],
     });
 

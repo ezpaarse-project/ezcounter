@@ -14,14 +14,14 @@ import router from '.';
 vi.mock(import('~/lib/heartbeat'));
 
 let server = await createTestServer(async (fastify) => {
-  fastify.register(router);
+  fastify.register(router, { prefix: '/health' });
 });
 
 describe('GET /health', () => {
   test('should return information about self', async () => {
     const promise = server.inject({
       method: 'GET',
-      url: '/',
+      url: '/health/',
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
@@ -39,7 +39,7 @@ describe('GET /health/services', () => {
   test('should return OK', async () => {
     const promise = server.inject({
       method: 'GET',
-      url: '/services',
+      url: '/health/services',
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
@@ -48,7 +48,7 @@ describe('GET /health/services', () => {
   test('should return information about others', async () => {
     await server.inject({
       method: 'GET',
-      url: '/services',
+      url: '/health/services',
     });
 
     expect(getAllServices).toBeCalled();
@@ -59,7 +59,7 @@ describe('GET /health/services/:name', () => {
   test('should return OK', async () => {
     const promise = server.inject({
       method: 'GET',
-      url: '/services/dummy',
+      url: '/health/services/dummy',
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
@@ -68,7 +68,7 @@ describe('GET /health/services/:name', () => {
   test('should return information about others', async () => {
     await server.inject({
       method: 'GET',
-      url: '/services/dummy',
+      url: '/health/services/dummy',
     });
 
     expect(getAllServices).toBeCalled();
@@ -77,7 +77,7 @@ describe('GET /health/services/:name', () => {
   test("should return NOT_FOUND if service doesn't exists", async () => {
     const response = await server.inject({
       method: 'GET',
-      url: '/services/foobar',
+      url: '/health/services/foobar',
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -91,7 +91,7 @@ describe('GET /health/probes/liveness', () => {
   test('should return OK (204)', async () => {
     const promise = server.inject({
       method: 'GET',
-      url: '/probes/liveness',
+      url: '/health/probes/liveness',
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 204);
@@ -102,7 +102,7 @@ describe('GET /health/probes/readiness', () => {
   test('should return OK (204)', async () => {
     const promise = server.inject({
       method: 'GET',
-      url: '/probes/readiness',
+      url: '/health/probes/readiness',
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 204);
@@ -111,7 +111,7 @@ describe('GET /health/probes/readiness', () => {
   test('should check if services are missing', async () => {
     await server.inject({
       method: 'GET',
-      url: '/probes/readiness',
+      url: '/health/probes/readiness',
     });
 
     expect(getMissingMandatoryServices).toBeCalled();
@@ -122,7 +122,7 @@ describe('GET /health/probes/readiness', () => {
 
     const response = await server.inject({
       method: 'GET',
-      url: '/probes/readiness',
+      url: '/health/probes/readiness',
     });
 
     const { error } = response.json<ErrorResponse>();

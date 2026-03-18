@@ -101,6 +101,6 @@ export const v1: FastifyPluginAsync = async (fastify) => {
     // Avoid importing test files
     ignorePattern: /^.*test.ts$/,
     routeParams: true,
-    maxDepth: 2,
+    maxDepth: 6,
   });
 };
