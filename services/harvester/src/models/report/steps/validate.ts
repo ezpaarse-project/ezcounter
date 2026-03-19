@@ -1,7 +1,7 @@
-import type { ValidateFunction } from '@ezcounter/models/lib/ajv';
+import type { ValidateFunction } from '@ezcounter/counter/schemas';
 // oxlint-disable import/no-namespace
-import * as r5 from '@ezcounter/models/counter/r5';
-import * as r51 from '@ezcounter/models/counter/r51';
+import * as r5 from '@ezcounter/counter/schemas/r5';
+import * as r51 from '@ezcounter/counter/schemas/r51';
 // oxlint-enable import/no-namespace
 
 import type {

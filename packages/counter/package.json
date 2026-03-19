@@ -1,5 +1,5 @@
 {
-  "name": "@ezcounter/models",
+  "name": "@ezcounter/counter",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -15,20 +15,25 @@
   },
   "type": "module",
   "exports": {
-    "./lib/*": "./src/lib/*.ts",
-    "./*": "./src/types/*.ts"
+    "./schemas": "./src/lib/ajv.ts",
+    "./schemas/*": "./dist/*.ts"
   },
   "scripts": {
+    "build:schemas": "tsx schemas/build.ts",
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "json-schema-to-typescript": "^15.0.4",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

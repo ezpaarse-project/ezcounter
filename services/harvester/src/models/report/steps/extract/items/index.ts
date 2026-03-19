@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
 
+import type { ValidateFunction } from '@ezcounter/counter/schemas';
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
-import type { ValidateFunction } from '@ezcounter/models/lib/ajv';
 
 import type { RawReportItem, RawReportItemParent } from '../../../types';
 import { getCounterValidation } from '../../validate';

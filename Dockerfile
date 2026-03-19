@@ -33,30 +33,30 @@ COPY . .
 
 # endregion
 # ---
-# region Models
+# region COUNTER
 
-# Extract models from repo
-FROM turbo AS models-turbo
+# Extract COUNTER schemas from repo
+FROM turbo AS counter-turbo
 
-RUN turbo prune @ezcounter/models --docker --out-dir ./models
+RUN turbo prune @ezcounter/counter --docker --out-dir ./counter
 # ---
-# Prepare dependencies for models
-FROM turbo AS models-pnpm
-WORKDIR /usr/build/models
+# Prepare dependencies for COUNTER schemas
+FROM turbo AS counter-pnpm
+WORKDIR /usr/build/counter
 
-COPY --from=models-turbo /usr/src/models/json .
+COPY --from=counter-turbo /usr/src/counter/json .
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-COPY --from=models-turbo /usr/src/models/full .
+COPY --from=counter-turbo /usr/src/counter/full .
 
-RUN pnpm deploy --legacy --filter @ezcounter/models ./dev
+RUN pnpm deploy --legacy --filter @ezcounter/counter ./dev
 # ---
 # Generate COUNTER schemas using dev dependencies
-FROM turbo AS models-builder
-WORKDIR /usr/build/models/dev
+FROM turbo AS counter-builder
+WORKDIR /usr/build/counter/dev
 
-COPY --from=models-pnpm /usr/build/models/dev .
+COPY --from=counter-pnpm /usr/build/counter/dev .
 
 # Shared TS config
 COPY ./tsconfig.json /usr/build/tsconfig.json
@@ -127,7 +127,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY --from=api-turbo /usr/src/api/full .
 
-COPY --from=models-builder /usr/build/models/dev/dist ./packages/models/dist
+COPY --from=counter-builder /usr/build/counter/dev/dist ./packages/counter/dist
 COPY --from=database-prisma /usr/build/database/dev/.prisma /usr/build/api/packages/database/.prisma
 
 RUN pnpm deploy --legacy --filter ezcounter-api --prod ./prod
@@ -170,8 +170,6 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY --from=enricher-turbo /usr/src/enricher/full .
 
-COPY --from=models-builder /usr/build/models/dev/dist ./packages/models/dist
-
 RUN pnpm deploy --legacy --filter ezcounter-enricher --prod ./prod
 
 # ---
@@ -212,7 +210,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 COPY --from=harvester-turbo /usr/src/harvester/full .
 
-COPY --from=models-builder /usr/build/models/dev/dist ./packages/models/dist
+COPY --from=counter-builder /usr/build/counter/dev/dist ./packages/counter/dist
 
 RUN pnpm deploy --legacy --filter ezcounter-harvester --prod ./prod
 

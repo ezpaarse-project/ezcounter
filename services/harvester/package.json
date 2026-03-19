@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@ezcounter/config": "workspace:*",
+    "@ezcounter/counter": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
     "@ezcounter/logger": "workspace:*",
     "@ezcounter/models": "workspace:*",

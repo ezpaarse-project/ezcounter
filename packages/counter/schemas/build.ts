@@ -44,8 +44,8 @@ async function generateTypescriptFile(
     "import Ajv from 'ajv';",
     "import addFormats from 'ajv-formats';",
     patched
-      ? `import { schema } from '../../src/counter/${module}/patch.js';`
-      : `import schema from '../../src/counter/${module}/schema.json' with { type: 'json' };`,
+      ? `import { schema } from '../schemas/${module}/patch.js';`
+      : `import schema from '../schemas/${module}/schema.json' with { type: 'json' };`,
   ].join('\n');
 
   const typesCode = await compile(openapi, '', {
@@ -70,7 +70,7 @@ async function generateTypescriptFile(
   return [dependenciesCode, typesCode, validationCode].join('\n');
 }
 
-const outputDir = join(import.meta.dirname, '../../dist/counter');
+const outputDir = join(import.meta.dirname, '../dist');
 await mkdir(outputDir, { recursive: true });
 
 const schemas = glob(join(import.meta.dirname, '**/schema.json'));
