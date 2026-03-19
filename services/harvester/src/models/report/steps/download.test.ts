@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import { fetchReportAsStream } from '@ezcounter/counter/__mocks__';
 
 import { createWriteStream, createReadStream } from '~/lib/__mocks__/fs';
 
-import { fetchReportAsStream } from '~/models/data-host';
 import { HarvestIdleTimeout } from '~/models/timeout';
 
 import { createGunzip } from '~/../__mocks__/zlib';
@@ -14,8 +14,6 @@ import { cacheReport } from './download';
 
 // Mocking unzip
 vi.mock(import('node:zlib'));
-// Mocking requests
-vi.mock(import('~/models/data-host'));
 // Mocking events
 vi.mock(import('~/queues/harvest/jobs/status'));
 
@@ -31,7 +29,7 @@ const OPTIONS: HarvestDownloadOptions = {
 
 describe('Cache report (cacheReport)', () => {
   describe('file exists', () => {
-    const REPORT = { id: '', path: '/examples/5.1/ir/valid.json' };
+    const REPORT = { jobId: '', path: '/examples/5.1/ir/valid.json' };
 
     test('should have source "file"', async () => {
       const result = await cacheReport(REPORT, OPTIONS);
@@ -78,7 +76,7 @@ describe('Cache report (cacheReport)', () => {
 
   describe('archive exists', () => {
     const ARCHIVED_REPORT = {
-      id: '',
+      jobId: '',
       path: '/examples/5.1/ir/valid_archived.json',
     };
 
@@ -136,7 +134,7 @@ describe('Cache report (cacheReport)', () => {
 
   describe('download', () => {
     const NO_REPORT = {
-      id: '',
+      jobId: '',
       path: '/examples/5.1/ir/does-not-exists.json',
     };
 
@@ -196,7 +194,7 @@ describe('Cache report (cacheReport)', () => {
       ...OPTIONS,
       forceDownload: true,
     };
-    const REPORT = { id: '', path: '/examples/5.1/ir/valid.json' };
+    const REPORT = { jobId: '', path: '/examples/5.1/ir/valid.json' };
 
     test('should have source "remote"', async () => {
       const result = await cacheReport(REPORT, FORCE_OPTIONS);

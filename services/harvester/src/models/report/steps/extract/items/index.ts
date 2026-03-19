@@ -3,7 +3,10 @@ import type { Readable } from 'node:stream';
 import type { ValidateFunction } from '@ezcounter/counter/schemas';
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
 
-import type { RawReportItem, RawReportItemParent } from '../../../types';
+import type {
+  COUNTERReportItem,
+  COUNTERReportItemParent,
+} from '../../../types';
 import { getCounterValidation } from '../../validate';
 import { createR5ReportStream, type R5StreamedValue } from './r5';
 import { createR51ReportStream, type R51StreamedValue } from './r51';
@@ -43,7 +46,7 @@ function isItem(
   item: unknown,
   validate: ValidateFunction | undefined,
   ctx: Record<string, unknown> = {}
-): asserts item is RawReportItem {
+): asserts item is COUNTERReportItem {
   if (!validate || validate(item)) {
     return;
   }
@@ -67,7 +70,7 @@ function isParent(
   parent: unknown,
   validate: ValidateFunction | undefined,
   ctx: Record<string, unknown> = {}
-): asserts parent is RawReportItemParent {
+): asserts parent is COUNTERReportItemParent {
   // Consider empty objects as undefined
   const value = parent && Object.keys(parent).length > 0 ? parent : undefined;
 
@@ -95,7 +98,10 @@ export async function* extractReportItems(
   reportPath: string,
   options: HarvestDownloadOptions,
   signal?: AbortSignal
-): AsyncGenerator<{ item: RawReportItem; parent?: RawReportItemParent }> {
+): AsyncGenerator<{
+  item: COUNTERReportItem;
+  parent?: COUNTERReportItemParent;
+}> {
   const reportId = options.report.id.toUpperCase();
 
   const { item: validateItem, parent: validateParent } = getCounterValidation(

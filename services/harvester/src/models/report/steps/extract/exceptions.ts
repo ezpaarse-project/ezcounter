@@ -7,7 +7,7 @@ import { createReadStream } from '~/lib/fs';
 import { jsonParser, jsonFilter, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
-import type { RawReportException } from '../../types';
+import type { COUNTERReportException } from '../../types';
 import { getCounterValidation } from '../validate';
 
 /**
@@ -75,7 +75,7 @@ export async function extractReportExceptions(
   reportPath: string,
   options: HarvestDownloadOptions,
   signal?: AbortSignal
-): Promise<RawReportException[]> {
+): Promise<COUNTERReportException[]> {
   const stream = attachAbortSignal(
     chain([
       createReadStream(reportPath),

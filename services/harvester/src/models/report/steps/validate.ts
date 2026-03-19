@@ -5,19 +5,19 @@ import * as r51 from '@ezcounter/counter/schemas/r51';
 // oxlint-enable import/no-namespace
 
 import type {
-  RawReportHeader,
-  RawReportItem,
-  RawReportException,
-  RawReportItemParent,
+  COUNTERReportHeader,
+  COUNTERReportItem,
+  COUNTERReportException,
+  COUNTERReportItemParent,
 } from '../types';
 
 /**
  * Type for a COUNTER Report validation
  */
 type CounterReportValidation = {
-  header: ValidateFunction<RawReportHeader>;
-  item: ValidateFunction<RawReportItem>;
-  parent?: ValidateFunction<RawReportItemParent>;
+  header: ValidateFunction<COUNTERReportHeader>;
+  item: ValidateFunction<COUNTERReportItem>;
+  parent?: ValidateFunction<COUNTERReportItemParent>;
 };
 
 /**
@@ -27,7 +27,7 @@ type CounterReportValidation = {
  * validation should occur normally even for custom reports
  */
 type CounterValidation = Partial<CounterReportValidation> & {
-  exception: ValidateFunction<RawReportException>;
+  exception: ValidateFunction<COUNTERReportException>;
 };
 
 /**

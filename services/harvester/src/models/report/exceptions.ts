@@ -2,7 +2,7 @@ import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 
 import type { HarvestException } from '@ezcounter/models/harvest';
 
-import type { RawReportException } from './types';
+import type { COUNTERReportException } from './types';
 
 /**
  * Exception codes from COUNTER CoP
@@ -189,9 +189,11 @@ export function asHarvestException(code: number): HarvestException | undefined;
  *
  * @returns The normalised exception
  */
-export function asHarvestException(raw: RawReportException): HarvestException;
 export function asHarvestException(
-  input: number | RawReportException
+  raw: COUNTERReportException
+): HarvestException;
+export function asHarvestException(
+  input: number | COUNTERReportException
 ): HarvestException | undefined {
   // Input is an HTTP Code
   if (typeof input === 'number') {

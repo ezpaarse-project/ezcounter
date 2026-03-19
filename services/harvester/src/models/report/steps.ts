@@ -8,7 +8,7 @@ import type { HarvestIdleTimeout } from '~/models/timeout';
 import { queueEnrichJob } from '~/queues/enrich';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import type { RawReportHeader } from './types';
+import type { COUNTERReportHeader } from './types';
 import { asHarvestException } from './exceptions';
 import { archiveReport } from './steps/archive';
 import { cacheReport, type CacheResult } from './steps/download';
@@ -34,7 +34,7 @@ export async function cacheReportToFile(
 ): Promise<CacheResult> {
   try {
     const result = await cacheReport(
-      { id: options.id, path: reportPath },
+      { jobId: options.id, path: reportPath },
       options.download,
       timeout
     );
@@ -164,7 +164,7 @@ export async function getReportHeader(
   reportPath: string,
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
-): Promise<RawReportHeader> {
+): Promise<COUNTERReportHeader> {
   try {
     const header = await extractReportHeader(
       reportPath,
@@ -222,7 +222,7 @@ const sendItemsStatus = (id: string, count: number): void =>
  * @returns `true` if no error occurred
  */
 export async function queueReportItems(
-  report: { path: string; header: RawReportHeader },
+  report: { path: string; header: COUNTERReportHeader },
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {

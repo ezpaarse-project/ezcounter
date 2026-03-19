@@ -4,7 +4,7 @@ import type { HarvestJobData } from '@ezcounter/models/queues';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
-import type { RawReportHeader } from './types';
+import type { COUNTERReportHeader } from './types';
 import { HarvestIdleTimeout } from '../timeout';
 import {
   cacheReportToFile,
@@ -191,7 +191,7 @@ describe('Report Header (getReportHeader)', () => {
 });
 
 describe('Report Items (queueReportItems)', () => {
-  const HEADER = {} as unknown as RawReportHeader;
+  const HEADER = {} as unknown as COUNTERReportHeader;
 
   type Iterator = ReturnType<typeof extractReportItems>;
 

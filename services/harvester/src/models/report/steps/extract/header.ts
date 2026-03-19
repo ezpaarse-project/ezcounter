@@ -7,7 +7,7 @@ import { createReadStream } from '~/lib/fs';
 import { jsonParser, jsonPick, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
-import type { RawReportHeader } from '../../types';
+import type { COUNTERReportHeader } from '../../types';
 import { getCounterValidation } from '../validate';
 
 /**
@@ -30,7 +30,7 @@ export async function extractReportHeader(
   reportPath: string,
   options: HarvestDownloadOptions,
   signal?: AbortSignal
-): Promise<RawReportHeader> {
+): Promise<COUNTERReportHeader> {
   const stream = attachAbortSignal(
     chain([
       createReadStream(reportPath),
@@ -65,7 +65,7 @@ export async function extractReportHeader(
   // If no validation exists for this Report_ID, consider it as valid
   const { header: validate } = getCounterValidation(min.Release, min.Report_ID);
   if (!validate) {
-    return data as RawReportHeader;
+    return data as COUNTERReportHeader;
   }
 
   if (validate(data)) {
@@ -84,7 +84,7 @@ export async function extractReportHeader(
  *
  * @returns The id or `null` if not found
  */
-export function extractRegistryId(header: RawReportHeader): string | null {
+export function extractRegistryId(header: COUNTERReportHeader): string | null {
   if (!header.Registry_Record) {
     return null;
   }

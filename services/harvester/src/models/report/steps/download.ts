@@ -5,6 +5,7 @@ import { createGunzip } from 'node:zlib';
 import chain from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import { fetchReportAsStream } from '@ezcounter/counter';
 
 import {
   createWriteStream,
@@ -17,8 +18,8 @@ import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { HarvestIdleTimeout } from '~/models/timeout';
-import { fetchReportAsStream } from '~/models/data-host';
 
+import { version as appVersion } from '~/../package.json' with { type: 'json' };
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 const logger = appLogger.child({ scope: 'reports' });
@@ -118,16 +119,32 @@ function createEventStream(
  * @param timeout - The timeout before an harvest job is considered as cancelled
  */
 async function downloadReport(
-  report: { id: string; path: string },
+  report: { jobId: string; path: string },
   options: HarvestDownloadOptions,
   timeout?: HarvestIdleTimeout
 ): Promise<{ httpCode: number }> {
-  const response = await fetchReportAsStream(options, timeout?.signal);
+  const response = await fetchReportAsStream(
+    options.report.release,
+    {
+      id: options.report.id,
+      period: options.report.period,
+      periodFormat: options.dataHost.periodFormat,
+      params: options.report.params,
+    },
+    {
+      baseUrl: options.dataHost.baseUrl,
+      userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/harvester:${appVersion})`,
+      auth: options.dataHost.auth,
+      params: options.dataHost.additionalParams,
+      paramsSeparator: options.dataHost.paramsSeparator,
+      signal: timeout?.signal,
+    }
+  );
 
   const stream = chain([
     response.data,
     createEventStream(
-      report.id,
+      report.jobId,
       {
         source: 'remote',
         expectedSize: response.expectedSize,
@@ -141,7 +158,7 @@ async function downloadReport(
 
   logger.debug({
     msg: 'Downloading report...',
-    id: report.id,
+    id: report.jobId,
     reportPath: report.path,
   });
 
@@ -159,7 +176,7 @@ async function downloadReport(
  * @param timeout - The timeout before an harvest job is considered as cancelled
  */
 async function unzipReport(
-  report: { id: string; path: string },
+  report: { jobId: string; path: string },
   archivePath: string,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {
@@ -169,7 +186,7 @@ async function unzipReport(
     [
       createReadStream(archivePath),
       createEventStream(
-        report.id,
+        report.jobId,
         {
           source: 'archive',
           expectedSize: size,
@@ -185,7 +202,7 @@ async function unzipReport(
 
   logger.debug({
     msg: 'Unzipping report...',
-    id: report.id,
+    id: report.jobId,
     reportPath: report.path,
   });
 
@@ -208,7 +225,7 @@ export type CacheResult = {
  * @returns Information about how cache was used
  */
 export async function cacheReport(
-  report: { id: string; path: string },
+  report: { jobId: string; path: string },
   options: HarvestDownloadOptions,
   timeout?: HarvestIdleTimeout
 ): Promise<CacheResult> {
