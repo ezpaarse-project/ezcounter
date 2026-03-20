@@ -1,4 +1,5 @@
 import {
+  HarvestAdditionalParams,
   HarvestDataHostOptions,
   HarvestReportOptions,
 } from '@ezcounter/models/harvest';
@@ -14,7 +15,9 @@ export const DataHost = z.object({
 
   paramsSeparator: HarvestDataHostOptions.shape.paramsSeparator.unwrap(),
 
-  params: HarvestDataHostOptions.shape.additionalParams.unwrap(),
+  params: HarvestAdditionalParams.describe(
+    'Additional params to use when requesting data host'
+  ),
 
   createdAt: z.coerce.date().describe('Creation date'),
 
@@ -51,6 +54,10 @@ export const DataHostSupportedRelease = z.object({
   release: HarvestReportOptions.shape.release,
 
   baseUrl: HarvestDataHostOptions.shape.baseUrl,
+
+  params: HarvestAdditionalParams.describe(
+    'Additional params to use when requesting data host using release'
+  ),
 
   createdAt: z.coerce.date().describe('Creation date'),
 
@@ -90,6 +97,10 @@ export const DataHostSupportedReport = z.object({
   release: DataHostSupportedRelease.shape.release,
 
   id: HarvestReportOptions.shape.id,
+
+  params: HarvestAdditionalParams.describe(
+    'Additional params to use when requesting data host using report'
+  ),
 
   supported: z.boolean().describe('Is report supported by data host'),
 

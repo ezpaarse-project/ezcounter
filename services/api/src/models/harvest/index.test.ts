@@ -35,6 +35,7 @@ describe('CREATE Harvest Jobs', () => {
             },
             params: {
               access_method: ['download.report.params.access_method.0'],
+              foo: 'download.dataHost.additionalParams.foo',
             },
           },
           dataHost: {
@@ -42,9 +43,6 @@ describe('CREATE Harvest Jobs', () => {
             baseUrl: 'download.dataHost.baseUrl',
             periodFormat: 'download.dataHost.periodFormat',
             paramsSeparator: 'download.dataHost.paramsSeparator',
-            additionalParams: {
-              foo: 'download.dataHost.additionalParams.foo',
-            },
           },
           forceDownload: true,
           timeout: 10,

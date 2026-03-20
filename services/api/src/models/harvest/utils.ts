@@ -13,6 +13,7 @@ import {
 import type { HarvestJobData } from '@ezcounter/models/queues';
 
 import type {
+  DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
   DataHostWithSupportedData,
@@ -99,6 +100,10 @@ function splitPeriodByMonths(
     };
   });
 }
+type SupportedData = {
+  release?: DataHostSupportedRelease;
+  report?: DataHostSupportedReport;
+};
 
 /**
  * Get supported data from report options
@@ -111,10 +116,7 @@ function splitPeriodByMonths(
 function getSupportedDataForReport(
   report: HarvestReportOptions,
   { supportedReleases }: DataHostWithSupportedData
-): {
-  release?: DataHostSupportedRelease;
-  report?: DataHostSupportedReport;
-} {
+): SupportedData {
   const supportedRelease = supportedReleases.find(
     ({ release }) => release === report.release
   );
@@ -139,10 +141,7 @@ function getSupportedDataForReport(
  */
 function limitHarvestWithSupported(
   report: HarvestReportOptions,
-  supportedData: {
-    release?: DataHostSupportedRelease;
-    report?: DataHostSupportedReport;
-  }
+  supportedData: SupportedData
 ): HarvestReportOptions | null {
   // If release is not supported by endpoint -> Skip report
   if (!supportedData.release) {
@@ -185,6 +184,52 @@ function limitHarvestWithSupported(
 }
 
 /**
+ * Transform a HarvestRequest into a HarvestJob ready to be sent to harvesters
+ *
+ * @param request - The HarvestRequest
+ * @param report - The report options
+ * @param dataHost - The data host
+ *
+ * @returns The job
+ */
+const createJobFromRequest = (
+  {
+    download: {
+      reports: __,
+      dataHost: { id: dataHostId, ...dataHostOpts },
+      ...downloadOpts
+    },
+    ...request
+  }: HarvestRequest,
+  report: HarvestReportOptions,
+  dataHost: DataHost & {
+    supportedData: SupportedData;
+  }
+): HarvestJobData => ({
+  ...request,
+  id: randomUUID(),
+  download: {
+    ...downloadOpts,
+    cacheKey: dataHostId,
+    report: {
+      ...report,
+      params: {
+        ...dataHost.params,
+        ...dataHost.supportedData.release?.params,
+        ...dataHost.supportedData.report?.params,
+        ...report.params,
+      },
+    },
+    dataHost: {
+      ...dataHostOpts,
+      baseUrl: dataHost.supportedData.release!.baseUrl,
+      periodFormat: dataHost.periodFormat,
+      paramsSeparator: dataHost.paramsSeparator,
+    },
+  },
+});
+
+/**
  * Transform a HarvestRequest into a HarvestJobData ready to be queued
  *
  * @param request - The harvest request
@@ -194,18 +239,17 @@ function limitHarvestWithSupported(
 export async function prepareHarvestJobs(
   request: HarvestRequest
 ): Promise<HarvestJobData[]> {
-  const {
-    reports,
-    dataHost: { id: dataHostId, ...dataHostOpts },
-    ...downloadOpts
-  } = request.download;
+  const dataHost = await getDataHostWithSupportedData(
+    request.download.dataHost.id
+  );
 
-  const dataHost = await getDataHostWithSupportedData(dataHostId);
   if (!dataHost) {
-    throw new Error(`Data host ${dataHostId} is not registered`);
+    throw new Error(
+      `Data host ${request.download.dataHost.id} is not registered`
+    );
   }
 
-  return reports
+  return request.download.reports
     .flatMap(({ splitPeriodBy, ...reportOpts }) => {
       const supportedData = getSupportedDataForReport(reportOpts, dataHost);
 
@@ -215,26 +259,13 @@ export async function prepareHarvestJobs(
       }
 
       const parts = splitPeriodByMonths(report.period, splitPeriodBy || 0);
-      // oxlint-disable-next-line no-map-spread - avoid updating request
-      return parts.map((period) => ({
-        ...request,
-        id: randomUUID(),
-        download: {
-          ...downloadOpts,
-          cacheKey: dataHostId,
-          report: {
-            ...report,
-            period,
-          },
-          dataHost: {
-            ...dataHostOpts,
-            baseUrl: supportedData.release!.baseUrl,
-            periodFormat: dataHost.periodFormat,
-            paramsSeparator: dataHost.paramsSeparator,
-            additionalParams: dataHost.params,
-          },
-        },
-      }));
+      return parts.map((period) =>
+        createJobFromRequest(
+          request,
+          { ...report, period },
+          { ...dataHost, supportedData }
+        )
+      );
     })
     .filter((job) => job != null);
 }

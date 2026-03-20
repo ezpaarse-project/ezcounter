@@ -26,6 +26,7 @@ const server = await createTestServer(async (fastify) => {
 describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   const body: InputDataHostSupportedRelease = {
     baseUrl: 'https://example-counter-host.localhost',
+    params: {},
   };
 
   const release: DataHostSupportedRelease = {

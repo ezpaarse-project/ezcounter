@@ -28,6 +28,7 @@ describe('CREATE Data Host', () => {
       dataHostId: 'id',
       release: '5.1',
       baseUrl: 'https://counter-datahost.example',
+      params: {},
       createdAt: new Date(),
       updatedAt: null,
     };
@@ -54,6 +55,7 @@ describe('CREATE Data Host', () => {
       dataHostId: 'id',
       release: '5.1',
       id: 'tr',
+      params: {},
       supported: true,
       supportedOverride: null,
       firstMonthAvailable: '',
@@ -62,6 +64,7 @@ describe('CREATE Data Host', () => {
       lastMonthAvailableOverride: null,
       createdAt: new Date(),
       updatedAt: null,
+      refreshedAt: null,
     };
 
     test('should query DB', async () => {
@@ -228,6 +231,7 @@ describe('READ Data Host', () => {
       dataHostId: '',
       release: '5.1',
       baseUrl: 'https://counter-datahost.com/',
+      params: {},
       createdAt: new Date(),
       updatedAt: null,
     };
@@ -235,6 +239,7 @@ describe('READ Data Host', () => {
       dataHostId: '',
       release: '5.1',
       id: 'tr',
+      params: {},
       supported: false,
       supportedOverride: null,
       firstMonthAvailable: '',
@@ -243,6 +248,7 @@ describe('READ Data Host', () => {
       lastMonthAvailableOverride: null,
       createdAt: new Date(),
       updatedAt: null,
+      refreshedAt: null,
     };
 
     test('should query DB', async () => {
@@ -300,6 +306,7 @@ describe('UPDATE Data Host', () => {
       dataHostId: 'id',
       release: '5.1',
       baseUrl: 'https://counter-datahost.example',
+      params: {},
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -326,6 +333,7 @@ describe('UPDATE Data Host', () => {
       dataHostId: 'id',
       release: '5.1',
       id: 'tr',
+      params: {},
       supported: true,
       supportedOverride: null,
       firstMonthAvailable: '',
@@ -334,6 +342,7 @@ describe('UPDATE Data Host', () => {
       lastMonthAvailableOverride: null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      refreshedAt: null,
     };
 
     test('should query DB', async () => {

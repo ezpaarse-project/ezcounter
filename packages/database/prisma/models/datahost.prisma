@@ -27,6 +27,8 @@ model DataHostSupportedRelease {
   release    String
   /// URL to access data host
   baseUrl    String
+  /// Additional params of the host for this release
+  params     Json      @default("{}")
   /// When the info was created
   createdAt  DateTime  @default(now())
   /// When the info was updated for the last time
@@ -49,6 +51,8 @@ model DataHostSupportedReport {
   release                     String
   /// COUNTER report ID
   id                          String
+  /// Additional params of the host for this report
+  params                      Json      @default("{}")
   /// Is the report supported
   supported                   Boolean   @default(true)
   /// Admin override of supported - null if no override

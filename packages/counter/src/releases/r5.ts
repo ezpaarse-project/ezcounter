@@ -55,8 +55,6 @@ export type R5ReportOptions = {
     end: string;
   };
   periodFormat?: string;
-  /** Additional options to use when requesting report */
-  params?: CreateDataHostFetchOptions['params'];
 };
 
 /**
@@ -87,7 +85,6 @@ export async function fetchR5ReportAsStream(
     responseType: 'stream',
     ignoreResponseError: true,
     query: {
-      ...report.params,
       ...formatReportPeriod(report.period, report.periodFormat),
     },
   });

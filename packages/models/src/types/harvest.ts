@@ -27,47 +27,6 @@ export const HarvestReportPeriod = z.object({
 export type HarvestReportPeriod = z.infer<typeof HarvestReportPeriod>;
 
 /**
- * Validation for the options to harvest a COUNTER report
- */
-export const HarvestReportOptions = z.object({
-  id: z.string().describe('Report ID to harvest'),
-
-  period: HarvestReportPeriod.describe('Period of the harvest'),
-
-  release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
-
-  params: z
-    .object({
-      // Filters
-      access_method: z.array(z.string()).optional(),
-      access_type: z.array(z.string()).optional(),
-      data_type: z.array(z.string()).optional(),
-      metric_type: z.array(z.string()).optional(),
-      attributed: z.boolean().optional(),
-      country_code: z.array(z.string()).optional(),
-      subdivision_code: z.string().optional(),
-      yop: z.array(z.string()).optional(),
-      database: z.string().optional(),
-      platform: z.string().optional(),
-      author: z.string().optional(),
-      item_id: z.string().optional(),
-      // Attributes
-      attributes_to_show: z.array(z.string()).optional(),
-      include_components_details: z.boolean().optional(),
-      include_parent_details: z.boolean().optional(),
-      // Others
-      granularity: z.string().optional(),
-    })
-    .optional()
-    .describe('Query parameters to use when downloading report'),
-});
-
-/**
- * Type for the options to harvest a COUNTER report
- */
-export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
-
-/**
  * Validation for additional params when requesting a report
  */
 export const HarvestAdditionalParams = z.record(
@@ -79,6 +38,50 @@ export const HarvestAdditionalParams = z.record(
  * Type for additional params when requesting a report
  */
 export type HarvestAdditionalParams = z.infer<typeof HarvestAdditionalParams>;
+
+/**
+ * Validation for the options to harvest a COUNTER report
+ */
+export const HarvestReportOptions = z.object({
+  id: z.string().describe('Report ID to harvest'),
+
+  period: HarvestReportPeriod.describe('Period of the harvest'),
+
+  release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
+
+  params: z
+    .intersection(
+      z.object({
+        // Filters
+        access_method: z.array(z.string()).optional(),
+        access_type: z.array(z.string()).optional(),
+        data_type: z.array(z.string()).optional(),
+        metric_type: z.array(z.string()).optional(),
+        attributed: z.boolean().optional(),
+        country_code: z.array(z.string()).optional(),
+        subdivision_code: z.string().optional(),
+        yop: z.array(z.string()).optional(),
+        database: z.string().optional(),
+        platform: z.string().optional(),
+        author: z.string().optional(),
+        item_id: z.string().optional(),
+        // Attributes
+        attributes_to_show: z.array(z.string()).optional(),
+        include_components_details: z.boolean().optional(),
+        include_parent_details: z.boolean().optional(),
+        // Others
+        granularity: z.string().optional(),
+      }),
+      HarvestAdditionalParams
+    )
+    .optional()
+    .describe('Query parameters to use when downloading report'),
+});
+
+/**
+ * Type for the options to harvest a COUNTER report
+ */
+export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
 
 /**
  * Validation for the options to harvest a COUNTER endpoint
@@ -103,10 +106,6 @@ export const HarvestDataHostOptions = z.object({
     .string()
     .optional()
     .describe('Separator used for multivaluated params (defaults to "|")'),
-
-  additionalParams: HarvestAdditionalParams.optional().describe(
-    'Query parameters to add on requests'
-  ),
 });
 
 /**

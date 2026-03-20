@@ -176,14 +176,14 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       {
         id: 'ir',
         period: { start: '2025-01', end: '2025-12' },
-        params: {
-          access_method: ['Regular', 'TDM'],
-        },
       },
       {
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
         auth: {},
+        params: {
+          access_method: ['Regular', 'TDM'],
+        },
       }
     );
     const result = new URL(url);
@@ -199,15 +199,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       {
         id: 'ir',
         period: { start: '2025-01', end: '2025-12' },
-        params: {
-          access_method: ['Regular', 'TDM'],
-        },
       },
       {
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
         auth: {},
         paramsSeparator: ',',
+        params: {
+          access_method: ['Regular', 'TDM'],
+        },
       }
     );
     const result = new URL(url);
@@ -235,31 +235,6 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     );
 
     expect(url).toContain('attributed=False');
-
-    // Destroying stream to avoid EBADF errors
-    data.destroy();
-  });
-
-  test('should merge params of base and report', async () => {
-    const { url, data } = await fetchR51ReportAsStream(
-      {
-        id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
-        params: {
-          access_method: 'Regular',
-        },
-      },
-      {
-        baseUrl: 'https://valid-response.localhost/r51',
-        userAgent: '',
-        auth: {},
-        params: {
-          attributed: false,
-        },
-      }
-    );
-
-    expect(url).toContain('attributed=False&access_method=Regular');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
@@ -313,9 +288,6 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       {
         id: 'ir',
         period: { start: '2025-01', end: '2025-12' },
-        params: {
-          access_method: ['Regular', 'TDM'],
-        },
       },
       {
         baseUrl: 'https://valid-response.localhost/r51',

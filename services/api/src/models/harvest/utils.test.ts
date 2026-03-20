@@ -47,6 +47,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
         dataHostId: 'my-counter-datahost',
         release: '5.1',
         baseUrl: '',
+        params: {},
         createdAt: new Date(),
         updatedAt: null,
         supportedReports,
@@ -59,6 +60,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
     dataHostId: '',
     release: '5.1',
     id: 'ir',
+    params: {},
     supported: true,
     supportedOverride: null,
     firstMonthAvailable: '',
@@ -77,6 +79,72 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
     const promise = prepareHarvestJobs(request);
 
     await expect(promise).resolves.toBeInstanceOf(Array);
+  });
+
+  test('should merge params', async () => {
+    const report = getSupportedReport();
+    report.params = {
+      param0: 'from report',
+      param1: 'from report',
+    };
+
+    const host = getDataHost([report]);
+    host.supportedReleases[0].params = {
+      param0: 'from release',
+      param1: 'from release',
+      param2: 'from release',
+    };
+
+    host.params = {
+      param0: 'from host',
+      param1: 'from host',
+      param2: 'from host',
+      param3: 'from host',
+    };
+
+    getDataHostWithSupportedData.mockResolvedValueOnce(host);
+
+    const request = getRequest();
+    request.download.reports[0].params = {
+      platform: 'test',
+      param0: 'from request',
+    };
+
+    const promise = prepareHarvestJobs(request);
+
+    await expect(promise).resolves.toHaveProperty(
+      '0.download.report.params.platform',
+      'test'
+    );
+    // Check overrides
+    await expect(promise).resolves.toHaveProperty(
+      '0.download.report.params.param0',
+      'from request'
+    );
+    await expect(promise).resolves.toHaveProperty(
+      '0.download.report.params.param1',
+      'from report'
+    );
+    await expect(promise).resolves.toHaveProperty(
+      '0.download.report.params.param2',
+      'from release'
+    );
+    await expect(promise).resolves.toHaveProperty(
+      '0.download.report.params.param3',
+      'from host'
+    );
+  });
+
+  test('should give ID to jobs', async () => {
+    getDataHostWithSupportedData.mockResolvedValueOnce(
+      getDataHost([getSupportedReport()])
+    );
+
+    const request = getRequest();
+
+    const promise = prepareHarvestJobs(request);
+
+    await expect(promise).resolves.toHaveProperty('0.id');
   });
 
   test('should throw if data host is unknown', async () => {
@@ -181,7 +249,6 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
         download: {
           cacheKey: 'my-counter-datahost',
           dataHost: {
-            additionalParams: {},
             auth: {
               customer_id: 'foobar',
             },
@@ -196,6 +263,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
               start: '2025-01',
             },
             release: '5.1',
+            params: {},
           },
         },
         insert: {

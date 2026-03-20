@@ -129,13 +129,12 @@ async function downloadReport(
       id: options.report.id,
       period: options.report.period,
       periodFormat: options.dataHost.periodFormat,
-      params: options.report.params,
     },
     {
       baseUrl: options.dataHost.baseUrl,
       userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/harvester:${appVersion})`,
       auth: options.dataHost.auth,
-      params: options.dataHost.additionalParams,
+      params: options.report.params,
       paramsSeparator: options.dataHost.paramsSeparator,
       signal: timeout?.signal,
     }

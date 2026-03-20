@@ -49,7 +49,6 @@ export const HarvestRequest = z.object({
         baseUrl: true,
         periodFormat: true,
         paramsSeparator: true,
-        additionalParams: true,
       }).shape,
 
       id: z.string().describe('ID of the data host'),
