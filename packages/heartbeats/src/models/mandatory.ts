@@ -1,4 +1,4 @@
-import type { HeartbeatConnectedServicePing } from '../types';
+import type { HeartbeatConnectedServicePing } from '../dto';
 
 export const mandatoryServices = new Map<string, boolean>();
 

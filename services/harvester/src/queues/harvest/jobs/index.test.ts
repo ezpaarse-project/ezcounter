@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
-import { ZodError } from '@ezcounter/models/lib/zod';
+import { ZodError } from '@ezcounter/dto';
 import {
   rabbitmq as mq,
   parseJSONMessage,

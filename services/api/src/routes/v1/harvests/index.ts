@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 import {
   createManyHarvestJob,
@@ -9,7 +9,7 @@ import {
   findAllHarvestJob,
   findManyHarvestJobById,
 } from '~/models/harvest';
-import { HarvestJob, HarvestRequest } from '~/models/harvest/types';
+import { HarvestJob, HarvestRequest } from '~/models/harvest/dto';
 import { prepareHarvestJobs } from '~/models/harvest/utils';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 import type { ErrorResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../tests/fastify/v1';

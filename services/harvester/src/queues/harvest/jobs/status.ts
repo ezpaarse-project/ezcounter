@@ -1,4 +1,4 @@
-import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
+import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';

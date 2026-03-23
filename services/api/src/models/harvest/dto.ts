@@ -1,15 +1,12 @@
+import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
   HarvestDataHostOptions,
   HarvestDownloadOptions,
   HarvestReportOptions,
   HarvestReportPeriod,
-} from '@ezcounter/models/harvest';
-import { z } from '@ezcounter/models/lib/zod';
-import {
-  HarvestJobData,
-  HarvestJobStatusEvent,
-} from '@ezcounter/models/queues';
+} from '@ezcounter/dto/harvest';
+import { HarvestJobData, HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
 /**
  * Validation for a harvest request
@@ -111,4 +108,4 @@ export const HarvestJob = z.object({
  */
 export type HarvestJob = z.infer<typeof HarvestJob>;
 
-export * from '@ezcounter/models/harvest';
+export * from '@ezcounter/dto/harvest';

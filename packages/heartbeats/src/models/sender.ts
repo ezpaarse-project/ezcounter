@@ -11,7 +11,7 @@ import type {
   HeartbeatService,
   HeartbeatFrequency,
   HeartbeatConnectedServicePing,
-} from '../types';
+} from '../dto';
 import {
   doPingWithTimeout,
   assertTransport,

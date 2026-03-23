@@ -1,10 +1,10 @@
-import type { HarvestJobData } from '@ezcounter/models/queues';
-import { HarvestJobStep, Prisma } from '@ezcounter/database/types';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
+import { HarvestJobStep, Prisma } from '@ezcounter/database';
 
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
 
-import { HarvestJob, type HarvestError } from './types';
+import { HarvestJob, type HarvestError } from './dto';
 
 const JOB_STEPS = Object.keys(HarvestJobStep) as HarvestJobStep[];
 

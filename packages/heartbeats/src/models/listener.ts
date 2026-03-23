@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import type { Logger } from '@ezcounter/logger';
 import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
 
-import { Heartbeat } from '../types';
+import { Heartbeat } from '../dto';
 import { assertTransport } from './utils';
 
 export type HeartbeatListener = EventEmitter<{

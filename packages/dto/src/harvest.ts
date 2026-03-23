@@ -1,4 +1,18 @@
-import { z } from '../lib/zod';
+import { z } from '.';
+
+/**
+ * Validation for the auth to use when requesting a COUNTER endpoint
+ */
+export const HarvestAuthOptions = z.object({
+  customer_id: z.string().optional(),
+  requestor_id: z.string().optional(),
+  api_key: z.string().optional(),
+});
+
+/**
+ * Type for the auth to use when requesting a COUNTER endpoint
+ */
+export type HarvestAuthOptions = z.infer<typeof HarvestAuthOptions>;
 
 /**
  * Validation for a date of the period of a report
@@ -89,13 +103,7 @@ export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
 export const HarvestDataHostOptions = z.object({
   baseUrl: z.url().describe('URL to use'),
 
-  auth: z
-    .object({
-      customer_id: z.string().optional(),
-      requestor_id: z.string().optional(),
-      api_key: z.string().optional(),
-    })
-    .describe('Credentials to use to harvest'),
+  auth: HarvestAuthOptions.describe('Credentials to use to harvest'),
 
   periodFormat: z
     .string()

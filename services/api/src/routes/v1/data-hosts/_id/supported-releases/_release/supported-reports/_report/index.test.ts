@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import type {
   DataHostSupportedReport,
   InputDataHostSupportedReport,
-} from '~/models/data-host/types';
+} from '~/models/data-host/dto';
 import {
   deleteReportSupportedByDataHost,
   doesDataHostExists,

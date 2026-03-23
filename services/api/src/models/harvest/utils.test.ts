@@ -3,8 +3,8 @@ import { describe, expect, test, vi } from 'vitest';
 import type {
   DataHostSupportedReport,
   DataHostWithSupportedData,
-} from '~/models/data-host/types';
-import type { HarvestRequest } from '~/models/harvest/types';
+} from '~/models/data-host/dto';
+import type { HarvestRequest } from '~/models/harvest/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host/__mocks__';
 import { prepareHarvestJobs } from '~/models/harvest/utils';
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 import {
   type ErrorResponse,

@@ -8,7 +8,7 @@ import {
   type InputDataHost,
   type InputDataHostSupportedRelease,
   type InputDataHostSupportedReport,
-} from './types';
+} from './dto';
 
 /**
  * Check for the existence of a data host

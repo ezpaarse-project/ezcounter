@@ -1,5 +1,5 @@
 {
-  "name": "@ezcounter/models",
+  "name": "@ezcounter/toolbox",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -15,8 +15,7 @@
   },
   "type": "module",
   "exports": {
-    "./lib/*": "./src/lib/*.ts",
-    "./*": "./src/types/*.ts"
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "lint": "oxlint",
@@ -25,7 +24,7 @@
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "zod": "^4.3.6"
+    "@ezcounter/dto": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",

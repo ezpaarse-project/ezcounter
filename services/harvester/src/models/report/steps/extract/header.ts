@@ -1,13 +1,13 @@
 import chain from 'stream-chain';
 
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
-import { z } from '@ezcounter/models/lib/zod';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
+import { z } from '@ezcounter/dto';
 
 import { createReadStream } from '~/lib/fs';
 import { jsonParser, jsonPick, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
-import type { COUNTERReportHeader } from '../../types';
+import type { COUNTERReportHeader } from '../../dto';
 import { getCounterValidation } from '../validate';
 
 /**

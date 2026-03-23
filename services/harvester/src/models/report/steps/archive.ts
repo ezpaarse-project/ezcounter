@@ -2,7 +2,7 @@ import { createGzip } from 'node:zlib';
 
 import chain from 'stream-chain';
 
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import { createWriteStream, createReadStream, exists, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';

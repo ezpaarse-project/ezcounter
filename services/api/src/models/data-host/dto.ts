@@ -1,9 +1,9 @@
+import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
   HarvestDataHostOptions,
   HarvestReportOptions,
-} from '@ezcounter/models/harvest';
-import { z } from '@ezcounter/models/lib/zod';
+} from '@ezcounter/dto/harvest';
 
 /**
  * Validation for a registered Data Host

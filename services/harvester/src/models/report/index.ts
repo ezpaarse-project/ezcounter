@@ -1,7 +1,7 @@
 import { resolve } from 'node:path';
 
-import type { HarvestError, HarvestException } from '@ezcounter/models/harvest';
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestError, HarvestException } from '@ezcounter/dto/harvest';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';

@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
 
 import type { ValidateFunction } from '@ezcounter/counter/schemas';
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import type {
   COUNTERReportItem,

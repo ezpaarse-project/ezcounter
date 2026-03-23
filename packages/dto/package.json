@@ -1,5 +1,5 @@
 {
-  "name": "@ezcounter/heartbeats",
+  "name": "@ezcounter/dto",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -16,22 +16,17 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./dto": "./src/dto.ts"
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "lint": "oxlint",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "@ezcounter/dto": "workspace:*",
-    "@ezcounter/logger": "workspace:*",
-    "@ezcounter/rabbitmq": "workspace:*"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "catalog:",
+    "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

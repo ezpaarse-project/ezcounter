@@ -1,6 +1,6 @@
-import { createThrottledFunction } from '@ezcounter/models/lib/utils';
-import { HarvestJobStatusEvent } from '@ezcounter/models/queues';
+import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
+import { createThrottledFunction } from '@ezcounter/toolbox/utils';
 
 import { appLogger } from '~/lib/logger';
 

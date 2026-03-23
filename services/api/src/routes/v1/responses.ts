@@ -1,6 +1,6 @@
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 /**
  * Type for the expected reply from the HTTP server

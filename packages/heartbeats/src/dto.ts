@@ -1,4 +1,4 @@
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 export const FileSystemUsage = z.object({
   name: z.string().min(1).describe('Filesystem name'),

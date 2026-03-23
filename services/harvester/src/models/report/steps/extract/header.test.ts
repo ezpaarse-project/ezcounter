@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import type { SUSHIReportHeader } from '@ezcounter/counter/schemas/r5';
 import type { IRReportHeader } from '@ezcounter/counter/schemas/r51';
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import { extractReportHeader, extractRegistryId } from './header';
 

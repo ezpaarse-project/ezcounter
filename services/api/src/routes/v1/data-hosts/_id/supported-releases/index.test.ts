@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { DataHostSupportedRelease } from '~/models/data-host/types';
+import type { DataHostSupportedRelease } from '~/models/data-host/dto';
 import {
   doesDataHostExists,
   findAllReleasesSupportedByDataHost,

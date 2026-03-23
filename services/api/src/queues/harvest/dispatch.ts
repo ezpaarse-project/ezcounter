@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto';
 
-import type { HarvestError } from '@ezcounter/models/harvest';
+import type { HarvestError } from '@ezcounter/dto/harvest';
 import type {
   HarvestDispatchData,
   HarvestJobData,
-} from '@ezcounter/models/queues';
-import { asHarvestError } from '@ezcounter/models/lib/harvest';
+} from '@ezcounter/dto/queues';
 import { sendJSONMessage, rabbitmq } from '@ezcounter/rabbitmq';
+import { asHarvestError } from '@ezcounter/toolbox/harvest';
 
 import { appLogger } from '~/lib/logger';
 

@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { DataHost } from '~/models/data-host/types';
+import type { DataHost } from '~/models/data-host/dto';
 import { findAllDataHost } from '~/models/data-host/__mocks__';
 
 import type { SuccessResponse } from '~/routes/v1/responses';

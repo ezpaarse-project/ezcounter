@@ -1,5 +1,5 @@
-import type { HarvestException } from '@ezcounter/models/harvest';
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestException } from '@ezcounter/dto/harvest';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
 
 import { appLogger } from '~/lib/logger';
 
@@ -8,7 +8,7 @@ import type { HarvestIdleTimeout } from '~/models/timeout';
 import { queueEnrichJob } from '~/queues/enrich';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import type { COUNTERReportHeader } from './types';
+import type { COUNTERReportHeader } from './dto';
 import { asHarvestException } from './exceptions';
 import { archiveReport } from './steps/archive';
 import { cacheReport, type CacheResult } from './steps/download';

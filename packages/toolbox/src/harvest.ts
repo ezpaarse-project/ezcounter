@@ -1,5 +1,5 @@
-import { HarvestError } from '../types/harvest';
-import { z } from './zod';
+import { z } from '@ezcounter/dto';
+import { HarvestError } from '@ezcounter/dto/harvest';
 
 /**
  * Normalise error from execution

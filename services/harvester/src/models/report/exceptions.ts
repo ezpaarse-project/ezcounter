@@ -1,8 +1,8 @@
 import { getReasonPhrase, StatusCodes } from 'http-status-codes';
 
-import type { HarvestException } from '@ezcounter/models/harvest';
+import type { HarvestException } from '@ezcounter/dto/harvest';
 
-import type { COUNTERReportException } from './types';
+import type { COUNTERReportException } from './dto';
 
 /**
  * Exception codes from COUNTER CoP
@@ -239,4 +239,4 @@ export function asHarvestException(
   };
 }
 
-export { asHarvestError } from '@ezcounter/models/lib/harvest';
+export { asHarvestError } from '@ezcounter/toolbox/harvest';

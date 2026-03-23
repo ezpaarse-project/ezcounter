@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import {
   createWriteStream,

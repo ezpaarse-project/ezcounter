@@ -10,23 +10,22 @@ import {
   type Interval,
 } from 'date-fns';
 
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
+import { PERIOD_FORMAT } from '@ezcounter/counter';
 
 import type {
   DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
   DataHostWithSupportedData,
-} from '~/models/data-host/types';
+} from '~/models/data-host/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host';
 
 import type {
   HarvestReportOptions,
   HarvestReportPeriod,
   HarvestRequest,
-} from './types';
-
-const PERIOD_FORMAT = 'yyyy-MM';
+} from './dto';
 
 /**
  * Shorthand to parse a HarvestReportPeriod as Dates

@@ -6,7 +6,7 @@ import type {
   DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
-} from '~/models/data-host/types';
+} from '~/models/data-host/dto';
 import {
   doesDataHostExists,
   doesDataHostSupportsRelease,

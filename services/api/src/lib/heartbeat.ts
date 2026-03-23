@@ -7,7 +7,7 @@ import type {
   HeartbeatService,
   HeartbeatSender,
   HeartbeatListener,
-} from '@ezcounter/heartbeats/types';
+} from '@ezcounter/heartbeats/dto';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 import {
   setupHeartbeat,
@@ -18,7 +18,7 @@ import {
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-import type { Heartbeat } from '~/models/heartbeat/types';
+import type { Heartbeat } from '~/models/heartbeat/dto';
 
 import { version } from '~/../package.json' with { type: 'json' };
 

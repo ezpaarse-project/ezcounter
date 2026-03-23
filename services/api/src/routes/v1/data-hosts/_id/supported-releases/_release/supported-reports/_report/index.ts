@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 import {
   deleteReportSupportedByDataHost,
@@ -10,7 +10,7 @@ import {
 import {
   DataHostSupportedReport,
   InputDataHostSupportedReport,
-} from '~/models/data-host/types';
+} from '~/models/data-host/dto';
 
 import {
   assertDataHostRegistered,

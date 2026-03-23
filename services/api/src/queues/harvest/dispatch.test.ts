@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 import { rabbitmq as mq, sendJSONMessage } from '@ezcounter/rabbitmq/__mocks__';
 

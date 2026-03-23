@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestJobData } from '@ezcounter/models/queues';
+import type { HarvestJobData } from '@ezcounter/dto/queues';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
-import type { COUNTERReportHeader } from './types';
+import type { COUNTERReportHeader } from './dto';
 import { HarvestIdleTimeout } from '../timeout';
 import {
   cacheReportToFile,

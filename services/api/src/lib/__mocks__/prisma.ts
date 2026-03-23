@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
-import type { PrismaClient } from '@ezcounter/database/types';
+import type { PrismaClient } from '@ezcounter/database';
 
 export const dbClient = mockDeep<PrismaClient>();
 

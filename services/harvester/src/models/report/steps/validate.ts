@@ -9,7 +9,7 @@ import type {
   COUNTERReportItem,
   COUNTERReportException,
   COUNTERReportItemParent,
-} from '../types';
+} from '../dto';
 
 /**
  * Type for a COUNTER Report validation

@@ -1,4 +1,4 @@
-import type { Heartbeat } from '@ezcounter/heartbeats/types';
+import type { Heartbeat } from '@ezcounter/heartbeats/dto';
 import { setupDB, pingDB } from '@ezcounter/database';
 
 import { config } from '~/lib/config';

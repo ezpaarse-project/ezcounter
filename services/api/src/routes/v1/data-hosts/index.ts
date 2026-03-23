@@ -1,10 +1,10 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/models/lib/zod';
+import { z } from '@ezcounter/dto';
 
 import { findAllDataHost } from '~/models/data-host';
-import { DataHost } from '~/models/data-host/types';
+import { DataHost } from '~/models/data-host/dto';
 
 import {
   buildResponse,

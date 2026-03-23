@@ -4,7 +4,7 @@ import { createGunzip } from 'node:zlib';
 
 import chain from 'stream-chain';
 
-import type { HarvestDownloadOptions } from '@ezcounter/models/harvest';
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { fetchReportAsStream } from '@ezcounter/counter';
 
 import {

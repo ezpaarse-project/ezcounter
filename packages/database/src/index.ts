@@ -1,9 +1,11 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 
-import type { Heartbeat } from '@ezcounter/heartbeats/types';
+import type { Heartbeat } from '@ezcounter/heartbeats/dto';
 import type { Logger } from '@ezcounter/logger';
 
 import { PrismaClient } from '../.prisma/client';
+
+export * from '../.prisma/client';
 
 type DatabaseConfig = {
   user: string;

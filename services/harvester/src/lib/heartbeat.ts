@@ -1,7 +1,7 @@
 import type {
   HeartbeatService,
   HeartbeatSender,
-} from '@ezcounter/heartbeats/types';
+} from '@ezcounter/heartbeats/dto';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 import { setupHeartbeat } from '@ezcounter/heartbeats';
 

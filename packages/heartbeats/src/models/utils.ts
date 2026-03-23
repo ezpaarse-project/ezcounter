@@ -5,7 +5,7 @@ import {
   type JSONMessageTransportExchange,
 } from '@ezcounter/rabbitmq';
 
-import type { HeartbeatConnectedServicePing, Heartbeat } from '../types';
+import type { HeartbeatConnectedServicePing, Heartbeat } from '../dto';
 import { mandatoryServices } from './mandatory';
 
 /**

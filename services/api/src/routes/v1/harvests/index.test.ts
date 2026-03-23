@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestJobStatusEvent } from '@ezcounter/models/queues';
+import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
 import type { HarvestRequest } from '~/models/harvest/types';
 import {
@@ -10,6 +10,7 @@ import {
 } from '~/models/harvest/__mocks__';
 import { prepareHarvestJobs } from '~/models/harvest/__mocks__/utils';
 
+import type { HarvestRequest } from '~/dto/harvest/dto';
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../tests/fastify/v1';
 import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';

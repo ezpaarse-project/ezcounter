@@ -14,10 +14,7 @@
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./types": "./src/types.ts"
-  },
+  "exports": "./src/index.ts",
   "scripts": {
     "db:deploy": "prisma migrate deploy",
     "db:diff": "dotenvx run -- prisma migrate diff --from-schema-datasource prisma --to-schema-datamodel prisma",

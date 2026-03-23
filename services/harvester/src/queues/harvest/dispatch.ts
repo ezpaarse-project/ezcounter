@@ -1,6 +1,6 @@
 import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
-import { HarvestDispatchData } from '@ezcounter/models/queues';
+import { HarvestDispatchData } from '@ezcounter/dto/queues';
 import { rabbitmq, consumeJSONQueue } from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
