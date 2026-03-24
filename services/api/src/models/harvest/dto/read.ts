@@ -1,62 +1,11 @@
 import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
-  HarvestDataHostOptions,
-  HarvestDownloadOptions,
-  HarvestReportOptions,
   HarvestReportPeriod,
 } from '@ezcounter/dto/harvest';
-import { HarvestJobData, HarvestJobStatusEvent } from '@ezcounter/dto/queues';
+import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
-/**
- * Validation for a harvest request
- */
-export const HarvestRequest = z.object({
-  ...HarvestJobData.omit({ id: true, try: true }).shape,
-
-  download: z.object({
-    ...HarvestDownloadOptions.omit({
-      report: true,
-      dataHost: true,
-      cacheKey: true,
-    }).shape,
-
-    // Allow for multiple reports
-    reports: z
-      .array(
-        z.object({
-          ...HarvestReportOptions.shape,
-
-          // Allow to split periods
-          splitPeriodBy: z
-            .int()
-            .min(1)
-            .optional()
-            .describe(
-              'If present, will split period by the number of given months'
-            ),
-        })
-      )
-      .min(1)
-      .describe('Information about reports to harvest'),
-
-    // Ask for a registered Data Host
-    dataHost: z.object({
-      ...HarvestDataHostOptions.omit({
-        baseUrl: true,
-        periodFormat: true,
-        paramsSeparator: true,
-      }).shape,
-
-      id: z.string().describe('ID of the data host'),
-    }),
-  }),
-});
-
-/**
- * Type for a harvest request
- */
-export type HarvestRequest = z.infer<typeof HarvestRequest>;
+export * from '@ezcounter/dto/harvest';
 
 /**
  * Validation for a harvest job from DB
@@ -107,5 +56,3 @@ export const HarvestJob = z.object({
  * A mix between `HarvestJobData` and `HarvestJobStatusEvent` (but with required properties)
  */
 export type HarvestJob = z.infer<typeof HarvestJob>;
-
-export * from '@ezcounter/dto/harvest';

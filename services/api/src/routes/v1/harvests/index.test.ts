@@ -2,15 +2,14 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
-import type { HarvestRequest } from '~/models/harvest/types';
+import type { CreateHarvestRequest } from '~/models/harvest/dto';
 import {
   findAllHarvestJob,
   findManyHarvestJobById,
   createManyHarvestJob,
 } from '~/models/harvest/__mocks__';
-import { prepareHarvestJobs } from '~/models/harvest/__mocks__/utils';
+import { prepareHarvestJobs } from '~/models/harvest/__mocks__/prepare';
 
-import type { HarvestRequest } from '~/dto/harvest/dto';
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../tests/fastify/v1';
 import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';
@@ -19,7 +18,7 @@ import router from '.';
 
 vi.mock(import('~/queues/harvest/dispatch'));
 vi.mock(import('~/models/harvest'));
-vi.mock(import('~/models/harvest/utils'));
+vi.mock(import('~/models/harvest/prepare'));
 
 const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/harvests' });
@@ -43,7 +42,7 @@ describe('GET /harvests', () => {
 });
 
 describe('POST /harvests/_bulk', () => {
-  const body: HarvestRequest[] = [
+  const body: CreateHarvestRequest[] = [
     {
       download: {
         reports: [
@@ -122,6 +121,19 @@ describe('POST /harvests/_bulk', () => {
 
     expect(findManyHarvestJobById).toBeCalledTimes(1);
     expect(content).toBeInstanceOf(Array);
+  });
+
+  test('should transform requests', async () => {
+    prepareHarvestJobs.mockResolvedValue([]);
+    findManyHarvestJobById.mockResolvedValueOnce([]);
+
+    await server.inject({
+      method: 'POST',
+      url: '/harvests/_bulk',
+      body,
+    });
+
+    expect(prepareHarvestJobs).toBeCalledTimes(body.length);
   });
 
   test('should create jobs', async () => {

@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from '@ezcounter/dto';
 
 import { upsertDataHost, deleteDataHost } from '~/models/data-host';
-import { InputDataHost, DataHost } from '~/models/data-host/dto';
+import { UpdateDataHost, DataHost } from '~/models/data-host/dto';
 
 import {
   describeErrors,
@@ -28,7 +28,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       summary: 'Create or update a data host',
       tags: ['data-host'],
       params: RouterParams,
-      body: InputDataHost,
+      body: UpdateDataHost,
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,

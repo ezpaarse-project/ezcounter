@@ -4,12 +4,13 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from '@ezcounter/dto';
 
 import {
-  deleteReportSupportedByDataHost,
+  findOneReportSupportedByDataHost,
   upsertReportSupportedByDataHost,
+  deleteReportSupportedByDataHost,
 } from '~/models/data-host';
 import {
   DataHostSupportedReport,
-  InputDataHostSupportedReport,
+  UpdateDataHostSupportedReport,
 } from '~/models/data-host/dto';
 
 import {
@@ -41,7 +42,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         'Create or update a supported report of a data host for a release',
       tags: ['data-host'],
       params: RouterParams,
-      body: InputDataHostSupportedReport,
+      body: UpdateDataHostSupportedReport,
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,
@@ -59,9 +60,20 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id, release, report } = request.params;
 
+      const previous = (await findOneReportSupportedByDataHost(
+        id,
+        release,
+        report
+      )) ?? {
+        supported: false,
+        firstMonthAvailable: '',
+        lastMonthAvailable: '',
+      };
+
       return buildResponse(
         reply,
         await upsertReportSupportedByDataHost({
+          ...previous,
           ...request.body,
           dataHostId: id,
           release,

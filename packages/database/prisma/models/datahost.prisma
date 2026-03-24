@@ -22,17 +22,19 @@ model DataHost {
 /// COUNTER releases supported by data host
 model DataHostSupportedRelease {
   /// ID of the data host
-  dataHostId String
+  dataHostId  String
   /// COUNTER Release
-  release    String
+  release     String
   /// URL to access data host
-  baseUrl    String
+  baseUrl     String
   /// Additional params of the host for this release
-  params     Json      @default("{}")
+  params      Json      @default("{}")
   /// When the info was created
-  createdAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
   /// When the info was updated for the last time
-  updatedAt  DateTime? @updatedAt
+  updatedAt   DateTime? @updatedAt
+  /// When the reports were refreshed for the last time
+  refreshedAt DateTime?
 
   /// Data Host
   dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)

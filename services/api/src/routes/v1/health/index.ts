@@ -10,7 +10,7 @@ import {
 } from '~/lib/heartbeat';
 import { appLogger } from '~/lib/logger';
 
-import { Heartbeat } from '~/models/heartbeat/types';
+import { Heartbeat } from '~/models/heartbeat/dto';
 
 import { HTTPError } from '~/routes/v1/errors';
 import {

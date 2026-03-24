@@ -9,8 +9,8 @@ import {
   findAllHarvestJob,
   findManyHarvestJobById,
 } from '~/models/harvest';
-import { HarvestJob, HarvestRequest } from '~/models/harvest/dto';
-import { prepareHarvestJobs } from '~/models/harvest/utils';
+import { HarvestJob, CreateHarvestRequest } from '~/models/harvest/dto';
+import { prepareHarvestJobs } from '~/models/harvest/prepare';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';
 import {
@@ -41,7 +41,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     schema: {
       summary: 'Create multiple harvest jobs from multiple harvest requests',
       tags: ['harvest'],
-      body: z.array(HarvestRequest).min(1),
+      body: z.array(CreateHarvestRequest).min(1),
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,

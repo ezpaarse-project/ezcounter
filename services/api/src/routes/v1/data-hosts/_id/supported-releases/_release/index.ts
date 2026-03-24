@@ -9,7 +9,7 @@ import {
 } from '~/models/data-host';
 import {
   DataHostSupportedRelease,
-  InputDataHostSupportedRelease,
+  UpdateDataHostSupportedRelease,
 } from '~/models/data-host/dto';
 
 import { assertDataHostRegistered } from '~/routes/v1/data-hosts/utils';
@@ -36,7 +36,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       summary: 'Create or update a supported releases for a data host',
       tags: ['data-host'],
       params: RouterParams,
-      body: InputDataHostSupportedRelease,
+      body: UpdateDataHostSupportedRelease,
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,

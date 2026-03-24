@@ -30,22 +30,6 @@ export const DataHost = z.object({
 export type DataHost = z.infer<typeof DataHost>;
 
 /**
- * Validation for adding a release supported by Data Host
- */
-export const InputDataHost = DataHost.omit({
-  // DB id
-  id: true,
-  // DB readonly
-  createdAt: true,
-  updatedAt: true,
-});
-
-/**
- * Type for adding a release supported by Data Host
- */
-export type InputDataHost = z.infer<typeof InputDataHost>;
-
-/**
  * Validation for a release supported by Data Host
  */
 export const DataHostSupportedRelease = z.object({
@@ -62,31 +46,14 @@ export const DataHostSupportedRelease = z.object({
   createdAt: z.coerce.date().describe('Creation date'),
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
+
+  refreshedAt: z.coerce.date().nullable().describe('Last report refresh date'),
 });
 
 /**
  * Type for a release supported by Data Host
  */
 export type DataHostSupportedRelease = z.infer<typeof DataHostSupportedRelease>;
-
-/**
- * Validation for adding a release supported by Data Host
- */
-export const InputDataHostSupportedRelease = DataHostSupportedRelease.omit({
-  // DB id
-  dataHostId: true,
-  release: true,
-  // DB readonly
-  createdAt: true,
-  updatedAt: true,
-});
-
-/**
- * Type for adding a release supported by Data Host
- */
-export type InputDataHostSupportedRelease = z.infer<
-  typeof InputDataHostSupportedRelease
->;
 
 /**
  * Validation for a report supported by Data Host
@@ -136,36 +103,3 @@ export const DataHostSupportedReport = z.object({
  * Type for a report supported by Data Host
  */
 export type DataHostSupportedReport = z.infer<typeof DataHostSupportedReport>;
-
-/**
- * Validation for adding a report supported by Data Host
- */
-export const InputDataHostSupportedReport = DataHostSupportedReport.omit({
-  // DB id
-  dataHostId: true,
-  release: true,
-  id: true,
-  // Data form host
-  supported: true,
-  firstMonthAvailable: true,
-  lastMonthAvailable: true,
-  // DB readonly
-  createdAt: true,
-  updatedAt: true,
-});
-
-/**
- * Type for adding a report supported by Data Host
- */
-export type InputDataHostSupportedReport = z.infer<
-  typeof InputDataHostSupportedReport
->;
-
-/**
- * Type for a data host including supported data
- */
-export type DataHostWithSupportedData = DataHost & {
-  supportedReleases: (DataHostSupportedRelease & {
-    supportedReports: DataHostSupportedReport[];
-  })[];
-};

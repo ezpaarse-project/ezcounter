@@ -24,7 +24,7 @@ import { getDataHostWithSupportedData } from '~/models/data-host';
 import type {
   HarvestReportOptions,
   HarvestReportPeriod,
-  HarvestRequest,
+  CreateHarvestRequest,
 } from './dto';
 
 /**
@@ -99,6 +99,7 @@ function splitPeriodByMonths(
     };
   });
 }
+
 type SupportedData = {
   release?: DataHostSupportedRelease;
   report?: DataHostSupportedReport;
@@ -199,7 +200,7 @@ const createJobFromRequest = (
       ...downloadOpts
     },
     ...request
-  }: HarvestRequest,
+  }: CreateHarvestRequest,
   report: HarvestReportOptions,
   dataHost: DataHost & {
     supportedData: SupportedData;
@@ -236,7 +237,7 @@ const createJobFromRequest = (
  * @return The jobs matching request
  */
 export async function prepareHarvestJobs(
-  request: HarvestRequest
+  request: CreateHarvestRequest
 ): Promise<HarvestJobData[]> {
   const dataHost = await getDataHostWithSupportedData(
     request.download.dataHost.id

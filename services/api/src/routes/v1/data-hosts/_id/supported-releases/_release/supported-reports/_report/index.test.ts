@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type {
   DataHostSupportedReport,
-  InputDataHostSupportedReport,
+  UpdateDataHostSupportedReport,
 } from '~/models/data-host/dto';
 import {
   deleteReportSupportedByDataHost,
@@ -26,7 +26,7 @@ const server = await createTestServer(async (fastify) => {
 });
 
 describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
-  const body: InputDataHostSupportedReport = {
+  const body: UpdateDataHostSupportedReport = {
     params: {},
     supportedOverride: null,
     firstMonthAvailableOverride: null,

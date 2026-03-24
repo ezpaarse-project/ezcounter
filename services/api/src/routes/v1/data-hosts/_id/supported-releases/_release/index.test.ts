@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type {
   DataHostSupportedRelease,
-  InputDataHostSupportedRelease,
+  UpdateDataHostSupportedRelease,
 } from '~/models/data-host/dto';
 import {
   deleteReleaseSupportedByDataHost,
@@ -24,7 +24,7 @@ const server = await createTestServer(async (fastify) => {
 });
 
 describe('PUT /data-hosts/:id/supported-releases/:release', () => {
-  const body: InputDataHostSupportedRelease = {
+  const body: UpdateDataHostSupportedRelease = {
     baseUrl: 'https://example-counter-host.localhost',
     params: {},
   };
@@ -34,6 +34,7 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
     release: '5.1',
     createdAt: new Date(),
     updatedAt: null,
+    refreshedAt: null,
     ...body,
   };
 

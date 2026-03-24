@@ -4,15 +4,15 @@ import type {
   DataHostSupportedReport,
   DataHostWithSupportedData,
 } from '~/models/data-host/dto';
-import type { HarvestRequest } from '~/models/harvest/dto';
+import type { CreateHarvestRequest } from '~/models/harvest/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host/__mocks__';
-import { prepareHarvestJobs } from '~/models/harvest/utils';
+import { prepareHarvestJobs } from '~/models/harvest/prepare';
 
 vi.mock(import('~/models/data-host'));
 
 describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
   // oxlint-disable-next-line consistent-function-scoping
-  const getRequest = (): HarvestRequest => ({
+  const getRequest = (): CreateHarvestRequest => ({
     download: {
       reports: [
         {
@@ -50,6 +50,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
         params: {},
         createdAt: new Date(),
         updatedAt: null,
+        refreshedAt: null,
         supportedReports,
       },
     ],

@@ -28,7 +28,6 @@
     "@ezcounter/dto": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
     "@ezcounter/logger": "workspace:*",
-    "@ezcounter/models": "workspace:*",
     "@ezcounter/rabbitmq": "workspace:*",
     "@ezcounter/simple-http": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",

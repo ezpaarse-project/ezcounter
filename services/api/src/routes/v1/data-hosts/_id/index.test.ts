@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { DataHost, InputDataHost } from '~/models/data-host/dto';
+import type { DataHost, UpdateDataHost } from '~/models/data-host/dto';
 import { deleteDataHost, upsertDataHost } from '~/models/data-host/__mocks__';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
@@ -17,7 +17,7 @@ const server = await createTestServer(async (fastify) => {
 });
 
 describe('PUT /data-hosts/:id', () => {
-  const body: InputDataHost = {
+  const body: UpdateDataHost = {
     periodFormat: 'yyyy-MM-dd',
     paramsSeparator: '|',
     params: {},

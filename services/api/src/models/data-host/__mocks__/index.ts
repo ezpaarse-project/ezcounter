@@ -2,7 +2,14 @@ import { vi } from 'vitest';
 
 import type * as original from '..';
 
+// Index
+
 export const doesDataHostExists = vi.fn<typeof original.doesDataHostExists>();
+
+// READ
+
+export const getDataHostWithSupportedData =
+  vi.fn<typeof original.getDataHostWithSupportedData>();
 
 export const findAllDataHost = vi.fn<typeof original.findAllDataHost>();
 
@@ -18,8 +25,10 @@ export const doesDataHostSupportsReport =
 export const findAllReportsSupportedByDataHost =
   vi.fn<typeof original.findAllReportsSupportedByDataHost>();
 
-export const getDataHostWithSupportedData =
-  vi.fn<typeof original.getDataHostWithSupportedData>();
+export const findOneReportSupportedByDataHost =
+  vi.fn<typeof original.findOneReportSupportedByDataHost>();
+
+// CREATE
 
 export const upsertDataHost = vi.fn<typeof original.upsertDataHost>();
 
@@ -28,6 +37,8 @@ export const upsertReleaseSupportedByDataHost =
 
 export const upsertReportSupportedByDataHost =
   vi.fn<typeof original.upsertReportSupportedByDataHost>();
+
+// DELETE
 
 export const deleteDataHost = vi.fn<typeof original.deleteDataHost>();
 
