@@ -11,7 +11,7 @@ import {
 import { prepareHarvestJobs } from '~/models/harvest/__mocks__/prepare';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
-import { createTestServer } from '~/../tests/fastify/v1';
+import { createTestServer } from '~/../__tests__/fastify/v1';
 import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';
 
 import router from '.';

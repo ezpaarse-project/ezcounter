@@ -4,7 +4,7 @@ import type { DataHost } from '~/models/data-host/dto';
 import { findAllDataHost } from '~/models/data-host/__mocks__';
 
 import type { SuccessResponse } from '~/routes/v1/responses';
-import { createTestServer } from '~/../tests/fastify/v1';
+import { createTestServer } from '~/../__tests__/fastify/v1';
 
 import router from '.';
 

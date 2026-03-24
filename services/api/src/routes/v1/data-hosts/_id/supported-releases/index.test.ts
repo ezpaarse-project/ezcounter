@@ -7,7 +7,7 @@ import {
 } from '~/models/data-host/__mocks__';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
-import { createTestServer } from '~/../tests/fastify/v1';
+import { createTestServer } from '~/../__tests__/fastify/v1';
 
 import router from '.';
 

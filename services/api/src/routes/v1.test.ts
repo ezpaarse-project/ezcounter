@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { z } from '@ezcounter/dto';
 
 import type { ErrorResponse } from '~/routes/v1/responses';
-import { createTestServer } from '~/../tests/fastify/v1';
+import { createTestServer } from '~/../__tests__/fastify/v1';
 import { HTTPError } from '~/routes/v1/errors';
 
 let server = await createTestServer(async (fastify) => {

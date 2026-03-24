@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
-import type * as original from '.';
+import type * as original from '..';
 
 export const rabbitmq = mockDeep<typeof original.rabbitmq>();
 
