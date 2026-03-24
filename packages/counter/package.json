@@ -16,10 +16,10 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./types": "./src/types.ts",
+    "./dto": "./src/dto/index.ts",
     "./schemas": "./src/lib/ajv.ts",
     "./schemas/*": "./dist/*.ts",
-    "./__mocks__": "./src/__mocks__.ts"
+    "./__mocks__": "./src/__mocks__/index.ts"
   },
   "scripts": {
     "build:schemas": "tsx schemas/build.ts",
@@ -42,15 +42,6 @@
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "oxlint --fix",
-      "oxfmt --no-error-on-unmatched-pattern"
-    ],
-    "package.json": [
-      "oxfmt --no-error-on-unmatched-pattern"
-    ]
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

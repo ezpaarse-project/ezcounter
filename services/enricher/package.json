@@ -42,15 +42,6 @@
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
   },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "oxlint --fix",
-      "oxfmt --no-error-on-unmatched-pattern"
-    ],
-    "package.json": [
-      "oxfmt --no-error-on-unmatched-pattern"
-    ]
-  },
   "engines": {
     "node": "^24"
   }

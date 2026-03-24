@@ -38,15 +38,6 @@
     "prisma": "^7.4.1",
     "typescript": "catalog:"
   },
-  "lint-staged": {
-    "*.ts": [
-      "oxlint --fix",
-      "oxfmt --no-error-on-unmatched-pattern"
-    ],
-    "package.json": [
-      "oxfmt --no-error-on-unmatched-pattern"
-    ]
-  },
   "engines": {
     "node": "^24"
   }

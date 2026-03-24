@@ -1,0 +1,39 @@
+pre-commit:
+  piped: true
+  jobs:
+    - name: format
+      run: pnpm oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    - name: lint
+      run: pnpm oxlint --format unix {staged_files}
+      stage_fixed: true
+
+    - name: type checking
+      run: pnpm turbo --no-color type-check
+
+commit-msg:
+  jobs:
+    - name: lint message
+      run: pnpm commitlint --edit {1}
+
+pre-push:
+  piped: true
+  jobs:
+    # - name: changeset check
+    #   skip: merge-commit
+    #   run: |
+    #     BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    #     EXISTS_IN_REMOTE=$(git ls-remote --heads origin ${BRANCH})
+
+    #     if [[ -z ${EXISTS_IN_REMOTE} ]]; then
+    #       echo "${BRANCH} doesn't exists on remote, checking if changeset is empty"
+    #       pnpm changeset status
+    #     else
+    #       echo "${BRANCH} exists on remote, checking changeset against last push"
+    #       LATEST_PUSHED=$(git rev-parse @{push})
+    #       pnpm changeset status --since "${LATEST_PUSHED}"
+    #     fi
+
+    - name: run test
+      run: pnpm turbo --no-color test
