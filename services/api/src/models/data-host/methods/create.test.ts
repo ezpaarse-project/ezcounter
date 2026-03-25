@@ -2,11 +2,43 @@ import { describe, expect, test } from 'vitest';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
-import type { DataHostSupportedRelease, DataHostSupportedReport } from '../dto';
+import type {
+  DataHost,
+  DataHostSupportedRelease,
+  DataHostSupportedReport,
+} from '../dto';
 import {
+  upsertDataHost,
   upsertReleaseSupportedByDataHost,
   upsertReportSupportedByDataHost,
 } from './create';
+
+describe('upsertDataHost', () => {
+  const dataHost: DataHost = {
+    id: '',
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM',
+    params: {},
+    createdAt: new Date(),
+    updatedAt: null,
+  };
+
+  test('should query DB', async () => {
+    dbClient.dataHost.upsert.mockResolvedValueOnce(dataHost);
+
+    await upsertDataHost(dataHost);
+
+    expect(dbClient.dataHost.upsert).toBeCalled();
+  });
+
+  test('should return updated job', async () => {
+    dbClient.dataHost.upsert.mockResolvedValueOnce(dataHost);
+
+    const promise = upsertDataHost(dataHost);
+
+    await expect(promise).resolves.toMatchObject(dataHost);
+  });
+});
 
 describe('upsertReleaseSupportedByDataHost', () => {
   const release: DataHostSupportedRelease = {

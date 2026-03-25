@@ -1,0 +1,34 @@
+[
+  {
+    "report_name": "Platform Report",
+    "report_id": "PR",
+    "release": "5.1",
+    "report_description": "A customizable report summarizing activity across a report provider’s platforms that allows the user to apply filters and select other configuration options.",
+    "first_month_available": "2024-01",
+    "last_month_available": "2024-11"
+  },
+  {
+    "report_name": "Database Report",
+    "report_id": "DR",
+    "release": "5.1",
+    "report_description": "A customizable report detailing activity by database that allows the user to apply filters and select other configuration options.",
+    "first_month_available": "2024-01",
+    "last_month_available": "2024-11"
+  },
+  {
+    "report_name": "Title Report",
+    "report_id": "TR",
+    "release": "5.1",
+    "report_description": "A customizable report detailing activity at the title level (journal, book, etc.) that allows the user to apply filters and select other configuration options.",
+    "first_month_available": "2024-01",
+    "last_month_available": "2024-11"
+  },
+  {
+    "report_name": "Item Report",
+    "report_id": "IR",
+    "release": "5.1",
+    "report_description": "A granular, customizable report showing activity at the level of the item (article, chapter, media object, etc.) that allows the user to apply filters and select other configuration options.",
+    "first_month_available": "2024-01",
+    "last_month_available": "2024-11"
+  }
+]

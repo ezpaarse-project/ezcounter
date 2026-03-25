@@ -1,6 +1,5 @@
 // oxlint-disable import/no-namespace
-import type * as r5 from '../dist/r5';
-import type * as r51 from '../dist/r51';
+import type * as r51 from '../../dist/r51';
 // oxlint-enable import/no-namespace
 
 /**
@@ -29,15 +28,6 @@ export type R51ReportHeader =
   | r51.IRM1ReportHeader;
 
 /**
- * Type for report item from COUNTER 5
- */
-export type R5ReportItem =
-  | r5.COUNTERPlatformUsage
-  | r5.COUNTERDatabaseUsage
-  | r5.COUNTERTitleUsage
-  | r5.COUNTERItemUsage;
-
-/**
  * Type for any report item from COUNTER 5.1
  */
 export type R51ReportItem =
@@ -61,12 +51,6 @@ export type R51ReportItem =
   | r51.IRReportItem
   | r51.IRA1ReportItem
   | r51.IRM1ReportItem;
-
-/**
- * Type for any item parent from COUNTER 5
- */
-export type R5ReportItemParent = r5.COUNTERItemParent;
-
 /**
  * Type for any item parent from COUNTER 5.1
  */

@@ -4,15 +4,22 @@ import type { CreateDataHostFetchOptions } from './lib/fetch';
 import {
   fetchR5ReportAsStream,
   fetchR5ReportList,
+  R5_STANDARD_REPORTS,
   type R5ReportOptions,
   type R5ReportStreamResponse,
 } from './releases/r5';
 import {
   fetchR51ReportAsStream,
   fetchR51ReportList,
+  R51_STANDARD_REPORTS,
   type R51ReportOptions,
   type R51ReportStreamResponse,
 } from './releases/r51';
+
+/**
+ * Format used within app to store periods
+ */
+export const PERIOD_FORMAT = 'yyyy-MM';
 
 /**
  * Get report list from COUNTER API
@@ -22,14 +29,6 @@ import {
  *
  * @returns The list of report
  */
-export function fetchReportList(
-  release: '5',
-  fetchOptions: CreateDataHostFetchOptions
-): Promise<SUSHIReportList[]>;
-export function fetchReportList(
-  release: '5.1',
-  fetchOptions: CreateDataHostFetchOptions
-): Promise<ReportInformation[]>;
 export function fetchReportList(
   release: '5' | '5.1',
   fetchOptions: CreateDataHostFetchOptions
@@ -63,6 +62,25 @@ export function fetchReportAsStream(
       return fetchR5ReportAsStream(reportOptions, fetchOptions);
     case '5.1':
       return fetchR51ReportAsStream(reportOptions, fetchOptions);
+
+    default:
+      throw new Error(`COUNTER release ${release} is not supported`);
+  }
+}
+
+/**
+ * Get standard reports IDs for a COUNTER release
+ *
+ * @param release - The COUNTER release to use
+ *
+ * @returns The list of standard reports IDs
+ */
+export function getStandardReportIDs(release: '5' | '5.1'): readonly string[] {
+  switch (release) {
+    case '5':
+      return R5_STANDARD_REPORTS;
+    case '5.1':
+      return R51_STANDARD_REPORTS;
 
     default:
       throw new Error(`COUNTER release ${release} is not supported`);

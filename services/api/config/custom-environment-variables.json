@@ -33,5 +33,31 @@
     "port": { "__name": "POSTGRES_PORT", "__format": "number" },
     "host": "POSTGRES_HOST",
     "schema": "POSTGRES_SCHEMA"
+  },
+  "dataHost": {
+    "supported": {
+      "cacheDuration": {
+        "months": {
+          "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_MONTHS",
+          "__format": "number"
+        },
+        "weeks": {
+          "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_WEEKS",
+          "__format": "number"
+        },
+        "days": {
+          "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_DAYS",
+          "__format": "number"
+        },
+        "hours": {
+          "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_HOURS",
+          "__format": "number"
+        },
+        "minutes": {
+          "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_MINUTES",
+          "__format": "number"
+        }
+      }
+    }
   }
 }

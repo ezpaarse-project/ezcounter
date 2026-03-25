@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
+import type { DataHostSupportedReport } from '../dto';
 import {
   doesDataHostExists,
   doesDataHostSupportsRelease,
@@ -9,6 +10,7 @@ import {
   findAllDataHost,
   findAllReleasesSupportedByDataHost,
   findAllReportsSupportedByDataHost,
+  findOneReportSupportedByDataHost,
 } from './read';
 
 describe('doesDataHostExists', () => {
@@ -140,5 +142,46 @@ describe('findAllReportsSupportedByDataHost', () => {
     const promise = findAllReportsSupportedByDataHost('id', '5.1');
 
     await expect(promise).resolves.toBeInstanceOf(Array);
+  });
+});
+
+describe('findOneReportSupportedByDataHost', () => {
+  const report: DataHostSupportedReport = {
+    dataHostId: 'id',
+    release: '5.1',
+    id: 'tr',
+    params: {},
+    supported: true,
+    supportedOverride: null,
+    firstMonthAvailable: '',
+    firstMonthAvailableOverride: null,
+    lastMonthAvailable: '',
+    lastMonthAvailableOverride: null,
+    createdAt: new Date(),
+    updatedAt: null,
+  };
+
+  test('should query DB', async () => {
+    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(null);
+
+    await findOneReportSupportedByDataHost('id', '5.1', 'tr');
+
+    expect(dbClient.dataHostSupportedReport.findUnique).toBeCalled();
+  });
+
+  test('should return report', async () => {
+    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(report);
+
+    const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
+
+    await expect(promise).resolves.toMatchObject(report);
+  });
+
+  test('should return null if not found', async () => {
+    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(null);
+
+    const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
+
+    await expect(promise).resolves.toBe(null);
   });
 });

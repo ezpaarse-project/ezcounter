@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import type { HarvestJob } from '@ezcounter/database';
+import { Prisma, type HarvestJob } from '@ezcounter/database';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
@@ -49,6 +49,110 @@ describe('updateOneHarvestJob', () => {
     const promise = updateOneHarvestJob({ id: '' });
 
     await expect(promise).resolves.toMatchObject(job);
+  });
+
+  test('should update status and took if completed', async () => {
+    const job = getJob();
+    job.status = 'processing';
+    job.startedAt = new Date();
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    await updateOneHarvestJob({
+      id: '',
+      download: { done: true },
+      extract: { done: true },
+    });
+
+    expect(dbClient.harvestJob.update).toBeCalledWith({
+      where: { id: '' },
+      data: {
+        ...job,
+        download: { done: true },
+        extract: { done: true },
+        error: Prisma.DbNull,
+        status: 'done',
+        took: Date.now() - job.startedAt?.getTime(),
+      },
+    });
+  });
+
+  test('should update status and took if started and error occurred', async () => {
+    const job = getJob();
+    job.status = 'processing';
+    job.startedAt = new Date();
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    const error = {
+      code: '',
+      message: '',
+    };
+
+    await updateOneHarvestJob({
+      id: '',
+      error,
+    });
+
+    expect(dbClient.harvestJob.update).toBeCalledWith({
+      where: { id: '' },
+      data: {
+        ...job,
+        status: 'error',
+        error,
+        took: Date.now() - job.startedAt?.getTime(),
+      },
+    });
+  });
+
+  test('should NOT update status if processing', async () => {
+    const job = getJob();
+    job.status = 'processing';
+    job.startedAt = new Date();
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    await updateOneHarvestJob({
+      id: '',
+      download: { done: true },
+      extract: { done: false },
+    });
+
+    expect(dbClient.harvestJob.update).toBeCalledWith({
+      where: { id: '' },
+      data: {
+        ...job,
+        download: { done: true },
+        extract: { done: false },
+        error: Prisma.DbNull,
+      },
+    });
+  });
+
+  test('should NOT update status if not started', async () => {
+    const job = getJob();
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    await updateOneHarvestJob({
+      id: '',
+      download: { done: true },
+      extract: { done: false },
+    });
+
+    expect(dbClient.harvestJob.update).toBeCalledWith({
+      where: { id: '' },
+      data: {
+        ...job,
+        download: { done: true },
+        extract: { done: false },
+        error: Prisma.DbNull,
+      },
+    });
   });
 
   test('should throw if trying to update a done job', async () => {

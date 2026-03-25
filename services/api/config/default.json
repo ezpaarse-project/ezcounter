@@ -29,5 +29,16 @@
     "port": 5432,
     "host": "database",
     "schema": "default"
+  },
+  "dataHost": {
+    "supported": {
+      "cacheDuration": {
+        "months": 1,
+        "weeks": 0,
+        "days": 0,
+        "hours": 0,
+        "minutes": 0
+      }
+    }
   }
 }

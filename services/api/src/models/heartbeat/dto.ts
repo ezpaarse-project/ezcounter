@@ -1,5 +1,5 @@
-import { Heartbeat as CommonHeartbeat } from '@ezcounter/heartbeats/dto';
 import { z } from '@ezcounter/dto';
+import { Heartbeat as CommonHeartbeat } from '@ezcounter/heartbeats/dto';
 
 export const Heartbeat = z.object({
   ...CommonHeartbeat.shape,

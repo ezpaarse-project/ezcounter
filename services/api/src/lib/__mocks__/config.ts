@@ -1,4 +1,3 @@
-export const config = {
-  allowedOrigins: '*',
-  allowedProxies: '*',
-};
+import defaultConfig from '~/../config/default.json';
+
+export const config = defaultConfig;
