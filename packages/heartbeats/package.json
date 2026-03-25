@@ -19,6 +19,7 @@
     "./dto": "./src/dto.ts"
   },
   "scripts": {
+    "fmt": "oxfmt",
     "lint": "oxlint",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",

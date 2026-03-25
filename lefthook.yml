@@ -1,25 +1,21 @@
 templates:
-  oxfmt_flags: --no-error-on-unmatched-pattern
-  oxlint_flags: --format unix
-  pnpm_flags: --parallel --aggregate-output --if-present
+  lint_flags: --fix --format unix
+  fmt_flags: --no-error-on-unmatched-pattern
+  turbo_flags: --log-order grouped
 
 pre-commit:
   piped: true
   jobs:
-    - name: format
-      run: pnpm oxfmt {oxfmt_flags} {staged_files}
+    - name: lint
+      run: pnpm turbo {turbo_flags} lint -- {lint_flags}
       stage_fixed: true
 
-    - name: lint
-      run: pnpm oxlint {oxlint_flags} {staged_files}
+    - name: format
+      run: pnpm turbo {turbo_flags} fmt -- {fmt_flags}
       stage_fixed: true
 
     - name: type checking
-      run: |
-        packages=$(echo {staged_files} | tr ' ' '\n' | grep -E '^(packages|services)/' | awk -F '/' '{print "--filter ./" $1 "/" $2 "..."}' | sort -u)
-        if [[ -n $packages ]]; then
-          pnpm $packages run {pnpm_flags} type-check
-        fi
+      run: pnpm turbo {turbo_flags} type-check
 
 commit-msg:
   jobs:
@@ -45,8 +41,4 @@ pre-push:
     #     fi
 
     - name: tests
-      run: |
-        packages=$(echo {push_files} | tr ' ' '\n' | grep -E '(packages|services)/' | awk -F '/' '{print "--filter ./" $1 "/" $2 "..."}' | sort -u)
-        if [[ -n $packages ]]; then
-          pnpm $packages run {pnpm_flags} test
-        fi
+      run: pnpm turbo {turbo_flags} test

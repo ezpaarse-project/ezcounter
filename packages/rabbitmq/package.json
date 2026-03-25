@@ -19,6 +19,7 @@
     "./__mocks__": "./src/__mocks__/index.ts"
   },
   "scripts": {
+    "fmt": "oxfmt",
     "lint": "oxlint",
     "type-check": "tsc --noEmit --skipLibCheck"
   },

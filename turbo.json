@@ -2,6 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "tui",
   "tasks": {
+    "fmt": {
+      "dependsOn": ["^fmt"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },

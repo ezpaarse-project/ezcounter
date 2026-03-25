@@ -24,6 +24,7 @@
     "db:push": "dotenvx run -- prisma db push",
     "db:reset": "dotenvx run -- prisma migrate reset",
     "lint": "oxlint",
+    "fmt": "oxfmt",
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {

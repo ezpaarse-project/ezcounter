@@ -24,6 +24,7 @@
   "scripts": {
     "build:schemas": "tsx schemas/build.ts",
     "lint": "oxlint",
+    "fmt": "oxfmt",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "type-check": "tsc --noEmit --skipLibCheck"
