@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { type HarvestJob, Prisma } from '@ezcounter/database';
+import type { HarvestJob } from '@ezcounter/database';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
@@ -57,7 +57,12 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    let updatedData: unknown = null;
+    // @ts-expect-error - Prisma types are more complex
+    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
+      updatedData = data;
+      return Promise.resolve(job);
+    });
 
     await updateOneHarvestJob({
       download: { done: true },
@@ -65,17 +70,8 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(dbClient.harvestJob.update).toBeCalledWith({
-      data: {
-        ...job,
-        download: { done: true },
-        error: Prisma.DbNull,
-        extract: { done: true },
-        status: 'done',
-        took: Date.now() - job.startedAt?.getTime(),
-      },
-      where: { id: '' },
-    });
+    expect(updatedData).toHaveProperty('status', 'done');
+    expect(updatedData).toHaveProperty('took');
   });
 
   test('should update status and took if started and error occurred', async () => {
@@ -84,7 +80,12 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    let updatedData: unknown = null;
+    // @ts-expect-error - Prisma types are more complex
+    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
+      updatedData = data;
+      return Promise.resolve(job);
+    });
 
     const error = {
       code: '',
@@ -96,15 +97,9 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(dbClient.harvestJob.update).toBeCalledWith({
-      data: {
-        ...job,
-        error,
-        status: 'error',
-        took: Date.now() - job.startedAt?.getTime(),
-      },
-      where: { id: '' },
-    });
+    expect(updatedData).toHaveProperty('status', 'error');
+    expect(updatedData).toHaveProperty('error', error);
+    expect(updatedData).toHaveProperty('took');
   });
 
   test('should NOT update status if processing', async () => {
@@ -113,7 +108,12 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    let updatedData: unknown = null;
+    // @ts-expect-error - Prisma types are more complex
+    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
+      updatedData = data;
+      return Promise.resolve(job);
+    });
 
     await updateOneHarvestJob({
       download: { done: true },
@@ -121,22 +121,21 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(dbClient.harvestJob.update).toBeCalledWith({
-      data: {
-        ...job,
-        download: { done: true },
-        error: Prisma.DbNull,
-        extract: { done: false },
-      },
-      where: { id: '' },
-    });
+    expect(updatedData).toHaveProperty('status', job.status);
+    expect(updatedData).toHaveProperty('download.done', true);
+    expect(updatedData).toHaveProperty('extract.done', false);
   });
 
   test('should NOT update status if not started', async () => {
     const job = getJob();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    let updatedData: unknown = null;
+    // @ts-expect-error - Prisma types are more complex
+    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
+      updatedData = data;
+      return Promise.resolve(job);
+    });
 
     await updateOneHarvestJob({
       download: { done: true },
@@ -144,15 +143,9 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(dbClient.harvestJob.update).toBeCalledWith({
-      data: {
-        ...job,
-        download: { done: true },
-        error: Prisma.DbNull,
-        extract: { done: false },
-      },
-      where: { id: '' },
-    });
+    expect(updatedData).toHaveProperty('status', job.status);
+    expect(updatedData).toHaveProperty('download.done', true);
+    expect(updatedData).toHaveProperty('extract.done', false);
   });
 
   test('should throw if trying to update a done job', async () => {

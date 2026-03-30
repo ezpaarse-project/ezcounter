@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import {
+  appService,
   getAllServices,
   getMissingMandatoryServices,
-  service,
 } from '~/lib/__mocks__/heartbeat';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
@@ -29,8 +29,8 @@ describe('GET /health', () => {
     const response = await promise;
     const { content } = response.json<SuccessResponse<unknown>>();
 
-    expect(content).toHaveProperty('current', service.name);
-    expect(content).toHaveProperty('version', service.version);
+    expect(content).toHaveProperty('current', appService.name);
+    expect(content).toHaveProperty('version', appService.version);
     expect(content).toHaveProperty('services');
   });
 });

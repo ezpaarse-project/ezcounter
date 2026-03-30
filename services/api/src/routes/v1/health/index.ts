@@ -20,6 +20,8 @@ import {
   describeSuccess,
 } from '~/routes/v1/responses';
 
+const logger = appLogger.child({ scope: 'heartbeat' });
+
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
     handler: async (request, reply) =>
@@ -125,7 +127,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       }
 
       const message = 'Readiness probe failed: missing mandatory services';
-      appLogger.error({ message, missing });
+      logger.error({ message, missing });
       throw new HTTPError(StatusCodes.SERVICE_UNAVAILABLE, message);
     },
     logLevel: 'debug',

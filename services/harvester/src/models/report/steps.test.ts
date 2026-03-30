@@ -254,17 +254,17 @@ describe('Report Items (queueReportItems)', () => {
     });
   });
 
-  test('should notify progress after number of items', async () => {
+  test('should notify progress after time', async () => {
     extractReportItems.mockReturnValueOnce(
       Array.from({ length: 5000 }, () => ({})) as unknown as Iterator
     );
 
-    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
+    const promise = queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
-    // Should notify every 2000 items then one final time
-    expect(sendHarvestJobStatusEvent).toBeCalledTimes(
-      Math.floor(5000 / 2000) + 1
-    );
+    expect(sendHarvestJobStatusEvent).not.toBeCalled();
+    vi.advanceTimersByTime(900);
+    expect(sendHarvestJobStatusEvent).toBeCalledTimes(3);
+    await promise;
   });
 });
 

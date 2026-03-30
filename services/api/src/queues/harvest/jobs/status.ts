@@ -7,6 +7,7 @@ import { appLogger } from '~/lib/logger';
 import { updateOneHarvestJob } from '~/models/harvest';
 
 const EXCHANGE_NAME = 'ezcounter.harvest:status';
+const HARVEST_JOB_UPDATE_THROTTLE = 100;
 
 const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 
@@ -88,7 +89,10 @@ export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
   // Throttle updates per job
   let update = updaters.get(data.id);
   if (!update) {
-    update = createThrottledFunction(updateHarvestJobStatus, 100);
+    update = createThrottledFunction(
+      updateHarvestJobStatus,
+      HARVEST_JOB_UPDATE_THROTTLE
+    );
     updaters.set(data.id, update);
   }
 

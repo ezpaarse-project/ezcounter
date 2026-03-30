@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-export const service = {
+export const appService = {
   name: 'api',
   version: 'unit-tests',
 };
