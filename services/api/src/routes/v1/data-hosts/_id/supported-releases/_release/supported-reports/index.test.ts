@@ -35,7 +35,7 @@ describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', ()
       response.json<SuccessResponse<DataHostSupportedRelease[]>>();
 
     expect(response).toHaveProperty('statusCode', 200);
-    expect(findAllReportsSupportedByDataHost).toBeCalledTimes(1);
+    expect(findAllReportsSupportedByDataHost).toHaveBeenCalledOnce();
     expect(findAllReportsSupportedByDataHost).toBeCalledWith(':id', '5.1');
     expect(content).toBeInstanceOf(Array);
   });

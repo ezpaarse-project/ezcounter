@@ -1,4 +1,4 @@
-import { setupRabbitMQ, type rabbitmq } from '@ezcounter/rabbitmq';
+import { type rabbitmq, setupRabbitMQ } from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
@@ -7,8 +7,9 @@ const logger = appLogger.child(
   { scope: 'RabbitMQ' },
   {
     redact: {
+      censor: (value) =>
+        typeof value === 'string' && ''.padStart(value.length, '*'),
       paths: ['config.password'],
-      censor: (value) => value && ''.padStart(`${value}`.length, '*'),
     },
   }
 );
@@ -17,11 +18,11 @@ const { rabbitmq: rmqConfig } = config;
 
 const connectOpts: rabbitmq.Options.Connect = {
   hostname: rmqConfig.host,
+  password: rmqConfig.password,
   port: rmqConfig.port,
-  vhost: rmqConfig.vhost,
   protocol: rmqConfig.protocol,
   username: rmqConfig.username,
-  password: rmqConfig.password,
+  vhost: rmqConfig.vhost,
 };
 
 /**

@@ -8,17 +8,18 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { fetchReportAsStream } from '@ezcounter/counter';
 
 import {
-  createWriteStream,
   createReadStream,
+  createWriteStream,
   exists,
-  stat,
   mkdir,
+  stat,
 } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { HarvestIdleTimeout } from '~/models/timeout';
 
+// oxlint-disable-next-line import/extensions
 import { version as appVersion } from '~/../package.json' with { type: 'json' };
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
@@ -42,19 +43,43 @@ const sendDownloadStatus = (
   id: string,
   data: EventStreamData,
   progress: number
-): void =>
+): void => {
   sendHarvestJobStatusEvent({
-    id,
     current: 'download',
-    status: 'processing',
     download: {
       done: progress === 1,
-      source: data.source,
-      url: data.url,
       httpCode: data.httpCode,
       progress,
+      source: data.source,
+      url: data.url,
     },
+    id,
+    status: 'processing',
   });
+};
+
+/**
+ * Calculate the progress of the download
+ *
+ * @param total - The total size of the downloaded file
+ * @param expected - The expected size of the file
+ * @param count - The number of chunk processed
+ *
+ * @returns The progress of the download, or false if shouldn't notify
+ */
+function calcProgress(
+  total: number,
+  expected: number | null,
+  count: number
+): number | false {
+  // oxlint-disable no-magic-numbers
+  if (expected != null) {
+    const progress = total / expected;
+    return Math.round(progress * 100) % 10 === 0 && progress;
+  }
+  return count % 1000 === 0 && 0;
+  // oxlint-enable no-magic-numbers
+}
 
 /**
  * Create a stream that will send events about download
@@ -85,19 +110,8 @@ function createEventStream(
     chunkCount += 1;
     totalSize += chunk.length;
 
-    let shouldNotify = false;
-    let progress = 0;
-
-    if (expectedSize) {
-      progress = totalSize / expectedSize;
-      // Notify every 10%
-      shouldNotify = 0 === Math.round(progress * 100) % 10;
-    } else {
-      // Notify every 1000 chunks
-      shouldNotify = 0 === chunkCount % 1000;
-    }
-
-    if (shouldNotify) {
+    const progress = calcProgress(totalSize, expectedSize, chunkCount);
+    if (progress !== false) {
       sendDownloadStatus(id, data, progress);
     }
   });
@@ -117,6 +131,8 @@ function createEventStream(
  * @param report - Information about report
  * @param options - Options to download report
  * @param timeout - The timeout before an harvest job is considered as cancelled
+ *
+ * @returns The HTTP code returned by host
  */
 async function downloadReport(
   report: { jobId: string; path: string },
@@ -131,12 +147,12 @@ async function downloadReport(
       periodFormat: options.dataHost.periodFormat,
     },
     {
-      baseUrl: options.dataHost.baseUrl,
-      userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/harvester:${appVersion})`,
       auth: options.dataHost.auth,
+      baseUrl: options.dataHost.baseUrl,
       params: options.report.params,
       paramsSeparator: options.dataHost.paramsSeparator,
       signal: timeout?.signal,
+      userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/harvester:${appVersion})`,
     }
   );
 
@@ -145,9 +161,9 @@ async function downloadReport(
     createEventStream(
       report.jobId,
       {
-        source: 'remote',
         expectedSize: response.expectedSize,
         httpCode: response.httpCode,
+        source: 'remote',
         url: response.url,
       },
       timeout
@@ -156,8 +172,8 @@ async function downloadReport(
   ]);
 
   logger.debug({
-    msg: 'Downloading report...',
     id: report.jobId,
+    msg: 'Downloading report...',
     reportPath: report.path,
   });
 
@@ -187,8 +203,8 @@ async function unzipReport(
       createEventStream(
         report.jobId,
         {
-          source: 'archive',
           expectedSize: size,
+          source: 'archive',
           url: archivePath,
         },
         timeout
@@ -200,8 +216,8 @@ async function unzipReport(
   );
 
   logger.debug({
-    msg: 'Unzipping report...',
     id: report.jobId,
+    msg: 'Unzipping report...',
     reportPath: report.path,
   });
 

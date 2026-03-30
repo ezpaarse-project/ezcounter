@@ -12,6 +12,8 @@ const PERIOD_FORMAT = 'yyyy-MM';
  *
  * @param dateMonth - The month from DownloadOptions
  * @param [format] - The format, default to `yyyy-MM-dd`
+ *
+ * @returns The formatted date
  */
 function formatStartReportDate(
   dateMonth: string,
@@ -27,6 +29,8 @@ function formatStartReportDate(
  *
  * @param dateMonth - The month from DownloadOptions
  * @param [format] - The format, default to `yyyy-MM-dd`
+ *
+ * @returns The formatted date
  */
 function formatEndReportDate(dateMonth: string, format = 'yyyy-MM-dd'): string {
   const date = parseDate(dateMonth, PERIOD_FORMAT, new Date());
@@ -39,6 +43,8 @@ function formatEndReportDate(dateMonth: string, format = 'yyyy-MM-dd'): string {
  *
  * @param period - The period from DownloadOptions
  * @param [format] - The format, default to `yyyy-MM-dd`
+ *
+ * @returns The formatted period
  */
 export const formatReportPeriod = (
   period: { start: string; end: string },

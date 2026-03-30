@@ -4,7 +4,7 @@ import { updateOneHarvestJob } from '~/models/harvest/__mocks__';
 
 import { onHarvestJobStatus } from './status';
 
-vi.mock('~/models/harvest');
+vi.mock(import('~/models/harvest'));
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -34,24 +34,22 @@ describe('Handle job status (onHarvestJobStatus)', () => {
       status: 'pending',
     });
     onHarvestJobStatus({
-      id: 'second-job',
-      status: 'processing',
       download: {
         done: true,
         progress: 1,
       },
+      id: 'second-job',
+      status: 'processing',
     });
     onHarvestJobStatus({
-      id: 'first-job',
-      status: 'delayed',
       download: {
         done: false,
         httpCode: 500,
       },
+      id: 'first-job',
+      status: 'delayed',
     });
     onHarvestJobStatus({
-      id: 'second-job',
-      status: 'done',
       download: {
         done: true,
         httpCode: 200,
@@ -59,22 +57,24 @@ describe('Handle job status (onHarvestJobStatus)', () => {
       extract: {
         done: true,
       },
+      id: 'second-job',
+      status: 'done',
     });
 
     // Let throttled function run
     await vi.runAllTimersAsync();
 
     expect(updateOneHarvestJob).toBeCalledWith({
-      id: 'second-job',
-      status: 'done',
       download: {
         done: true,
-        progress: 1,
         httpCode: 200,
+        progress: 1,
       },
       extract: {
         done: true,
       },
+      id: 'second-job',
+      status: 'done',
     });
   });
 
@@ -102,7 +102,7 @@ describe('Handle job status (onHarvestJobStatus)', () => {
     // Let throttled function run
     await vi.runAllTimersAsync();
 
-    // should have been called 1 per job id
+    // Should have been called 1 per job id
     expect(updateOneHarvestJob).toBeCalledTimes(2);
   });
 });

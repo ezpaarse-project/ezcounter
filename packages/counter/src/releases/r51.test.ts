@@ -3,11 +3,11 @@ import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 
-import { http, HttpResponse } from 'msw';
+import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 
-import { fetchR51ReportList, fetchR51ReportAsStream } from './r51';
+import { fetchR51ReportAsStream, fetchR51ReportList } from './r51';
 
 describe('GET /reports (fetchR51ReportList)', () => {
   const server = setupServer(
@@ -41,17 +41,23 @@ describe('GET /reports (fetchR51ReportList)', () => {
   );
 
   // Start server before all tests
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
   // Reset handlers after each test for test isolation
-  afterEach(() => server.resetHandlers());
+  afterEach(() => {
+    server.resetHandlers();
+  });
   // Close server after all tests
-  afterAll(() => server.close());
+  afterAll(() => {
+    server.close();
+  });
 
   test('should return a list of reports', async () => {
     const data = await fetchR51ReportList({
+      auth: {},
       baseUrl: 'https://valid-response.localhost/r51',
       userAgent: '',
-      auth: {},
     });
 
     expect(data).toBeInstanceOf(Array);
@@ -60,9 +66,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
 
   test('should throw if an item is invalid', async () => {
     const promise = fetchR51ReportList({
+      auth: {},
       baseUrl: 'https://invalid-response.localhost/r51',
       userAgent: '',
-      auth: {},
     });
 
     await expect(promise).rejects.toThrow(
@@ -72,9 +78,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
 
   test('should throw if not an array', async () => {
     const promise = fetchR51ReportList({
+      auth: {},
       baseUrl: 'https://object-response.localhost/r51',
       userAgent: '',
-      auth: {},
     });
 
     await expect(promise).rejects.toThrow('Expected "array", found "object"');
@@ -82,9 +88,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
 
   test('should throw if list is empty', async () => {
     const promise = fetchR51ReportList({
+      auth: {},
       baseUrl: 'https://empty-response.localhost/r51',
       userAgent: '',
-      auth: {},
     });
 
     await expect(promise).rejects.toThrow(
@@ -94,9 +100,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
 
   test('should throw if non 200 is returned', async () => {
     const promise = fetchR51ReportList({
+      auth: {},
       baseUrl: 'https://nok-response.localhost/r51',
       userAgent: '',
-      auth: {},
     });
 
     await expect(promise).rejects.toThrow('404 Not Found');
@@ -126,22 +132,28 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
   );
 
   // Start server before all tests
-  beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: 'error' });
+  });
   // Reset handlers after each test for test isolation
-  afterEach(() => server.resetHandlers());
+  afterEach(() => {
+    server.resetHandlers();
+  });
   // Close server after all tests
-  afterAll(() => server.close());
+  afterAll(() => {
+    server.close();
+  });
 
   test('should return a stream', async () => {
     const { data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
 
@@ -155,12 +167,12 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
 
@@ -175,15 +187,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
-        baseUrl: 'https://valid-response.localhost/r51',
-        userAgent: '',
         auth: {},
+        baseUrl: 'https://valid-response.localhost/r51',
         params: {
           access_method: ['Regular', 'TDM'],
         },
+        userAgent: '',
       }
     );
     const result = new URL(url);
@@ -198,16 +210,16 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
-        baseUrl: 'https://valid-response.localhost/r51',
-        userAgent: '',
         auth: {},
-        paramsSeparator: ',',
+        baseUrl: 'https://valid-response.localhost/r51',
         params: {
           access_method: ['Regular', 'TDM'],
         },
+        paramsSeparator: ',',
+        userAgent: '',
       }
     );
     const result = new URL(url);
@@ -222,15 +234,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
-        baseUrl: 'https://valid-response.localhost/r51',
-        userAgent: '',
         auth: {},
+        baseUrl: 'https://valid-response.localhost/r51',
         params: {
           attributed: false,
         },
+        userAgent: '',
       }
     );
 
@@ -244,12 +256,12 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
     const result = new URL(url);
@@ -265,13 +277,13 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
         periodFormat: 'yyyy-MM',
       },
       {
+        auth: {},
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
     const result = new URL(url);
@@ -287,12 +299,12 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { expectedSize, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://valid-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
 
@@ -306,12 +318,12 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { httpCode, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://empty-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
 
@@ -325,12 +337,12 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const { expectedSize, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
+        auth: {},
         baseUrl: 'https://empty-response.localhost/r51',
         userAgent: '',
-        auth: {},
       }
     );
 
@@ -346,13 +358,13 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     const promise = fetchR51ReportAsStream(
       {
         id: 'ir',
-        period: { start: '2025-01', end: '2025-12' },
+        period: { end: '2025-12', start: '2025-01' },
       },
       {
-        baseUrl: 'https://valid-response.localhost/r51',
-        userAgent: '',
         auth: {},
+        baseUrl: 'https://valid-response.localhost/r51',
         signal: controller.signal,
+        userAgent: '',
       }
     );
 

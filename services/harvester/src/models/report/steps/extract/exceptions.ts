@@ -4,7 +4,7 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { z } from '@ezcounter/dto';
 
 import { createReadStream } from '~/lib/fs';
-import { jsonParser, jsonFilter, jsonStreamValues } from '~/lib/stream/json';
+import { jsonFilter, jsonParser, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
 import type { COUNTERReportException } from '../../dto';
@@ -68,6 +68,7 @@ function resolveExceptions(data: unknown): unknown[] {
  *
  * @param reportPath - The path to report
  * @param options - Options to harvest
+ * @param signal - Abort signal
  *
  * @returns The exceptions
  */

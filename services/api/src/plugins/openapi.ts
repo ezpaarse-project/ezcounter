@@ -5,14 +5,8 @@ import fastifySwagger, {
 import fastifySwaggerUi from '@fastify/swagger-ui';
 import fp from 'fastify-plugin';
 
-import { version } from '../../package.json';
-
-/*
- * Common API schemas
- */
-export const schemas = {
-  security: {},
-};
+// oxlint-disable-next-line import/extensions
+import { version } from '../../package.json' with { type: 'json' };
 
 type PluginOptions = {
   transform?: FastifyDynamicSwaggerOptions['transform'];
@@ -20,30 +14,31 @@ type PluginOptions = {
 };
 
 const OPENAPI_INFOS = {
-  title: 'ezCOUNTER API',
-  version,
   contact: {
+    email: 'ezpaarse@couperin.org',
     name: 'ezTEAM',
     url: 'https://github.com/ezpaarse-project',
-    email: 'ezpaarse@couperin.org',
   },
+  description: 'COUNTER harvesting service',
   license: {
     name: 'CeCILL',
     url: 'https://github.com/ezpaarse-project/ezcounter/blob/master/LICENSE.txt',
   },
-  description: 'COUNTER harvesting service',
+  title: 'ezCOUNTER API',
+  version,
 };
 
 const OPENAPI_TAGS = [
-  { name: 'health', description: 'Health management' },
-  { name: 'harvest', description: 'Harvest management' },
-  { name: 'data-host', description: 'Data host management' },
+  { description: 'Health management', name: 'health' },
+  { description: 'Harvest management', name: 'harvest' },
+  { description: 'Data host management', name: 'data-host' },
 ];
 
 /**
  * Fastify plugin to setup openapi
  *
- * @param fastify The fastify instance
+ * @param fastify - The fastify instance
+ * @param opts - The plugin options
  */
 const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
   fastify,
@@ -52,11 +47,11 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
   await fastify.register(fastifySwagger, {
     openapi: {
       info: OPENAPI_INFOS,
-      servers: [{ url: '/', description: 'Direct' }],
+      servers: [{ description: 'Direct', url: '/' }],
       tags: OPENAPI_TAGS,
     },
-    transformObject: opts.transformObject,
     transform: opts.transform,
+    transformObject: opts.transformObject,
   });
 
   await fastify.register(fastifySwaggerUi, {
@@ -66,6 +61,13 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
 
 // Register plugin
 export const openapiPlugin = fp(openapiBasePlugin, {
-  name: 'ezc-openapi',
   encapsulate: false,
+  name: 'ezc-openapi',
 });
+
+/*
+ * Common API schemas
+ */
+export const schemas = {
+  security: {},
+};

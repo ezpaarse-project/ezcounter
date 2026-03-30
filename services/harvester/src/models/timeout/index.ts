@@ -1,3 +1,6 @@
+// oxlint-disable-next-line no-magic-numbers
+const DEFAULT_DELAY = 60 * 1000;
+
 export class HarvestIdleTimeout {
   private controller = new AbortController();
 
@@ -9,12 +12,14 @@ export class HarvestIdleTimeout {
    *
    * @param delay - Time where job is allowed to hang, default to 60secs
    */
-  constructor(private delay = 60 * 1000) {
+  constructor(private delay = DEFAULT_DELAY) {
     this.tick();
   }
 
   /**
    * Signal triggered when timeout is running out
+   *
+   * @returns AbortSignal
    */
   get signal(): AbortSignal {
     return this.controller.signal;
@@ -40,6 +45,8 @@ export class HarvestIdleTimeout {
 
   /**
    * Forcefully abort timeout
+   *
+   * @param reason - Reason for aborting
    */
   abort(reason?: string): void {
     this.clear();

@@ -1,6 +1,6 @@
 import type { Server } from 'node:http';
 
-import { setupHTTPServer, type Route } from '@ezcounter/simple-http';
+import { type Route, setupHTTPServer } from '@ezcounter/simple-http';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';

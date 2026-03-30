@@ -8,7 +8,7 @@ import { updateOneHarvestJob } from '~/models/harvest';
 
 const EXCHANGE_NAME = 'ezcounter.harvest:status';
 
-const logger = appLogger.child({ scope: 'queues', exchange: EXCHANGE_NAME });
+const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 
 /** Aggregated events to apply */
 const patchs = new Map<string, HarvestJobStatusEvent>();
@@ -34,12 +34,12 @@ const mergeEvents = (
   ...target,
   // Merge steps
   download: {
-    done: source.download?.done || target.download?.done || false,
+    done: source.download?.done ?? target.download?.done ?? false,
     ...source.download,
     ...target.download,
   },
   extract: {
-    done: source.extract?.done || target.extract?.done || false,
+    done: source.extract?.done ?? target.extract?.done ?? false,
     ...source.extract,
     ...target.extract,
   },
@@ -61,10 +61,10 @@ async function updateHarvestJobStatus(
       patchs.delete(event.id);
       updaters.delete(event.id);
     }
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       msg: 'Unable to update data of Harvest Job',
-      err,
     });
   }
 }
@@ -92,7 +92,7 @@ export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
     updaters.set(data.id, update);
   }
 
-  update(event);
+  void update(event);
 }
 
 /**
@@ -111,15 +111,18 @@ export async function getHarvestJobStatusEventExchange(
     durable: false,
     exclusive: true,
   });
-  rabbitmq.bindQueueToExchange(channel, queue, EXCHANGE_NAME, '');
+
+  void rabbitmq.bindQueueToExchange(channel, queue, EXCHANGE_NAME, '');
 
   // Consume harvest queue
   await consumeJSONQueue({
     channel,
-    queue,
     logger,
+    onMessage: (data) => {
+      onHarvestJobStatus(data);
+    },
+    queue,
     schema: HarvestJobStatusEvent,
-    onMessage: (data) => onHarvestJobStatus(data),
   });
 
   logger.debug('Harvest status queue created');

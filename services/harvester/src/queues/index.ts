@@ -18,8 +18,8 @@ async function initEnrichQueue(
 ): Promise<void> {
   const channel = await rabbitmq.createChannel(connection);
   logger.debug({
-    msg: 'Channel created',
     for: 'enrich.jobs',
+    msg: 'Channel created',
   });
 
   await getEnrichJobQueue(channel);
@@ -35,8 +35,8 @@ async function initJobsStatusExchange(
 ): Promise<void> {
   const channel = await rabbitmq.createChannel(connection);
   logger.debug({
-    msg: 'Channel created',
     for: 'harvest.jobs:status',
+    msg: 'Channel created',
   });
 
   await getHarvestJobStatusEventExchange(channel);
@@ -54,18 +54,18 @@ async function initDispatchQueue(
   // Handle one harvest dispatch at the time
   await rabbitmq.setPrefetchCount(dispatchChannel, 1);
   logger.debug({
+    for: 'harvest.dispatch',
     msg: 'Channel created',
     prefetch: 1,
-    for: 'harvest.dispatch',
   });
 
   const jobsChannel = await rabbitmq.createChannel(connection);
   // Handle one harvest jobs at the time
   await rabbitmq.setPrefetchCount(jobsChannel, 1);
   logger.debug({
+    for: 'harvest.jobs',
     msg: 'Channel created',
     prefetch: 1,
-    for: 'harvest.jobs',
   });
 
   await getHarvestDispatchQueue(dispatchChannel, jobsChannel);

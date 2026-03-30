@@ -18,14 +18,14 @@ const server = await createTestServer(async (fastify) => {
 
 describe('PUT /data-hosts/:id', () => {
   const body: UpdateDataHost = {
-    periodFormat: 'yyyy-MM-dd',
-    paramsSeparator: '|',
     params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM-dd',
   };
 
   const host: DataHost = {
-    id: 'id',
     createdAt: new Date(),
+    id: 'id',
     updatedAt: null,
     ...body,
   };
@@ -34,9 +34,9 @@ describe('PUT /data-hosts/:id', () => {
     upsertDataHost.mockResolvedValueOnce(host);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id',
-      body,
     });
 
     const { content } = response.json<SuccessResponse<DataHost>>();
@@ -52,19 +52,19 @@ describe('PUT /data-hosts/:id', () => {
     upsertDataHost.mockResolvedValueOnce(host);
 
     await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id',
-      body,
     });
 
-    expect(upsertDataHost).toBeCalledTimes(1);
+    expect(upsertDataHost).toHaveBeenCalledOnce();
   });
 
   test('should return BAD_REQUEST if body is invalid', async () => {
     const response = await server.inject({
+      body: [],
       method: 'PUT',
       url: '/data-hosts/:id',
-      body: [],
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -98,6 +98,6 @@ describe('DELETE /data-hosts/:id', () => {
       url: '/data-hosts/:id',
     });
 
-    expect(deleteDataHost).toBeCalledTimes(1);
+    expect(deleteDataHost).toHaveBeenCalledOnce();
   });
 });

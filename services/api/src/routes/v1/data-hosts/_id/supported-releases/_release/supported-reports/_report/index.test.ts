@@ -27,20 +27,20 @@ const server = await createTestServer(async (fastify) => {
 
 describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
   const body: UpdateDataHostSupportedReport = {
-    params: {},
-    supportedOverride: null,
     firstMonthAvailableOverride: null,
     lastMonthAvailableOverride: null,
+    params: {},
+    supportedOverride: null,
   };
 
   const report: DataHostSupportedReport = {
-    dataHostId: 'id',
-    release: '5.1',
-    id: 'tr',
-    supported: true,
-    firstMonthAvailable: '',
-    lastMonthAvailable: '',
     createdAt: new Date(),
+    dataHostId: 'id',
+    firstMonthAvailable: '',
+    id: 'tr',
+    lastMonthAvailable: '',
+    release: '5.1',
+    supported: true,
     updatedAt: null,
     ...body,
   };
@@ -51,9 +51,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     upsertReportSupportedByDataHost.mockResolvedValueOnce(report);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
-      body,
     });
 
     const { content } =
@@ -72,21 +72,21 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     upsertReportSupportedByDataHost.mockResolvedValueOnce(report);
 
     await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
-      body,
     });
 
-    expect(upsertReportSupportedByDataHost).toBeCalledTimes(1);
+    expect(upsertReportSupportedByDataHost).toHaveBeenCalledOnce();
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
     doesDataHostExists.mockResolvedValueOnce(false);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
-      body,
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -103,9 +103,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     doesDataHostSupportsRelease.mockResolvedValueOnce(false);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
-      body,
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -119,9 +119,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
 
   test('should return BAD_REQUEST if release is invalid', async () => {
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/foobar/supported-reports/:report',
-      body,
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -136,9 +136,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
 
   test('should return BAD_REQUEST if body is invalid', async () => {
     const response = await server.inject({
+      body: [],
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
-      body: [],
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -176,7 +176,7 @@ describe('DELETE /data-hosts/:id/supported-releases/:release/supported-reports/:
       url: '/data-hosts/:id/supported-releases/5/supported-reports/:report',
     });
 
-    expect(deleteReportSupportedByDataHost).toBeCalledTimes(1);
+    expect(deleteReportSupportedByDataHost).toHaveBeenCalledOnce();
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {

@@ -11,6 +11,21 @@ import {
   sendToQueue,
 } from './wrapper';
 
+type JsonConsumerOptions<DataType> = {
+  /** The RabbitMQ channel */
+  channel: amqp.Channel;
+  /** The RabbitMQ queue */
+  queue: string;
+  /** The logger */
+  logger: Logger;
+  /** The schema to validate JSON message */
+  schema: z.ZodType<DataType>;
+  /** Callback to use when valid message is received */
+  onMessage: (data: DataType) => void | Promise<void>;
+  /** Options to pass to `consume` */
+  options?: amqp.Options.Consume;
+};
+
 export type JSONMessageTransportQueue = {
   /** Queue to use to send message */
   queue: {
@@ -40,7 +55,7 @@ export type JSONMessageTransport<
  *
  * @param transport Transport options
  * @param content The data
- * @param options The options
+ * @param opts The options
  *
  * @returns Information about data
  */
@@ -81,65 +96,57 @@ export function sendJSONMessage<DataType>(
  */
 export function parseJSONMessage<DataType>(
   msg: amqp.Message,
-  schema: z.ZodSchema<DataType>
+  schema: z.ZodType<DataType>
 ): { data?: DataType; raw: unknown; parseError?: z.ZodError<DataType> } {
-  const raw = JSON.parse(msg.content.toString());
+  const raw: unknown = JSON.parse(msg.content.toString());
 
   const { error, data } = schema.safeParse(raw);
-  return { data, raw, parseError: error };
+  return { data, parseError: error, raw };
 }
-
-type JsonConsumerOptions<DataType> = {
-  /** The RabbitMQ channel */
-  channel: amqp.Channel;
-  /** The RabbitMQ queue */
-  queue: string;
-  /** The logger */
-  logger: Logger;
-  /** The schema to validate JSON message */
-  schema: z.ZodSchema<DataType>;
-  /** Callback to use when valid message is received */
-  onMessage: (data: DataType) => void | Promise<void>;
-  /** Options to pass to `consume` */
-  options?: amqp.Options.Consume;
-};
 
 /**
  * Shorthand to consume a queue having JSON messages
  *
  * @param params - Params to setup consumer
+ *
+ * @returns Promise of RabbitMQ consumer
  */
 export function consumeJSONQueue<DataType>(
   params: JsonConsumerOptions<DataType>
 ): Promise<amqp.Replies.Consume> {
   const { logger, onMessage, options } = params;
+  const noAck = options?.noAck === true;
+
+  const handler = async (msg: amqp.ConsumeMessage | null): Promise<void> => {
+    if (!msg) {
+      return;
+    }
+
+    // Parse message
+    const { data, raw, parseError } = parseJSONMessage(msg, params.schema);
+    if (data == null) {
+      logger.error({
+        data: process.env.NODE_ENV === 'production' ? undefined : raw,
+        err: parseError,
+        msg: 'Invalid data',
+      });
+      if (!noAck) {
+        rejectMessage(params.channel, msg, false);
+      }
+      return;
+    }
+
+    await onMessage(data);
+    if (!noAck) {
+      ackMessage(params.channel, msg);
+    }
+  };
 
   return consumeQueue(
     params.channel,
     params.queue,
-    async (msg) => {
-      if (!msg) {
-        return;
-      }
-
-      // Parse message
-      const { data, raw, parseError } = parseJSONMessage(msg, params.schema);
-      if (!data) {
-        logger.error({
-          msg: 'Invalid data',
-          data: process.env.NODE_ENV === 'production' ? undefined : raw,
-          err: parseError,
-        });
-        if (!options?.noAck) {
-          rejectMessage(params.channel, msg, false);
-        }
-        return;
-      }
-
-      await onMessage(data);
-      if (!options?.noAck) {
-        ackMessage(params.channel, msg);
-      }
+    (msg) => {
+      void handler(msg);
     },
     options
   );

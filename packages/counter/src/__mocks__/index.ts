@@ -22,10 +22,10 @@ export const fetchReportAsStream = vi.fn<typeof original.fetchReportAsStream>(
 
     // oxlint-disable-next-line prefer-await-to-then
     return Promise.resolve({
-      url: '/foo/bar',
-      httpCode: 200,
-      expectedSize: 0,
       data: stream,
+      expectedSize: 0,
+      httpCode: 200,
+      url: '/foo/bar',
     });
   }
 );

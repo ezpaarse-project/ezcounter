@@ -1,32 +1,32 @@
 import { describe, expect, test } from 'vitest';
 
-import { Prisma, type HarvestJob } from '@ezcounter/database';
+import { type HarvestJob, Prisma } from '@ezcounter/database';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
 import { failManyHarvestJob, updateOneHarvestJob } from './update';
 
-describe('updateOneHarvestJob', () => {
+describe(updateOneHarvestJob, () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJob => ({
-    id: '',
-    reportId: '',
-    period: { start: '2025-01', end: '2025-12' },
-    release: '5.1',
-    params: {},
-    dataHostId: '',
-    timeout: 60000,
-    forceDownload: false,
-    index: '',
-    status: 'pending',
-    current: null,
-    error: null,
-    download: { done: false },
-    extract: { done: false },
     createdAt: new Date(),
-    updatedAt: null,
+    current: null,
+    dataHostId: '',
+    download: { done: false },
+    error: null,
+    extract: { done: false },
+    forceDownload: false,
+    id: '',
+    index: '',
+    params: {},
+    period: { end: '2025-12', start: '2025-01' },
+    release: '5.1',
+    reportId: '',
     startedAt: null,
+    status: 'pending',
+    timeout: 60_000,
     took: null,
+    updatedAt: null,
   });
 
   test('should query DB', async () => {
@@ -60,21 +60,21 @@ describe('updateOneHarvestJob', () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      id: '',
       download: { done: true },
       extract: { done: true },
+      id: '',
     });
 
     expect(dbClient.harvestJob.update).toBeCalledWith({
-      where: { id: '' },
       data: {
         ...job,
         download: { done: true },
-        extract: { done: true },
         error: Prisma.DbNull,
+        extract: { done: true },
         status: 'done',
         took: Date.now() - job.startedAt?.getTime(),
       },
+      where: { id: '' },
     });
   });
 
@@ -92,18 +92,18 @@ describe('updateOneHarvestJob', () => {
     };
 
     await updateOneHarvestJob({
-      id: '',
       error,
+      id: '',
     });
 
     expect(dbClient.harvestJob.update).toBeCalledWith({
-      where: { id: '' },
       data: {
         ...job,
-        status: 'error',
         error,
+        status: 'error',
         took: Date.now() - job.startedAt?.getTime(),
       },
+      where: { id: '' },
     });
   });
 
@@ -116,19 +116,19 @@ describe('updateOneHarvestJob', () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      id: '',
       download: { done: true },
       extract: { done: false },
+      id: '',
     });
 
     expect(dbClient.harvestJob.update).toBeCalledWith({
-      where: { id: '' },
       data: {
         ...job,
         download: { done: true },
-        extract: { done: false },
         error: Prisma.DbNull,
+        extract: { done: false },
       },
+      where: { id: '' },
     });
   });
 
@@ -139,19 +139,19 @@ describe('updateOneHarvestJob', () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      id: '',
       download: { done: true },
       extract: { done: false },
+      id: '',
     });
 
     expect(dbClient.harvestJob.update).toBeCalledWith({
-      where: { id: '' },
       data: {
         ...job,
         download: { done: true },
-        extract: { done: false },
         error: Prisma.DbNull,
+        extract: { done: false },
       },
+      where: { id: '' },
     });
   });
 
@@ -182,15 +182,15 @@ describe('updateOneHarvestJob', () => {
   });
 });
 
-describe('failManyHarvestJob', () => {
+describe(failManyHarvestJob, () => {
   test('should query DB', async () => {
     await failManyHarvestJob([
       {
-        id: '',
         error: {
           code: 'app:ERROR',
           message: 'Creation error',
         },
+        id: '',
       },
     ]);
 
@@ -200,11 +200,11 @@ describe('failManyHarvestJob', () => {
   test('should use transaction', async () => {
     await failManyHarvestJob([
       {
-        id: '',
         error: {
           code: 'app:ERROR',
           message: 'Creation error',
         },
+        id: '',
       },
     ]);
 

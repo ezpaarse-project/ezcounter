@@ -5,9 +5,9 @@ import * as r51 from '@ezcounter/counter/schemas/r51';
 // oxlint-enable import/no-namespace
 
 import type {
+  COUNTERReportException,
   COUNTERReportHeader,
   COUNTERReportItem,
-  COUNTERReportException,
   COUNTERReportItemParent,
 } from '../dto';
 
@@ -272,6 +272,7 @@ function getR5Validation(
 /**
  * Get validation for COUNTER report
  *
+ * @param release - The COUNTER release
  * @param reportId - The id of the report
  *
  * @returns The validation for report parts

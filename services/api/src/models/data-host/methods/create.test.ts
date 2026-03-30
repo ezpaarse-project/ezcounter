@@ -13,13 +13,13 @@ import {
   upsertReportSupportedByDataHost,
 } from './create';
 
-describe('upsertDataHost', () => {
+describe(upsertDataHost, () => {
   const dataHost: DataHost = {
+    createdAt: new Date(),
     id: '',
+    params: {},
     paramsSeparator: '|',
     periodFormat: 'yyyy-MM',
-    params: {},
-    createdAt: new Date(),
     updatedAt: null,
   };
 
@@ -40,15 +40,15 @@ describe('upsertDataHost', () => {
   });
 });
 
-describe('upsertReleaseSupportedByDataHost', () => {
+describe(upsertReleaseSupportedByDataHost, () => {
   const release: DataHostSupportedRelease = {
-    dataHostId: 'id',
-    release: '5.1',
     baseUrl: 'https://counter-datahost.example',
-    params: {},
     createdAt: new Date(),
-    updatedAt: null,
+    dataHostId: 'id',
+    params: {},
     refreshedAt: null,
+    release: '5.1',
+    updatedAt: null,
   };
 
   test('should query DB', async () => {
@@ -68,19 +68,19 @@ describe('upsertReleaseSupportedByDataHost', () => {
   });
 });
 
-describe('upsertReportSupportedByDataHost', () => {
+describe(upsertReportSupportedByDataHost, () => {
   const report: DataHostSupportedReport = {
+    createdAt: new Date(),
     dataHostId: 'id',
-    release: '5.1',
-    id: 'tr',
-    params: {},
-    supported: true,
-    supportedOverride: null,
     firstMonthAvailable: '',
     firstMonthAvailableOverride: null,
+    id: 'tr',
     lastMonthAvailable: '',
     lastMonthAvailableOverride: null,
-    createdAt: new Date(),
+    params: {},
+    release: '5.1',
+    supported: true,
+    supportedOverride: null,
     updatedAt: null,
   };
 

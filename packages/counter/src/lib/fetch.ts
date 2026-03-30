@@ -1,4 +1,4 @@
-import { ofetch, type $Fetch } from 'ofetch';
+import { type $Fetch, ofetch } from 'ofetch';
 
 /**
  * Transform query params into params supported by COUNTER API
@@ -64,12 +64,8 @@ export const createDataHostFetch = (opts: CreateDataHostFetchOptions): $Fetch =>
   ofetch.create({
     baseURL: opts.baseUrl,
     headers: {
-      'User-Agent': opts.userAgent,
       Accept: 'application/json',
-    },
-    query: {
-      ...opts.params,
-      ...opts.auth,
+      'User-Agent': opts.userAgent,
     },
     onRequest: [
       // Parse query parameters
@@ -82,5 +78,9 @@ export const createDataHostFetch = (opts: CreateDataHostFetchOptions): $Fetch =>
         );
       },
     ],
+    query: {
+      ...opts.params,
+      ...opts.auth,
+    },
     signal: opts.signal,
   });

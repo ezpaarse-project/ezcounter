@@ -1,12 +1,14 @@
 import type { Logger } from '@ezcounter/logger';
 import {
-  rabbitmq,
   type JSONMessageTransport,
   type JSONMessageTransportExchange,
+  rabbitmq,
 } from '@ezcounter/rabbitmq';
 
-import type { HeartbeatConnectedServicePing, Heartbeat } from '../dto';
+import type { Heartbeat, HeartbeatConnectedServicePing } from '../dto';
 import { mandatoryServices } from './mandatory';
+
+const FREQ_MULTIPLIER = 0.75;
 
 /**
  * Execute ping with timeout
@@ -20,7 +22,7 @@ export function doPingWithTimeout(
   ping: HeartbeatConnectedServicePing,
   frequency: number
 ): Promise<Heartbeat> {
-  const signal = AbortSignal.timeout(frequency * 0.75);
+  const signal = AbortSignal.timeout(frequency * FREQ_MULTIPLIER);
 
   // oxlint-disable-next-line promise/avoid-new
   return new Promise<Heartbeat>((resolve, reject) => {
@@ -34,12 +36,17 @@ export function doPingWithTimeout(
         const now = new Date();
         return {
           ...service,
-          updatedAt: now,
           nextAt: new Date(now.getTime() + frequency),
+          updatedAt: now,
         };
       })
-      .then((service) => resolve(service))
-      .catch((err) => reject(err));
+      .then((service) => {
+        resolve(service);
+        return service;
+      })
+      .catch((error) => {
+        reject(error instanceof Error ? error : new Error(`${error}`));
+      });
     // oxlint-enable promise/prefer-await-to-then,promise/prefer-await-to-callbacks
   });
 }
@@ -52,6 +59,7 @@ export type HeartbeatTransport =
  *
  * @param channel - The rabbitmq channel
  * @param logger - The logger
+ * @param isRabbitMQMandatory - If true, the service will be marked as mandatory
  *
  * @returns Transport used to send/recieve message
  */
@@ -76,8 +84,8 @@ export async function assertTransport(
       channel: channel,
       exchange: { name: exchange, routingKey: '' },
     };
-  } catch (err) {
-    logger.error({ msg: "Couldn't setup heartbeat", err });
-    throw err;
+  } catch (error) {
+    logger.error({ err: error, msg: "Couldn't setup heartbeat" });
+    throw error;
   }
 }

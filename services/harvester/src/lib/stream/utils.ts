@@ -1,4 +1,4 @@
-import { addAbortSignal, type Readable, type Stream } from 'node:stream';
+import { type Readable, type Stream, addAbortSignal } from 'node:stream';
 
 /**
  * Wait for a stream to emit a `data` event, a `end` event, or a `error` event
@@ -12,9 +12,15 @@ export const waitForStreamData = <Type>(
 ): Promise<Type | null> =>
   // oxlint-disable-next-line promise/avoid-new
   new Promise((resolve, reject) => {
-    stream.on('data', (data) => resolve(data));
-    stream.on('end', () => resolve(null));
-    stream.on('error', (err) => reject(err));
+    stream.on('data', (data) => {
+      resolve(data);
+    });
+    stream.on('end', () => {
+      resolve(null);
+    });
+    stream.on('error', (err) => {
+      reject(err);
+    });
   });
 
 /**
@@ -25,8 +31,12 @@ export const waitForStreamData = <Type>(
 export const waitForStreamEnd = (stream: Stream): Promise<void> =>
   // oxlint-disable-next-line promise/avoid-new
   new Promise((resolve, reject) => {
-    stream.on('end', () => resolve());
-    stream.on('error', (err) => reject(err));
+    stream.on('end', () => {
+      resolve();
+    });
+    stream.on('error', (err) => {
+      reject(err);
+    });
   });
 
 /**

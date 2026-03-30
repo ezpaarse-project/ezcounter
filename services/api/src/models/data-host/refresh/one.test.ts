@@ -10,39 +10,39 @@ import { refreshSupportedReportOfDataHost } from './one';
 describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getDataHost = (): DataHostWithSupportedData => ({
+    createdAt: new Date(),
     id: '',
+    params: {},
     paramsSeparator: '|',
     periodFormat: 'yyyy-MM-dd',
-    params: {},
-    createdAt: new Date(),
-    updatedAt: null,
     supportedReleases: [
       {
-        dataHostId: '',
-        release: '5.1',
         baseUrl: 'https://counter-datahost.com/',
-        params: {},
         createdAt: new Date(),
-        updatedAt: null,
+        dataHostId: '',
+        params: {},
         refreshedAt: null,
+        release: '5.1',
         supportedReports: [
           {
+            createdAt: new Date(),
             dataHostId: '',
-            release: '5.1',
-            id: 'tr',
-            params: {},
-            supported: true,
-            supportedOverride: null,
             firstMonthAvailable: '',
             firstMonthAvailableOverride: null,
+            id: 'tr',
             lastMonthAvailable: '',
             lastMonthAvailableOverride: null,
-            createdAt: new Date(),
+            params: {},
+            release: '5.1',
+            supported: true,
+            supportedOverride: null,
             updatedAt: null,
           },
         ],
+        updatedAt: null,
       },
     ],
+    updatedAt: null,
   });
 
   describe('No options', () => {
@@ -103,12 +103,12 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should mark present reports as supported', async () => {
       fetchReportList.mockResolvedValueOnce([
         {
-          Release: '5.1',
-          Report_ID: 'TR',
-          Report_Name: 'Title Report',
-          Report_Description: '',
           First_Month_Available: '2025-01',
           Last_Month_Available: '2025-12',
+          Release: '5.1',
+          Report_Description: '',
+          Report_ID: 'TR',
+          Report_Name: 'Title Report',
         },
       ]);
 
@@ -127,12 +127,12 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update months available', async () => {
       fetchReportList.mockResolvedValueOnce([
         {
-          Release: '5.1',
-          Report_ID: 'TR',
-          Report_Name: 'Title Report',
-          Report_Description: '',
           First_Month_Available: '2024-01',
           Last_Month_Available: '2025-12',
+          Release: '5.1',
+          Report_Description: '',
+          Report_ID: 'TR',
+          Report_Name: 'Title Report',
         },
       ]);
 
@@ -156,12 +156,12 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update months available with non standard format', async () => {
       fetchReportList.mockResolvedValueOnce([
         {
-          Release: '5.1',
-          Report_ID: 'TR',
-          Report_Name: 'Title Report',
-          Report_Description: '',
           First_Month_Available: '2025-01-01',
           Last_Month_Available: '2025-12-31',
+          Release: '5.1',
+          Report_Description: '',
+          Report_ID: 'TR',
+          Report_Name: 'Title Report',
         },
       ]);
 
@@ -181,12 +181,12 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should NOT update months available with unusable format', async () => {
       fetchReportList.mockResolvedValueOnce([
         {
-          Release: '5.1',
-          Report_ID: 'TR',
-          Report_Name: 'Title Report',
-          Report_Description: '',
           First_Month_Available: 'foo',
           Last_Month_Available: 'bar',
+          Release: '5.1',
+          Report_Description: '',
+          Report_ID: 'TR',
+          Report_Name: 'Title Report',
         },
       ]);
 
@@ -207,9 +207,9 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       fetchReportList.mockResolvedValueOnce([
         {
           Release: '5.1',
+          Report_Description: '',
           Report_ID: 'CUSTOM:TR',
           Report_Name: 'Custom Title Report',
-          Report_Description: '',
         },
       ]);
 
@@ -229,9 +229,9 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       fetchReportList.mockResolvedValueOnce([
         {
           Release: '5',
+          Report_Description: '',
           Report_ID: 'TR',
           Report_Name: 'Title Report',
-          Report_Description: '',
         },
       ]);
 
@@ -349,7 +349,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       await refreshSupportedReportOfDataHost(
         dataHost,
         {},
-        { release: '5.1', forceRefresh: true }
+        { forceRefresh: true, release: '5.1' }
       );
 
       expect(fetchReportList).toBeCalled();
@@ -363,7 +363,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       await refreshSupportedReportOfDataHost(
         dataHost,
         {},
-        { release: '5.1', dryRun: true }
+        { dryRun: true, release: '5.1' }
       );
 
       expect(fetchReportList).toBeCalled();
@@ -375,7 +375,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       await refreshSupportedReportOfDataHost(
         dataHost,
         {},
-        { release: '5.1', dryRun: true }
+        { dryRun: true, release: '5.1' }
       );
 
       expect(dbClient.dataHostSupportedReport.upsert).not.toBeCalled();
@@ -387,7 +387,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       await refreshSupportedReportOfDataHost(
         dataHost,
         {},
-        { release: '5.1', dryRun: true }
+        { dryRun: true, release: '5.1' }
       );
 
       expect(dbClient.dataHostSupportedRelease.update).not.toBeCalled();

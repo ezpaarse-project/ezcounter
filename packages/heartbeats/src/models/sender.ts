@@ -8,21 +8,15 @@ import { type rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 import type {
   FileSystemUsage,
   Heartbeat,
-  HeartbeatService,
-  HeartbeatFrequency,
   HeartbeatConnectedServicePing,
+  HeartbeatFrequency,
+  HeartbeatService,
 } from '../dto';
 import {
-  doPingWithTimeout,
-  assertTransport,
   type HeartbeatTransport,
+  assertTransport,
+  doPingWithTimeout,
 } from './utils';
-
-export type HeartbeatSender = EventEmitter<{
-  send: [];
-  'send:main': [];
-  'send:connected': [string];
-}>;
 
 type HeartbeatContext = {
   transport: HeartbeatTransport;
@@ -32,6 +26,20 @@ type HeartbeatContext = {
   filesystems: [string, string][];
   connectedServices: Map<string, HeartbeatConnectedServicePing>;
 };
+
+// oxlint-disable no-magic-numbers
+const DEFAULT_FREQ = {
+  connected: {
+    // Max: 5 mins
+    max: 5 * 60 * 1000,
+    // Min: 5 seconds
+    min: 5 * 1000,
+  },
+
+  // Self: 2 seconds
+  self: 2 * 1000,
+};
+// oxlint-enable no-magic-numbers
 
 /** Map of frequency by service */
 const frequencyByService = new Map<string, { last: number; next: number }>();
@@ -57,9 +65,9 @@ function getFilesystemStatus(
       const available = stats.bavail * stats.bsize;
 
       return {
+        available,
         name,
         total,
-        available,
         used: total - available,
       };
     })
@@ -69,7 +77,9 @@ function getFilesystemStatus(
 /**
  * Helper to send a heartbeat
  *
- * @param data The content of the heartbeat
+ * @param transport - The transport to use
+ * @param logger - The logger to use
+ * @param data - The content of the heartbeat
  */
 function sendHeartbeat(
   transport: HeartbeatTransport,
@@ -84,11 +94,11 @@ function sendHeartbeat(
       size,
       sizeUnit: 'B',
     });
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       msg: 'Failed to send heartbeat',
       service: data.service,
-      err,
     });
   }
 }
@@ -104,41 +114,20 @@ async function sendMainHeartbeat(ctx: HeartbeatContext): Promise<void> {
   const now = new Date();
 
   sendHeartbeat(ctx.transport, ctx.logger, {
-    service: ctx.service.name,
-    hostname: `${hostname()}:${process.pid}`,
-    version: ctx.service.version,
     filesystems: filesystems.length > 0 ? filesystems : undefined,
-    updatedAt: now,
+    hostname: `${hostname()}:${process.pid}`,
     nextAt: new Date(now.getTime() + ctx.frequency.self),
+    service: ctx.service.name,
+    updatedAt: now,
+    version: ctx.service.version,
   });
-}
-
-/**
- * Schedule next main heartbeat using static frequency
- *
- * @param sender - The event bus
- * @param frequency - The frequency config
- */
-export function setupMainInterval(
-  sender: HeartbeatSender,
-  frequency: HeartbeatFrequency
-): void {
-  // Schedule next event
-  const timeout = setTimeout(() => {
-    sender.emit('send:main');
-
-    setupMainInterval(sender, frequency);
-  }, frequency.self);
-
-  timeoutByService.set('_self', timeout);
 }
 
 /**
  * Send a heartbeat for a connected service
  *
  * @param key The key of the service
- * @param ping How to ping service
- * @param frequency Amount of milliseconds until next heartbeat
+ * @param ctx Configuration of heartbeats
  */
 async function sendConnectedHeartbeat(
   key: string,
@@ -150,7 +139,7 @@ async function sendConnectedHeartbeat(
   }
 
   const { min, max } = ctx.frequency.connected;
-  const frequency = Math.min(frequencyByService.get(key)?.next || min, max);
+  const frequency = Math.min(frequencyByService.get(key)?.next ?? min, max);
 
   try {
     const service = await doPingWithTimeout(ping, frequency);
@@ -161,12 +150,12 @@ async function sendConnectedHeartbeat(
       last: frequency,
       next: Math.min(frequency * 2, max),
     });
-  } catch (err) {
+  } catch (error) {
     ctx.logger.error({
+      err: error,
       msg: 'Error when getting connected service',
       service: key,
       timeout: frequency * 0.75,
-      err,
     });
 
     frequencyByService.set(key, {
@@ -177,30 +166,9 @@ async function sendConnectedHeartbeat(
 }
 
 /**
- * Schedule next main heartbeat using dynamic frequency
- *
- * @param sender - The event bus
- * @param frequency - The frequency config
- * @param key - The key of the service
- */
-export function setupConnectedInterval(
-  sender: HeartbeatSender,
-  frequency: HeartbeatFrequency,
-  key: string
-): void {
-  const delay = frequencyByService.get(key)?.next || frequency.connected.min;
-
-  const timeout = setTimeout(() => {
-    sender.emit('send:connected', key);
-
-    setupConnectedInterval(sender, frequency, key);
-  }, delay);
-
-  timeoutByService.set(key, timeout);
-}
-
-/**
  * Setup sender events
+ *
+ * @param ctx - The heartbeat context
  *
  * @returns The event emitter
  */
@@ -226,12 +194,63 @@ function setupSender(ctx: HeartbeatContext): HeartbeatSender {
   return sender;
 }
 
+export type HeartbeatSender = EventEmitter<{
+  send: [];
+  'send:main': [];
+  'send:connected': [string];
+}>;
+
+/**
+ * Schedule next main heartbeat using static frequency
+ *
+ * @param sender - The event bus
+ * @param frequency - The frequency config
+ */
+export function setupMainInterval(
+  sender: HeartbeatSender,
+  frequency: HeartbeatFrequency
+): void {
+  // Schedule next event
+  const timeout = setTimeout(() => {
+    sender.emit('send:main');
+
+    setupMainInterval(sender, frequency);
+  }, frequency.self);
+
+  timeoutByService.set('_self', timeout);
+}
+
+/**
+ * Schedule next main heartbeat using dynamic frequency
+ *
+ * @param sender - The event bus
+ * @param frequency - The frequency config
+ * @param key - The key of the service
+ */
+export function setupConnectedInterval(
+  sender: HeartbeatSender,
+  frequency: HeartbeatFrequency,
+  key: string
+): void {
+  const delay = frequencyByService.get(key)?.next ?? frequency.connected.min;
+
+  const timeout = setTimeout(() => {
+    sender.emit('send:connected', key);
+
+    setupConnectedInterval(sender, frequency, key);
+  }, delay);
+
+  timeoutByService.set(key, timeout);
+}
+
 /**
  * Setup heartbeat for this service
  *
  * @param channel - The rabbitmq channel
  * @param logger - The logger
  * @param options - Options to setup heartbeat
+ *
+ * @returns The heartbeat sender
  */
 export async function setupHeartbeatSender(
   channel: rabbitmq.Channel,
@@ -251,26 +270,16 @@ export async function setupHeartbeatSender(
   );
 
   const ctx: HeartbeatContext = {
-    transport,
-    logger: childLogger,
-    service: options.service,
-    frequency: options.frequency || {
-      // self: 2 seconds
-      self: 2 * 1000,
-
-      connected: {
-        // min: 5 seconds
-        min: 5 * 1000,
-        // max: 5 mins
-        max: 5 * 60 * 1000,
-      },
-    },
-    filesystems: Object.entries(options.service.filesystems ?? {}).filter(
-      ([, path]) => path
-    ),
     connectedServices: new Map(
       Object.entries(options.service.connectedServices ?? {})
     ),
+    filesystems: Object.entries(options.service.filesystems ?? {}).filter(
+      ([, path]) => path
+    ),
+    frequency: options.frequency ?? DEFAULT_FREQ,
+    logger: childLogger,
+    service: options.service,
+    transport,
   };
 
   const sender = setupSender(ctx);

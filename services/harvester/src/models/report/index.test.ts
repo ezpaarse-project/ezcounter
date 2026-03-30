@@ -20,13 +20,13 @@ describe('Report Exceptions (handleExceptions)', () => {
     const result = handleExceptions([
       {
         code: 'foobar',
-        severity: 'warn',
         message: '',
+        severity: 'warn',
       },
       {
         code: 'barfoo',
-        severity: 'info',
         message: '',
+        severity: 'info',
       },
     ]);
 
@@ -37,13 +37,13 @@ describe('Report Exceptions (handleExceptions)', () => {
     const result = handleExceptions([
       {
         code: 'counter:1011',
-        severity: 'info',
         message: '',
+        severity: 'info',
       },
       {
         code: 'unknown_error',
-        severity: 'error',
         message: '',
+        severity: 'error',
       },
     ]);
 
@@ -54,13 +54,13 @@ describe('Report Exceptions (handleExceptions)', () => {
     const result = handleExceptions([
       {
         code: 'counter:1000',
-        severity: 'error',
         message: '',
+        severity: 'error',
       },
       {
         code: 'unknown_error',
-        severity: 'error',
         message: '',
+        severity: 'error',
       },
     ]);
 
@@ -68,28 +68,28 @@ describe('Report Exceptions (handleExceptions)', () => {
   });
 
   test('should throw last HarvestError if error exception', () => {
-    let error: unknown;
+    let err: unknown = null;
     try {
       handleExceptions([
         {
           code: 'unknown_error',
-          severity: 'error',
           message: '',
+          severity: 'error',
         },
         {
           code: 'counter:3020',
-          severity: 'error',
           message: '',
+          severity: 'error',
         },
       ]);
-    } catch (err) {
-      error = err;
+    } catch (error) {
+      err = error;
     }
 
-    expect(error).toMatchObject({
+    expect(err).toMatchObject({
       code: 'counter:3020',
-      severity: 'error',
       message: '',
+      severity: 'error',
     });
   });
 });
@@ -97,19 +97,19 @@ describe('Report Exceptions (handleExceptions)', () => {
 describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getOptions = (): HarvestJobData => ({
-    id: '',
     download: {
-      report: {
-        id: '',
-        period: { start: '', end: '' },
-        release: '5.1',
-      },
+      cacheKey: '',
       dataHost: {
         auth: {},
         baseUrl: '',
       },
-      cacheKey: '',
+      report: {
+        id: '',
+        period: { end: '', start: '' },
+        release: '5.1',
+      },
     },
+    id: '',
     insert: {
       index: '',
     },
@@ -119,7 +119,7 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     const options = getOptions();
 
     const result = reharvestOrMarkAsError(
-      { path: '', cache: { source: 'archive' } },
+      { cache: { source: 'archive' }, path: '' },
       options,
       new Error('Error')
     );
@@ -131,7 +131,7 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     const options = getOptions();
 
     reharvestOrMarkAsError(
-      { path: '', cache: { source: 'archive' } },
+      { cache: { source: 'archive' }, path: '' },
       options,
       new Error('Error')
     );
@@ -143,7 +143,7 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     const options = getOptions();
 
     reharvestOrMarkAsError(
-      { path: '', cache: { source: 'archive' } },
+      { cache: { source: 'archive' }, path: '' },
       options,
       new Error('Error')
     );
@@ -155,7 +155,7 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     const options = getOptions();
 
     const result = reharvestOrMarkAsError(
-      { path: '', cache: { source: 'remote', httpCode: 500 } },
+      { cache: { httpCode: 500, source: 'remote' }, path: '' },
       options,
       new Error('Error')
     );
@@ -167,18 +167,18 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     const options = getOptions();
 
     reharvestOrMarkAsError(
-      { path: '', cache: { source: 'remote', httpCode: 500 } },
+      { cache: { httpCode: 500, source: 'remote' }, path: '' },
       options,
       new Error('Error')
     );
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      id: options.id,
-      status: 'error',
       error: {
         code: 'app:ERROR',
         message: 'Error',
       },
+      id: options.id,
+      status: 'error',
     });
   });
 });

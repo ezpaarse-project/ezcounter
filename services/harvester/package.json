@@ -47,7 +47,8 @@
     "memfs": "^4.56.10",
     "pino-pretty": "catalog:",
     "vite-tsconfig-paths": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vitest-mock-extended": "catalog:"
   },
   "engines": {
     "node": "^24"

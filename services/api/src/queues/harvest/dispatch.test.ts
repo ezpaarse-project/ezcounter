@@ -91,7 +91,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   const jobs = [{ id: 'abcde' } as HarvestJobData];
 
   test('should send jobs', () => {
-    sendHarvestJobsInQueue(chan, { name: 'foobar', created: true }, jobs);
+    sendHarvestJobsInQueue(chan, { created: true, name: 'foobar' }, jobs);
 
     expect(sendJSONMessage).toBeCalled();
   });
@@ -99,7 +99,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   test('should return id of jobs', () => {
     const result = sendHarvestJobsInQueue(
       chan,
-      { name: 'foobar', created: true },
+      { created: true, name: 'foobar' },
       jobs
     );
 
@@ -114,7 +114,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
 
     const result = sendHarvestJobsInQueue(
       chan,
-      { name: 'foobar', created: false, error },
+      { created: false, error, name: 'foobar' },
       jobs
     );
 
@@ -128,7 +128,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
 
     const result = sendHarvestJobsInQueue(
       chan,
-      { name: 'foobar', created: true },
+      { created: true, name: 'foobar' },
       jobs
     );
 
@@ -141,13 +141,13 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
 
 describe('Queue dispatch (sendDispatchEvent)', () => {
   test('should send dispatch', async () => {
-    await sendDispatchEvent(chan, { name: 'foobar', created: true });
+    await sendDispatchEvent(chan, { created: true, name: 'foobar' });
 
     expect(sendJSONMessage).toBeCalled();
   });
 
   test('should NOT send dispatch if queue existed', async () => {
-    await sendDispatchEvent(chan, { name: 'foobar', created: false });
+    await sendDispatchEvent(chan, { created: false, name: 'foobar' });
 
     expect(sendJSONMessage).not.toBeCalled();
   });
@@ -159,9 +159,9 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
     };
 
     const promise = sendDispatchEvent(chan, {
-      name: 'foobar',
       created: false,
       error,
+      name: 'foobar',
     });
 
     await expect(promise).resolves.toHaveProperty('error', error);
@@ -172,7 +172,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       throw new Error('Dispatch error');
     });
 
-    const promise = sendDispatchEvent(chan, { name: 'foobar', created: true });
+    const promise = sendDispatchEvent(chan, { created: true, name: 'foobar' });
 
     await expect(promise).resolves.toHaveProperty('error', {
       code: 'app:ERROR',
@@ -185,7 +185,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       throw new Error('Dispatch error');
     });
 
-    await sendDispatchEvent(chan, { name: 'foobar', created: true });
+    await sendDispatchEvent(chan, { created: true, name: 'foobar' });
 
     expect(mq.deleteQueue).toBeCalledWith({}, 'foobar');
   });

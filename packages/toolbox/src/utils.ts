@@ -3,14 +3,16 @@
  *
  * @param fnc - The function
  * @param interval - Min interval between 2 calls
+ *
+ * @returns The throttled function
  */
 export function createThrottledFunction<Args extends unknown[], Return>(
   fnc: (...args: Args) => Return | Promise<Return>,
   interval: number
 ): (...args: Args) => Promise<Return> {
-  let nextArgs: Args | undefined;
-  let nextInvocation: Promise<Return> | undefined;
-  let delay: Promise<void> | undefined;
+  let nextArgs: Args | null = null;
+  let nextInvocation: Promise<Return> | null = null;
+  let delay: Promise<void> | null = null;
 
   const setupDelay = async (promise: Promise<Return>): Promise<void> => {
     try {
@@ -33,7 +35,7 @@ export function createThrottledFunction<Args extends unknown[], Return>(
       return Promise.reject(new Error('args are undefined'));
     }
 
-    nextInvocation = undefined;
+    nextInvocation = null;
 
     // Wrapping in a promise to support sync and async functions
     // oxlint-disable-next-line promise/prefer-await-to-then
@@ -46,10 +48,8 @@ export function createThrottledFunction<Args extends unknown[], Return>(
   return (...args) => {
     nextArgs = args;
 
-    if (!nextInvocation) {
-      // oxlint-disable-next-line promise/prefer-await-to-then
-      nextInvocation = (delay || Promise.resolve()).then(handler);
-    }
+    // oxlint-disable-next-line promise/prefer-await-to-then
+    nextInvocation ??= (delay || Promise.resolve()).then(handler);
     return nextInvocation;
   };
 }

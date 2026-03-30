@@ -4,10 +4,10 @@ import { chain } from 'stream-chain';
 
 import { createReadStream } from '~/lib/fs';
 import {
+  type JSONStreamedValue,
   jsonParser,
   jsonPick,
   jsonStreamArray,
-  type JSONStreamedValue,
 } from '~/lib/stream/json';
 
 export type R5StreamedValue = {

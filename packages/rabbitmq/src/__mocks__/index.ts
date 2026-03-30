@@ -15,7 +15,7 @@ export const sendJSONMessage = vi
 export const parseJSONMessage = vi.fn<typeof original.parseJSONMessage>(
   ({ content }) => {
     const raw = content.toString();
-    return { raw, data: JSON.parse(raw) };
+    return { data: JSON.parse(raw), raw };
   }
 );
 

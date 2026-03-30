@@ -2,8 +2,8 @@ import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
 import { HarvestJobData } from '@ezcounter/dto/queues';
 import {
-  rabbitmq,
   parseJSONMessage,
+  rabbitmq,
   sendJSONMessage,
 } from '@ezcounter/rabbitmq';
 
@@ -30,8 +30,8 @@ function markHarvestJobAsProcessing(
 ): void {
   sendHarvestJobStatusEvent({
     id: job.id,
-    status: 'processing',
     startedAt: new Date(),
+    status: 'processing',
   });
 
   // Keep track of delayed jobs
@@ -87,14 +87,14 @@ async function requeueHarvestJob(
   if (pause > 0) {
     logger.info({
       msg: 'Pausing queue',
-      queueName: data.queueName,
       pause,
+      queueName: data.queueName,
     });
     // We're having one dispatch for each data host, and don't ack dispatch until all jobs are completed,
-    // we're using `prefetch=1` on both connections to ensure that only one job per data host is processed
-    // at the same time.
+    // We're using `prefetch=1` on both connections to ensure that only one job per data host is processed
+    // At the same time.
     // Meaning that if any job hangs, it'll block the whole job queue and prevent any other harvester to
-    // pick it up.
+    // Pick it up.
     // As if data host is busy every request to it will fail, we want to block the whole queue here
     await setTimeoutAsync(pause);
   }
@@ -104,17 +104,17 @@ async function requeueHarvestJob(
       headers: { 'x-delay': delay },
     });
     logger.info({
+      delay,
+      id: data.job.id,
       msg: 'Harvest job requeued',
       queueName: data.queueName,
-      id: data.job.id,
-      delay,
     });
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
+      id: data.job.id,
       msg: 'Failed to requeue job',
       queueName: data.queueName,
-      id: data.job.id,
-      err,
     });
   }
 }
@@ -135,9 +135,9 @@ async function processHarvestMessage(
   const { data, raw, parseError } = parseJSONMessage(msg, HarvestJobData);
   if (!data) {
     logger.error({
-      msg: 'Invalid data',
       data: process.env.NODE_ENV === 'production' ? undefined : raw,
       err: parseError,
+      msg: 'Invalid data',
     });
     rabbitmq.rejectMessage(channel, msg, false);
     return;
@@ -159,12 +159,12 @@ async function processHarvestMessage(
     // Requeue job
     const { processingBackoff, unavailableBackoff } = config.download;
     await requeueHarvestJob(channel, {
-      job: data,
-      queueName,
       // Data host is currently processing report - we'll retry later
       delay: result.processing ? processingBackoff : undefined,
+      job: data,
       // Data host is currently unavailable - pausing whole data host
       pause: result.unavailable ? unavailableBackoff : undefined,
+      queueName,
     });
   }
 
@@ -210,13 +210,13 @@ async function deleteHarvestQueue(
     // Queue was deleted, no need to track delayed jobs
     delayedJobs.delete(queueName);
     return true;
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       msg: 'Unable to delete queue',
       queueName,
-      err,
     });
-    throw err;
+    throw error;
   }
 }
 
@@ -224,8 +224,9 @@ async function deleteHarvestQueue(
  * Process all messages in harvest queue
  *
  * @param channel - The rabbitmq channel
+ * @param queueName - The name of the queue to process
  *
- * @return Iterator that will yield after each harvest (or attempt to get harvest), and return when all messages are processed
+ * @returns Iterator that will yield after each harvest (or attempt to get harvest), and return when all messages are processed
  */
 export async function* processHarvestQueue(
   channel: rabbitmq.Channel,

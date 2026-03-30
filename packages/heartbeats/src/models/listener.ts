@@ -14,6 +14,7 @@ export type HeartbeatListener = EventEmitter<{
  *
  * @param channel - The rabbitmq channel
  * @param logger - The logger
+ * @param listener - The listener
  * @param isRabbitMQMandatory - Is RabbitMQ a mandatory service
  */
 export async function listenToHeartbeats(
@@ -40,15 +41,15 @@ export async function listenToHeartbeats(
 
   await consumeJSONQueue({
     channel,
-    queue,
     logger,
-    schema: Heartbeat,
     onMessage: (data) => {
       listener.emit('heartbeat', data);
     },
     options: {
       noAck: true,
     },
+    queue,
+    schema: Heartbeat,
   });
 }
 
@@ -58,6 +59,8 @@ export async function listenToHeartbeats(
  * @param channel - The rabbitmq channel
  * @param logger - The logger
  * @param options - The options
+ *
+ * @returns The listener
  */
 export function setupHeartbeatListener(
   channel: rabbitmq.Channel,
@@ -70,7 +73,7 @@ export function setupHeartbeatListener(
 
   const childLogger = logger.child({ scope: 'heartbeat' });
 
-  listenToHeartbeats(
+  void listenToHeartbeats(
     channel,
     childLogger,
     listener,

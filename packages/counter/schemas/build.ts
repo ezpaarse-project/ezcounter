@@ -1,16 +1,16 @@
 import { existsSync } from 'node:fs';
-import { readFile, glob, writeFile, mkdir } from 'node:fs/promises';
-import { join, dirname, basename } from 'node:path';
+import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { basename, dirname, join } from 'node:path';
 
 import { compile } from 'json-schema-to-typescript';
 
 const generateTypeName = (from: string): string =>
   from
-    // replace chars which are not valid for typescript identifiers
+    // Replace chars which are not valid for typescript identifiers
     .replaceAll(/(^\s*[^a-zA-Z_$])|([^a-zA-Z_$\d])/g, '')
-    // uppercase leading underscores followed by lowercase
+    // Uppercase leading underscores followed by lowercase
     .replaceAll(/_[a-z]/g, (match) => match.toUpperCase())
-    // removes any underscore
+    // Removes any underscore
     .replaceAll('_', '');
 
 async function readSchema(
@@ -21,17 +21,17 @@ async function readSchema(
 
   if (existsSync(tsPatchPath)) {
     const { schema } = await import(tsPatchPath);
-    return { schema, patched: true };
+    return { patched: true, schema };
   }
 
   if (existsSync(jsPatchPath)) {
     const { schema } = await import(jsPatchPath);
-    return { schema, patched: true };
+    return { patched: true, schema };
   }
 
   return {
-    schema: JSON.parse(await readFile(schemaPath, 'utf-8')),
     patched: false,
+    schema: JSON.parse(await readFile(schemaPath, 'utf8')),
   };
 }
 
@@ -50,9 +50,9 @@ async function generateTypescriptFile(
 
   const typesCode = await compile(openapi, '', {
     customName: (value, key) =>
-      generateTypeName(value.title || value.$id || key || ''),
-    unreachableDefinitions: true,
+      generateTypeName(((value.title ?? value.$id) || key) ?? ''),
     format: false,
+    unreachableDefinitions: true,
   });
 
   const validationCode = [
@@ -61,7 +61,7 @@ async function generateTypescriptFile(
     // oxlint-disable-next-line no-explicit-any
     ...Object.entries(openapi.definitions as Record<string, any>).map(
       ([key, value]) => {
-        const name = generateTypeName(value.title || value.$id || key);
+        const name = generateTypeName(value.title ?? value.$id ?? key);
         return `export const ${name} = ajv.getSchema<${name}>('#/definitions/${key}')!;`;
       }
     ),
@@ -82,6 +82,6 @@ for await (const schemaPath of schemas) {
   const code = await generateTypescriptFile(schema, module, patched);
 
   const outPath = join(outputDir, `${module}.ts`);
-  await writeFile(outPath, code, 'utf-8');
+  await writeFile(outPath, code, 'utf8');
   process.stdout.write(`Validation generated at ${outPath}\n`);
 }

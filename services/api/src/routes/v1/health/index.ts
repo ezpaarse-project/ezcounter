@@ -4,9 +4,9 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from '@ezcounter/dto';
 
 import {
-  service,
-  getMissingMandatoryServices,
+  appService,
   getAllServices,
+  getMissingMandatoryServices,
 } from '~/lib/heartbeat';
 import { appLogger } from '~/lib/logger';
 
@@ -16,75 +16,57 @@ import { HTTPError } from '~/routes/v1/errors';
 import {
   EmptyResponse,
   buildResponse,
-  describeSuccess,
   describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
-    method: 'GET',
-    url: '/',
+    handler: async (request, reply) =>
+      buildResponse(reply, {
+        current: appService.name,
+        services: getAllServices(),
+        version: appService.version,
+      }),
     logLevel: 'debug',
+    method: 'GET',
     schema: {
-      summary: 'Get status of stack',
-      tags: ['health'],
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
         [StatusCodes.OK]: describeSuccess(
           z.object({
             current: z.string().describe('Current service'),
-            version: z.string().describe('Current version'),
             services: z
               .array(Heartbeat)
               .describe('Services connected to current'),
+            version: z.string().describe('Current version'),
           })
         ),
       },
+      summary: 'Get status of stack',
+      tags: ['health'],
     },
-    handler: async (request, reply) =>
-      buildResponse(reply, {
-        current: service.name,
-        version: service.version,
-        services: getAllServices(),
-      }),
+    url: '/',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/services',
+    handler: async (request, reply) => buildResponse(reply, getAllServices()),
     logLevel: 'debug',
+    method: 'GET',
     schema: {
-      summary: 'Ping all services',
-      tags: ['health'],
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
         [StatusCodes.OK]: describeSuccess(
           z.array(Heartbeat).describe('Services connected to current')
         ),
       },
+      summary: 'Ping all services',
+      tags: ['health'],
     },
-    handler: async (request, reply) => buildResponse(reply, getAllServices()),
+    url: '/services',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/services/:name',
-    logLevel: 'debug',
-    schema: {
-      summary: 'Ping a service',
-      tags: ['health'],
-      params: z.object({
-        name: z.string().describe('Service name'),
-      }),
-      response: {
-        ...describeErrors([
-          StatusCodes.BAD_REQUEST,
-          StatusCodes.NOT_FOUND,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.OK]: describeSuccess(Heartbeat),
-      },
-    },
     handler: async (request, reply) => {
       const all = getAllServices();
       const content = all.find((srv) => srv.service === request.params.name);
@@ -97,40 +79,44 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
 
       return buildResponse(reply, content);
     },
+    logLevel: 'debug',
+    method: 'GET',
+    schema: {
+      params: z.object({
+        name: z.string().describe('Service name'),
+      }),
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(Heartbeat),
+      },
+      summary: 'Ping a service',
+      tags: ['health'],
+    },
+    url: '/services/:name',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/probes/liveness',
+    handler: async (request, reply) => {
+      reply.status(StatusCodes.NO_CONTENT);
+    },
     logLevel: 'debug',
+    method: 'GET',
     schema: {
-      summary: 'Shorthand for liveness probe',
-      tags: ['health'],
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
         [StatusCodes.NO_CONTENT]: EmptyResponse,
       },
+      summary: 'Shorthand for liveness probe',
+      tags: ['health'],
     },
-    handler: async (request, reply) => {
-      reply.status(StatusCodes.NO_CONTENT);
-    },
+    url: '/probes/liveness',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/probes/readiness',
-    logLevel: 'debug',
-    schema: {
-      summary: 'Shorthand for readiness probe',
-      tags: ['health'],
-      response: {
-        ...describeErrors([
-          StatusCodes.SERVICE_UNAVAILABLE,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.NO_CONTENT]: EmptyResponse,
-      },
-    },
     handler: async (request, reply) => {
       const missing = getMissingMandatoryServices();
       if (missing.length <= 0) {
@@ -142,6 +128,20 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       appLogger.error({ message, missing });
       throw new HTTPError(StatusCodes.SERVICE_UNAVAILABLE, message);
     },
+    logLevel: 'debug',
+    method: 'GET',
+    schema: {
+      response: {
+        ...describeErrors([
+          StatusCodes.SERVICE_UNAVAILABLE,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.NO_CONTENT]: EmptyResponse,
+      },
+      summary: 'Shorthand for readiness probe',
+      tags: ['health'],
+    },
+    url: '/probes/readiness',
   });
 };
 

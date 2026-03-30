@@ -3,11 +3,11 @@ import { join } from 'node:path';
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import autoLoad from '@fastify/autoload';
 import {
+  hasZodFastifySchemaValidationErrors,
+  isResponseSerializationError,
   jsonSchemaTransform,
   serializerCompiler,
   validatorCompiler,
-  hasZodFastifySchemaValidationErrors,
-  isResponseSerializationError,
 } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
@@ -42,8 +42,8 @@ export function setupResponses(fastify: FastifyInstance): void {
           reply,
           new Error("Request doesn't match the schema", {
             cause: {
-              issues: err.validation,
               context: err.validationContext,
+              issues: err.validation,
             },
           })
         )
@@ -59,8 +59,8 @@ export function setupResponses(fastify: FastifyInstance): void {
             "Response doesn't match the schema. Please contact the administrators",
             {
               cause: {
-                issues: err.cause.issues,
                 context: 'response',
+                issues: err.cause.issues,
               },
             }
           )
@@ -98,9 +98,8 @@ export const v1: FastifyPluginAsync = async (fastify) => {
   // Register routes
   fastify.register(autoLoad, {
     dir: join(import.meta.dirname, 'v1'),
-    // Avoid importing test files
     ignorePattern: /^.*test.ts$/,
-    routeParams: true,
     maxDepth: 6,
+    routeParams: true,
   });
 };

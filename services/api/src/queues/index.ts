@@ -17,8 +17,8 @@ async function initDispatchQueue(
 ): Promise<void> {
   const channel = await rabbitmq.createChannel(connection);
   logger.debug({
-    msg: 'Channel created',
     for: 'harvest.dispatch',
+    msg: 'Channel created',
   });
 
   await getHarvestDispatchQueue(channel);
@@ -34,8 +34,8 @@ async function initHarvestJobStatusExchange(
 ): Promise<void> {
   const channel = await rabbitmq.createChannel(connection);
   logger.debug({
-    msg: 'Channel created',
     for: 'harvest.jobs:status',
+    msg: 'Channel created',
   });
 
   await getHarvestJobStatusEventExchange(channel);

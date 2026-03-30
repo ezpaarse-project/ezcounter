@@ -1,9 +1,9 @@
 // oxlint-enable import/no-namespace
 import type {
-  R5ReportItem,
   R51ReportHeader,
   R51ReportItem,
   R51ReportItemParent,
+  R5ReportItem,
 } from '@ezcounter/counter/dto';
 // oxlint-disable import/no-namespace
 import type * as r5 from '@ezcounter/counter/schemas/r5';

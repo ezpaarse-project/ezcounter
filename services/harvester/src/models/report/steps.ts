@@ -11,12 +11,72 @@ import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 import type { COUNTERReportHeader } from './dto';
 import { asHarvestException } from './exceptions';
 import { archiveReport } from './steps/archive';
-import { cacheReport, type CacheResult } from './steps/download';
+import { type CacheResult, cacheReport } from './steps/download';
 import { extractReportExceptions } from './steps/extract/exceptions';
-import { extractReportHeader, extractRegistryId } from './steps/extract/header';
+import { extractRegistryId, extractReportHeader } from './steps/extract/header';
 import { extractReportItems } from './steps/extract/items';
 
+const ITEMS_NOTIFY_INTERVAL = 250;
+
 const logger = appLogger.child({ scope: 'reports' });
+
+/**
+ * Shorthand to send exceptions found in report
+ *
+ * @param id - The job id
+ * @param exceptions - The exceptions found
+ */
+const sendExceptionsStatus = (
+  id: string,
+  exceptions: HarvestException[]
+): void => {
+  sendHarvestJobStatusEvent({
+    current: 'extract',
+    extract: {
+      done: false,
+      exceptions,
+    },
+    id,
+    status: 'processing',
+  });
+};
+
+/**
+ * Shorthand to send header found in report
+ *
+ * @param id - The job id
+ * @param registryId - The id of the registry found in header
+ */
+const sendHeaderStatus = (id: string, registryId: string | null): void => {
+  sendHarvestJobStatusEvent({
+    current: 'extract',
+    extract: {
+      done: false,
+      header: true,
+      registryId,
+    },
+    id,
+    status: 'processing',
+  });
+};
+
+/**
+ * Shorthand to send items count found in report
+ *
+ * @param id - The job id
+ * @param count - The count of items
+ */
+const sendItemsStatus = (id: string, count: number): void => {
+  sendHarvestJobStatusEvent({
+    current: 'extract',
+    extract: {
+      done: false,
+      items: count,
+    },
+    id: id,
+    status: 'processing',
+  });
+};
 
 /**
  * Cache report to a file
@@ -41,48 +101,28 @@ export async function cacheReportToFile(
 
     // No need to tick timeout as cache already does it
     logger.info({
-      msg: 'Cached report',
-      id: options.id,
-      source: result.source,
       httpCode: result.httpCode,
+      id: options.id,
+      msg: 'Cached report',
+      source: result.source,
     });
 
     return result;
-  } catch (err) {
+  } catch (error) {
     logger.error({
-      msg: 'Unable to cache report',
+      err: error,
       id: options.id,
-      err,
+      msg: 'Unable to cache report',
     });
 
-    throw err;
+    throw error;
   }
 }
 
 /**
- * Shorthand to send exceptions found in report
- *
- * @param id - The job id
- * @param exceptions - The exceptions found
- */
-const sendExceptionsStatus = (
-  id: string,
-  exceptions: HarvestException[]
-): void =>
-  sendHarvestJobStatusEvent({
-    id,
-    current: 'extract',
-    status: 'processing',
-    extract: {
-      done: false,
-      exceptions,
-    },
-  });
-
-/**
  * Get report exceptions from options
  *
- * @param reportPath - The path to the report
+ * @param report - Information about report
  * @param options - The options to harvest
  * @param timeout - The timeout before an harvest job is considered as cancelled
  *
@@ -110,46 +150,28 @@ export async function getReportExceptions(
 
     timeout?.tick();
     logger.info({
-      msg: 'Extracted report exceptions',
-      id: options.id,
       count: raw.length,
+      id: options.id,
+      msg: 'Extracted report exceptions',
     });
 
     exceptions.push(...raw.map((ex) => asHarvestException(ex)));
-  } catch (err) {
+  } catch (error) {
     logger.warn({
-      msg: 'Unable to extract exceptions',
+      err: error,
       id: options.id,
-      err,
+      msg: 'Unable to extract exceptions',
     });
 
-    if (err instanceof Error && err.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       // Throw abort error if was aborted
-      throw err;
+      throw error;
     }
   }
 
   sendExceptionsStatus(options.id, exceptions);
   return exceptions;
 }
-
-/**
- * Shorthand to send header found in report
- *
- * @param id - The job id
- * @param registryId - The id of the registry found in header
- */
-const sendHeaderStatus = (id: string, registryId: string | null): void =>
-  sendHarvestJobStatusEvent({
-    id,
-    current: 'extract',
-    status: 'processing',
-    extract: {
-      done: false,
-      header: true,
-      registryId,
-    },
-  });
 
 /**
  * Get report header from options
@@ -176,41 +198,24 @@ export async function getReportHeader(
 
     timeout?.tick();
     logger.info({
-      msg: 'Extracted report header',
       id: options.id,
+      msg: 'Extracted report header',
       registryId,
     });
 
     sendHeaderStatus(options.id, registryId);
 
     return header;
-  } catch (err) {
+  } catch (error) {
     logger.warn({
-      msg: 'Unable to extract report header',
+      err: error,
       id: options.id,
-      err,
+      msg: 'Unable to extract report header',
     });
 
-    throw err;
+    throw error;
   }
 }
-
-/**
- * Shorthand to send items count found in report
- *
- * @param id - The job id
- * @param count - The count of items
- */
-const sendItemsStatus = (id: string, count: number): void =>
-  sendHarvestJobStatusEvent({
-    id: id,
-    current: 'extract',
-    status: 'processing',
-    extract: {
-      done: false,
-      items: count,
-    },
-  });
 
 /**
  * Queue report items to other services
@@ -226,6 +231,8 @@ export async function queueReportItems(
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {
+  let notifier: NodeJS.Timeout | null = null;
+
   try {
     const reportItems = extractReportItems(
       report.path,
@@ -235,39 +242,45 @@ export async function queueReportItems(
     timeout?.tick();
 
     let count = 0;
+    // Setup notifier
+    notifier = setInterval(() => {
+      sendItemsStatus(options.id, count);
+    }, ITEMS_NOTIFY_INTERVAL);
+
     for await (const { item, parent } of reportItems) {
       count += 1;
-      // Send status every 2000 items
-      if (count % 2000 === 0) {
-        sendItemsStatus(options.id, count);
-      }
-
-      queueEnrichJob({ item, parent, header: report.header });
+      queueEnrichJob({ header: report.header, item, parent });
       timeout?.tick();
     }
 
+    clearInterval(notifier);
+
     logger.info({
-      msg: 'Extracted report items',
-      id: options.id,
       count,
+      id: options.id,
+      msg: 'Extracted report items',
     });
 
     // Send status with final count
     sendItemsStatus(options.id, count);
-  } catch (err) {
+  } catch (error) {
+    if (notifier) {
+      clearInterval(notifier);
+    }
+
     logger.warn({
+      err: error,
       msg: 'Unable to extract report items',
-      err,
     });
 
-    throw err;
+    throw error;
   }
 }
 
 /**
  * Archive report to a file
  *
- * @param reportPath - The path to the report
+ * @param report - Information about report
  * @param options - The options to harvest
  * @param timeout - The timeout before an harvest job is considered as cancelled
  *
@@ -280,20 +293,20 @@ export async function archiveReportToFile(
 ): Promise<void> {
   try {
     await archiveReport(
-      { id: options.id, path: report.path, cache: report.cache },
+      { cache: report.cache, id: options.id, path: report.path },
       options.download,
       timeout
     );
 
     logger.info({
+      id: options.id,
       msg: 'Archived report',
-      id: options.id,
     });
-  } catch (err) {
+  } catch (error) {
     logger.error({
-      msg: 'Unable to archive report',
+      err: error,
       id: options.id,
-      err,
+      msg: 'Unable to archive report',
     });
   }
 }

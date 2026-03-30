@@ -5,9 +5,9 @@ import { z } from '@ezcounter/dto';
 import {
   type ErrorResponse,
   type SuccessResponse,
-  describeSuccess,
-  describeErrors,
   buildResponse,
+  describeErrors,
+  describeSuccess,
 } from './responses';
 
 describe('Success responses', () => {
@@ -27,15 +27,15 @@ describe('Success responses', () => {
     test('should describe a response with content', () => {
       const response: SuccessResponse<Content> = {
         apiVersion: 1,
-        status: {
-          code: 200,
-          message: 'OK',
-        },
         content: [
           {
             foo: 'bar',
           },
         ],
+        status: {
+          code: 200,
+          message: 'OK',
+        },
       };
 
       const result = describeSuccess(content).safeParse(response);
@@ -46,11 +46,11 @@ describe('Success responses', () => {
     test('should throw if no content content', () => {
       const response: SuccessResponse<null> = {
         apiVersion: 1,
+        content: null,
         status: {
           code: 200,
           message: 'OK',
         },
-        content: null,
       };
 
       const result = describeSuccess(content).safeParse(response);
@@ -61,11 +61,11 @@ describe('Success responses', () => {
     test('should throw if status is invalid', () => {
       const response = {
         apiVersion: 1,
+        content: null,
         status: {
           code: 999,
           message: 'UNKNOWN STATUS',
         },
-        content: null,
       };
 
       const result = describeSuccess(content).safeParse(response);
@@ -76,10 +76,6 @@ describe('Success responses', () => {
     test('should describe a response with meta', () => {
       const response: SuccessResponse<Content, Meta> = {
         apiVersion: 1,
-        status: {
-          code: 200,
-          message: 'OK',
-        },
         content: [
           {
             foo: 'bar',
@@ -87,6 +83,10 @@ describe('Success responses', () => {
         ],
         meta: {
           size: 1,
+        },
+        status: {
+          code: 200,
+          message: 'OK',
         },
       };
 
@@ -98,16 +98,16 @@ describe('Success responses', () => {
     test('should throw if no meta', () => {
       const response: SuccessResponse<z.infer<typeof content>, null> = {
         apiVersion: 1,
-        status: {
-          code: 200,
-          message: 'OK',
-        },
         content: [
           {
             foo: 'bar',
           },
         ],
         meta: null,
+        status: {
+          code: 200,
+          message: 'OK',
+        },
       };
 
       const result = describeSuccess(content, meta).safeParse(response);
@@ -120,27 +120,27 @@ describe('Success responses', () => {
     const expectedResponse = z.object({
       apiVersion: z.int().min(1),
 
-      status: z.object({ code: z.int(), message: z.string() }),
       content: z.array(
         z.object({
           foo: z.string(),
         })
       ),
+      status: z.object({ code: z.int(), message: z.string() }),
     });
 
     const expectedMeta = z.object({
       apiVersion: z.int().min(1),
 
-      status: z.object({ code: z.int(), message: z.string() }),
       content: z.array(
         z.object({
           foo: z.string(),
         })
       ),
-
       meta: z.object({
         size: z.int(),
       }),
+
+      status: z.object({ code: z.int(), message: z.string() }),
     });
 
     test('should build valid response', () => {
@@ -181,16 +181,16 @@ describe('Error responses', () => {
     test('should describe a response with error', () => {
       const response: ErrorResponse = {
         apiVersion: 1,
+        error: {
+          message: 'Example error',
+        },
         status: {
           code: 400,
           message: 'Bad Request',
         },
-        error: {
-          message: 'Example error',
-        },
       };
 
-      const errorSchema = describeErrors([400])[400];
+      const { 400: errorSchema } = describeErrors([400]);
       const result = errorSchema.safeParse(response);
 
       expect(result.success).toBe(true);
@@ -199,14 +199,14 @@ describe('Error responses', () => {
     test('should throw if no error', () => {
       const response = {
         apiVersion: 1,
+        error: null,
         status: {
           code: 400,
           message: 'Bad Request',
         },
-        error: null,
       };
 
-      const errorSchema = describeErrors([400])[400];
+      const { 400: errorSchema } = describeErrors([400]);
       const result = errorSchema.safeParse(response);
 
       expect(result.success).toBe(false);
@@ -215,16 +215,16 @@ describe('Error responses', () => {
     test('should throw if status is invalid', () => {
       const response = {
         apiVersion: 1,
+        error: {
+          message: 'Invalid error',
+        },
         status: {
           code: 999,
           message: 'UNKNOWN STATUS',
         },
-        error: {
-          message: 'Invalid error',
-        },
       };
 
-      const errorSchema = describeErrors([400])[400];
+      const { 400: errorSchema } = describeErrors([400]);
       const result = errorSchema.safeParse(response);
 
       expect(result.success).toBe(false);
@@ -234,11 +234,11 @@ describe('Error responses', () => {
       const expectedResponse = z.object({
         apiVersion: z.int().min(1),
 
-        status: z.object({ code: z.int(), message: z.string() }),
-
         error: z.object({
           message: z.string(),
         }),
+
+        status: z.object({ code: z.int(), message: z.string() }),
       });
 
       test('should build valid response', () => {

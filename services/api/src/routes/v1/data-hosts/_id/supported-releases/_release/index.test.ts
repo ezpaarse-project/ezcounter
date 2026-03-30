@@ -30,11 +30,11 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   };
 
   const release: DataHostSupportedRelease = {
-    dataHostId: 'id',
-    release: '5.1',
     createdAt: new Date(),
-    updatedAt: null,
+    dataHostId: 'id',
     refreshedAt: null,
+    release: '5.1',
+    updatedAt: null,
     ...body,
   };
 
@@ -43,9 +43,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
     upsertReleaseSupportedByDataHost.mockResolvedValueOnce(release);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1',
-      body,
     });
 
     const { content } =
@@ -63,21 +63,21 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
     upsertReleaseSupportedByDataHost.mockResolvedValueOnce(release);
 
     await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1',
-      body,
     });
 
-    expect(upsertReleaseSupportedByDataHost).toBeCalledTimes(1);
+    expect(upsertReleaseSupportedByDataHost).toHaveBeenCalledOnce();
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
     doesDataHostExists.mockResolvedValueOnce(false);
 
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1',
-      body,
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -91,9 +91,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
 
   test('should return BAD_REQUEST if release is invalid', async () => {
     const response = await server.inject({
+      body,
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/foobar',
-      body,
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -108,9 +108,9 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
 
   test('should return BAD_REQUEST if body is invalid', async () => {
     const response = await server.inject({
+      body: [],
       method: 'PUT',
       url: '/data-hosts/:id/supported-releases/5.1',
-      body: [],
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -146,7 +146,7 @@ describe('DELETE /data-hosts/:id/supported-releases/:release', () => {
       url: '/data-hosts/:id/supported-releases/5',
     });
 
-    expect(deleteReleaseSupportedByDataHost).toBeCalledTimes(1);
+    expect(deleteReleaseSupportedByDataHost).toHaveBeenCalledOnce();
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {

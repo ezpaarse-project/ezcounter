@@ -23,6 +23,7 @@ const MinimalHeader = z.looseObject({
  *
  * @param reportPath - The path to report
  * @param options - Options to harvest
+ * @param signal - Abort signal
  *
  * @returns The report header
  */

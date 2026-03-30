@@ -14,10 +14,21 @@ export const CreateHarvestRequest = z.object({
 
   download: z.object({
     ...HarvestDownloadOptions.omit({
-      report: true,
-      dataHost: true,
       cacheKey: true,
+      dataHost: true,
+      report: true,
     }).shape,
+
+    // Ask for a registered Data Host
+    dataHost: z.object({
+      ...HarvestDataHostOptions.omit({
+        baseUrl: true,
+        paramsSeparator: true,
+        periodFormat: true,
+      }).shape,
+
+      id: z.string().describe('ID of the data host'),
+    }),
 
     // Allow for multiple reports
     reports: z
@@ -37,17 +48,6 @@ export const CreateHarvestRequest = z.object({
       )
       .min(1)
       .describe('Information about reports to harvest'),
-
-    // Ask for a registered Data Host
-    dataHost: z.object({
-      ...HarvestDataHostOptions.omit({
-        baseUrl: true,
-        periodFormat: true,
-        paramsSeparator: true,
-      }).shape,
-
-      id: z.string().describe('ID of the data host'),
-    }),
   }),
 });
 

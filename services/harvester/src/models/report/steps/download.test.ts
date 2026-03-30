@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from 'vitest';
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { fetchReportAsStream } from '@ezcounter/counter/__mocks__';
 
-import { createWriteStream, createReadStream } from '~/lib/__mocks__/fs';
+import { createReadStream, createWriteStream } from '~/lib/__mocks__/fs';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
 
@@ -21,8 +21,8 @@ const OPTIONS: HarvestDownloadOptions = {
   cacheKey: '',
   dataHost: { auth: {}, baseUrl: '' },
   report: {
-    period: { start: '', end: '' },
     id: 'ir',
+    period: { end: '', start: '' },
     release: '5.1',
   },
 };

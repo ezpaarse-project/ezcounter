@@ -32,6 +32,6 @@ export const mandatoryService =
  * @returns The missing services
  */
 export const getMissingMandatoryServices = (): string[] =>
-  Array.from(mandatoryServices.entries())
+  [...mandatoryServices.entries()]
     .filter(([, value]) => !value)
     .map(([key]) => key);

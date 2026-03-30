@@ -14,46 +14,46 @@ describe('Refresh many data hosts (refreshManySupportedReports)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getHosts = (): { id: string; auth: HarvestAuthOptions }[] => [
     {
-      id: 'myId',
       auth: {},
+      id: 'myId',
     },
   ];
 
   // oxlint-disable-next-line consistent-function-scoping
   const getDataHost = (): DataHostWithSupportedData => ({
+    createdAt: new Date(),
     id: '',
+    params: {},
     paramsSeparator: '|',
     periodFormat: 'yyyy-MM-dd',
-    params: {},
-    createdAt: new Date(),
-    updatedAt: null,
     supportedReleases: [
       {
-        dataHostId: '',
-        release: '5.1',
         baseUrl: 'https://counter-datahost.com/',
-        params: {},
         createdAt: new Date(),
-        updatedAt: null,
+        dataHostId: '',
+        params: {},
         refreshedAt: null,
+        release: '5.1',
         supportedReports: [
           {
+            createdAt: new Date(),
             dataHostId: '',
-            release: '5.1',
-            id: 'tr',
-            params: {},
-            supported: true,
-            supportedOverride: null,
             firstMonthAvailable: '',
             firstMonthAvailableOverride: null,
+            id: 'tr',
             lastMonthAvailable: '',
             lastMonthAvailableOverride: null,
-            createdAt: new Date(),
+            params: {},
+            release: '5.1',
+            supported: true,
+            supportedOverride: null,
             updatedAt: null,
           },
         ],
+        updatedAt: null,
       },
     ],
+    updatedAt: null,
   });
 
   test('should refresh supported data', async () => {
@@ -87,7 +87,7 @@ describe('Refresh many data hosts (refreshManySupportedReports)', () => {
       release: '5.1',
     });
 
-    expect(refreshSupportedReportOfDataHost).toBeCalledTimes(1);
+    expect(refreshSupportedReportOfDataHost).toHaveBeenCalledOnce();
   });
 
   test('should group by url using params', async () => {

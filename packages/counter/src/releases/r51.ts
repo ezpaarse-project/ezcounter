@@ -2,32 +2,10 @@ import { Readable } from 'node:stream';
 
 import { ReportInformation } from '../../dist/r51';
 import {
-  createDataHostFetch,
   type CreateDataHostFetchOptions,
+  createDataHostFetch,
 } from '../lib/fetch';
 import { formatReportPeriod } from '../lib/periods';
-
-/**
- * Standard reports IDs for COUNTER 5.1
- */
-export const R51_STANDARD_REPORTS: readonly string[] = [
-  'pr',
-  'pr_p1',
-  'dr',
-  'dr_d1',
-  'dr_d2',
-  'tr',
-  'tr_b1',
-  'tr_b2',
-  'tr_b3',
-  'tr_j1',
-  'tr_j2',
-  'tr_j3',
-  'tr_j4',
-  'ir',
-  'ir_a1',
-  'ir_m1',
-] as const;
 
 /**
  * Assert that data is an item of a report list
@@ -117,11 +95,11 @@ export async function fetchR51ReportAsStream(
   const $fetch = createDataHostFetch(fetchOptions);
 
   const response = await $fetch.raw(`/reports/${report.id}`, {
-    responseType: 'stream',
     ignoreResponseError: true,
     query: {
       ...formatReportPeriod(report.period, report.periodFormat),
     },
+    responseType: 'stream',
   });
 
   if (!response._data) {
@@ -134,9 +112,31 @@ export async function fetchR51ReportAsStream(
   );
 
   return {
-    url: response.url,
-    httpCode: response.status,
-    expectedSize: size,
     data: Readable.fromWeb(response._data),
+    expectedSize: size,
+    httpCode: response.status,
+    url: response.url,
   };
 }
+
+/**
+ * Standard reports IDs for COUNTER 5.1
+ */
+export const R51_STANDARD_REPORTS: readonly string[] = [
+  'pr',
+  'pr_p1',
+  'dr',
+  'dr_d1',
+  'dr_d2',
+  'tr',
+  'tr_b1',
+  'tr_b2',
+  'tr_b3',
+  'tr_j1',
+  'tr_j2',
+  'tr_j3',
+  'tr_j4',
+  'ir',
+  'ir_a1',
+  'ir_m1',
+] as const;

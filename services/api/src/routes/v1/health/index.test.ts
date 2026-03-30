@@ -13,7 +13,7 @@ import router from '.';
 
 vi.mock(import('~/lib/heartbeat'));
 
-let server = await createTestServer(async (fastify) => {
+const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/health' });
 });
 

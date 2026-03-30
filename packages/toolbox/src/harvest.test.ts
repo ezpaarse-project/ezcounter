@@ -10,36 +10,36 @@ describe('Error as HarvestError (asHarvestError)', () => {
       cause: 'The cause of the error, mainly validation errors',
     });
 
-    let result = asHarvestError(err);
+    const result = asHarvestError(err);
 
     expect(result).toMatchObject({
+      cause: err.cause,
       code: `app:ERROR`,
       message: err.message,
-      cause: err.cause,
     });
   });
 
   test('should extract informations from system error', () => {
-    let error;
+    let err = null;
     try {
       readFileSync('file-that-will-not-exist');
       throw new Error("File shouldn't exist");
-    } catch (err) {
-      error = err as Error;
+    } catch (error) {
+      err = error as Error;
     }
 
-    const result = asHarvestError(error);
+    const result = asHarvestError(err);
 
     expect(result).toMatchObject({
       code: `app:ENOENT`,
-      message: error.message,
+      message: err.message,
     });
   });
 
   test('should return generic Error if not an Error', () => {
     const err = 'This error is weird';
 
-    let result = asHarvestError(err);
+    const result = asHarvestError(err);
 
     expect(result).toMatchObject({
       code: `app:UNKNOWN_ERROR`,

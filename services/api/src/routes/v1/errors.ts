@@ -14,5 +14,6 @@ export class HTTPError extends Error {
     options?: ErrorOptions
   ) {
     super(message, options);
+    this.name = 'HTTPError';
   }
 }

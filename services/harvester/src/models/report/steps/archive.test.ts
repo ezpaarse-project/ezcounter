@@ -3,8 +3,8 @@ import { describe, expect, test, vi } from 'vitest';
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import {
-  createWriteStream,
   createReadStream,
+  createWriteStream,
   unlink,
 } from '~/lib/__mocks__/fs';
 
@@ -22,17 +22,17 @@ describe('Archive report (archiveReport)', () => {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
     report: {
-      period: { start: '', end: '' },
       id: 'ir',
+      period: { end: '', start: '' },
       release: '5.1',
     },
   };
 
   describe("archive doesn't exists", () => {
     const REPORT = {
+      cache: { source: 'remote' as const },
       id: '',
       path: '/examples/5.1/ir/invalid_item.json',
-      cache: { source: 'remote' as const },
     };
 
     test('should archive', async () => {
@@ -72,9 +72,9 @@ describe('Archive report (archiveReport)', () => {
 
   describe('archive exists and file is from remote', () => {
     const REPORT = {
+      cache: { source: 'remote' as const },
       id: '',
       path: '/examples/5.1/ir/valid.json',
-      cache: { source: 'remote' as const },
     };
 
     test('should archive', async () => {
@@ -114,9 +114,9 @@ describe('Archive report (archiveReport)', () => {
 
   describe('archive exists and file is from archive', () => {
     const REPORT = {
+      cache: { source: 'archive' as const },
       id: '',
       path: '/examples/5.1/ir/valid.json',
-      cache: { source: 'archive' as const },
     };
 
     test("shouldn't archive", async () => {
@@ -157,9 +157,9 @@ describe('Archive report (archiveReport)', () => {
   test("should throw if file doesn't exists", async () => {
     const promise = archiveReport(
       {
+        cache: { source: 'remote' as const },
         id: '',
         path: '/examples/5.1/ir/does-not-exists.json',
-        cache: { source: 'remote' as const },
       },
       OPTIONS
     );
@@ -173,9 +173,9 @@ describe('Archive report (archiveReport)', () => {
 
     await archiveReport(
       {
+        cache: { source: 'remote' as const },
         id: '',
         path: '/examples/5.1/ir/valid.json',
-        cache: { source: 'remote' as const },
       },
       OPTIONS,
       timeout

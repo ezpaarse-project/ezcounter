@@ -12,8 +12,8 @@ import {
 } from '~/routes/v1/data-hosts/utils';
 import {
   buildResponse,
-  describeSuccess,
   describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 /**
@@ -26,11 +26,21 @@ const RouterParams = z.object({
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
+    handler: async (request, reply) => {
+      const { id, release } = request.params;
+
+      return buildResponse(
+        reply,
+        await findAllReportsSupportedByDataHost(id, release)
+      );
+    },
     method: 'GET',
-    url: '/',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+      (request): Promise<void> =>
+        assertReleaseSupported(request.params.id, request.params.release),
+    ],
     schema: {
-      summary: 'Get supported reports of a data host for a release',
-      tags: ['data-host'],
       params: RouterParams,
       response: {
         ...describeErrors([
@@ -40,20 +50,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.OK]: describeSuccess(z.array(DataHostSupportedReport)),
       },
+      summary: 'Get supported reports of a data host for a release',
+      tags: ['data-host'],
     },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-      (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
-    ],
-    handler: async (request, reply) => {
-      const { id, release } = request.params;
-
-      return buildResponse(
-        reply,
-        await findAllReportsSupportedByDataHost(id, release)
-      );
-    },
+    url: '/',
   });
 };
 

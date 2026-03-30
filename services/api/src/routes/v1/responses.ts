@@ -10,11 +10,6 @@ type MinimalReply = {
 };
 
 /**
- * Validation for an empty response
- */
-export const EmptyResponse = z.null().describe('Success response');
-
-/**
  * Validation for a basic response from the API
  */
 const BaseResponse = z.object({
@@ -46,25 +41,6 @@ const buildBaseResponse = (reply: MinimalReply): BaseResponse => ({
 });
 
 /**
- * Validation for an error response from the API
- */
-export const ErrorResponse = z.object({
-  ...BaseResponse.shape,
-  error: z
-    .object({
-      message: z.string(),
-      cause: z.any().optional(),
-      stack: z.array(z.string()).optional(),
-    })
-    .describe('Error details'),
-});
-
-/**
- * Type for an error response from the API
- */
-export type ErrorResponse = z.infer<typeof ErrorResponse>;
-
-/**
  * Type for a successful response without metadata from the API
  */
 type SuccessBaseResponse<Content> = BaseResponse & {
@@ -84,6 +60,25 @@ type SuccessMetaResponse<Content, Meta> = SuccessBaseResponse<Content> & {
 export type SuccessResponse<Content, Meta = undefined> = Meta extends undefined
   ? SuccessBaseResponse<Content>
   : SuccessMetaResponse<Content, Meta>;
+
+/**
+ * Validation for an error response from the API
+ */
+export const ErrorResponse = z.object({
+  ...BaseResponse.shape,
+  error: z
+    .object({
+      cause: z.any().optional(),
+      message: z.string(),
+      stack: z.array(z.string()).optional(),
+    })
+    .describe('Error details'),
+});
+
+/**
+ * Type for an error response from the API
+ */
+export type ErrorResponse = z.infer<typeof ErrorResponse>;
 
 /**
  * Build a successful response from with or without metadata the API
@@ -126,12 +121,13 @@ export function buildResponse<Content, Meta = undefined>(
     return {
       ...buildBaseResponse(reply),
       error: {
-        message: content.message,
         cause: content.cause,
+        message: content.message,
         stack: content.stack?.split('\n'),
       },
     };
   }
+  // oxlint-disable-next-line no-unsafe-type-assertion
   return {
     ...buildBaseResponse(reply),
     content,
@@ -143,6 +139,7 @@ export function buildResponse<Content, Meta = undefined>(
  * Build validation for a successful response with or without metadata from the API
  *
  * @param content - The validation for the content of the response
+ * @param meta - The validation for the metadata of the response
  *
  * @returns The validation
  */
@@ -168,6 +165,12 @@ export function describeSuccess<Content, Meta = undefined>(
 export const describeErrors = (
   errors: StatusCodes[]
 ): Record<StatusCodes, typeof ErrorResponse> =>
+  // oxlint-disable-next-line no-unsafe-type-assertion
   Object.fromEntries(
     errors.map((code) => [code, ErrorResponse.describe(getReasonPhrase(code))])
   ) as Record<StatusCodes, typeof ErrorResponse>;
+
+/**
+ * Validation for an empty response
+ */
+export const EmptyResponse = z.null().describe('Success response');

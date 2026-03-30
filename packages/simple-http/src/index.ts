@@ -2,13 +2,22 @@ import http from 'node:http';
 
 import type { Logger } from '@ezcounter/logger';
 
+let server: http.Server | null = null;
+
 export type Route = (
   req: http.IncomingMessage,
-  res: http.ServerResponse<http.IncomingMessage>
+  res: http.ServerResponse
 ) => void;
 
-let server: http.Server | undefined;
-
+/**
+ * Setup HTTP server
+ *
+ * @param port - Port to listen on
+ * @param logger - Logger to use
+ * @param routes - Routes to setup
+ *
+ * @returns Promise that resolves when the server is listening
+ */
 export function setupHTTPServer(
   port: number,
   logger: Logger,
@@ -19,11 +28,12 @@ export function setupHTTPServer(
   // oxlint-disable-next-line promise/avoid-new
   return new Promise<http.Server>((resolve) => {
     server = http.createServer((req, res) => {
-      const route = routes[req.url || ''] ?? routes[`${req.url}/`];
-      if (route) {
-        route(req, res);
-      } else {
+      const route = routes[req.url ?? ''] ?? routes[`${req.url}/`];
+      if (route == null) {
+        // oxlint-disable-next-line no-magic-numbers
         res.writeHead(404).end();
+      } else {
+        route(req, res);
       }
     });
 
@@ -43,7 +53,7 @@ export function setupHTTPServer(
         // oxlint-disable-next-line promise/prefer-await-to-callbacks
         server.close((err) => {
           if (err) {
-            logger.error({ msg: 'Failed to close service', err });
+            logger.error({ err, msg: 'Failed to close service' });
             return;
           }
 

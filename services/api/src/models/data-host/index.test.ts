@@ -9,36 +9,36 @@ import type {
 } from './dto';
 import { getDataHostWithSupportedData } from './index';
 
-describe('getDataHostWithSupportedData', () => {
+describe(getDataHostWithSupportedData, () => {
   const dataHost: DataHost = {
+    createdAt: new Date(),
     id: '',
+    params: {},
     paramsSeparator: '|',
     periodFormat: 'yyyy-MM-dd',
-    params: {},
-    createdAt: new Date(),
     updatedAt: null,
   };
   const release: DataHostSupportedRelease = {
-    dataHostId: '',
-    release: '5.1',
     baseUrl: 'https://counter-datahost.com/',
-    params: {},
     createdAt: new Date(),
-    updatedAt: null,
+    dataHostId: '',
+    params: {},
     refreshedAt: null,
+    release: '5.1',
+    updatedAt: null,
   };
   const report: DataHostSupportedReport = {
+    createdAt: new Date(),
     dataHostId: '',
-    release: '5.1',
-    id: 'tr',
-    params: {},
-    supported: false,
-    supportedOverride: null,
     firstMonthAvailable: '',
     firstMonthAvailableOverride: null,
+    id: 'tr',
     lastMonthAvailable: '',
     lastMonthAvailableOverride: null,
-    createdAt: new Date(),
+    params: {},
+    release: '5.1',
+    supported: false,
+    supportedOverride: null,
     updatedAt: null,
   };
 

@@ -1,6 +1,6 @@
 import type {
-  HeartbeatService,
   HeartbeatSender,
+  HeartbeatService,
 } from '@ezcounter/heartbeats/dto';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 import { setupHeartbeat } from '@ezcounter/heartbeats';
@@ -8,6 +8,7 @@ import { setupHeartbeat } from '@ezcounter/heartbeats';
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
+// oxlint-disable-next-line import/extensions
 import { version } from '~/../package.json' with { type: 'json' };
 
 const { heartbeat: frequency } = config;
@@ -15,15 +16,15 @@ const { heartbeat: frequency } = config;
 const logger = appLogger.child({ scope: 'heartbeat' });
 
 const service: HeartbeatService = {
+  filesystems: {
+    download: config.download.dir,
+    logs: config.log.dir,
+  },
   name: 'harvester',
   version,
-  filesystems: {
-    logs: config.log.dir,
-    download: config.download.dir,
-  },
 };
 
-let heartbeat: HeartbeatSender | undefined;
+let heartbeat: HeartbeatSender | null = null;
 
 export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
 
@@ -41,9 +42,9 @@ export async function initHeartbeat(
   logger.debug('Channel created');
 
   heartbeat = await setupHeartbeat(channel, logger, {
-    service,
     frequency,
     isRabbitMQMandatory: false,
+    service,
   });
 
   heartbeat.emit('send');

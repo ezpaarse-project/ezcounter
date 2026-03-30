@@ -5,10 +5,10 @@ import { appLogger } from '~/lib/logger';
 
 const EXCHANGE_NAME = 'ezcounter.harvest:status';
 
-const logger = appLogger.child({ scope: 'queues', exchange: EXCHANGE_NAME });
+const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 
 // We need a global channel to avoid passing it every time we send an event
-let channel: rabbitmq.Channel | undefined;
+let channel: rabbitmq.Channel | null = null;
 
 /**
  * Assert exchange used to send events about status of harvest jobs
@@ -47,11 +47,11 @@ export function sendHarvestJobStatusEvent(data: HarvestJobStatusEvent): void {
       size,
       sizeUnit: 'B',
     });
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       jobId: data.id,
       msg: 'Failed to send event sent',
-      err,
     });
   }
 }

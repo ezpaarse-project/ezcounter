@@ -23,10 +23,6 @@ export type HarvestDispatchData = z.infer<typeof HarvestDispatchData>;
  * Validation for the data used to harvest a COUNTER report
  */
 export const HarvestJobData = z.object({
-  id: z.string().describe('Job ID'),
-
-  try: z.int().optional().describe('Job try count'),
-
   download: HarvestDownloadOptions.describe(
     'Information about how to download report'
   ),
@@ -35,9 +31,13 @@ export const HarvestJobData = z.object({
     'Information about enrich that needs to be done'
   ),
 
+  id: z.string().describe('Job ID'),
+
   insert: HarvestInsertOptions.describe(
     'Information on how to deal with harvested data'
   ),
+
+  try: z.int().optional().describe('Job try count'),
 });
 
 /**
@@ -49,36 +49,14 @@ export type HarvestJobData = z.infer<typeof HarvestJobData>;
  * Validation for the event about the harvest of a COUNTER report
  */
 export const HarvestJobStatusEvent = z.object({
-  id: z.string().describe('Job ID'),
-
-  status: z
-    .enum(['pending', 'delayed', 'processing', 'error', 'done'])
-    .describe('Current status of job'),
-
   current: z
     .enum(['download', 'extract'])
     .optional()
     .describe('Current step being processed'),
 
-  startedAt: z.coerce
-    .date()
-    .optional()
-    .describe('When job started to be processed'),
-
-  error: HarvestError.optional().describe(
-    'The error that occurred while harvesting'
-  ),
-
   download: z
     .object({
       done: z.boolean().describe('Is step done'),
-
-      source: z
-        .enum(['remote', 'archive'])
-        .optional()
-        .describe('Source of the report'),
-
-      url: z.string().optional().describe('URL of the remote, or to the file'),
 
       httpCode: z.number().optional(),
 
@@ -88,9 +66,20 @@ export const HarvestJobStatusEvent = z.object({
         .max(1)
         .optional()
         .describe('Progress of download'),
+
+      source: z
+        .enum(['remote', 'archive'])
+        .optional()
+        .describe('Source of the report'),
+
+      url: z.string().optional().describe('URL of the remote, or to the file'),
     })
     .optional()
     .describe('Information about download step'),
+
+  error: HarvestError.optional().describe(
+    'The error that occurred while harvesting'
+  ),
 
   extract: z
     .object({
@@ -103,16 +92,27 @@ export const HarvestJobStatusEvent = z.object({
 
       header: z.boolean().optional().describe('Is the header valid'),
 
+      items: z.int().optional().describe('Number of items found'),
+
       registryId: z
         .string()
         .or(z.null())
         .optional()
         .describe('Registry ID extracted from header, null if not found'),
-
-      items: z.int().optional().describe('Number of items found'),
     })
     .optional()
     .describe('Information about extract step'),
+
+  id: z.string().describe('Job ID'),
+
+  startedAt: z.coerce
+    .date()
+    .optional()
+    .describe('When job started to be processed'),
+
+  status: z
+    .enum(['pending', 'delayed', 'processing', 'error', 'done'])
+    .describe('Current status of job'),
 });
 
 /**

@@ -13,7 +13,7 @@ import {
   findOneReportSupportedByDataHost,
 } from './read';
 
-describe('doesDataHostExists', () => {
+describe(doesDataHostExists, () => {
   test('should query DB', async () => {
     dbClient.dataHost.count.mockResolvedValueOnce(5);
 
@@ -39,7 +39,7 @@ describe('doesDataHostExists', () => {
   });
 });
 
-describe('findAllDataHost', () => {
+describe(findAllDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHost.findMany.mockResolvedValueOnce([]);
 
@@ -57,7 +57,7 @@ describe('findAllDataHost', () => {
   });
 });
 
-describe('doesDataHostSupportsRelease', () => {
+describe(doesDataHostSupportsRelease, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(1);
 
@@ -83,7 +83,7 @@ describe('doesDataHostSupportsRelease', () => {
   });
 });
 
-describe('findAllReleasesSupportedByDataHost', () => {
+describe(findAllReleasesSupportedByDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedRelease.findMany.mockResolvedValueOnce([]);
 
@@ -101,7 +101,7 @@ describe('findAllReleasesSupportedByDataHost', () => {
   });
 });
 
-describe('doesDataHostSupportsReport', () => {
+describe(doesDataHostSupportsReport, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(1);
 
@@ -127,7 +127,7 @@ describe('doesDataHostSupportsReport', () => {
   });
 });
 
-describe('findAllReportsSupportedByDataHost', () => {
+describe(findAllReportsSupportedByDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedReport.findMany.mockResolvedValueOnce([]);
 
@@ -145,19 +145,19 @@ describe('findAllReportsSupportedByDataHost', () => {
   });
 });
 
-describe('findOneReportSupportedByDataHost', () => {
+describe(findOneReportSupportedByDataHost, () => {
   const report: DataHostSupportedReport = {
+    createdAt: new Date(),
     dataHostId: 'id',
-    release: '5.1',
-    id: 'tr',
-    params: {},
-    supported: true,
-    supportedOverride: null,
     firstMonthAvailable: '',
     firstMonthAvailableOverride: null,
+    id: 'tr',
     lastMonthAvailable: '',
     lastMonthAvailableOverride: null,
-    createdAt: new Date(),
+    params: {},
+    release: '5.1',
+    supported: true,
+    supportedOverride: null,
     updatedAt: null,
   };
 

@@ -3,14 +3,14 @@ import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
 
-import { upsertDataHost, deleteDataHost } from '~/models/data-host';
-import { UpdateDataHost, DataHost } from '~/models/data-host/dto';
+import { deleteDataHost, upsertDataHost } from '~/models/data-host';
+import { DataHost, UpdateDataHost } from '~/models/data-host/dto';
 
 import {
+  EmptyResponse,
+  buildResponse,
   describeErrors,
   describeSuccess,
-  buildResponse,
-  EmptyResponse,
 } from '~/routes/v1/responses';
 
 /**
@@ -22,22 +22,6 @@ const RouterParams = z.object({
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
-    method: 'PUT',
-    url: '/',
-    schema: {
-      summary: 'Create or update a data host',
-      tags: ['data-host'],
-      params: RouterParams,
-      body: UpdateDataHost,
-      response: {
-        ...describeErrors([
-          StatusCodes.BAD_REQUEST,
-          StatusCodes.NOT_FOUND,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.OK]: describeSuccess(DataHost),
-      },
-    },
     handler: async (request, reply) => {
       const { id } = request.params;
 
@@ -49,14 +33,34 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         })
       );
     },
+    method: 'PUT',
+    schema: {
+      body: UpdateDataHost,
+      params: RouterParams,
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(DataHost),
+      },
+      summary: 'Create or update a data host',
+      tags: ['data-host'],
+    },
+    url: '/',
   });
 
   fastify.route({
+    handler: async (request, reply) => {
+      const { id } = request.params;
+
+      await deleteDataHost(id);
+
+      reply.statusCode = StatusCodes.NO_CONTENT;
+    },
     method: 'DELETE',
-    url: '/',
     schema: {
-      summary: 'Remove a supported release for a data host',
-      tags: ['data-host'],
       params: RouterParams,
       response: {
         ...describeErrors([
@@ -66,14 +70,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.NO_CONTENT]: EmptyResponse,
       },
+      summary: 'Remove a supported release for a data host',
+      tags: ['data-host'],
     },
-    handler: async (request, reply) => {
-      const { id } = request.params;
-
-      await deleteDataHost(id);
-
-      reply.statusCode = StatusCodes.NO_CONTENT;
-    },
+    url: '/',
   });
 };
 

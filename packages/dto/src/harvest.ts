@@ -1,12 +1,14 @@
 import { z } from '.';
 
+const MIN_TIMEOUT = 100;
+
 /**
  * Validation for the auth to use when requesting a COUNTER endpoint
  */
 export const HarvestAuthOptions = z.object({
+  api_key: z.string().optional(),
   customer_id: z.string().optional(),
   requestor_id: z.string().optional(),
-  api_key: z.string().optional(),
 });
 
 /**
@@ -31,8 +33,8 @@ export type HarvestReportPeriodDate = z.infer<typeof HarvestReportPeriodDate>;
  * Validation for a period of a report
  */
 export const HarvestReportPeriod = z.object({
-  start: HarvestReportPeriodDate.describe('First month to harvest'),
   end: HarvestReportPeriodDate.describe('Last month to harvest'),
+  start: HarvestReportPeriodDate.describe('First month to harvest'),
 });
 
 /**
@@ -59,37 +61,34 @@ export type HarvestAdditionalParams = z.infer<typeof HarvestAdditionalParams>;
 export const HarvestReportOptions = z.object({
   id: z.string().describe('Report ID to harvest'),
 
-  period: HarvestReportPeriod.describe('Period of the harvest'),
-
-  release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
-
   params: z
     .intersection(
       z.object({
-        // Filters
         access_method: z.array(z.string()).optional(),
         access_type: z.array(z.string()).optional(),
-        data_type: z.array(z.string()).optional(),
-        metric_type: z.array(z.string()).optional(),
         attributed: z.boolean().optional(),
-        country_code: z.array(z.string()).optional(),
-        subdivision_code: z.string().optional(),
-        yop: z.array(z.string()).optional(),
-        database: z.string().optional(),
-        platform: z.string().optional(),
-        author: z.string().optional(),
-        item_id: z.string().optional(),
-        // Attributes
         attributes_to_show: z.array(z.string()).optional(),
+        author: z.string().optional(),
+        country_code: z.array(z.string()).optional(),
+        data_type: z.array(z.string()).optional(),
+        database: z.string().optional(),
+        granularity: z.string().optional(),
         include_components_details: z.boolean().optional(),
         include_parent_details: z.boolean().optional(),
-        // Others
-        granularity: z.string().optional(),
+        item_id: z.string().optional(),
+        metric_type: z.array(z.string()).optional(),
+        platform: z.string().optional(),
+        subdivision_code: z.string().optional(),
+        yop: z.array(z.string()).optional(),
       }),
       HarvestAdditionalParams
     )
     .optional()
     .describe('Query parameters to use when downloading report'),
+
+  period: HarvestReportPeriod.describe('Period of the harvest'),
+
+  release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
 });
 
 /**
@@ -101,19 +100,19 @@ export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
  * Validation for the options to harvest a COUNTER endpoint
  */
 export const HarvestDataHostOptions = z.object({
-  baseUrl: z.url().describe('URL to use'),
-
   auth: HarvestAuthOptions.describe('Credentials to use to harvest'),
 
-  periodFormat: z
-    .string()
-    .optional()
-    .describe('Date format to use for the period (defaults to "yyyy-MM")'),
+  baseUrl: z.url().describe('URL to use'),
 
   paramsSeparator: z
     .string()
     .optional()
     .describe('Separator used for multivaluated params (defaults to "|")'),
+
+  periodFormat: z
+    .string()
+    .optional()
+    .describe('Date format to use for the period (defaults to "yyyy-MM")'),
 });
 
 /**
@@ -127,13 +126,9 @@ export type HarvestDataHostOptions = z.infer<typeof HarvestDataHostOptions>;
 export const HarvestDownloadOptions = z.object({
   cacheKey: z.string().describe('Key to get/set cache data'),
 
-  report: HarvestReportOptions.describe('Information on report to harvest'),
-
   dataHost: HarvestDataHostOptions.describe(
     'Information on how to harvest the report'
   ),
-
-  timeout: z.int().min(100).optional().describe('Maximum idle time of a job'),
 
   forceDownload: z
     .boolean()
@@ -141,6 +136,14 @@ export const HarvestDownloadOptions = z.object({
     .describe(
       'Should force the download of the report even if cache is present'
     ),
+
+  report: HarvestReportOptions.describe('Information on report to harvest'),
+
+  timeout: z
+    .int()
+    .min(MIN_TIMEOUT)
+    .optional()
+    .describe('Maximum idle time of a job'),
 });
 
 /**
@@ -162,12 +165,12 @@ export type HarvestEnrichOptions = z.infer<typeof HarvestEnrichOptions>;
  * Validation for the options to insert COUNTER data
  */
 export const HarvestInsertOptions = z.object({
-  index: z.string().describe('Elastic index data will be inserted'),
-
   additionalData: z
     .record(z.string(), z.string())
     .optional()
     .describe('Data to add to harvested items'),
+
+  index: z.string().describe('Elastic index data will be inserted'),
 });
 
 /**
@@ -179,15 +182,15 @@ export type HarvestInsertOptions = z.infer<typeof HarvestInsertOptions>;
  * Validation for exceptions found while harvesting
  */
 export const HarvestException = z.object({
-  severity: z
-    .enum(['error', 'warn', 'info'])
-    .describe('Severity of the exception'),
-
   code: z.string().describe('Code of the exception'),
+
+  helpUrl: z.string().optional().describe('URL to get help about exception'),
 
   message: z.string().describe('Message of the exception'),
 
-  helpUrl: z.string().optional().describe('URL to get help about exception'),
+  severity: z
+    .enum(['error', 'warn', 'info'])
+    .describe('Severity of the exception'),
 });
 
 /**
@@ -199,9 +202,9 @@ export type HarvestException = z.infer<typeof HarvestException>;
  * Validation for errors while harvesting
  */
 export const HarvestError = z.object({
+  cause: z.json().optional(),
   code: z.string(),
   message: z.string(),
-  cause: z.json().optional(),
 });
 
 /**

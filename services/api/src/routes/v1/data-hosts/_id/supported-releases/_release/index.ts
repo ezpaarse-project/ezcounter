@@ -14,10 +14,10 @@ import {
 
 import { assertDataHostRegistered } from '~/routes/v1/data-hosts/utils';
 import {
-  buildResponse,
-  describeSuccess,
-  describeErrors,
   EmptyResponse,
+  buildResponse,
+  describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 /**
@@ -30,25 +30,6 @@ const RouterParams = z.object({
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
-    method: 'PUT',
-    url: '/',
-    schema: {
-      summary: 'Create or update a supported releases for a data host',
-      tags: ['data-host'],
-      params: RouterParams,
-      body: UpdateDataHostSupportedRelease,
-      response: {
-        ...describeErrors([
-          StatusCodes.BAD_REQUEST,
-          StatusCodes.NOT_FOUND,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.OK]: describeSuccess(DataHostSupportedRelease),
-      },
-    },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-    ],
     handler: async (request, reply) => {
       const { id, release } = request.params;
 
@@ -61,14 +42,40 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         })
       );
     },
+    method: 'PUT',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+    ],
+    schema: {
+      body: UpdateDataHostSupportedRelease,
+      params: RouterParams,
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(DataHostSupportedRelease),
+      },
+      summary: 'Create or update a supported releases for a data host',
+      tags: ['data-host'],
+    },
+    url: '/',
   });
 
   fastify.route({
+    handler: async (request, reply) => {
+      const { id, release } = request.params;
+
+      await deleteReleaseSupportedByDataHost(id, release);
+
+      reply.statusCode = StatusCodes.NO_CONTENT;
+    },
     method: 'DELETE',
-    url: '/',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+    ],
     schema: {
-      summary: 'Remove a supported release for a data host',
-      tags: ['data-host'],
       params: RouterParams,
       response: {
         ...describeErrors([
@@ -78,17 +85,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.NO_CONTENT]: EmptyResponse,
       },
+      summary: 'Remove a supported release for a data host',
+      tags: ['data-host'],
     },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-    ],
-    handler: async (request, reply) => {
-      const { id, release } = request.params;
-
-      await deleteReleaseSupportedByDataHost(id, release);
-
-      reply.statusCode = StatusCodes.NO_CONTENT;
-    },
+    url: '/',
   });
 };
 

@@ -9,8 +9,8 @@ describe('COUNTER 5', () => {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
     report: {
-      period: { start: '', end: '' },
       id: 'ir',
+      period: { end: '', start: '' },
       release: '5',
     },
   };
@@ -138,8 +138,8 @@ describe('COUNTER 5.1', () => {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
     report: {
-      period: { start: '', end: '' },
       id: 'ir',
+      period: { end: '', start: '' },
       release: '5.1',
     },
   };

@@ -1,8 +1,7 @@
 import {
+  type LoggerOptions,
   createLogger,
   isPrettierInstalled,
-  type Level,
-  type LoggerOptions,
 } from '@ezcounter/logger';
 
 import { config } from '~/lib/config';
@@ -10,10 +9,10 @@ import { config } from '~/lib/config';
 const { level, dir, ignore } = config.log;
 
 const options: Omit<LoggerOptions, 'name'> = {
-  pretty: isPrettierInstalled(import.meta.resolve),
-  ignore: Array.isArray(ignore) ? ignore : [ignore],
-  level: level as Level,
   dir,
+  ignore: Array.isArray(ignore) ? ignore : [ignore],
+  level,
+  pretty: isPrettierInstalled((spec) => import.meta.resolve(spec)),
 };
 
 export const appLogger = createLogger({ ...options, name: 'api' });

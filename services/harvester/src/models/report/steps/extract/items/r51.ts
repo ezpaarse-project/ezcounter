@@ -4,21 +4,16 @@ import { chain } from 'stream-chain';
 
 import { createReadStream } from '~/lib/fs';
 import {
-  jsonParser,
-  jsonPick,
-  jsonStreamValues,
-  jsonStreamArray,
-  jsonIgnore,
   type JSONStreamedValue,
   type JSONToken,
+  jsonIgnore,
+  jsonParser,
+  jsonPick,
+  jsonStreamArray,
+  jsonStreamValues,
 } from '~/lib/stream/json';
 
 import { HarvestLock } from '~/models/lock';
-
-export type R51StreamedValue = {
-  item: JSONStreamedValue;
-  parent?: JSONStreamedValue;
-};
 
 /**
  * Initialize stream to extract Item_Parents from a COUNTER 5.1 Item Report
@@ -86,7 +81,7 @@ function createR51IRItemStream(
 ): Readable {
   let arrayLevel = 0;
   let parentKey = -1;
-  let items = { had: false, expected: false };
+  let items = { expected: false, had: false };
 
   return chain([
     createReadStream(reportPath),
@@ -101,7 +96,7 @@ function createR51IRItemStream(
             cause: { parentKey },
           });
         }
-        items = { had: false, expected: false };
+        items = { expected: false, had: false };
 
         await itemsLock.waitForRelease();
       }
@@ -142,7 +137,7 @@ function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
   const parentsLock = new HarvestLock(true);
   const itemsLock = new HarvestLock(true);
 
-  let lastParent: JSONStreamedValue | undefined;
+  let lastParent: JSONStreamedValue | null = null;
   // Streaming parents
   const parentsStream = chain(
     [
@@ -181,6 +176,11 @@ function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
   return itemsStream;
 }
 
+export type R51StreamedValue = {
+  item: JSONStreamedValue;
+  parent: JSONStreamedValue | null;
+};
+
 /**
  * Create a stream that will extract Items from a COUNTER 5.1 Report
  *
@@ -208,6 +208,7 @@ export function createR51ReportStream(
           jsonStreamArray(),
           (item: JSONStreamedValue): R51StreamedValue => ({
             item,
+            parent: null,
           }),
         ],
         { signal }

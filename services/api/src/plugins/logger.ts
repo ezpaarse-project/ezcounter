@@ -1,9 +1,12 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
+import { StatusCodes } from 'http-status-codes';
 
 import type { Level } from '@ezcounter/logger';
 
 import { accessLogger } from '~/lib/logger';
+
+const MS_TO_S_MULTIPLIER = 1000;
 
 const requestDates = new Map<string, number>();
 
@@ -14,25 +17,29 @@ function isLogLevel(level: string): level is Level {
 /**
  * Log request with status code and time
  *
- * @param request The fastify request
- * @param reply The fastify response, if exist
+ * @param request - The fastify request
+ * @param reply - The fastify response, if exist
  */
 function logRequest(request: FastifyRequest, reply?: FastifyReply): void {
   const end = process.uptime();
-  const start = requestDates.get(request.id) || end;
+  const start = requestDates.get(request.id) ?? end;
   requestDates.delete(request.id);
 
   const data = {
-    method: request.method,
-    url: request.url,
-    statusCode: reply?.statusCode ?? 0,
-    duration: end * 1000 - start * 1000,
+    duration: (end - start) * MS_TO_S_MULTIPLIER,
     durationUnit: 'ms',
+    method: request.method,
+    statusCode: reply?.statusCode ?? 0,
+    url: request.url,
   };
 
-  if (reply && reply.statusCode >= 200 && reply.statusCode < 400) {
+  if (
+    reply &&
+    reply.statusCode >= StatusCodes.OK &&
+    reply.statusCode < StatusCodes.BAD_REQUEST
+  ) {
     const level = isLogLevel(request.routeOptions?.logLevel)
-      ? (request.routeOptions.logLevel as Level)
+      ? request.routeOptions.logLevel
       : 'info';
     accessLogger[level](data);
     return;
@@ -43,30 +50,29 @@ function logRequest(request: FastifyRequest, reply?: FastifyReply): void {
 /**
  * Fastify plugin to format response and log requests
  *
- * @param fastify The fastify instance
+ * @param fastify - The fastify instance
  */
+// oxlint-disable require-await
 const loggerBasePlugin: FastifyPluginAsync = async (fastify) => {
   // Register request date
-  // oxlint-disable-next-line require-await
   fastify.addHook('onRequest', async (request) => {
     requestDates.set(request.id, process.uptime());
   });
 
   // Log request
-  // oxlint-disable-next-line require-await
   fastify.addHook('onResponse', async (request, reply) => {
     logRequest(request, reply);
   });
 
   // Log request
-  // oxlint-disable-next-line require-await
   fastify.addHook('onRequestAbort', async (request) => {
     logRequest(request);
   });
 };
+// oxlint-enable require-await
 
 // Register plugin
 export const loggerPlugin = fp(loggerBasePlugin, {
-  name: 'ezc-logger',
   encapsulate: false,
+  name: 'ezc-logger',
 });

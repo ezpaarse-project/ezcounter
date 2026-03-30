@@ -26,19 +26,19 @@ export async function createServer(
     config.allowedOrigins === '*' ? '*' : config.allowedOrigins.split(',');
 
   // Split proxies while allowing *
-  let trustProxy: true | string[] =
+  const trustProxy: true | string[] =
     config.allowedProxies === '*' ? true : config.allowedProxies.split(',');
 
   // Create Fastify instance
   const fastify = createFastify({
-    trustProxy,
     logger: false,
+    trustProxy,
   });
 
   // Register cors
   await fastify.register(fastifyCors, {
-    origin: corsOrigin,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: corsOrigin,
   });
 
   // Register logger
@@ -65,25 +65,29 @@ export async function initHTTPServer(
   const fastify = await createServer(routes);
 
   // Start server and wait for it to be ready
-  const address = await fastify.listen({ port: config.port, host: '::' });
+  const address = await fastify.listen({ host: '::', port: config.port });
   await fastify.ready();
 
-  // Register graceful shutdown
-  process.on('SIGTERM', async () => {
+  const onStop = async (): Promise<void> => {
     try {
       await fastify.close();
       logger.debug('Service HTTP closed');
-    } catch (err) {
-      logger.error({ msg: 'Failed to close HTTP service', err });
+    } catch (error) {
+      logger.error({ err: error, msg: 'Failed to close HTTP service' });
     }
+  };
+
+  // Register graceful shutdown
+  process.on('SIGTERM', () => {
+    void onStop();
   });
 
   logger.info({
     address,
-    port: config.port,
     initDuration: process.uptime() - start,
     initDurationUnit: 's',
     msg: 'Service listening',
+    port: config.port,
   });
 
   return fastify;

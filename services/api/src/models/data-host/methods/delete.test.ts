@@ -8,7 +8,7 @@ import {
   deleteReportSupportedByDataHost,
 } from './delete';
 
-describe('deleteDataHost', () => {
+describe(deleteDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHost.count.mockResolvedValueOnce(1);
 
@@ -26,7 +26,7 @@ describe('deleteDataHost', () => {
   });
 });
 
-describe('deleteReleaseSupportedByDataHost', () => {
+describe(deleteReleaseSupportedByDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(1);
 
@@ -44,7 +44,7 @@ describe('deleteReleaseSupportedByDataHost', () => {
   });
 });
 
-describe('deleteReportSupportedByDataHost', () => {
+describe(deleteReportSupportedByDataHost, () => {
   test('should query DB', async () => {
     dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(1);
 

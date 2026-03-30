@@ -4,7 +4,7 @@ import chain from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
-import { createWriteStream, createReadStream, exists, unlink } from '~/lib/fs';
+import { createReadStream, createWriteStream, exists, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
@@ -40,8 +40,8 @@ async function zipReport(
   );
 
   logger.debug({
-    msg: 'Zipping report...',
     id: report.id,
+    msg: 'Zipping report...',
     reportPath: report.path,
   });
 
@@ -68,7 +68,7 @@ export async function archiveReport(
   const archivePath = `${report.path}.gz`;
 
   const isFromRemote =
-    options.forceDownload || report.cache.source === 'remote';
+    options.forceDownload ?? report.cache.source === 'remote';
   const isArchived = !isFromRemote && (await exists(archivePath));
 
   if (!isArchived) {

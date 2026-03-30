@@ -77,8 +77,8 @@ export async function deleteReportSupportedByDataHost(
     where: {
       dataHostId_release_id: {
         dataHostId,
-        release,
         id: report,
+        release,
       },
     },
   });

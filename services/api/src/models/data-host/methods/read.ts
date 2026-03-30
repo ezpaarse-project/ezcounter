@@ -67,8 +67,8 @@ export async function findAllReleasesSupportedByDataHost(
   dataHostId: string
 ): Promise<DataHostSupportedRelease[]> {
   const releases = await dbClient.dataHostSupportedRelease.findMany({
-    where: { dataHostId },
     orderBy: [{ release: 'asc' }],
+    where: { dataHostId },
   });
 
   return releases.map((release) => DataHostSupportedRelease.parse(release));
@@ -91,8 +91,8 @@ export async function doesDataHostSupportsReport(
   const count = await dbClient.dataHostSupportedReport.count({
     where: {
       dataHostId,
-      release,
       id: report,
+      release,
     },
   });
 
@@ -112,8 +112,8 @@ export async function findAllReportsSupportedByDataHost(
   release?: '5' | '5.1'
 ): Promise<DataHostSupportedReport[]> {
   const reports = await dbClient.dataHostSupportedReport.findMany({
-    where: { dataHostId, release },
     orderBy: [{ id: 'asc' }, { release: 'asc' }],
+    where: { dataHostId, release },
   });
 
   return reports.map((report) => DataHostSupportedReport.parse(report));
@@ -137,8 +137,8 @@ export async function findOneReportSupportedByDataHost(
     where: {
       dataHostId_release_id: {
         dataHostId,
-        release,
         id,
+        release,
       },
     },
   });

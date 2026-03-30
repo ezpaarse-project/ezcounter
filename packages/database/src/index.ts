@@ -5,8 +5,6 @@ import type { Logger } from '@ezcounter/logger';
 
 import { PrismaClient } from '../.prisma/client';
 
-export * from '../.prisma/client';
-
 type DatabaseConfig = {
   user: string;
   database: string;
@@ -16,11 +14,14 @@ type DatabaseConfig = {
   schema?: string;
 };
 
+export * from '../.prisma/client';
+
 /**
  * Setup DB connection
  *
  * @param logger - The app logger
- * @param logger - The app logger
+ * @param config - The configuration to setup client
+ * @param config.schema - The PostgreSQL schema to use
  *
  * @returns The DB client
  */
@@ -30,30 +31,30 @@ export function setupDB(
 ): PrismaClient {
   const client = new PrismaClient({
     adapter: new PrismaPg(config, { schema }),
-    // Disable logger of Prisma, in order to events to our own
-    log: [
-      { level: 'query', emit: 'event' },
-      { level: 'info', emit: 'event' },
-      { level: 'warn', emit: 'event' },
-      { level: 'error', emit: 'event' },
-    ],
     // Disable formatted errors in production
     errorFormat: process.env.NODE_ENV === 'production' ? 'minimal' : 'pretty',
+    // Disable logger of Prisma, in order to events to our own
+    log: [
+      { emit: 'event', level: 'error' },
+      { emit: 'event', level: 'info' },
+      { emit: 'event', level: 'query' },
+      { emit: 'event', level: 'warn' },
+    ],
   });
 
   // Link events to logger
-  client.$on('query', (event) =>
-    logger.trace({ ...event, durationUnit: 'ms' })
-  );
-  client.$on('info', (event) =>
-    logger.info({ ...event, message: undefined, msg: event.message })
-  );
-  client.$on('warn', (event) =>
-    logger.warn({ ...event, message: undefined, msg: event.message })
-  );
-  client.$on('error', (event) =>
-    logger.error({ ...event, message: undefined, msg: event.message })
-  );
+  client.$on('query', (event) => {
+    logger.trace({ ...event, durationUnit: 'ms' });
+  });
+  client.$on('info', (event) => {
+    logger.info({ ...event, message: undefined, msg: event.message });
+  });
+  client.$on('warn', (event) => {
+    logger.warn({ ...event, message: undefined, msg: event.message });
+  });
+  client.$on('error', (event) => {
+    logger.error({ ...event, message: undefined, msg: event.message });
+  });
 
   // Test connection
   client
@@ -65,9 +66,9 @@ export function setupDB(
       return true;
     })
     // oxlint-disable-next-line prefer-await-to-then,prefer-await-to-callbacks
-    .catch((err) => {
-      logger.fatal({ msg: 'Unable to connect to database', err });
-      throw err;
+    .catch((error) => {
+      logger.fatal({ err: error, msg: 'Unable to connect to database' });
+      throw error;
     });
 
   return client;
@@ -92,20 +93,20 @@ export async function pingDB(
     pg_database_size(current_database())::text AS usage
   `;
 
-  const { hostname, version, usage, db } = response[0];
+  const [{ hostname, version, usage, db }] = response;
   const versionMatch = /^PostgreSQL (\S+) /.exec(version);
 
   return {
+    filesystems: [
+      {
+        available: -1,
+        name: `[database] ${db}`,
+        total: -1,
+        used: Number(usage),
+      },
+    ],
     hostname,
     service: 'database',
     version: versionMatch?.[1],
-    filesystems: [
-      {
-        name: `[database] ${db}`,
-        available: -1,
-        used: Number(usage),
-        total: -1,
-      },
-    ],
   };
 }

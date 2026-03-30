@@ -10,10 +10,8 @@ import {
  * Validation for adding a release supported by Data Host
  */
 export const UpdateDataHost = DataHost.omit({
-  // DB id
-  id: true,
-  // DB readonly
   createdAt: true,
+  id: true,
   updatedAt: true,
 });
 
@@ -26,13 +24,11 @@ export type UpdateDataHost = z.infer<typeof UpdateDataHost>;
  * Validation for adding a release supported by Data Host
  */
 export const UpdateDataHostSupportedRelease = DataHostSupportedRelease.omit({
-  // DB id
-  dataHostId: true,
-  release: true,
-  // DB readonly
   createdAt: true,
-  updatedAt: true,
+  dataHostId: true,
   refreshedAt: true,
+  release: true,
+  updatedAt: true,
 });
 
 /**
@@ -46,16 +42,13 @@ export type UpdateDataHostSupportedRelease = z.infer<
  * Validation for adding a report supported by Data Host
  */
 export const UpdateDataHostSupportedReport = DataHostSupportedReport.omit({
-  // DB id
-  dataHostId: true,
-  release: true,
-  id: true,
-  // Data form host
-  supported: true,
-  firstMonthAvailable: true,
-  lastMonthAvailable: true,
-  // DB readonly
   createdAt: true,
+  dataHostId: true,
+  firstMonthAvailable: true,
+  id: true,
+  lastMonthAvailable: true,
+  release: true,
+  supported: true,
   updatedAt: true,
 });
 

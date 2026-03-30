@@ -4,7 +4,7 @@ import type { HarvestJobData } from '@ezcounter/dto/queues';
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
 
-const logger = appLogger.child({ scope: 'models', model: 'harvest' });
+const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
 /**
  * Create many Harvest Jobs from data that will be passed in queues
@@ -17,14 +17,14 @@ export async function createManyHarvestJob(
   await dbClient.harvestJob.createMany({
     data: items.map(
       (item): Prisma.HarvestJobCreateManyInput => ({
-        id: item.id,
-        reportId: item.download.report.id,
-        period: item.download.report.period,
-        release: item.download.report.release,
-        params: item.download.report.params,
         dataHostId: item.download.cacheKey,
         forceDownload: item.download.forceDownload,
+        id: item.id,
         index: item.insert.index,
+        params: item.download.report.params,
+        period: item.download.report.period,
+        release: item.download.report.release,
+        reportId: item.download.report.id,
 
         status: 'pending',
       })
@@ -33,7 +33,7 @@ export async function createManyHarvestJob(
 
   logger.debug({
     action: 'Created',
-    msg: 'Created multiple harvests',
     count: items.length,
+    msg: 'Created multiple harvests',
   });
 }

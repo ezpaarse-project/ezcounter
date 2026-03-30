@@ -9,10 +9,10 @@ export const getMissingMandatoryServices = vi.fn().mockReturnValue([]);
 
 export const getAllServices = vi.fn().mockReturnValue([
   {
-    service: 'dummy',
-    hostname: 'foobar',
     createdAt: new Date(),
-    updatedAt: new Date(),
+    hostname: 'foobar',
     nextAt: new Date(),
+    service: 'dummy',
+    updatedAt: new Date(),
   },
 ]);

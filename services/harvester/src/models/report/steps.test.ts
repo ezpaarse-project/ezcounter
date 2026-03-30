@@ -7,11 +7,11 @@ import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/statu
 import type { COUNTERReportHeader } from './dto';
 import { HarvestIdleTimeout } from '../timeout';
 import {
+  archiveReportToFile,
   cacheReportToFile,
   getReportExceptions,
   getReportHeader,
   queueReportItems,
-  archiveReportToFile,
 } from './steps';
 import { archiveReport } from './steps/__mocks__/archive';
 import { cacheReport } from './steps/__mocks__/download';
@@ -31,19 +31,19 @@ vi.mock(import('./steps/extract/items'));
 vi.mock(import('./steps/archive'));
 
 const OPTIONS: HarvestJobData = {
-  id: '',
   download: {
-    report: {
-      id: '',
-      period: { start: '', end: '' },
-      release: '5.1',
-    },
+    cacheKey: '',
     dataHost: {
       auth: {},
       baseUrl: '',
     },
-    cacheKey: '',
+    report: {
+      id: '',
+      period: { end: '', start: '' },
+      release: '5.1',
+    },
   },
+  id: '',
   insert: {
     index: '',
   },
@@ -52,8 +52,8 @@ const OPTIONS: HarvestJobData = {
 describe('Cache report (cacheReportToFile)', () => {
   test('should cache report', async () => {
     cacheReport.mockResolvedValueOnce({
-      source: 'remote',
       httpCode: 200,
+      source: 'remote',
     });
 
     await cacheReportToFile('', OPTIONS);
@@ -83,7 +83,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
     extractReportExceptions.mockResolvedValueOnce([]);
 
     const result = await getReportExceptions(
-      { path: '', httpCode: 418 },
+      { httpCode: 418, path: '' },
       OPTIONS
     );
 
@@ -131,13 +131,13 @@ describe('Report Exceptions (getReportExceptions)', () => {
     const res = await getReportExceptions({ path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      id: OPTIONS.id,
       current: 'extract',
-      status: 'processing',
       extract: {
         done: false,
         exceptions: res,
       },
+      id: OPTIONS.id,
+      status: 'processing',
     });
   });
 });
@@ -178,14 +178,14 @@ describe('Report Header (getReportHeader)', () => {
     await getReportHeader('', OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      id: OPTIONS.id,
       current: 'extract',
-      status: 'processing',
       extract: {
         done: false,
         header: true,
         registryId: null,
       },
+      id: OPTIONS.id,
+      status: 'processing',
     });
   });
 });
@@ -198,7 +198,7 @@ describe('Report Items (queueReportItems)', () => {
   test('should extract items', async () => {
     extractReportItems.mockReturnValueOnce([] as unknown as Iterator);
 
-    await queueReportItems({ path: '', header: HEADER }, OPTIONS);
+    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     expect(extractReportItems).toBeCalled();
   });
@@ -208,7 +208,7 @@ describe('Report Items (queueReportItems)', () => {
       throw new Error('Something happened');
     });
 
-    const promise = queueReportItems({ path: '', header: HEADER }, OPTIONS);
+    const promise = queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     await expect(promise).rejects.toThrow('Something happened');
   });
@@ -219,7 +219,7 @@ describe('Report Items (queueReportItems)', () => {
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    await queueReportItems({ path: '', header: HEADER }, OPTIONS, timeout);
+    await queueReportItems({ header: HEADER, path: '' }, OPTIONS, timeout);
 
     expect(timeout.tick).toBeCalled();
   });
@@ -232,7 +232,7 @@ describe('Report Items (queueReportItems)', () => {
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    await queueReportItems({ path: '', header: HEADER }, OPTIONS, timeout);
+    await queueReportItems({ header: HEADER, path: '' }, OPTIONS, timeout);
 
     // Should tick after extracting then after every item
     expect(timeout.tick).toBeCalledTimes(5000 + 1);
@@ -241,16 +241,16 @@ describe('Report Items (queueReportItems)', () => {
   test('should notify progress', async () => {
     extractReportItems.mockReturnValueOnce([] as unknown as Iterator);
 
-    await queueReportItems({ path: '', header: HEADER }, OPTIONS);
+    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      id: OPTIONS.id,
       current: 'extract',
-      status: 'processing',
       extract: {
         done: false,
         items: 0,
       },
+      id: OPTIONS.id,
+      status: 'processing',
     });
   });
 
@@ -259,7 +259,7 @@ describe('Report Items (queueReportItems)', () => {
       Array.from({ length: 5000 }, () => ({})) as unknown as Iterator
     );
 
-    await queueReportItems({ path: '', header: HEADER }, OPTIONS);
+    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     // Should notify every 2000 items then one final time
     expect(sendHarvestJobStatusEvent).toBeCalledTimes(
@@ -271,7 +271,7 @@ describe('Report Items (queueReportItems)', () => {
 describe('Archive Report (archiveReportToFile)', () => {
   test('should archive report', async () => {
     await archiveReportToFile(
-      { path: '', cache: { source: 'remote' } },
+      { cache: { source: 'remote' }, path: '' },
       OPTIONS
     );
 
@@ -282,7 +282,7 @@ describe('Archive Report (archiveReportToFile)', () => {
     archiveReport.mockRejectedValueOnce(new Error('Something happened'));
 
     const promise = archiveReportToFile(
-      { path: '', cache: { source: 'remote' } },
+      { cache: { source: 'remote' }, path: '' },
       OPTIONS
     );
 

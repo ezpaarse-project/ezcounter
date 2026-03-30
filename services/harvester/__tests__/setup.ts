@@ -16,7 +16,7 @@ vi.mock(import('~/lib/config'));
 vi.mock(import('~/lib/logger'));
 
 async function addExamplesToVol(): Promise<void> {
-  // read examples
+  // Read examples
   const state: Record<string, string> = {};
 
   const exampleDir = join(import.meta.dirname, 'examples');
@@ -24,9 +24,9 @@ async function addExamplesToVol(): Promise<void> {
 
   for await (const path of glob(examplesGlob)) {
     const filePath = relative(exampleDir, path);
-    state[filePath] = await readFile(path, 'utf-8');
+    state[filePath] = await readFile(path, 'utf8');
   }
-  // add them to in-memory fs
+  // Add them to in-memory fs
   vol.fromJSON(state, '/examples');
 }
 

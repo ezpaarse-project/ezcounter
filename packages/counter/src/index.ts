@@ -2,18 +2,18 @@ import type { SUSHIReportList } from '../dist/r5';
 import type { ReportInformation } from '../dist/r51';
 import type { CreateDataHostFetchOptions } from './lib/fetch';
 import {
-  fetchR5ReportAsStream,
-  fetchR5ReportList,
-  R5_STANDARD_REPORTS,
   type R5ReportOptions,
   type R5ReportStreamResponse,
+  R5_STANDARD_REPORTS,
+  fetchR5ReportAsStream,
+  fetchR5ReportList,
 } from './releases/r5';
 import {
-  fetchR51ReportAsStream,
-  fetchR51ReportList,
-  R51_STANDARD_REPORTS,
   type R51ReportOptions,
   type R51ReportStreamResponse,
+  R51_STANDARD_REPORTS,
+  fetchR51ReportAsStream,
+  fetchR51ReportList,
 } from './releases/r51';
 
 /**
@@ -36,6 +36,7 @@ export function fetchReportList(
   switch (release) {
     case '5':
       return fetchR5ReportList(fetchOptions);
+
     case '5.1':
       return fetchR51ReportList(fetchOptions);
 
@@ -48,6 +49,7 @@ export function fetchReportList(
  * Get report list from COUNTER API
  *
  * @param release - The COUNTER release to use
+ * @param reportOptions - The options of the report
  * @param fetchOptions - The options of the API
  *
  * @returns The list of report
@@ -60,6 +62,7 @@ export function fetchReportAsStream(
   switch (release) {
     case '5':
       return fetchR5ReportAsStream(reportOptions, fetchOptions);
+
     case '5.1':
       return fetchR51ReportAsStream(reportOptions, fetchOptions);
 
@@ -79,6 +82,7 @@ export function getStandardReportIDs(release: '5' | '5.1'): readonly string[] {
   switch (release) {
     case '5':
       return R5_STANDARD_REPORTS;
+
     case '5.1':
       return R51_STANDARD_REPORTS;
 

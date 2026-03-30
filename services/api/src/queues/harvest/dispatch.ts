@@ -5,31 +5,15 @@ import type {
   HarvestDispatchData,
   HarvestJobData,
 } from '@ezcounter/dto/queues';
-import { sendJSONMessage, rabbitmq } from '@ezcounter/rabbitmq';
+import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 import { asHarvestError } from '@ezcounter/toolbox/harvest';
 
 import { appLogger } from '~/lib/logger';
 
 const QUEUE_NAME = 'ezcounter.harvest:dispatch';
+const HOST_QUEUE_NAME_HASH_LENGTH = 16;
 
-const logger = appLogger.child({ scope: 'queues', queue: QUEUE_NAME });
-
-// We need a global channel to avoid passing it every time we queue something
-let channel: rabbitmq.Channel | undefined;
-
-/**
- * Assert exchange used to send events about status of harvest jobs
- *
- * @param chan - The RabbitMQ channel
- */
-export async function getHarvestDispatchQueue(
-  chan: rabbitmq.Channel
-): Promise<void> {
-  channel = chan;
-
-  await rabbitmq.assertQueue(chan, QUEUE_NAME, { durable: false });
-  logger.debug('Harvest dispatch queue created');
-}
+const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
 type HarvestQueueInfo = {
   name: string;
@@ -46,6 +30,9 @@ type HarvestDispatchInfo = {
   error?: HarvestError;
 };
 
+// We need a global channel to avoid passing it every time we queue something
+let channel: rabbitmq.Channel | null = null;
+
 /**
  * Get queue name for a data host
  *
@@ -54,9 +41,26 @@ type HarvestDispatchInfo = {
  * @returns The name of the queue
  */
 function getDataHostQueueName(host: string): string {
-  const hash = createHash('sha1').update(host).digest('hex').slice(0, 16);
+  const hash = createHash('sha1')
+    .update(host)
+    .digest('hex')
+    .slice(0, HOST_QUEUE_NAME_HASH_LENGTH);
 
   return `ezcounter.harvest:job:${hash}`;
+}
+
+/**
+ * Assert exchange used to send events about status of harvest jobs
+ *
+ * @param chan - The RabbitMQ channel
+ */
+export async function getHarvestDispatchQueue(
+  chan: rabbitmq.Channel
+): Promise<void> {
+  channel = chan;
+
+  await rabbitmq.assertQueue(chan, QUEUE_NAME, { durable: false });
+  logger.debug('Harvest dispatch queue created');
 }
 
 /**
@@ -85,20 +89,20 @@ export const ensureDataHostQueues = async (
           const created = consumerCount <= 0 && messageCount <= 0;
 
           logger.debug({
+            created,
             msg: 'Asserted harvest queue',
             queue,
-            created,
           });
 
-          return [host, { name: queue, created }];
-        } catch (err) {
+          return [host, { created, name: queue }];
+        } catch (error) {
           logger.error({
+            err: error,
             msg: 'Failed to assert harvest queues',
-            err,
           });
 
-          const error = asHarvestError(err);
-          return [host, { name: queue, created: false, error }];
+          const err = asHarvestError(error);
+          return [host, { created: false, error: err, name: queue }];
         }
       })
     )
@@ -107,6 +111,7 @@ export const ensureDataHostQueues = async (
 /**
  * Send harvest jobs into queues
  *
+ * @param chan - RabbitMQ channel
  * @param queue - Name of queue
  * @param jobs - Jobs to queue
  *
@@ -119,7 +124,7 @@ export const sendHarvestJobsInQueue = (
 ): HarvestJobInfo[] =>
   jobs.map((job) => {
     if (queue.error) {
-      return { id: job.id, error: queue.error };
+      return { error: queue.error, id: job.id };
     }
 
     try {
@@ -135,19 +140,24 @@ export const sendHarvestJobsInQueue = (
       });
 
       return { id: job.id };
-    } catch (err) {
+    } catch (error) {
       logger.error({
+        err: error,
         msg: 'Failed to queue harvest job',
-        err,
       });
 
-      const error = asHarvestError(err);
-      return { id: job.id, error };
+      const err = asHarvestError(error);
+      return { error: err, id: job.id };
     }
   });
 
 /**
  * Send dispatch events
+ *
+ * @param chan - RabbitMQ channel
+ * @param queue - Queue information
+ *
+ * @returns Information about dispatch
  */
 export async function sendDispatchEvent(
   chan: rabbitmq.Channel,
@@ -165,22 +175,22 @@ export async function sendDispatchEvent(
 
     logger.debug({
       msg: 'Queued harvest dispatch',
+      queue,
       size,
       sizeUnit: 'B',
-      queue,
     });
 
     return {};
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       msg: 'Failed to queue harvest dispatch',
-      err,
     });
 
     await rabbitmq.deleteQueue(chan, queue.name);
 
-    const error = asHarvestError(err);
-    return { error };
+    const err = asHarvestError(error);
+    return { error: err };
   }
 }
 
@@ -212,16 +222,16 @@ export async function queueHarvestJobs(
 
   const queuedJobs = await Promise.all(
     [...queues].map(async ([host, queue]): Promise<HarvestJobInfo[]> => {
-      const jobs = jobsPerHost.get(host) ?? [];
+      const jobsOfHost = jobsPerHost.get(host) ?? [];
 
-      const queued = sendHarvestJobsInQueue(chan, queue, jobs);
+      const queued = sendHarvestJobsInQueue(chan, queue, jobsOfHost);
 
       const event = await sendDispatchEvent(chan, queue);
 
       if (event.error) {
         return queued.map((info) => ({
+          error: info.error ?? event.error,
           id: info.id,
-          error: info.error || event.error,
         }));
       }
 

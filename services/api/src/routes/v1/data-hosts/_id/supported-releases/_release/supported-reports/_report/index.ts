@@ -4,9 +4,9 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from '@ezcounter/dto';
 
 import {
+  deleteReportSupportedByDataHost,
   findOneReportSupportedByDataHost,
   upsertReportSupportedByDataHost,
-  deleteReportSupportedByDataHost,
 } from '~/models/data-host';
 import {
   DataHostSupportedReport,
@@ -18,10 +18,10 @@ import {
   assertReleaseSupported,
 } from '~/routes/v1/data-hosts/utils';
 import {
-  buildResponse,
-  describeSuccess,
-  describeErrors,
   EmptyResponse,
+  buildResponse,
+  describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 /**
@@ -35,28 +35,6 @@ const RouterParams = z.object({
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
-    method: 'PUT',
-    url: '/',
-    schema: {
-      summary:
-        'Create or update a supported report of a data host for a release',
-      tags: ['data-host'],
-      params: RouterParams,
-      body: UpdateDataHostSupportedReport,
-      response: {
-        ...describeErrors([
-          StatusCodes.BAD_REQUEST,
-          StatusCodes.NOT_FOUND,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.OK]: describeSuccess(DataHostSupportedReport),
-      },
-    },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-      (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
-    ],
     handler: async (request, reply) => {
       const { id, release, report } = request.params;
 
@@ -65,9 +43,9 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         release,
         report
       )) ?? {
-        supported: false,
         firstMonthAvailable: '',
         lastMonthAvailable: '',
+        supported: false,
       };
 
       return buildResponse(
@@ -76,19 +54,50 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
           ...previous,
           ...request.body,
           dataHostId: id,
-          release,
           id: report,
+          release,
         })
       );
     },
+    method: 'PUT',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+      (request): Promise<void> =>
+        assertReleaseSupported(request.params.id, request.params.release),
+    ],
+    schema: {
+      body: UpdateDataHostSupportedReport,
+      params: RouterParams,
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(DataHostSupportedReport),
+      },
+      summary:
+        'Create or update a supported report of a data host for a release',
+      tags: ['data-host'],
+    },
+    url: '/',
   });
 
   fastify.route({
+    handler: async (request, reply) => {
+      const { id, release, report } = request.params;
+
+      await deleteReportSupportedByDataHost(id, release, report);
+
+      reply.statusCode = StatusCodes.NO_CONTENT;
+    },
     method: 'DELETE',
-    url: '/',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+      (request): Promise<void> =>
+        assertReleaseSupported(request.params.id, request.params.release),
+    ],
     schema: {
-      summary: 'Delete supported report of a data host for a release',
-      tags: ['data-host'],
       params: RouterParams,
       response: {
         ...describeErrors([
@@ -98,19 +107,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.OK]: EmptyResponse,
       },
+      summary: 'Delete supported report of a data host for a release',
+      tags: ['data-host'],
     },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-      (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
-    ],
-    handler: async (request, reply) => {
-      const { id, release, report } = request.params;
-
-      await deleteReportSupportedByDataHost(id, release, report);
-
-      reply.statusCode = StatusCodes.NO_CONTENT;
-    },
+    url: '/',
   });
 };
 

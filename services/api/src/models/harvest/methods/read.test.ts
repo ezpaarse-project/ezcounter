@@ -4,7 +4,7 @@ import { dbClient } from '~/lib/__mocks__/prisma';
 
 import { findAllHarvestJob, findManyHarvestJobById } from './read';
 
-describe('findAllHarvestJob', () => {
+describe(findAllHarvestJob, () => {
   test('should query DB', async () => {
     dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
 
@@ -22,7 +22,7 @@ describe('findAllHarvestJob', () => {
   });
 });
 
-describe('findManyHarvestJobById', () => {
+describe(findManyHarvestJobById, () => {
   test('should query DB', async () => {
     dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
 

@@ -1,3 +1,4 @@
+// oxlint-disable-next-line import/extensions
 import r51Schema from './schema.json' with { type: 'json' };
 
 // Patches definitions
@@ -177,10 +178,10 @@ function fixISBNHyphens(
           schema.properties.ISBN,
           // Add un-hyphened validation
           {
-            type: 'string',
-            pattern: '^97[89][0-9]+$',
-            minLength: 13,
             maxLength: 13,
+            minLength: 13,
+            pattern: '^97[89][0-9]+$',
+            type: 'string',
           },
         ],
       };

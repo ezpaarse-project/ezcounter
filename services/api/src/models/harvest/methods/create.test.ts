@@ -6,7 +6,7 @@ import { dbClient } from '~/lib/__mocks__/prisma';
 
 import { createManyHarvestJob } from './create';
 
-describe('createManyHarvestJob', () => {
+describe(createManyHarvestJob, () => {
   test('should query DB', async () => {
     await createManyHarvestJob([]);
 
@@ -15,30 +15,30 @@ describe('createManyHarvestJob', () => {
 
   test('should transform input', async () => {
     const item: HarvestJobData = {
-      id: 'id',
       download: {
         cacheKey: 'download.cacheKey',
+        dataHost: {
+          auth: {},
+          baseUrl: 'download.dataHost.baseUrl',
+          paramsSeparator: 'download.dataHost.paramsSeparator',
+          periodFormat: 'download.dataHost.periodFormat',
+        },
+        forceDownload: true,
         report: {
           id: 'download.report.id',
-          release: '5.1',
-          period: {
-            start: 'download.report.period.start',
-            end: 'download.report.period.end',
-          },
           params: {
             access_method: ['download.report.params.access_method.0'],
             foo: 'download.dataHost.additionalParams.foo',
           },
+          period: {
+            end: 'download.report.period.end',
+            start: 'download.report.period.start',
+          },
+          release: '5.1',
         },
-        dataHost: {
-          auth: {},
-          baseUrl: 'download.dataHost.baseUrl',
-          periodFormat: 'download.dataHost.periodFormat',
-          paramsSeparator: 'download.dataHost.paramsSeparator',
-        },
-        forceDownload: true,
         timeout: 10,
       },
+      id: 'id',
       insert: {
         index: 'insert.index',
       },
@@ -49,20 +49,20 @@ describe('createManyHarvestJob', () => {
     expect(dbClient.harvestJob.createMany).toBeCalledWith({
       data: [
         {
+          dataHostId: 'download.cacheKey',
+          forceDownload: true,
           id: 'id',
-          reportId: 'download.report.id',
-          period: {
-            start: 'download.report.period.start',
-            end: 'download.report.period.end',
-          },
-          release: '5.1',
+          index: 'insert.index',
           params: {
             access_method: ['download.report.params.access_method.0'],
             foo: 'download.dataHost.additionalParams.foo',
           },
-          dataHostId: 'download.cacheKey',
-          forceDownload: true,
-          index: 'insert.index',
+          period: {
+            end: 'download.report.period.end',
+            start: 'download.report.period.start',
+          },
+          release: '5.1',
+          reportId: 'download.report.id',
           status: 'pending',
         },
       ],

@@ -1,13 +1,13 @@
 import { randomUUID } from 'node:crypto';
 
 import {
-  differenceInMonths,
+  type Interval,
   addMonths,
-  parse,
+  differenceInMonths,
   format,
   max,
   min,
-  type Interval,
+  parse,
 } from 'date-fns';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
@@ -22,9 +22,9 @@ import type {
 import { getDataHostWithSupportedData } from '~/models/data-host';
 
 import type {
+  CreateHarvestRequest,
   HarvestReportOptions,
   HarvestReportPeriod,
-  CreateHarvestRequest,
 } from './dto';
 
 /**
@@ -39,8 +39,8 @@ const parsePeriod = (
   period: HarvestReportPeriod,
   referenceDate = new Date()
 ): Interval<Date, Date> => ({
-  start: parse(period.start, PERIOD_FORMAT, referenceDate),
   end: parse(period.end, PERIOD_FORMAT, referenceDate),
+  start: parse(period.start, PERIOD_FORMAT, referenceDate),
 });
 
 /**
@@ -51,8 +51,8 @@ const parsePeriod = (
  * @returns The formatted period
  */
 const formatPeriod = (period: Interval): HarvestReportPeriod => ({
-  start: format(period.start, PERIOD_FORMAT),
   end: format(period.end, PERIOD_FORMAT),
+  start: format(period.start, PERIOD_FORMAT),
 });
 
 /**
@@ -74,28 +74,29 @@ function splitPeriodByMonths(
     return [period];
   }
 
-  let { start, end } = parsePeriod(period);
-  const monthsCount = differenceInMonths(end, start) + 1;
+  const parsedPeriod = parsePeriod(period);
+  const monthsCount =
+    differenceInMonths(parsedPeriod.end, parsedPeriod.start) + 1;
 
   return Array.from({ length: Math.ceil(monthsCount / monthsPerPart) }, () => {
     // As period is inclusive, remove one month
-    const partEndDate = addMonths(start, monthsPerPart - 1);
+    const partEndDate = addMonths(parsedPeriod.start, monthsPerPart - 1);
 
-    const startStr = format(start, PERIOD_FORMAT);
+    const startStr = format(parsedPeriod.start, PERIOD_FORMAT);
 
-    if (partEndDate.getTime() <= end.getTime()) {
+    if (partEndDate.getTime() <= parsedPeriod.end.getTime()) {
       // As period is inclusive, add back missing month
-      start = addMonths(partEndDate, 1);
+      parsedPeriod.start = addMonths(partEndDate, 1);
 
       return {
-        start: startStr,
         end: format(partEndDate, PERIOD_FORMAT),
+        start: startStr,
       };
     }
 
     return {
-      start: startStr,
       end: period.end,
+      start: startStr,
     };
   });
 }
@@ -110,6 +111,7 @@ type SupportedData = {
  *
  * @param report - The report options
  * @param dataHost - Data host with supported data
+ * @param dataHost.supportedReleases - Supported releases
  *
  * @returns The supported data
  */
@@ -155,30 +157,30 @@ function limitHarvestWithSupported(
   const supported =
     supportedData.report.supportedOverride ?? supportedData.report.supported;
   // If marked as unsupported -> Skip report
-  if (supported === false) {
+  if (!supported) {
     return null;
   }
 
   // Using parsePeriod on months available cause they're in the same format
   // Empty strings are considered as "no limit", so we fallback on period
   const { start: firstMonthAvailable, end: lastMonthAvailable } = parsePeriod({
-    start:
-      (supportedData.report.firstMonthAvailableOverride ??
-        supportedData.report.firstMonthAvailable) ||
-      report.period.start,
     end:
       (supportedData.report.lastMonthAvailableOverride ??
         supportedData.report.lastMonthAvailable) ||
       report.period.end,
+    start:
+      (supportedData.report.firstMonthAvailableOverride ??
+        supportedData.report.firstMonthAvailable) ||
+      report.period.start,
   });
 
-  let { start, end } = parsePeriod(report.period);
+  const { start, end } = parsePeriod(report.period);
 
   return {
     ...report,
     period: formatPeriod({
-      start: max([start, firstMonthAvailable]),
       end: min([end, lastMonthAvailable]),
+      start: max([start, firstMonthAvailable]),
     }),
   };
 }
@@ -187,8 +189,13 @@ function limitHarvestWithSupported(
  * Transform a HarvestRequest into a HarvestJob ready to be sent to harvesters
  *
  * @param request - The HarvestRequest
+ * @param request.download - The download options of the request
+ * @param request.download.reports - The reports to harvest
+ * @param request.download.dataHost - The data host options of the request
+ * @param request.download.dataHost.id - The ID of data host
  * @param report - The report options
  * @param dataHost - The data host
+ *
  *
  * @returns The job
  */
@@ -207,10 +214,15 @@ const createJobFromRequest = (
   }
 ): HarvestJobData => ({
   ...request,
-  id: randomUUID(),
   download: {
     ...downloadOpts,
     cacheKey: dataHostId,
+    dataHost: {
+      ...dataHostOpts,
+      baseUrl: dataHost.supportedData.release!.baseUrl,
+      paramsSeparator: dataHost.paramsSeparator,
+      periodFormat: dataHost.periodFormat,
+    },
     report: {
       ...report,
       params: {
@@ -220,13 +232,8 @@ const createJobFromRequest = (
         ...report.params,
       },
     },
-    dataHost: {
-      ...dataHostOpts,
-      baseUrl: dataHost.supportedData.release!.baseUrl,
-      periodFormat: dataHost.periodFormat,
-      paramsSeparator: dataHost.paramsSeparator,
-    },
   },
+  id: randomUUID(),
 });
 
 /**
@@ -234,7 +241,7 @@ const createJobFromRequest = (
  *
  * @param request - The harvest request
  *
- * @return The jobs matching request
+ * @returns The jobs matching request
  */
 export async function prepareHarvestJobs(
   request: CreateHarvestRequest
@@ -258,7 +265,7 @@ export async function prepareHarvestJobs(
         return null;
       }
 
-      const parts = splitPeriodByMonths(report.period, splitPeriodBy || 0);
+      const parts = splitPeriodByMonths(report.period, splitPeriodBy ?? 0);
       return parts.map((period) =>
         createJobFromRequest(
           request,

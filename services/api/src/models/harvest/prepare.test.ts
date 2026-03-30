@@ -14,18 +14,18 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getRequest = (): CreateHarvestRequest => ({
     download: {
+      dataHost: {
+        auth: { customer_id: 'foobar' },
+        id: 'my-counter-datahost',
+      },
+
       reports: [
         {
           id: 'ir',
-          period: { start: '2025-01', end: '2025-12' },
+          period: { end: '2025-12', start: '2025-01' },
           release: '5.1',
         },
       ],
-
-      dataHost: {
-        id: 'my-counter-datahost',
-        auth: { customer_id: 'foobar' },
-      },
     },
     insert: {
       index: 'z-example-counter51',
@@ -36,39 +36,39 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
   const getDataHost = (
     supportedReports: DataHostSupportedReport[] = []
   ): DataHostWithSupportedData => ({
-    id: 'my-counter-datahost',
-    periodFormat: 'yyyy-MM-dd',
-    paramsSeparator: '|',
-    params: {},
     createdAt: new Date(),
-    updatedAt: null,
+    id: 'my-counter-datahost',
+    params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM-dd',
     supportedReleases: [
       {
-        dataHostId: 'my-counter-datahost',
-        release: '5.1',
         baseUrl: '',
-        params: {},
         createdAt: new Date(),
-        updatedAt: null,
+        dataHostId: 'my-counter-datahost',
+        params: {},
         refreshedAt: null,
+        release: '5.1',
         supportedReports,
+        updatedAt: null,
       },
     ],
+    updatedAt: null,
   });
 
   // oxlint-disable-next-line consistent-function-scoping
   const getSupportedReport = (): DataHostSupportedReport => ({
+    createdAt: new Date(),
     dataHostId: '',
-    release: '5.1',
-    id: 'ir',
-    params: {},
-    supported: true,
-    supportedOverride: null,
     firstMonthAvailable: '',
     firstMonthAvailableOverride: null,
+    id: 'ir',
     lastMonthAvailable: '',
     lastMonthAvailableOverride: null,
-    createdAt: new Date(),
+    params: {},
+    release: '5.1',
+    supported: true,
+    supportedOverride: null,
     updatedAt: null,
   });
 
@@ -107,8 +107,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
     const request = getRequest();
     request.download.reports[0].params = {
-      platform: 'test',
       param0: 'from request',
+      platform: 'test',
     };
 
     const promise = prepareHarvestJobs(request);
@@ -259,12 +259,12 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
           },
           report: {
             id: 'ir',
+            params: {},
             period: {
               end: '2025-12',
               start: '2025-01',
             },
             release: '5.1',
-            params: {},
           },
         },
         insert: {

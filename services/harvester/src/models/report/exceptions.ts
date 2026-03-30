@@ -1,8 +1,25 @@
-import { getReasonPhrase, StatusCodes } from 'http-status-codes';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
 import type { HarvestException } from '@ezcounter/dto/harvest';
 
 import type { COUNTERReportException } from './dto';
+
+/**
+ * Exception code 0 is considered as custom info from COUNTER CoP
+ *
+ * @see https://cop5.projectcounter.org/en/5.0.3/appendices/f-handling-errors-and-exceptions.html#appendix-f
+ * @see https://cop5.projectcounter.org/en/5.1/appendices/d-handling-errors-and-exceptions.html
+ */
+const COUNTER_CODE_INFO = 0 as const;
+
+/**
+ * Exception codes from 1 to 999 are considered as custom warnings from COUNTER CoP
+ *
+ * @see https://cop5.projectcounter.org/en/5.0.3/appendices/f-handling-errors-and-exceptions.html#appendix-f
+ * @see https://cop5.projectcounter.org/en/5.1/appendices/d-handling-errors-and-exceptions.html
+ */
+// oxlint-disable-next-line no-magic-numbers
+const COUNTER_CODES_WARNING = [1, 999] as const;
 
 /**
  * Exception codes from COUNTER CoP
@@ -10,7 +27,7 @@ import type { COUNTERReportException } from './dto';
  * @see https://cop5.projectcounter.org/en/5.0.3/appendices/f-handling-errors-and-exceptions.html#appendix-f
  * @see https://cop5.projectcounter.org/en/5.1/appendices/d-handling-errors-and-exceptions.html
  */
-export enum CounterCodes {
+enum CounterCodes {
   /** The service is executing a request, but due to internal errors cannot complete the request. If possible, the server should provide an explanation in the additional Data element. */
   SERVICE_UNAVAILABLE = 1000,
   /** The service is too busy to execute the incoming request. The client should retry the request after some reasonable time. */
@@ -68,46 +85,46 @@ const EXCEPTION_PER_HTTP_STATUS: Record<number, HarvestException | undefined> =
   {
     // 200+
     [StatusCodes.ACCEPTED]: {
-      severity: 'info',
       code: `counter:${CounterCodes.QUEUED_FOR_PROCESSING}`,
       message: 'Report is being processed',
+      severity: 'info',
     },
     // 400+
     [StatusCodes.BAD_REQUEST]: {
-      severity: 'error',
       code: `counter:${CounterCodes.INSUFFICIENT_INFORMATION}`,
       message: 'Insufficient Information to Process Request',
+      severity: 'error',
     },
     [StatusCodes.UNAUTHORIZED]: {
-      severity: 'error',
       code: `counter:${CounterCodes.UNAUTHORIZED_REQUESTOR}`,
       message: 'Requestor Not Authorized to Access Service',
+      severity: 'error',
     },
     [StatusCodes.FORBIDDEN]: {
-      severity: 'error',
       code: `counter:${CounterCodes.UNAUTHORIZED_REQUESTOR_INSTITUTION}`,
       message: 'Requestor is Not Authorized to Access Usage for Institution',
+      severity: 'error',
     },
     [StatusCodes.NOT_FOUND]: {
-      severity: 'error',
       code: `counter:${CounterCodes.UNSUPPORTED_REPORT}`,
       message: 'Report Not Supported',
+      severity: 'error',
     },
     [StatusCodes.TOO_MANY_REQUESTS]: {
-      severity: 'error',
       code: `counter:${CounterCodes.TOO_MANY_REQUESTS}`,
       message: 'Client has made too many requests',
+      severity: 'error',
     },
     // 500+
     [StatusCodes.INTERNAL_SERVER_ERROR]: {
-      severity: 'error',
       code: `counter:${CounterCodes.SERVICE_UNAVAILABLE}`,
       message: 'Service Not Available',
+      severity: 'error',
     },
     [StatusCodes.SERVICE_UNAVAILABLE]: {
-      severity: 'error',
       code: `counter:${CounterCodes.SERVICE_BUSY}`,
       message: 'Service Busy',
+      severity: 'error',
     },
   };
 
@@ -148,14 +165,14 @@ const SEVERITY_PER_COUNTER_CODE: Record<
 /**
  * Normalise severity from an exception from a COUNTER report
  *
- * @param raw - Exception severity from COUNTER report
+ * @param severity - Exception severity from COUNTER report
  *
  * @returns The local severity
  */
 function normaliseSeverity(
-  raw: string | undefined
+  severity: string | undefined
 ): HarvestException['severity'] {
-  switch (raw?.toLowerCase()) {
+  switch (severity?.toLowerCase()) {
     case 'fatal':
     case 'error':
     case 'err':
@@ -172,6 +189,33 @@ function normaliseSeverity(
     default:
       return 'error';
   }
+}
+
+/**
+ * Match Exception code as severity
+ *
+ * @param code - The code of the exception
+ *
+ * @returns The matching severity, null if no match was found
+ */
+function codeAsSeverity(code: string): HarvestException['severity'] | null {
+  let severity = SEVERITY_PER_COUNTER_CODE[code];
+  if (severity) {
+    return severity;
+  }
+
+  const codeNumber = Number.parseInt(code, 10);
+  if (codeNumber === COUNTER_CODE_INFO) {
+    severity = 'info';
+  }
+  if (
+    codeNumber >= COUNTER_CODES_WARNING[0] &&
+    codeNumber <= COUNTER_CODES_WARNING[1]
+  ) {
+    severity = 'warn';
+  }
+
+  return severity || null;
 }
 
 /**
@@ -204,17 +248,17 @@ export function asHarvestException(
 
     if (!(input in StatusCodes)) {
       return {
-        severity: 'error',
         code: `http:${input}`,
         message: 'Unknown status',
+        severity: 'error',
       };
     }
 
-    if (input >= 400) {
+    if (input >= StatusCodes.BAD_REQUEST) {
       return {
-        severity: 'error',
         code: `http:${input}`,
         message: getReasonPhrase(input),
+        severity: 'error',
       };
     }
 
@@ -222,21 +266,16 @@ export function asHarvestException(
   }
   // Input is an exception from a COUNTER report
 
-  // 1 to 999 are considered as warning
-  const codeNumber = Number.parseInt(`${input.Code}`, 10);
-
   const severity =
-    1 <= codeNumber && codeNumber <= 999
-      ? 'warn'
-      : SEVERITY_PER_COUNTER_CODE[`${input.Code}`] ||
-        normaliseSeverity(`${input.Severity}`);
+    codeAsSeverity(`${input.Code}`) ?? normaliseSeverity(`${input.Severity}`);
 
   return {
-    severity,
     code: `counter:${input.Code}`,
-    message: input.Data || input.Message || 'Unexpected error occurred',
     helpUrl: input.Help_URL,
+    message: (input.Data ?? input.Message) || 'Unexpected error occurred',
+    severity,
   };
 }
 
+export { CounterCodes };
 export { asHarvestError } from '@ezcounter/toolbox/harvest';

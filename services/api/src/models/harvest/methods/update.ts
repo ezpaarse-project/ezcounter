@@ -1,4 +1,4 @@
-import { HarvestJobStep, Prisma } from '@ezcounter/database';
+import { type HarvestJobStep, Prisma } from '@ezcounter/database';
 
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
@@ -6,9 +6,9 @@ import { dbClient } from '~/lib/prisma';
 import type { FailHarvestJob, UpdateHarvestJob } from '../dto/update';
 import { HarvestJob } from '../dto';
 
-const JOB_STEPS = Object.keys(HarvestJobStep) as HarvestJobStep[];
+const JOB_STEPS = ['download', 'extract'] as const as readonly HarvestJobStep[];
 
-const logger = appLogger.child({ scope: 'models', model: 'harvest' });
+const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
 /**
  * Update one Harvest Job
@@ -34,27 +34,26 @@ export async function updateOneHarvestJob(
 
   const input = { ...job, ...item };
   // Check if have error or every step is completed
-  const completed =
-    input.error || JOB_STEPS.every((step) => input[step].done === true);
+  const completed = input.error ?? JOB_STEPS.every((step) => input[step].done);
   // Calculate time took to harvest
-  if (input.startedAt && completed) {
+  if (input.startedAt && completed !== false) {
     input.status = input.error ? 'error' : 'done';
     input.took = Date.now() - input.startedAt.getTime();
   }
 
   // Update status
   const updated = await dbClient.harvestJob.update({
-    where: { id: item.id },
     data: {
       ...input,
-      error: input.error || Prisma.DbNull,
+      error: input.error ?? Prisma.DbNull,
     },
+    where: { id: item.id },
   });
 
   logger.debug({
     action: 'Updated',
-    msg: 'Updated harvest',
     id: item.id,
+    msg: 'Updated harvest',
   });
 
   return HarvestJob.parse(updated);
@@ -71,15 +70,15 @@ export async function failManyHarvestJob(
   await dbClient.$transaction(
     items.map((item) =>
       dbClient.harvestJob.update({
+        data: { error: item.error, status: 'error' },
         where: { id: item.id },
-        data: { status: 'error', error: item.error },
       })
     )
   );
 
   logger.debug({
     action: 'Updated',
-    msg: 'Updated multiple harvests',
     count: items.length,
+    msg: 'Updated multiple harvests',
   });
 }

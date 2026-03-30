@@ -4,26 +4,26 @@ import { HarvestError } from '@ezcounter/dto/harvest';
 /**
  * Normalise error from execution
  *
- * @param err - The error that was thrown
+ * @param error - The error that was thrown
  *
  * @returns The normalised error
  */
-export function asHarvestError(err: unknown): HarvestError {
+export function asHarvestError(error: unknown): HarvestError {
   // If a application error
-  if (err instanceof Error) {
-    const code = 'code' in err ? err.code : err.name.toUpperCase();
+  if (error instanceof Error) {
+    const code = 'code' in error ? error.code : error.name.toUpperCase();
 
-    const { data: cause } = z.json().safeParse(err.cause);
+    const { data: cause } = z.json().safeParse(error.cause);
 
     return {
-      code: `app:${code}`,
-      message: err.message,
       cause,
+      code: `app:${code}`,
+      message: error.message,
     };
   }
 
   // If HarvestError
-  const { data } = HarvestError.safeParse(err);
+  const { data } = HarvestError.safeParse(error);
   if (data) {
     return data;
   }
@@ -31,6 +31,6 @@ export function asHarvestError(err: unknown): HarvestError {
   // Fallback
   return {
     code: `app:UNKNOWN_ERROR`,
-    message: `${err}`,
+    message: `${error}`,
   };
 }

@@ -31,7 +31,7 @@ describe('GET /data-hosts/:id/supported-releases', () => {
       response.json<SuccessResponse<DataHostSupportedRelease[]>>();
 
     expect(response).toHaveProperty('statusCode', 200);
-    expect(findAllReleasesSupportedByDataHost).toBeCalledTimes(1);
+    expect(findAllReleasesSupportedByDataHost).toHaveBeenCalledOnce();
     expect(findAllReleasesSupportedByDataHost).toBeCalledWith(':id');
     expect(content).toBeInstanceOf(Array);
   });

@@ -8,24 +8,24 @@ import { DataHost } from '~/models/data-host/dto';
 
 import {
   buildResponse,
-  describeSuccess,
   describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
+    handler: async (request, reply) =>
+      buildResponse(reply, await findAllDataHost()),
     method: 'GET',
-    url: '/',
     schema: {
-      summary: 'Get data hosts',
-      tags: ['data-host'],
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
         [StatusCodes.OK]: describeSuccess(z.array(DataHost)),
       },
+      summary: 'Get data hosts',
+      tags: ['data-host'],
     },
-    handler: async (request, reply) =>
-      buildResponse(reply, await findAllDataHost()),
+    url: '/',
   });
 };
 

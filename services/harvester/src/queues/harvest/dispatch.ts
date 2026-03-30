@@ -1,7 +1,7 @@
 import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
 import { HarvestDispatchData } from '@ezcounter/dto/queues';
-import { rabbitmq, consumeJSONQueue } from '@ezcounter/rabbitmq';
+import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
@@ -10,7 +10,7 @@ import { processHarvestQueue } from './jobs';
 
 const QUEUE_NAME = 'ezcounter.harvest:dispatch';
 
-const logger = appLogger.child({ scope: 'queues', queue: QUEUE_NAME });
+const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
 /**
  * Process Harvest dispatch
@@ -36,10 +36,10 @@ async function onHarvestDispatch(
       await setTimeoutAsync(config.download.jobDelay);
     }
     // oxlint-enable no-await-in-loop
-  } catch (err) {
+  } catch (error) {
     logger.error({
+      err: error,
       msg: 'Unable to process harvest queue',
-      err,
     });
   }
 }
@@ -61,10 +61,10 @@ export async function getHarvestDispatchQueue(
   // Consume harvest queue
   await consumeJSONQueue({
     channel: dispatchChannel,
-    queue: QUEUE_NAME,
     logger,
-    schema: HarvestDispatchData,
     onMessage: (data) => onHarvestDispatch(data, jobsChannel),
+    queue: QUEUE_NAME,
+    schema: HarvestDispatchData,
   });
 
   logger.debug('Harvest dispatch queue created');

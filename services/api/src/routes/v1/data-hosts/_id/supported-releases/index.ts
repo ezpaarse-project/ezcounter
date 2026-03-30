@@ -9,8 +9,8 @@ import { DataHostSupportedRelease } from '~/models/data-host/dto';
 import { assertDataHostRegistered } from '~/routes/v1/data-hosts/utils';
 import {
   buildResponse,
-  describeSuccess,
   describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 /**
@@ -22,11 +22,16 @@ const RouterParams = z.object({
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
+    handler: async (request, reply) => {
+      const { id } = request.params;
+
+      return buildResponse(reply, await findAllReleasesSupportedByDataHost(id));
+    },
     method: 'GET',
-    url: '/',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+    ],
     schema: {
-      summary: 'Get supported releases of a data host',
-      tags: ['data-host'],
       params: RouterParams,
       response: {
         ...describeErrors([
@@ -35,15 +40,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.OK]: describeSuccess(z.array(DataHostSupportedRelease)),
       },
+      summary: 'Get supported releases of a data host',
+      tags: ['data-host'],
     },
-    preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
-    ],
-    handler: async (request, reply) => {
-      const { id } = request.params;
-
-      return buildResponse(reply, await findAllReleasesSupportedByDataHost(id));
-    },
+    url: '/',
   });
 };
 

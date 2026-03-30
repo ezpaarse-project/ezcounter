@@ -1,5 +1,7 @@
+import { StatusCodes } from 'http-status-codes';
+
 import { config } from '~/lib/config';
-import { initHeartbeat, getMissingMandatoryServices } from '~/lib/heartbeat';
+import { getMissingMandatoryServices, initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
 import { useRabbitMQ } from '~/lib/rabbitmq';
@@ -7,25 +9,25 @@ import { useRabbitMQ } from '~/lib/rabbitmq';
 import { initQueues } from '~/queues';
 
 appLogger.info({
-  scope: 'node',
   env: process.env.NODE_ENV,
-  logLevel: config.log.level,
   logDir: config.log.dir,
+  logLevel: config.log.level,
   msg: 'Service starting',
+  scope: 'node',
 });
 
 try {
   // Initialize health routes
   await initHTTPServer({
     '/liveness': (req, res) => {
-      res.writeHead(204).end();
+      res.writeHead(StatusCodes.NO_CONTENT).end();
     },
     '/readiness': (req, res) => {
       const missing = getMissingMandatoryServices();
       if (missing.length > 0) {
-        res.writeHead(503).end();
+        res.writeHead(StatusCodes.SERVICE_UNAVAILABLE).end();
       } else {
-        res.writeHead(204).end();
+        res.writeHead(StatusCodes.NO_CONTENT).end();
       }
     },
   });
@@ -39,12 +41,12 @@ try {
   });
 
   appLogger.info({
-    scope: 'init',
+    msg: 'Service ready',
     readyDuration: process.uptime(),
     readyDurationUnit: 's',
-    msg: 'Service ready',
+    scope: 'init',
   });
-} catch (err) {
-  appLogger.error(err);
-  throw err instanceof Error ? err : new Error(`${err}`);
+} catch (error) {
+  appLogger.error(error);
+  throw error instanceof Error ? error : new Error(`${error}`);
 }

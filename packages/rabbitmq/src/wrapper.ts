@@ -2,6 +2,8 @@ import type amqp from 'amqplib';
 
 export type * from 'amqplib';
 
+// oxlint-disable jsdoc/require-returns
+
 /**
  * Closes a RabbitMQ connection
  *
@@ -148,7 +150,9 @@ export const getMessage = (
 export const ackMessage = (
   channel: amqp.Channel,
   ...args: Parameters<amqp.Channel['ack']>
-): void => channel.ack(...args);
+): void => {
+  channel.ack(...args);
+};
 
 /**
  * Reject a RabbitMQ message
@@ -160,4 +164,6 @@ export const ackMessage = (
 export const rejectMessage = (
   channel: amqp.Channel,
   ...args: Parameters<amqp.Channel['reject']>
-): void => channel.reject(...args);
+): void => {
+  channel.reject(...args);
+};

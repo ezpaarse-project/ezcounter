@@ -9,47 +9,33 @@ import {
   findAllHarvestJob,
   findManyHarvestJobById,
 } from '~/models/harvest';
-import { HarvestJob, CreateHarvestRequest } from '~/models/harvest/dto';
+import { CreateHarvestRequest, HarvestJob } from '~/models/harvest/dto';
 import { prepareHarvestJobs } from '~/models/harvest/prepare';
 
 import { queueHarvestJobs } from '~/queues/harvest/dispatch';
 import {
   buildResponse,
-  describeSuccess,
   describeErrors,
+  describeSuccess,
 } from '~/routes/v1/responses';
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
+    handler: async (request, reply) =>
+      buildResponse(reply, await findAllHarvestJob()),
     method: 'GET',
-    url: '/',
     schema: {
-      summary: 'Get harvest jobs',
-      tags: ['harvest'],
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
         [StatusCodes.OK]: describeSuccess(z.array(HarvestJob)),
       },
+      summary: 'Get harvest jobs',
+      tags: ['harvest'],
     },
-    handler: async (request, reply) =>
-      buildResponse(reply, await findAllHarvestJob()),
+    url: '/',
   });
 
   fastify.route({
-    method: 'POST',
-    url: '/_bulk',
-    schema: {
-      summary: 'Create multiple harvest jobs from multiple harvest requests',
-      tags: ['harvest'],
-      body: z.array(CreateHarvestRequest).min(1),
-      response: {
-        ...describeErrors([
-          StatusCodes.BAD_REQUEST,
-          StatusCodes.INTERNAL_SERVER_ERROR,
-        ]),
-        [StatusCodes.CREATED]: describeSuccess(z.array(HarvestJob)),
-      },
-    },
     handler: async (request, reply) => {
       // oxlint-disable-next-line promise/prefer-await-to-then
       const jobsPerRequest = await Promise.all(
@@ -63,7 +49,8 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       // Mark as failed jobs that weren't queued
       await failManyHarvestJob(
         queued
-          .map(({ id, error }) => (error ? { id, error } : null))
+          .map(({ id, error }) => (error ? { error, id } : null))
+          // oxlint-disable-next-line no-implicit-coercion - Type guard fails with Boolean
           .filter((job) => !!job)
       );
 
@@ -73,6 +60,20 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         await findManyHarvestJobById(queued.map(({ id }) => id))
       );
     },
+    method: 'POST',
+    schema: {
+      body: z.array(CreateHarvestRequest).min(1),
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.CREATED]: describeSuccess(z.array(HarvestJob)),
+      },
+      summary: 'Create multiple harvest jobs from multiple harvest requests',
+      tags: ['harvest'],
+    },
+    url: '/_bulk',
   });
 };
 

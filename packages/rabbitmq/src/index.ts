@@ -6,8 +6,7 @@ import type { Logger } from '@ezcounter/logger';
 
 import { closeConnection } from './wrapper';
 
-export * as rabbitmq from './wrapper';
-export * from './json-messages';
+const RECONNECT_DELAY = 5000;
 
 /**
  * Attempts to connect to RabbitMQ, reconnecting on failure
@@ -25,17 +24,20 @@ async function connectToRabbitMQ(
     const connection = await amqp.connect(connectOpts);
 
     logger.info({
-      msg: 'Connected to RabbitMQ',
       config: connectOpts,
+      msg: 'Connected to RabbitMQ',
     });
 
     return connection;
-  } catch (err) {
-    logger.error({ msg: 'Failed to connect to RabbitMQ', err });
-    await setTimeout(5000);
+  } catch (error) {
+    logger.error({ err: error, msg: 'Failed to connect to RabbitMQ' });
+    await setTimeout(RECONNECT_DELAY);
     return connectToRabbitMQ(connectOpts, logger);
   }
 }
+
+export * as rabbitmq from './wrapper';
+export * from './json-messages';
 
 /**
  * Initialize RabbitMQ connection
@@ -43,6 +45,8 @@ async function connectToRabbitMQ(
  * @param connectOpts - The options to connect to RabbitMQ
  * @param useRabbitMQ - The callback to use the RabbitMQ connection
  * @param logger - The logger
+ *
+ * @returns Promise that resolves when the connection is closed
  */
 export function setupRabbitMQ(
   connectOpts: amqp.Options.Connect,
@@ -67,8 +71,8 @@ export function setupRabbitMQ(
       try {
         await closeConnection(connection);
         logger.debug('Connection closed');
-      } catch (err) {
-        logger.error({ msg: 'Failed to close connection', err });
+      } catch (error) {
+        logger.error({ err: error, msg: 'Failed to close connection' });
       }
     };
 

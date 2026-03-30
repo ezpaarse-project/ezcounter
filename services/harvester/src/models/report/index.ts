@@ -11,22 +11,16 @@ import { HarvestIdleTimeout } from '~/models/timeout';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import type { CacheResult } from './steps/download';
-import { asHarvestError, CounterCodes } from './exceptions';
+import { CounterCodes, asHarvestError } from './exceptions';
 import {
+  archiveReportToFile,
   cacheReportToFile,
   getReportExceptions,
   getReportHeader,
   queueReportItems,
-  archiveReportToFile,
 } from './steps';
 
 const logger = appLogger.child({ scope: 'reports' });
-
-export type HarvestResult = {
-  success: boolean;
-  processing?: true;
-  unavailable?: true;
-};
 
 // COUNTER Codes that will indicate that data host is processing request
 const PROCESSING_CODES = new Set(
@@ -43,32 +37,13 @@ const UNAVAILABLE_CODES = new Set(
 );
 
 /**
- * Handle various exceptions that were found in report
- *
- * @returns Information about harvest and future actions that need to be done. `null` if nothing to be done
- */
-export function handleExceptions(
-  exceptions: HarvestException[]
-): HarvestResult | null {
-  if (exceptions.some(({ code }) => PROCESSING_CODES.has(code))) {
-    return { success: false, processing: true };
-  }
-
-  if (exceptions.some(({ code }) => UNAVAILABLE_CODES.has(code))) {
-    return { success: false, unavailable: true };
-  }
-
-  const errors = exceptions.filter(({ severity }) => severity === 'error');
-  if (errors.length > 0) {
-    throw errors.at(-1);
-  }
-  return null;
-}
-
-/**
  * Get report file path based on options
  *
  * @param options - The options to harvest
+ * @param options.id - The report ID
+ * @param options.download - The download options
+ * @param options.download.cacheKey - The cache key
+ * @param options.download.report - The report options
  *
  * @returns The path to file
  */
@@ -84,8 +59,8 @@ function getReportPath({
     `${cacheKey}/${report.id}/${filename}`
   );
   logger.debug({
-    msg: 'Resolved report path',
     id,
+    msg: 'Resolved report path',
     reportPath,
   });
 
@@ -105,15 +80,15 @@ function markHarvestAsError(
   error: HarvestError
 ): HarvestResult {
   logger.warn({
-    msg: 'Error occurred while harvesting',
-    id: options.id,
     err: error,
+    id: options.id,
+    msg: 'Error occurred while harvesting',
   });
 
   sendHarvestJobStatusEvent({
+    error,
     id: options.id,
     status: 'error',
-    error,
   });
 
   return { success: false };
@@ -129,20 +104,51 @@ function markHarvestAsError(
  */
 function markHarvestAsSuccess(options: HarvestJobData): HarvestResult {
   logger.info({
-    msg: 'Harvest completed',
     id: options.id,
+    msg: 'Harvest completed',
   });
 
   sendHarvestJobStatusEvent({
-    id: options.id,
-    status: 'processing',
     current: 'extract',
     extract: {
       done: true,
     },
+    id: options.id,
+    status: 'processing',
   });
 
   return { success: true };
+}
+
+export type HarvestResult = {
+  success: boolean;
+  processing?: true;
+  unavailable?: true;
+};
+
+/**
+ * Handle various exceptions that were found in report
+ *
+ * @param exceptions - The exceptions that were found
+ *
+ * @returns Information about harvest and future actions that need to be done. `null` if nothing to be done
+ */
+export function handleExceptions(
+  exceptions: HarvestException[]
+): HarvestResult | null {
+  if (exceptions.some(({ code }) => PROCESSING_CODES.has(code))) {
+    return { processing: true, success: false };
+  }
+
+  if (exceptions.some(({ code }) => UNAVAILABLE_CODES.has(code))) {
+    return { success: false, unavailable: true };
+  }
+
+  const errors = exceptions.filter(({ severity }) => severity === 'error');
+  if (errors.length > 0) {
+    throw errors.at(-1);
+  }
+  return null;
 }
 
 /**
@@ -163,9 +169,9 @@ export function reharvestOrMarkAsError(
 ): HarvestResult | null {
   if (report.cache.source === 'remote') {
     logger.warn({
-      msg: 'Error occurred after downloading report',
-      id: options.id,
       err,
+      id: options.id,
+      msg: 'Error occurred after downloading report',
     });
 
     return markHarvestAsError(options, asHarvestError(err));
@@ -173,9 +179,9 @@ export function reharvestOrMarkAsError(
 
   options.download.forceDownload = true;
   logger.warn({
-    msg: 'Unable to use cache to harvest, re-downloading report',
-    id: options.id,
     err,
+    id: options.id,
+    msg: 'Unable to use cache to harvest, re-downloading report',
   });
   return null;
 }
@@ -195,17 +201,17 @@ export async function harvestReport(
   const reportPath = getReportPath(options);
   timeout.tick();
 
-  let cache;
+  let cache = null;
   try {
     cache = await cacheReportToFile(reportPath, options, timeout);
-  } catch (err) {
+  } catch (error) {
     timeout.clear();
-    return markHarvestAsError(options, asHarvestError(err));
+    return markHarvestAsError(options, asHarvestError(error));
   }
 
   try {
     const exceptions = await getReportExceptions(
-      { path: reportPath, httpCode: cache.httpCode },
+      { httpCode: cache.httpCode, path: reportPath },
       options,
       timeout
     );
@@ -218,22 +224,22 @@ export async function harvestReport(
 
     const reportHeader = await getReportHeader(reportPath, options, timeout);
     await queueReportItems(
-      { path: reportPath, header: reportHeader },
+      { header: reportHeader, path: reportPath },
       options,
       timeout
     );
 
     return markHarvestAsSuccess(options);
-  } catch (err) {
+  } catch (error) {
     const harvestResult = reharvestOrMarkAsError(
-      { path: reportPath, cache },
+      { cache, path: reportPath },
       options,
-      err
+      error
     );
 
-    return harvestResult || harvestReport(options);
+    return harvestResult ?? harvestReport(options);
   } finally {
-    await archiveReportToFile({ path: reportPath, cache }, options, timeout);
+    await archiveReportToFile({ cache, path: reportPath }, options, timeout);
     timeout.clear();
   }
 }

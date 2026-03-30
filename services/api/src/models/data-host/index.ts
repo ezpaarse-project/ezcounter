@@ -22,7 +22,6 @@ export async function getDataHostWithSupportedData(
   dataHostId: string
 ): Promise<DataHostWithSupportedData | null> {
   const item = await dbClient.dataHost.findUnique({
-    where: { id: dataHostId },
     include: {
       supportedReleases: {
         include: {
@@ -30,6 +29,7 @@ export async function getDataHostWithSupportedData(
         },
       },
     },
+    where: { id: dataHostId },
   });
   if (!item) {
     return null;

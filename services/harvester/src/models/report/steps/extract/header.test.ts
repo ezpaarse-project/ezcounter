@@ -4,15 +4,15 @@ import type { SUSHIReportHeader } from '@ezcounter/counter/schemas/r5';
 import type { IRReportHeader } from '@ezcounter/counter/schemas/r51';
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
-import { extractReportHeader, extractRegistryId } from './header';
+import { extractRegistryId, extractReportHeader } from './header';
 
 describe('COUNTER 5', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
     report: {
-      period: { start: '', end: '' },
       id: 'ir',
+      period: { end: '', start: '' },
       release: '5',
     },
   };
@@ -25,8 +25,8 @@ describe('COUNTER 5', () => {
       );
 
       expect(header).toMatchObject({
-        Report_ID: 'IR',
         Release: '5',
+        Report_ID: 'IR',
       });
     });
 
@@ -124,14 +124,27 @@ describe('COUNTER 5', () => {
       Created: '2016-09-08T22:47:31Z',
       Created_By: 'EBSCO Informtion Services',
       Customer_ID: '12345',
-      Report_ID: 'IR',
-      Release: '5',
-      Report_Name: 'Journal Requests (Excluding "OA_Gold")',
-      Institution_Name: 'Mt. Laurel University',
+      Exceptions: [
+        {
+          Code: 3031,
+          Data: 'Request was for 2016-01-01 to 2016-12-31; however, usage is only available to 2016-08-31.',
+          Help_URL: 'string',
+          Message: 'Usage Not Ready for Requested Dates',
+          Severity: 'Warning',
+        },
+      ],
       Institution_ID: [
         {
           Type: 'ISNI',
           Value: '1234 1234 1234 1234',
+        },
+      ],
+      Institution_Name: 'Mt. Laurel University',
+      Release: '5',
+      Report_Attributes: [
+        {
+          Name: 'Attributes_To_Show',
+          Value: 'Data_Type|Access_Method',
         },
       ],
       Report_Filters: [
@@ -140,21 +153,8 @@ describe('COUNTER 5', () => {
           Value: '2015-01-01',
         },
       ],
-      Report_Attributes: [
-        {
-          Name: 'Attributes_To_Show',
-          Value: 'Data_Type|Access_Method',
-        },
-      ],
-      Exceptions: [
-        {
-          Code: 3031,
-          Severity: 'Warning',
-          Message: 'Usage Not Ready for Requested Dates',
-          Help_URL: 'string',
-          Data: 'Request was for 2016-01-01 to 2016-12-31; however, usage is only available to 2016-08-31.',
-        },
-      ],
+      Report_ID: 'IR',
+      Report_Name: 'Journal Requests (Excluding "OA_Gold")',
     };
 
     test('should return null if unable to parse', () => {
@@ -173,8 +173,8 @@ describe('COUNTER 5.1', () => {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
     report: {
-      period: { start: '', end: '' },
       id: 'ir',
+      period: { end: '', start: '' },
       release: '5.1',
     },
   };
@@ -187,8 +187,8 @@ describe('COUNTER 5.1', () => {
       );
 
       expect(header).toMatchObject({
-        Report_ID: 'IR',
         Release: '5.1',
+        Report_ID: 'IR',
       });
     });
 
@@ -284,9 +284,6 @@ describe('COUNTER 5.1', () => {
   describe('Registry ID (extractRegistryId)', () => {
     const ID = '99999999-9999-9999-9999-999999999999';
     const HEADER: IRReportHeader = {
-      Release: '5.1',
-      Report_ID: 'IR',
-      Report_Name: 'Item Report',
       Created: '2023-02-15T09:11:12Z',
       Created_By: 'Sample Publisher',
       Institution_ID: {
@@ -294,10 +291,13 @@ describe('COUNTER 5.1', () => {
       },
       Institution_Name: 'Sample Institution',
       Registry_Record: `https://registry.countermetrics.org/platform/${ID}`,
+      Release: '5.1',
       Report_Filters: {
         Begin_Date: '2022-01-01',
         End_Date: '2022-03-31',
       },
+      Report_ID: 'IR',
+      Report_Name: 'Item Report',
     };
 
     test('should return ID from Registry_Record', () => {

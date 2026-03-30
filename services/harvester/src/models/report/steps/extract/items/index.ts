@@ -5,8 +5,8 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import type { COUNTERReportItem, COUNTERReportItemParent } from '../../../dto';
 import { getCounterValidation } from '../../validate';
-import { createR5ReportStream, type R5StreamedValue } from './r5';
-import { createR51ReportStream, type R51StreamedValue } from './r51';
+import { type R5StreamedValue, createR5ReportStream } from './r5';
+import { type R51StreamedValue, createR51ReportStream } from './r51';
 
 type StreamedValue = R5StreamedValue & R51StreamedValue;
 
@@ -25,8 +25,10 @@ function createReportStream(
   switch (report.release) {
     case '5.1':
       return createR51ReportStream(report, signal);
+
     case '5':
       return createR5ReportStream(report, signal);
+
     default:
       throw new Error(`COUNTER Release ${report.release} is unknown`);
   }
@@ -88,8 +90,9 @@ function isParent(
  *
  * @param reportPath - The path to report
  * @param options - Options to harvest
+ * @param signal - Signal to abort extraction
  *
- * @returns Iterator that will return every item found
+ * @yields Each item found in the report
  */
 export async function* extractReportItems(
   reportPath: string,
@@ -107,7 +110,7 @@ export async function* extractReportItems(
   );
 
   const stream = createReportStream(
-    { path: reportPath, id: reportId, release: options.report.release },
+    { id: reportId, path: reportPath, release: options.report.release },
     signal
   );
 

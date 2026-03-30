@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { createThrottledFunction } from './utils';
 
-describe('createThrottledFunction', () => {
+describe('Throttled Function', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
@@ -52,7 +52,7 @@ describe('createThrottledFunction', () => {
 
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenCalledOnce();
   });
 
   test('should call 2 times if enough time', async () => {

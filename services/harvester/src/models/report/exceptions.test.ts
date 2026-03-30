@@ -7,9 +7,9 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
     const exception = asHarvestException(202);
 
     expect(exception).toMatchObject({
-      severity: 'info',
       code: `counter:1011`,
       message: 'Report is being processed',
+      severity: 'info',
     });
   });
 
@@ -23,9 +23,9 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
     const exception = asHarvestException(418);
 
     expect(exception).toMatchObject({
-      severity: 'error',
       code: `http:418`,
       message: "I'm a teapot",
+      severity: 'error',
     });
   });
 
@@ -33,9 +33,9 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
     const exception = asHarvestException(999);
 
     expect(exception).toMatchObject({
-      severity: 'error',
       code: `http:999`,
       message: 'Unknown status',
+      severity: 'error',
     });
   });
 });
@@ -93,8 +93,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
   test('should return data instead of message', () => {
     const exception = asHarvestException({
       Code: 2000,
-      Message: 'Requestor Not Authorized to Access Service',
       Data: 'API key is invalid',
+      Message: 'Requestor Not Authorized to Access Service',
     });
 
     expect(exception.message).toBe('API key is invalid');
@@ -103,9 +103,9 @@ describe('Exception as HarvestException (asHarvestException)', () => {
   test('should return help url if provided', () => {
     const exception = asHarvestException({
       Code: 2000,
-      Message: 'Requestor Not Authorized to Access Service',
       Data: 'API key is invalid',
       Help_URL: 'https://readmetrics.org/',
+      Message: 'Requestor Not Authorized to Access Service',
     });
 
     expect(exception.helpUrl).toBe('https://readmetrics.org/');

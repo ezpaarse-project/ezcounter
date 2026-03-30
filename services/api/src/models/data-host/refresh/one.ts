@@ -1,25 +1,26 @@
-import { add, isValid, format } from 'date-fns';
+import { add, format, isValid } from 'date-fns';
 
 import type { SUSHIReportList } from '@ezcounter/counter/schemas/r5';
 import type { ReportInformation } from '@ezcounter/counter/schemas/r51';
 import type { HarvestAuthOptions } from '@ezcounter/dto/harvest';
 import {
+  PERIOD_FORMAT,
   fetchReportList,
   getStandardReportIDs,
-  PERIOD_FORMAT,
 } from '@ezcounter/counter';
 
 import { config } from '~/lib/config';
 import { dbClient } from '~/lib/prisma';
 
+// oxlint-disable-next-line import/extensions
 import { version as appVersion } from '~/../package.json';
 
 import type {
+  CreateDataHostSupportedReport,
   DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
   DataHostWithSupportedData,
-  CreateDataHostSupportedReport,
   UpdateDataHostSupportedReport,
 } from '../dto';
 import type { SupportedReportsRefreshOptions } from './types';
@@ -125,10 +126,10 @@ function mergeSupportedReports(
       // Add standard reports as unsupported
       ...getStandardReportIDs(release).map(
         (id): RemoteSupportedReport => ({
-          id,
-          supported: false,
           firstMonthAvailable: '',
+          id,
           lastMonthAvailable: '',
+          supported: false,
         })
       ),
       // Add previous results
@@ -142,18 +143,16 @@ function mergeSupportedReports(
 
   // Apply results from data host
   for (const item of fromHost ?? []) {
-    // Remove the reports not matching release
-    if (item.Release !== release) {
-      continue;
+    // Keep reports matching release
+    if (item.Release === release) {
+      const id = item.Report_ID.toLowerCase();
+      reports.set(id, {
+        ...reports.get(id),
+        id,
+        supported: true,
+        ...extractMonthsAvailable(item),
+      });
     }
-
-    const id = item.Report_ID.toLowerCase();
-    reports.set(id, {
-      ...reports.get(id),
-      id,
-      supported: true,
-      ...extractMonthsAvailable(item),
-    });
   }
 
   return [...reports.values()];
@@ -175,25 +174,25 @@ async function applySupportedReportsRefresh(
     // Map data into queries
     ...data.map((item) =>
       dbClient.dataHostSupportedReport.upsert({
-        where: {
-          dataHostId_release_id: {
-            dataHostId: dataHost.id,
-            release,
-            id: item.id,
-          },
-        },
         create: {
           ...item,
           dataHostId: dataHost.id,
           release,
         },
         update: item,
+        where: {
+          dataHostId_release_id: {
+            dataHostId: dataHost.id,
+            id: item.id,
+            release,
+          },
+        },
       })
     ),
     // Update refreshedAt
     dbClient.dataHostSupportedRelease.update({
-      where: { dataHostId_release: { dataHostId: dataHost.id, release } },
       data: { refreshedAt: new Date() },
+      where: { dataHostId_release: { dataHostId: dataHost.id, release } },
     }),
   ]);
 }
@@ -202,8 +201,8 @@ async function applySupportedReportsRefresh(
  * Refresh the list of supported reports for a data host
  *
  * @param dataHost - The data host to refresh, with supported data
- * @param release - The release supported by data host to refresh
  * @param auth - The auth to use to fetch remote
+ * @param options - The options to use to refresh
  *
  * @returns The list of supported reports
  */
@@ -214,17 +213,17 @@ export async function refreshSupportedReportOfDataHost(
 ): Promise<DataHostSupportedReport[]> {
   const supportedRelease = getSupportedRelease(dataHost, options.release);
 
-  const refresh = options.forceRefresh || shouldRefresh(supportedRelease);
+  const refresh = options.forceRefresh ?? shouldRefresh(supportedRelease);
   const reportList: ReportListItem[] | null = refresh
     ? await fetchReportList(options.release, {
         auth,
-        userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/api:${appVersion})`,
         baseUrl: supportedRelease.baseUrl,
-        paramsSeparator: dataHost.paramsSeparator,
         params: {
           ...dataHost.params,
           ...supportedRelease.params,
         },
+        paramsSeparator: dataHost.paramsSeparator,
+        userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/api:${appVersion})`,
       })
     : null;
 
@@ -245,15 +244,15 @@ export async function refreshSupportedReportOfDataHost(
   // oxlint-disable-next-line no-map-spread
   return supportedReports.map((report) => ({
     // Default values
-    params: {},
-    supportedOverride: null,
+    createdAt: new Date(),
     firstMonthAvailableOverride: null,
     lastMonthAvailableOverride: null,
-    createdAt: new Date(),
+    params: {},
+    supportedOverride: null,
     // Extracted values
     ...report,
-    release: options.release,
     dataHostId: dataHost.id,
+    release: options.release,
     updatedAt: new Date(),
   }));
 }

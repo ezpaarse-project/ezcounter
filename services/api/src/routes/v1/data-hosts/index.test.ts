@@ -26,7 +26,7 @@ describe('GET /data-hosts', () => {
     const { content } = response.json<SuccessResponse<DataHost[]>>();
 
     expect(response).toHaveProperty('statusCode', 200);
-    expect(findAllDataHost).toBeCalledTimes(1);
+    expect(findAllDataHost).toHaveBeenCalledOnce();
     expect(content).toBeInstanceOf(Array);
   });
 });

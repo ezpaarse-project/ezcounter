@@ -1,17 +1,11 @@
 import { vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
-const createMockLogger = () => ({
-  fatal: vi.fn(),
-  error: vi.fn(),
-  warn: vi.fn(),
-  info: vi.fn(),
-  debug: vi.fn(),
-  trace: vi.fn(),
-});
+import type { Logger } from '@ezcounter/logger';
 
 const createMockLoggerWithChild = () => ({
-  ...createMockLogger(),
-  child: vi.fn().mockReturnValue(createMockLogger()),
+  ...mockDeep<Logger>(),
+  child: vi.fn().mockReturnValue(mockDeep<Logger>()),
 });
 
 export const appLogger = createMockLoggerWithChild();

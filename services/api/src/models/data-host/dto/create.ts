@@ -10,7 +10,6 @@ import {
  * Validation for adding a release supported by Data Host
  */
 export const CreateDataHost = DataHost.omit({
-  // DB readonly
   createdAt: true,
   updatedAt: true,
 });
@@ -24,10 +23,9 @@ export type CreateDataHost = z.infer<typeof CreateDataHost>;
  * Validation for adding a release supported by Data Host
  */
 export const CreateDataHostSupportedRelease = DataHostSupportedRelease.omit({
-  // DB readonly
   createdAt: true,
-  updatedAt: true,
   refreshedAt: true,
+  updatedAt: true,
 });
 
 /**
@@ -41,7 +39,6 @@ export type CreateDataHostSupportedRelease = z.infer<
  * Validation for adding a report supported by Data Host
  */
 export const CreateDataHostSupportedReport = DataHostSupportedReport.omit({
-  // DB readonly
   createdAt: true,
   updatedAt: true,
 });

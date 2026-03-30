@@ -74,11 +74,11 @@ export async function refreshManySupportedReports(
   const reportsEntries = await Promise.all(
     [...toRefresh.entries()]
       // Removes unsupported releases
-      .filter(([key]) => !!key)
+      .filter(([key]) => Boolean(key))
       .map(
         async ([__, hosts]): Promise<[string, DataHostSupportedReport[]][]> => {
           // TODO: retry if Forbidden
-          const base = hosts[0];
+          const [base] = hosts;
           const reports = base.host
             ? await refreshSupportedReportOfDataHost(
                 base.host,

@@ -4,15 +4,15 @@ import { isBefore } from 'date-fns';
 
 import type {
   Heartbeat as CommonHeartbeat,
-  HeartbeatService,
-  HeartbeatSender,
   HeartbeatListener,
+  HeartbeatSender,
+  HeartbeatService,
 } from '@ezcounter/heartbeats/dto';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 import {
-  setupHeartbeat,
   listenToHeartbeats,
   mandatoryService,
+  setupHeartbeat,
 } from '@ezcounter/heartbeats';
 
 import { config } from '~/lib/config';
@@ -20,31 +20,19 @@ import { appLogger } from '~/lib/logger';
 
 import type { Heartbeat } from '~/models/heartbeat/dto';
 
-import { version } from '~/../package.json' with { type: 'json' };
+// oxlint-disable-next-line import/extensions
+import { version as appVersion } from '~/../package.json' with { type: 'json' };
 
 import { dbPing } from './prisma';
 
 const { heartbeat: frequency } = config;
 
 const logger = appLogger.child({ scope: 'heartbeat' });
-
 const nodeId = `${hostname()}:${process.pid}`;
-export const service: HeartbeatService = {
-  name: 'api',
-  version,
-  filesystems: {
-    logs: config.log.dir,
-  },
-  connectedServices: {
-    database: mandatoryService('database', dbPing),
-  },
-};
 
 const services = new Map<string, Heartbeat>();
-let sender: HeartbeatSender | undefined;
-let listener: HeartbeatListener | undefined;
-
-export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
+let sender: HeartbeatSender | null = null;
+let listener: HeartbeatListener | null = null;
 
 function onHeartbeat(channel: rabbitmq.Channel, beat: CommonHeartbeat): void {
   // If it's the same machine, then we can consider RabbitMQ as working
@@ -54,11 +42,11 @@ function onHeartbeat(channel: rabbitmq.Channel, beat: CommonHeartbeat): void {
     const { cluster_name, version } = channel.connection.serverProperties;
 
     onHeartbeat(channel, {
-      service: 'rabbitmq',
-      hostname: cluster_name || 'rabbitmq',
-      version: version,
-      updatedAt: now,
+      hostname: cluster_name ?? 'rabbitmq',
       nextAt: new Date(now.getTime() + frequency.self),
+      service: 'rabbitmq',
+      updatedAt: now,
+      version: version,
     });
   }
 
@@ -68,6 +56,18 @@ function onHeartbeat(channel: rabbitmq.Channel, beat: CommonHeartbeat): void {
   services.set(`${beat.hostname}_${beat.service}`, { ...beat, createdAt });
 }
 
+export const appService: HeartbeatService = {
+  connectedServices: {
+    database: mandatoryService('database', dbPing),
+  },
+  filesystems: {
+    logs: config.log.dir,
+  },
+  name: 'api',
+  version: appVersion,
+};
+
+export { getMissingMandatoryServices } from '@ezcounter/heartbeats';
 /**
  * Init Heartbeats - emitting events as long that service is alive
  *
@@ -82,14 +82,16 @@ export async function initHeartbeat(
   logger.debug('Channel created');
 
   sender = await setupHeartbeat(channel, logger, {
-    service,
     frequency,
     isRabbitMQMandatory: false,
+    service: appService,
   });
 
   listener = listenToHeartbeats(channel, logger);
 
-  listener.on('heartbeat', (beat) => onHeartbeat(channel, beat));
+  listener.on('heartbeat', (beat) => {
+    onHeartbeat(channel, beat);
+  });
   sender.emit('send');
 
   logger.info({
@@ -108,7 +110,7 @@ export function getAllServices(): Heartbeat[] {
   const now = new Date();
 
   return (
-    Array.from(services.values())
+    [...services.values()]
       // Filter out services that haven't given heartbeats in time
       .filter((service) => {
         const maxTimestamp = service.nextAt.getTime() + frequency.connected.max;

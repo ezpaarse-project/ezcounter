@@ -24,19 +24,19 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJobData => ({
-    id: '',
     download: {
-      report: {
-        id: '',
-        period: { start: '', end: '' },
-        release: '5.1',
-      },
+      cacheKey: '',
       dataHost: {
         auth: {},
         baseUrl: '',
       },
-      cacheKey: '',
+      report: {
+        id: '',
+        period: { end: '', start: '' },
+        release: '5.1',
+      },
     },
+    id: '',
     insert: {
       index: '',
     },
@@ -46,26 +46,26 @@ describe('Harvest Process (processHarvestQueue)', () => {
     content: Buffer.from(JSON.stringify(data)),
     fields: {
       deliveryTag: 0,
-      redelivered: false,
       exchange: '',
-      routingKey: '',
       messageCount: 0,
+      redelivered: false,
+      routingKey: '',
     },
     properties: {
-      contentType: undefined,
+      appId: undefined,
+      clusterId: undefined,
       contentEncoding: undefined,
-      headers: undefined,
-      deliveryMode: undefined,
-      priority: undefined,
+      contentType: undefined,
       correlationId: undefined,
-      replyTo: undefined,
+      deliveryMode: undefined,
       expiration: undefined,
+      headers: undefined,
       messageId: undefined,
+      priority: undefined,
+      replyTo: undefined,
       timestamp: undefined,
       type: undefined,
       userId: undefined,
-      appId: undefined,
-      clusterId: undefined,
     },
   });
 
@@ -108,8 +108,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     mq.getMessage.mockResolvedValueOnce(getMessage(''));
     parseJSONMessage.mockReturnValueOnce({
-      raw: '',
       parseError: new ZodError([]),
+      raw: '',
     });
     await process.next();
 
@@ -122,7 +122,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
     const newJob = { ...job, try: 1 };
@@ -165,7 +165,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
     expect(sendJSONMessage).not.toBeCalled();
@@ -254,7 +254,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue(channel, 'foobar');
 
     mq.getMessage.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, processing: true });
+    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({

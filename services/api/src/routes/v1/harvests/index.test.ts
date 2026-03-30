@@ -4,9 +4,9 @@ import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
 import type { CreateHarvestRequest } from '~/models/harvest/dto';
 import {
+  createManyHarvestJob,
   findAllHarvestJob,
   findManyHarvestJobById,
-  createManyHarvestJob,
 } from '~/models/harvest/__mocks__';
 import { prepareHarvestJobs } from '~/models/harvest/__mocks__/prepare';
 
@@ -36,7 +36,7 @@ describe('GET /harvests', () => {
     const { content } =
       response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
 
-    expect(findAllHarvestJob).toBeCalledTimes(1);
+    expect(findAllHarvestJob).toHaveBeenCalledOnce();
     expect(content).toBeInstanceOf(Array);
   });
 });
@@ -45,47 +45,47 @@ describe('POST /harvests/_bulk', () => {
   const body: CreateHarvestRequest[] = [
     {
       download: {
+        dataHost: {
+          auth: { customer_id: 'foobar' },
+          id: 'my-counter-datahost',
+        },
+
         reports: [
           {
             id: 'tr',
-            period: { start: '2025-01', end: '2025-12' },
-            release: '5',
             params: { attributes_to_show: ['Access_Method'] },
+            period: { end: '2025-12', start: '2025-01' },
+            release: '5',
           },
           {
             id: 'pr',
-            period: { start: '2025-02', end: '2025-11' },
+            period: { end: '2025-11', start: '2025-02' },
             release: '5',
           },
         ],
-
-        dataHost: {
-          id: 'my-counter-datahost',
-          auth: { customer_id: 'foobar' },
-        },
       },
       insert: {
-        index: 'z-example-counter5',
         additionalData: {
           'X-Custom': 'Property',
         },
+        index: 'z-example-counter5',
       },
     },
     {
       download: {
+        dataHost: {
+          auth: { customer_id: 'foobar' },
+          id: 'my-counter-datahost',
+        },
+
         reports: [
           {
             id: 'ir',
-            period: { start: '2025-01', end: '2025-12' },
-            splitPeriodBy: 1,
+            period: { end: '2025-12', start: '2025-01' },
             release: '5.1',
+            splitPeriodBy: 1,
           },
         ],
-
-        dataHost: {
-          id: 'my-counter-datahost',
-          auth: { customer_id: 'foobar' },
-        },
       },
       insert: {
         index: 'z-example-counter51',
@@ -98,9 +98,9 @@ describe('POST /harvests/_bulk', () => {
     findManyHarvestJobById.mockResolvedValueOnce([]);
 
     const promise = server.inject({
+      body,
       method: 'POST',
       url: '/harvests/_bulk',
-      body,
     });
 
     await expect(promise).resolves.toHaveProperty('statusCode', 201);
@@ -111,15 +111,15 @@ describe('POST /harvests/_bulk', () => {
     findManyHarvestJobById.mockResolvedValueOnce([]);
 
     const response = await server.inject({
+      body,
       method: 'POST',
       url: '/harvests/_bulk',
-      body,
     });
 
     const { content } =
       response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
 
-    expect(findManyHarvestJobById).toBeCalledTimes(1);
+    expect(findManyHarvestJobById).toHaveBeenCalledOnce();
     expect(content).toBeInstanceOf(Array);
   });
 
@@ -128,9 +128,9 @@ describe('POST /harvests/_bulk', () => {
     findManyHarvestJobById.mockResolvedValueOnce([]);
 
     await server.inject({
+      body,
       method: 'POST',
       url: '/harvests/_bulk',
-      body,
     });
 
     expect(prepareHarvestJobs).toBeCalledTimes(body.length);
@@ -141,12 +141,12 @@ describe('POST /harvests/_bulk', () => {
     findManyHarvestJobById.mockResolvedValueOnce([]);
 
     await server.inject({
+      body,
       method: 'POST',
       url: '/harvests/_bulk',
-      body,
     });
 
-    expect(createManyHarvestJob).toBeCalledTimes(1);
+    expect(createManyHarvestJob).toHaveBeenCalledOnce();
   });
 
   test('should dispatch jobs', async () => {
@@ -154,19 +154,19 @@ describe('POST /harvests/_bulk', () => {
     findManyHarvestJobById.mockResolvedValueOnce([]);
 
     await server.inject({
+      body,
       method: 'POST',
       url: '/harvests/_bulk',
-      body,
     });
 
-    expect(queueHarvestJobs).toBeCalledTimes(1);
+    expect(queueHarvestJobs).toHaveBeenCalledOnce();
   });
 
   test('should return BAD_REQUEST if body is invalid', async () => {
     const response = await server.inject({
+      body: [],
       method: 'POST',
       url: '/harvests/_bulk',
-      body: [],
     });
 
     const { error } = response.json<ErrorResponse>();

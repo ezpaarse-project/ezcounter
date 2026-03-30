@@ -20,9 +20,9 @@ export type UpdateHarvestJob = z.infer<typeof UpdateHarvestJob>;
  * Validation for updating a harvest job from DB
  */
 export const FailHarvestJob = z.object({
-  id: HarvestJob.shape.id,
-
   error: HarvestError,
+
+  id: HarvestJob.shape.id,
 });
 
 /**

@@ -6,21 +6,21 @@ import type { ErrorResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
 import { HTTPError } from '~/routes/v1/errors';
 
-let server = await createTestServer(async (fastify) => {
+const server = await createTestServer(async (fastify) => {
   fastify.route({
+    handler: async () => ({ foo: 'bar' }),
     method: 'POST',
-    url: '/',
     schema: {
       body: z.object({
         foo: z.string(),
       }),
     },
-    handler: async () => ({ foo: 'bar' }),
+    url: '/',
   });
 
   fastify.route({
+    handler: async () => ({ pong: '' }),
     method: 'GET',
-    url: '/invalid-response',
     schema: {
       response: {
         200: z.object({
@@ -28,32 +28,32 @@ let server = await createTestServer(async (fastify) => {
         }),
       },
     },
-    handler: async () => ({ pong: '' }),
+    url: '/invalid-response',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/private',
     handler: async () => {
       throw new HTTPError(401, 'Need to auth');
     },
+    method: 'GET',
+    url: '/private',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/not-implemented',
     handler: async () => {
       throw new Error('Not implemented');
     },
+    method: 'GET',
+    url: '/not-implemented',
   });
 
   fastify.route({
-    method: 'GET',
-    url: '/literal-error',
     handler: async () => {
       // oxlint-disable-next-line no-throw-literal
       throw 'Not an error object';
     },
+    method: 'GET',
+    url: '/literal-error',
   });
 });
 

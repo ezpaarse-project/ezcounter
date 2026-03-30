@@ -24,9 +24,11 @@ export class HarvestLock {
 
   /**
    * Status of the lock
+   *
+   * @returns true if locked
    */
   get isLocked(): boolean {
-    return this.locked === true;
+    return this.locked;
   }
 
   /**

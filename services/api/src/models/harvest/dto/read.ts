@@ -5,49 +5,49 @@ import {
 } from '@ezcounter/dto/harvest';
 import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 
+const MIN_TIMEOUT = 100;
+
 export * from '@ezcounter/dto/harvest';
 
 /**
  * Validation for a harvest job from DB
  */
 export const HarvestJob = z.object({
+  createdAt: z.coerce.date().describe('Creation date'),
+
+  current: HarvestJobStatusEvent.shape.current.nullish(),
+
+  dataHostId: z.string().describe('ID of the data host'),
+
+  download: HarvestJobStatusEvent.shape.download.unwrap(),
+
+  error: HarvestJobStatusEvent.shape.error.nullish(),
+
+  extract: HarvestJobStatusEvent.shape.extract.unwrap(),
+
+  forceDownload: z.boolean().describe('Should force download the report'),
+
   id: HarvestJobStatusEvent.shape.id,
 
-  // Information on job
-  reportId: z.string().describe('ID of the report harvested'),
+  index: z.string().describe('Target Elastic index'),
+
+  params: HarvestAdditionalParams.describe('Additional params of the report'),
 
   period: HarvestReportPeriod.describe('Period of the report'),
 
   release: z.string().describe('COUNTER release of the report'),
 
-  params: HarvestAdditionalParams.describe('Additional params of the report'),
-
-  dataHostId: z.string().describe('ID of the data host'),
-
-  timeout: z.int().min(100).describe('Timeout of the job in ms'),
-
-  forceDownload: z.boolean().describe('Should force download the report'),
-
-  index: z.string().describe('Target Elastic index'),
-
-  createdAt: z.coerce.date().describe('Creation date'),
-
-  updatedAt: z.coerce.date().nullable().describe('Last update date'),
-
-  // Status of job
-  status: HarvestJobStatusEvent.shape.status,
-
-  current: HarvestJobStatusEvent.shape.current.nullish(),
-
-  error: HarvestJobStatusEvent.shape.error.nullish(),
-
-  download: HarvestJobStatusEvent.shape.download.unwrap(),
-
-  extract: HarvestJobStatusEvent.shape.extract.unwrap(),
+  reportId: z.string().describe('ID of the report harvested'),
 
   startedAt: HarvestJobStatusEvent.shape.startedAt.nullish(),
 
+  status: HarvestJobStatusEvent.shape.status,
+
+  timeout: z.int().min(MIN_TIMEOUT).describe('Timeout of the job in ms'),
+
   took: z.int().min(0).nullable().describe('Time that harvesting took'),
+
+  updatedAt: z.coerce.date().nullable().describe('Last update date'),
 });
 
 /**
