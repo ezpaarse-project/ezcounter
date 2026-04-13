@@ -1,18 +1,19 @@
 import { describe, expect, test, vi } from 'vitest';
 
+import type { HarvestRequestContent } from '@ezcounter/dto/queues';
+
 import type {
   DataHostSupportedReport,
   DataHostWithSupportedData,
 } from '~/models/data-host/dto';
-import type { CreateHarvestRequest } from '~/models/harvest/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host/__mocks__';
-import { prepareHarvestJobs } from '~/models/harvest/prepare';
+import { prepareHarvestJobsFromHarvestRequestContent } from '~/models/harvest/prepare';
 
 vi.mock(import('~/models/data-host'));
 
-describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
+describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest)', () => {
   // oxlint-disable-next-line consistent-function-scoping
-  const getRequest = (): CreateHarvestRequest => ({
+  const getRequest = (): HarvestRequestContent => ({
     download: {
       dataHost: {
         auth: { customer_id: 'foobar' },
@@ -77,7 +78,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
     const request = getRequest();
 
-    const promise = prepareHarvestJobs(request);
+    const promise = prepareHarvestJobsFromHarvestRequestContent(request);
 
     await expect(promise).resolves.toBeInstanceOf(Array);
   });
@@ -111,7 +112,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       platform: 'test',
     };
 
-    const promise = prepareHarvestJobs(request);
+    const promise = prepareHarvestJobsFromHarvestRequestContent(request);
 
     await expect(promise).resolves.toHaveProperty(
       '0.download.report.params.platform',
@@ -143,7 +144,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
     const request = getRequest();
 
-    const promise = prepareHarvestJobs(request);
+    const promise = prepareHarvestJobsFromHarvestRequestContent(request);
 
     await expect(promise).resolves.toHaveProperty('0.id');
   });
@@ -151,7 +152,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
   test('should throw if data host is unknown', async () => {
     const request = getRequest();
 
-    const promise = prepareHarvestJobs(request);
+    const promise = prepareHarvestJobsFromHarvestRequestContent(request);
 
     await expect(promise).rejects.toThrow(
       'Data host my-counter-datahost is not registered'
@@ -165,7 +166,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].splitPeriodBy = 6;
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(2);
 
@@ -182,7 +183,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].splitPeriodBy = 5;
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(3);
 
@@ -202,7 +203,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].splitPeriodBy = 1;
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(12);
 
@@ -218,7 +219,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(1);
 
@@ -232,7 +233,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].splitPeriodBy = -1;
 
-      const promise = prepareHarvestJobs(request);
+      const promise = prepareHarvestJobsFromHarvestRequestContent(request);
 
       await expect(promise).rejects.toThrow('monthsPerPart must be at least 0');
     });
@@ -244,7 +245,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs[0]).toMatchObject({
         download: {
@@ -279,7 +280,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].release = '5';
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(0);
     });
@@ -290,7 +291,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
       const request = getRequest();
       request.download.reports[0].id = 'custom:tr';
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(1);
     });
@@ -303,7 +304,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(0);
     });
@@ -317,7 +318,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(0);
     });
@@ -331,7 +332,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveLength(1);
     });
@@ -345,7 +346,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveProperty('0.download.report.period.start', '2025-03');
       expect(jobs).toHaveProperty('0.download.report.period.end', '2025-09');
@@ -360,7 +361,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveProperty('0.download.report.period.start', '2025-03');
       expect(jobs).toHaveProperty('0.download.report.period.end', '2025-09');
@@ -377,7 +378,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobs)', () => {
 
       const request = getRequest();
 
-      const jobs = await prepareHarvestJobs(request);
+      const jobs = await prepareHarvestJobsFromHarvestRequestContent(request);
 
       expect(jobs).toHaveProperty('0.download.report.period.start', '2025-01');
       expect(jobs).toHaveProperty('0.download.report.period.end', '2025-12');

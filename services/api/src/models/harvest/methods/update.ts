@@ -3,8 +3,7 @@ import { type HarvestJobStep, Prisma } from '@ezcounter/database';
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
 
-import type { FailHarvestJob, UpdateHarvestJob } from '../dto/update';
-import { HarvestJob } from '../dto';
+import { type FailHarvestJob, HarvestJob, type UpdateHarvestJob } from '../dto';
 
 const JOB_STEPS = ['download', 'extract'] as const as readonly HarvestJobStep[];
 

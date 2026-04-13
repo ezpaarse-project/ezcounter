@@ -10,7 +10,7 @@ import { asHarvestError } from '@ezcounter/toolbox/harvest';
 
 import { appLogger } from '~/lib/logger';
 
-const QUEUE_NAME = 'ezcounter.harvest:dispatch';
+const QUEUE_NAME = 'ezcounter:harvest.dispatch';
 const HOST_QUEUE_NAME_HASH_LENGTH = 16;
 
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
@@ -46,11 +46,11 @@ function getDataHostQueueName(host: string): string {
     .digest('hex')
     .slice(0, HOST_QUEUE_NAME_HASH_LENGTH);
 
-  return `ezcounter.harvest:job:${hash}`;
+  return `ezcounter:harvest.job:${hash}`;
 }
 
 /**
- * Assert exchange used to send events about status of harvest jobs
+ * Assert queue used to send events about status of harvest jobs
  *
  * @param chan - The RabbitMQ channel
  */

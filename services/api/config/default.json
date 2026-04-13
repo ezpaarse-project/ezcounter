@@ -32,6 +32,7 @@
   },
   "dataHost": {
     "supported": {
+      "refreshJobDelay": 500,
       "cacheDuration": {
         "months": 1,
         "weeks": 0,

@@ -1,13 +1,8 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { createThrottledFunction } from './utils';
+import { createThrottledFunction, waitForGenerator } from './utils';
 
 describe('Throttled Function', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.clearAllMocks();
-  });
-
   const spy = vi.fn().mockResolvedValue('foobar');
 
   test('should call original function', async () => {
@@ -81,8 +76,58 @@ describe('Throttled Function', () => {
     await vi.runAllTimersAsync();
     expect(spy).toHaveBeenCalledWith('foobar');
   });
+});
 
-  afterEach(() => {
-    vi.useRealTimers();
+describe('Wait for generator', () => {
+  // oxlint-disable-next-line consistent-function-scoping
+  function* gen(): Generator {
+    for (let index = 0; index < 10; index += 1) {
+      yield index;
+    }
+  }
+
+  test('should iterate generator', async () => {
+    const process = gen();
+    const spy = vi.spyOn(process, 'next');
+
+    await waitForGenerator(process);
+
+    expect(spy).toHaveBeenCalled();
+  });
+
+  test('should NOT wait between two iterations if no delay', async () => {
+    const process = gen();
+    const spy = vi.spyOn(process, 'next');
+
+    const promise = waitForGenerator(process);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(spy).toHaveBeenCalledTimes(11);
+
+    await promise;
+  });
+
+  test('should wait between two iterations', async () => {
+    const process = gen();
+    const spy = vi.spyOn(process, 'next');
+
+    const promise = waitForGenerator(process, 100);
+    expect(spy).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(150);
+    expect(spy).toHaveBeenCalledTimes(2);
+
+    await vi.runAllTimersAsync();
+    await promise;
+  });
+
+  test('should bubble error', async () => {
+    const process = gen();
+    const spy = vi.spyOn(process, 'next');
+    spy.mockImplementationOnce(() => {
+      throw new Error('Excepted error');
+    });
+
+    const promise = waitForGenerator(process);
+
+    await expect(promise).rejects.toThrowError('Excepted error');
   });
 });

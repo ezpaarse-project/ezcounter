@@ -2,7 +2,7 @@ import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
-const QUEUE_NAME = 'ezcounter.enrich:jobs';
+const QUEUE_NAME = 'ezcounter:enrich.jobs';
 
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 

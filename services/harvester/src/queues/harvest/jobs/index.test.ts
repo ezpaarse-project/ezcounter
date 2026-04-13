@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 import type { rabbitmq } from '@ezcounter/rabbitmq';
@@ -20,7 +21,7 @@ vi.mock(import('~/models/report'));
 vi.mock(import('./status'));
 
 describe('Harvest Process (processHarvestQueue)', () => {
-  const channel = {} as unknown as rabbitmq.Channel;
+  const channel = mockDeep<rabbitmq.Channel>();
 
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJobData => ({

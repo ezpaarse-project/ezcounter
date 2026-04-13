@@ -1,21 +1,20 @@
-import { z } from '@ezcounter/dto';
+import { z } from '../..';
 import {
   HarvestDataHostOptions,
   HarvestDownloadOptions,
   HarvestReportOptions,
-} from '@ezcounter/dto/harvest';
-import { HarvestJobData } from '@ezcounter/dto/queues';
+} from '../../harvest';
+import { HarvestJobData } from './jobs';
 
 /**
- * Validation for a harvest request
+ * Validation for the content of a harvest request
  */
-export const CreateHarvestRequest = z.object({
+export const HarvestRequestContent = z.object({
   ...HarvestJobData.omit({ id: true, try: true }).shape,
 
   download: z.object({
     ...HarvestDownloadOptions.omit({
       cacheKey: true,
-      dataHost: true,
       report: true,
     }).shape,
 
@@ -52,6 +51,16 @@ export const CreateHarvestRequest = z.object({
 });
 
 /**
+ * Type for the content of a harvest request
+ */
+export type HarvestRequestContent = z.infer<typeof HarvestRequestContent>;
+
+/**
+ * Validation for a harvest request
+ */
+export const HarvestRequestData = z.array(HarvestRequestContent).min(1);
+
+/**
  * Type for a harvest request
  */
-export type CreateHarvestRequest = z.infer<typeof CreateHarvestRequest>;
+export type HarvestRequestData = z.infer<typeof HarvestRequestData>;

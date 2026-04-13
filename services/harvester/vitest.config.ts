@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
 
   test: {
+    clearMocks: true,
     setupFiles: ['./__tests__/setup.ts'],
   },
 });

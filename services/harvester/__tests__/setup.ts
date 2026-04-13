@@ -32,7 +32,6 @@ async function addExamplesToVol(): Promise<void> {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  vi.clearAllMocks();
 });
 
 beforeEach(async () => {

@@ -4,10 +4,10 @@ import { fetchReportList } from '@ezcounter/counter/__mocks__';
 
 import { dbClient } from '~/lib/__mocks__/prisma';
 
-import type { DataHostWithSupportedData } from '../dto';
-import { refreshSupportedReportOfDataHost } from './one';
+import type { DataHostWithSupportedData } from './dto';
+import { refreshSupportedReportsOfDataHost } from './refresh';
 
-describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
+describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getDataHost = (): DataHostWithSupportedData => ({
     createdAt: new Date(),
@@ -49,7 +49,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should request data host', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(fetchReportList).toBeCalled();
     });
@@ -57,7 +57,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update or create reports in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(dbClient.dataHostSupportedReport.upsert).toBeCalled();
     });
@@ -65,7 +65,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update release in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(dbClient.dataHostSupportedRelease.update).toBeCalled();
     });
@@ -75,7 +75,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -90,7 +90,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -114,7 +114,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -142,7 +142,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       dataHost.supportedReleases[0].supportedReports[0].lastMonthAvailable =
         '2025-05';
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -167,7 +167,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -192,7 +192,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -215,7 +215,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -237,7 +237,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -253,7 +253,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       const dataHost = getDataHost();
       dataHost.supportedReleases[0].supportedReports[0].supportedOverride = true;
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -267,7 +267,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       const dataHost = getDataHost();
       dataHost.supportedReleases[0].refreshedAt = new Date();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(fetchReportList).not.toBeCalled();
     });
@@ -276,7 +276,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       const dataHost = getDataHost();
       dataHost.supportedReleases[0].refreshedAt = new Date();
 
-      const result = await refreshSupportedReportOfDataHost(
+      const result = await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -289,7 +289,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should throw if unsupported release', async () => {
       const dataHost = getDataHost();
 
-      const promise = refreshSupportedReportOfDataHost(
+      const promise = refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5' }
@@ -305,7 +305,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
 
       const dataHost = getDataHost();
 
-      const promise = refreshSupportedReportOfDataHost(
+      const promise = refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { release: '5.1' }
@@ -319,7 +319,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should request data host', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(fetchReportList).toBeCalled();
     });
@@ -327,7 +327,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update or create reports in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(dbClient.dataHostSupportedReport.upsert).toBeCalled();
     });
@@ -335,7 +335,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should update release in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(dataHost, {}, { release: '5.1' });
+      await refreshSupportedReportsOfDataHost(dataHost, {}, { release: '5.1' });
 
       expect(dbClient.dataHostSupportedRelease.update).toBeCalled();
     });
@@ -346,7 +346,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
       const dataHost = getDataHost();
       dataHost.supportedReleases[0].refreshedAt = new Date();
 
-      await refreshSupportedReportOfDataHost(
+      await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { forceRefresh: true, release: '5.1' }
@@ -360,7 +360,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should request data host', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(
+      await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { dryRun: true, release: '5.1' }
@@ -372,7 +372,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should NOT update or create reports in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(
+      await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { dryRun: true, release: '5.1' }
@@ -384,7 +384,7 @@ describe('Refresh supported reports (refreshSupportedReportOfDataHost)', () => {
     test('should NOT update release in db', async () => {
       const dataHost = getDataHost();
 
-      await refreshSupportedReportOfDataHost(
+      await refreshSupportedReportsOfDataHost(
         dataHost,
         {},
         { dryRun: true, release: '5.1' }

@@ -80,7 +80,9 @@ export const createDataHostFetch = (opts: CreateDataHostFetchOptions): $Fetch =>
     ],
     query: {
       ...opts.params,
-      ...opts.auth,
+      api_key: opts.auth.api_key,
+      customer_id: opts.auth.customer_id,
+      requestor_id: opts.auth.requestor_id,
     },
     signal: opts.signal,
   });

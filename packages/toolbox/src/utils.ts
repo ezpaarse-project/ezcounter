@@ -38,7 +38,6 @@ export function createThrottledFunction<Args extends unknown[], Return>(
     nextInvocation = null;
 
     // Wrapping in a promise to support sync and async functions
-    // oxlint-disable-next-line promise/prefer-await-to-then
     const result = Promise.resolve(fnc(...nextArgs));
     delay = setupDelay(result);
 
@@ -52,4 +51,32 @@ export function createThrottledFunction<Args extends unknown[], Return>(
     nextInvocation ??= (delay || Promise.resolve()).then(handler);
     return nextInvocation;
   };
+}
+
+/**
+ * Wait for generator completion, adding a delay between each iteration
+ *
+ * @param process - The generator to wait for
+ * @param delay - The delay between each iteration, disabled if less than 1
+ */
+export async function waitForGenerator(
+  process: Generator | AsyncGenerator,
+  delay = 0
+): Promise<void> {
+  // oxlint-disable no-await-in-loop
+  while (true) {
+    const { done } = await process.next();
+    if (done) {
+      break;
+    }
+
+    if (delay > 1) {
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, delay);
+      });
+    }
+  }
+  // oxlint-enable no-await-in-loop
 }

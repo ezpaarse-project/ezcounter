@@ -1,24 +1,20 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
+import type {
+  HarvestJobStatusEvent,
+  HarvestRequestData,
+} from '@ezcounter/dto/queues';
 
-import type { CreateHarvestRequest } from '~/models/harvest/dto';
-import {
-  createManyHarvestJob,
-  findAllHarvestJob,
-  findManyHarvestJobById,
-} from '~/models/harvest/__mocks__';
-import { prepareHarvestJobs } from '~/models/harvest/__mocks__/prepare';
+import { findAllHarvestJob } from '~/models/harvest/__mocks__';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
-import { queueHarvestJobs } from '~/queues/harvest/__mocks__/dispatch';
+import { queueHarvestRequest } from '~/queues/harvest/__mocks__/request';
 
 import router from '.';
 
-vi.mock(import('~/queues/harvest/dispatch'));
+vi.mock(import('~/queues/harvest/request'));
 vi.mock(import('~/models/harvest'));
-vi.mock(import('~/models/harvest/prepare'));
 
 const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/harvests' });
@@ -42,7 +38,7 @@ describe('GET /harvests', () => {
 });
 
 describe('POST /harvests/_bulk', () => {
-  const body: CreateHarvestRequest[] = [
+  const body: HarvestRequestData = [
     {
       download: {
         dataHost: {
@@ -94,9 +90,6 @@ describe('POST /harvests/_bulk', () => {
   ];
 
   test('should return CREATED', async () => {
-    prepareHarvestJobs.mockResolvedValue([]);
-    findManyHarvestJobById.mockResolvedValueOnce([]);
-
     const promise = server.inject({
       body,
       method: 'POST',
@@ -106,60 +99,14 @@ describe('POST /harvests/_bulk', () => {
     await expect(promise).resolves.toHaveProperty('statusCode', 201);
   });
 
-  test('should return array of statuses', async () => {
-    prepareHarvestJobs.mockResolvedValue([]);
-    findManyHarvestJobById.mockResolvedValueOnce([]);
-
-    const response = await server.inject({
-      body,
-      method: 'POST',
-      url: '/harvests/_bulk',
-    });
-
-    const { content } =
-      response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
-
-    expect(findManyHarvestJobById).toHaveBeenCalledOnce();
-    expect(content).toBeInstanceOf(Array);
-  });
-
-  test('should transform requests', async () => {
-    prepareHarvestJobs.mockResolvedValue([]);
-    findManyHarvestJobById.mockResolvedValueOnce([]);
-
+  test('should queue request', async () => {
     await server.inject({
       body,
       method: 'POST',
       url: '/harvests/_bulk',
     });
 
-    expect(prepareHarvestJobs).toBeCalledTimes(body.length);
-  });
-
-  test('should create jobs', async () => {
-    prepareHarvestJobs.mockResolvedValue([]);
-    findManyHarvestJobById.mockResolvedValueOnce([]);
-
-    await server.inject({
-      body,
-      method: 'POST',
-      url: '/harvests/_bulk',
-    });
-
-    expect(createManyHarvestJob).toHaveBeenCalledOnce();
-  });
-
-  test('should dispatch jobs', async () => {
-    prepareHarvestJobs.mockResolvedValue([]);
-    findManyHarvestJobById.mockResolvedValueOnce([]);
-
-    await server.inject({
-      body,
-      method: 'POST',
-      url: '/harvests/_bulk',
-    });
-
-    expect(queueHarvestJobs).toHaveBeenCalledOnce();
+    expect(queueHarvestRequest).toHaveBeenCalledOnce();
   });
 
   test('should return BAD_REQUEST if body is invalid', async () => {

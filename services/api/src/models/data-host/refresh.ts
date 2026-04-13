@@ -17,13 +17,11 @@ import { version as appVersion } from '~/../package.json';
 
 import type {
   CreateDataHostSupportedReport,
-  DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
   DataHostWithSupportedData,
   UpdateDataHostSupportedReport,
-} from '../dto';
-import type { SupportedReportsRefreshOptions } from './types';
+} from './dto';
 
 const { cacheDuration } = config.dataHost.supported;
 
@@ -41,6 +39,15 @@ type RemoteSupportedReport = Omit<
   CreateDataHostSupportedReport,
   'dataHostId' | 'release' | keyof UpdateDataHostSupportedReport
 >;
+
+/**
+ * Type for options to provide when refreshing supported data
+ */
+type SupportedReportsRefreshOptions = {
+  release: '5' | '5.1';
+  dryRun?: boolean;
+  forceRefresh?: boolean;
+};
 
 /**
  * Shorthand to get supported data about a release of a data host
@@ -162,12 +169,12 @@ function mergeSupportedReports(
  * Applies refresh of supported data in DB using transaction
  *
  * @param release - The release
- * @param dataHost - The data host
+ * @param dataHostId - The id of data host
  * @param data - The updates
  */
 async function applySupportedReportsRefresh(
   release: '5' | '5.1',
-  dataHost: DataHost,
+  dataHostId: string,
   data: RemoteSupportedReport[]
 ): Promise<void> {
   await dbClient.$transaction([
@@ -176,13 +183,13 @@ async function applySupportedReportsRefresh(
       dbClient.dataHostSupportedReport.upsert({
         create: {
           ...item,
-          dataHostId: dataHost.id,
+          dataHostId,
           release,
         },
         update: item,
         where: {
           dataHostId_release_id: {
-            dataHostId: dataHost.id,
+            dataHostId,
             id: item.id,
             release,
           },
@@ -192,7 +199,7 @@ async function applySupportedReportsRefresh(
     // Update refreshedAt
     dbClient.dataHostSupportedRelease.update({
       data: { refreshedAt: new Date() },
-      where: { dataHostId_release: { dataHostId: dataHost.id, release } },
+      where: { dataHostId_release: { dataHostId, release } },
     }),
   ]);
 }
@@ -206,7 +213,7 @@ async function applySupportedReportsRefresh(
  *
  * @returns The list of supported reports
  */
-export async function refreshSupportedReportOfDataHost(
+export async function refreshSupportedReportsOfDataHost(
   dataHost: DataHostWithSupportedData,
   auth: HarvestAuthOptions,
   options: SupportedReportsRefreshOptions
@@ -236,7 +243,7 @@ export async function refreshSupportedReportOfDataHost(
   if (!options.dryRun) {
     await applySupportedReportsRefresh(
       options.release,
-      dataHost,
+      dataHost.id,
       supportedReports
     );
   }

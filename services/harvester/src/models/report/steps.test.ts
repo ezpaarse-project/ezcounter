@@ -4,7 +4,7 @@ import type { HarvestJobData } from '@ezcounter/dto/queues';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
-import type { COUNTERReportHeader } from './dto';
+import type { COUNTERReportHeader, COUNTERReportItem } from './dto';
 import { HarvestIdleTimeout } from '../timeout';
 import {
   archiveReportToFile,
@@ -193,18 +193,14 @@ describe('Report Header (getReportHeader)', () => {
 describe('Report Items (queueReportItems)', () => {
   const HEADER = {} as unknown as COUNTERReportHeader;
 
-  type Iterator = ReturnType<typeof extractReportItems>;
-
   test('should extract items', async () => {
-    extractReportItems.mockReturnValueOnce([] as unknown as Iterator);
-
     await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     expect(extractReportItems).toBeCalled();
   });
 
   test('should throw on error', async () => {
-    extractReportItems.mockImplementation(() => {
+    extractReportItems.mockImplementationOnce(() => {
       throw new Error('Something happened');
     });
 
@@ -214,8 +210,6 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should tick timeout', async () => {
-    extractReportItems.mockReturnValueOnce([] as unknown as Iterator);
-
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
@@ -225,9 +219,11 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should tick timeout after every item', async () => {
-    extractReportItems.mockReturnValueOnce(
-      Array.from({ length: 5000 }, () => ({})) as unknown as Iterator
-    );
+    extractReportItems.mockImplementationOnce(async function* dummy() {
+      for (let index = 0; index < 5000; index += 1) {
+        yield { item: {} as COUNTERReportItem };
+      }
+    });
 
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
@@ -239,8 +235,6 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should notify progress', async () => {
-    extractReportItems.mockReturnValueOnce([] as unknown as Iterator);
-
     await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
@@ -255,9 +249,11 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should notify progress after time', async () => {
-    extractReportItems.mockReturnValueOnce(
-      Array.from({ length: 5000 }, () => ({})) as unknown as Iterator
-    );
+    extractReportItems.mockImplementationOnce(async function* dummy() {
+      for (let index = 0; index < 5000; index += 1) {
+        yield { item: {} as COUNTERReportItem };
+      }
+    });
 
     const promise = queueReportItems({ header: HEADER, path: '' }, OPTIONS);
 

@@ -1,14 +1,13 @@
-import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
-
 import { HarvestDispatchData } from '@ezcounter/dto/queues';
 import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
+import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import { processHarvestQueue } from './jobs';
 
-const QUEUE_NAME = 'ezcounter.harvest:dispatch';
+const QUEUE_NAME = 'ezcounter:harvest.dispatch';
 
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
@@ -24,18 +23,11 @@ async function onHarvestDispatch(
 ): Promise<void> {
   // Wait for all harvest jobs in queue to be processed
   try {
-    const process = processHarvestQueue(jobsChannel, data.queueName);
-
-    // oxlint-disable no-await-in-loop
-    while (true) {
-      const { done } = await process.next();
-      if (done) {
-        break;
-      }
+    await waitForGenerator(
+      processHarvestQueue(jobsChannel, data.queueName),
       // Just a little delay to avoid spamming too fast
-      await setTimeoutAsync(config.download.jobDelay);
-    }
-    // oxlint-enable no-await-in-loop
+      config.download.jobDelay
+    );
   } catch (error) {
     logger.error({
       err: error,

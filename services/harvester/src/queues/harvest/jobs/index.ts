@@ -226,12 +226,14 @@ async function deleteHarvestQueue(
  * @param channel - The rabbitmq channel
  * @param queueName - The name of the queue to process
  *
- * @returns Iterator that will yield after each harvest (or attempt to get harvest), and return when all messages are processed
+ * @yields After each harvest (or attempt to get harvest)
+ *
+ * @returns When all messages are processed
  */
 export async function* processHarvestQueue(
   channel: rabbitmq.Channel,
   queueName: string
-): AsyncGenerator<void> {
+): AsyncGenerator {
   await rabbitmq.assertQueue(channel, queueName, {
     durable: false,
   });

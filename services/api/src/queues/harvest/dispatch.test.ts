@@ -69,7 +69,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
     const result = await ensureDataHostQueues(chan, hosts);
 
     expect(result.get(hosts[0])?.name).toMatch(
-      /^ezcounter\.harvest:job:[a-z0-9]{16}$/
+      /^ezcounter:harvest\.job:[a-z0-9]{16}$/
     );
   });
 

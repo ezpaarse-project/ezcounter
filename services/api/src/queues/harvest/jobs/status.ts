@@ -6,7 +6,7 @@ import { appLogger } from '~/lib/logger';
 
 import { updateOneHarvestJob } from '~/models/harvest';
 
-const EXCHANGE_NAME = 'ezcounter.harvest:status';
+const EXCHANGE_NAME = 'ezcounter:harvest.status';
 const HARVEST_JOB_UPDATE_THROTTLE = 100;
 
 const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
@@ -78,25 +78,32 @@ async function updateHarvestJobStatus(
  * @param data - The event
  */
 export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
-  // Merge new status with previous updates
-  let event = data;
-  const previous = patchs.get(data.id);
-  if (previous) {
-    event = mergeEvents(previous, data);
-  }
-  patchs.set(data.id, event);
+  try {
+    // Merge new status with previous updates
+    let event = data;
+    const previous = patchs.get(data.id);
+    if (previous) {
+      event = mergeEvents(previous, data);
+    }
+    patchs.set(data.id, event);
 
-  // Throttle updates per job
-  let update = updaters.get(data.id);
-  if (!update) {
-    update = createThrottledFunction(
-      updateHarvestJobStatus,
-      HARVEST_JOB_UPDATE_THROTTLE
-    );
-    updaters.set(data.id, update);
-  }
+    // Throttle updates per job
+    let update = updaters.get(data.id);
+    if (!update) {
+      update = createThrottledFunction(
+        updateHarvestJobStatus,
+        HARVEST_JOB_UPDATE_THROTTLE
+      );
+      updaters.set(data.id, update);
+    }
 
-  void update(event);
+    void update(event);
+  } catch (error) {
+    logger.error({
+      err: error,
+      msg: 'Unable to process Harvest Job status event',
+    });
+  }
 }
 
 /**
@@ -122,9 +129,7 @@ export async function getHarvestJobStatusEventExchange(
   await consumeJSONQueue({
     channel,
     logger,
-    onMessage: (data) => {
-      onHarvestJobStatus(data);
-    },
+    onMessage: (data) => onHarvestJobStatus(data),
     queue,
     schema: HarvestJobStatusEvent,
   });

@@ -10,7 +10,11 @@ import {
   parse,
 } from 'date-fns';
 
-import type { HarvestJobData } from '@ezcounter/dto/queues';
+import type {
+  HarvestJobData,
+  HarvestRequestContent,
+  HarvestRequestData,
+} from '@ezcounter/dto/queues';
 import { PERIOD_FORMAT } from '@ezcounter/counter';
 
 import type {
@@ -21,11 +25,7 @@ import type {
 } from '~/models/data-host/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host';
 
-import type {
-  CreateHarvestRequest,
-  HarvestReportOptions,
-  HarvestReportPeriod,
-} from './dto';
+import type { HarvestReportOptions, HarvestReportPeriod } from './dto';
 
 /**
  * Shorthand to parse a HarvestReportPeriod as Dates
@@ -203,11 +203,11 @@ const createJobFromRequest = (
   {
     download: {
       reports: __,
-      dataHost: { id: dataHostId, ...dataHostOpts },
+      dataHost: { id: cacheKey, ...dataHostOpts },
       ...downloadOpts
     },
     ...request
-  }: CreateHarvestRequest,
+  }: HarvestRequestContent,
   report: HarvestReportOptions,
   dataHost: DataHost & {
     supportedData: SupportedData;
@@ -216,10 +216,10 @@ const createJobFromRequest = (
   ...request,
   download: {
     ...downloadOpts,
-    cacheKey: dataHostId,
+    cacheKey,
     dataHost: {
       ...dataHostOpts,
-      baseUrl: dataHost.supportedData.release!.baseUrl,
+      baseUrl: dataHost.supportedData.release?.baseUrl || '',
       paramsSeparator: dataHost.paramsSeparator,
       periodFormat: dataHost.periodFormat,
     },
@@ -237,14 +237,14 @@ const createJobFromRequest = (
 });
 
 /**
- * Transform a HarvestRequest into a HarvestJobData ready to be queued
+ * Transform a HarvestRequest into HarvestJobData ready to be queued
  *
  * @param request - The harvest request
  *
  * @returns The jobs matching request
  */
-export async function prepareHarvestJobs(
-  request: CreateHarvestRequest
+export async function prepareHarvestJobsFromHarvestRequestContent(
+  request: HarvestRequestContent
 ): Promise<HarvestJobData[]> {
   const dataHost = await getDataHostWithSupportedData(
     request.download.dataHost.id
@@ -275,4 +275,21 @@ export async function prepareHarvestJobs(
       );
     })
     .filter((job) => job != null);
+}
+
+/**
+ * Transform many HarvestRequests into HarvestJobData ready to be queued
+ *
+ * @param requests - The harvest requests
+ *
+ * @returns The jobs matching requests
+ */
+export async function prepareHarvestJobsFromHarvestRequest(
+  requests: HarvestRequestData
+): Promise<HarvestJobData[]> {
+  const jobsPerRequest = await Promise.all(
+    requests.map((req) => prepareHarvestJobsFromHarvestRequestContent(req))
+  );
+
+  return jobsPerRequest.flat();
 }

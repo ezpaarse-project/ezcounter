@@ -1,4 +1,4 @@
-import { beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 
 // Mocking RabbitMQ
 vi.mock('@ezcounter/rabbitmq', () => import('@ezcounter/rabbitmq/__mocks__'));
@@ -12,5 +12,9 @@ vi.mock(import('~/lib/logger'));
 vi.mock(import('~/lib/prisma'));
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });

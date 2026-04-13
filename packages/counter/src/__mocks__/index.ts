@@ -1,8 +1,32 @@
 import { Readable, addAbortSignal } from 'node:stream';
 
+import { FetchError } from 'ofetch';
 import { vi } from 'vitest';
 
 import type * as original from '..';
+
+/**
+ * Util function to create a mocked fetch error
+ *
+ * @param url - The URL "used" to fetch
+ * @param status - The status "returned"
+ *
+ * @returns The error
+ */
+export const createFetchError = (url: string, status: number): FetchError => {
+  const message = 'mocked fetch error';
+
+  const error = new FetchError(`[GET] ${url}: ${status} mocked fetch error`);
+
+  Object.defineProperties(error, {
+    status: { value: status },
+    statusCode: { value: status },
+    statusMessage: { value: message },
+    statusText: { value: message },
+  });
+
+  return error;
+};
 
 export const PERIOD_FORMAT = 'yyyy-MM';
 

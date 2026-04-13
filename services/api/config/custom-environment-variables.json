@@ -36,6 +36,10 @@
   },
   "dataHost": {
     "supported": {
+      "refreshJobDelay": {
+        "__name": "DATAHOST_SUPPORTED_REFRESH_JOB_DELAY",
+        "__format": "number"
+      },
       "cacheDuration": {
         "months": {
           "__name": "DATAHOST_SUPPORTED_CACHE_DURATION_MONTHS",

@@ -3,7 +3,7 @@ import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
 
-const EXCHANGE_NAME = 'ezcounter.harvest:status';
+const EXCHANGE_NAME = 'ezcounter:harvest.status';
 
 const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 
@@ -51,7 +51,7 @@ export function sendHarvestJobStatusEvent(data: HarvestJobStatusEvent): void {
     logger.error({
       err: error,
       jobId: data.id,
-      msg: 'Failed to send event sent',
+      msg: 'Failed to send event',
     });
   }
 }
