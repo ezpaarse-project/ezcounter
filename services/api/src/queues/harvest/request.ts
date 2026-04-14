@@ -2,15 +2,11 @@ import { createHash, randomUUID } from 'node:crypto';
 
 import type { HarvestAuthOptions } from '@ezcounter/dto/harvest';
 import { HarvestRequestData } from '@ezcounter/dto/queues';
-import {
-  consumeJSONQueue,
-  rabbitmq,
-  sendJSONMessage,
-} from '@ezcounter/rabbitmq';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
+import { createConsumer, createPublisher, rabbitClient } from '~/lib/rabbitmq';
 
 import type { DataHostSupportedRelease } from '~/models/data-host/dto';
 import { findAllReleasesSupportedByDataHost } from '~/models/data-host';
@@ -28,8 +24,12 @@ const HOST_QUEUE_NAME_HASH_LENGTH = 16;
 
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
-// We need a global channel to avoid passing it every time we send an event
-let channel: rabbitmq.Channel | null = null;
+// Publisher creating required exchanges/queues
+const pub = createPublisher({
+  options: {
+    queues: [{ durable: false, queue: QUEUE_NAME }],
+  },
+});
 
 /**
  * Get queue name for a data host
@@ -72,7 +72,6 @@ async function queueAllDataHostRefresh(
   request: HarvestRequestData
 ): Promise<string[]> {
   const toRefresh = new Map<string, Map<'5' | '5.1', HarvestAuthOptions[]>>();
-
   for (const { download } of request) {
     let hostData = toRefresh.get(download.dataHost.id);
     if (!hostData) {
@@ -80,7 +79,6 @@ async function queueAllDataHostRefresh(
     }
 
     const releases = new Set(download.reports.map(({ release }) => release));
-
     for (const release of releases) {
       hostData.set(release, [
         ...(hostData.get(release) ?? []),
@@ -90,6 +88,7 @@ async function queueAllDataHostRefresh(
     toRefresh.set(download.dataHost.id, hostData);
   }
 
+  const channel = await rabbitClient.acquire();
   const queues = new Set<string>();
   // Queue data hosts refresh
   await Promise.all(
@@ -99,14 +98,14 @@ async function queueAllDataHostRefresh(
       for (const [release, auths] of options) {
         const supported = getSupportedRelease(supportedReleases, release);
         if (supported) {
-          const queueName = getDataHostQueueName(supported);
-          if (!queues.has(queueName)) {
+          const queue = getDataHostQueueName(supported);
+          if (!queues.has(queue)) {
             // oxlint-disable-next-line no-await-in-loop
-            await rabbitmq.assertQueue(channel!, queueName, { durable: false });
-            queues.add(queueName);
+            await channel.queueDeclare({ durable: false, queue });
+            queues.add(queue);
           }
-
-          queueDataHostRefresh(queueName, {
+          // oxlint-disable-next-line no-await-in-loop
+          await queueDataHostRefresh(queue, {
             dataHost: { auths, id },
             id: randomUUID(),
             release,
@@ -116,6 +115,7 @@ async function queueAllDataHostRefresh(
     })
   );
 
+  await channel.close();
   return [...queues];
 }
 
@@ -166,48 +166,36 @@ export async function onHarvestRequest(
  *
  * @param data - The request to queue
  */
-export function queueHarvestRequest(data: HarvestRequestData): void {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
+export async function queueHarvestRequest(
+  data: HarvestRequestData
+): Promise<void> {
   try {
-    const { size } = sendJSONMessage(
-      { channel, queue: { name: QUEUE_NAME } },
-      data
-    );
-    logger.trace({
-      msg: 'Harvest request sent',
-      size,
-      sizeUnit: 'B',
-    });
+    await pub.send({ routingKey: QUEUE_NAME }, data);
+    logger.trace('Harvest request queued');
   } catch (error) {
     logger.error({
       err: error,
-      msg: 'Failed to send harvest request',
+      msg: 'Failed to queue harvest request',
     });
   }
 }
 
 /**
- * Assert queue used to send a harvest request
- *
- * @param chan - The RabbitMQ channel
+ * Setup consumer for harvest requests
  */
-export async function getHarvestRequestQueue(
-  chan: rabbitmq.Channel
-): Promise<void> {
-  channel = chan;
-
-  await rabbitmq.assertQueue(chan, QUEUE_NAME, { durable: false });
-
-  await consumeJSONQueue({
-    channel,
+export function consumeHarvestRequests(): void {
+  const sub = createConsumer({
     logger,
-    onMessage: (data) => onHarvestRequest(data),
-    queue: QUEUE_NAME,
+    onMessage: onHarvestRequest,
+    options: {
+      qos: { prefetchCount: 1 },
+      queue: QUEUE_NAME,
+      queueOptions: { durable: false },
+    },
     schema: HarvestRequestData,
   });
 
-  logger.debug('Harvest request queue created');
+  sub.on('ready', () => {
+    logger.debug('Harvest request consumer ready');
+  });
 }

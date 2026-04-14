@@ -85,7 +85,7 @@ function markHarvestAsError(
     msg: 'Error occurred while harvesting',
   });
 
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     error,
     id: options.id,
     status: 'error',
@@ -108,7 +108,7 @@ function markHarvestAsSuccess(options: HarvestJobData): HarvestResult {
     msg: 'Harvest completed',
   });
 
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: true,

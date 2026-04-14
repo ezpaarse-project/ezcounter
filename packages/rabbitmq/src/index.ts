@@ -1,98 +1,158 @@
-import { setTimeout } from 'node:timers/promises';
-
-import amqp from 'amqplib';
+import type { z } from 'zod';
+import {
+  Connection,
+  type Consumer,
+  type ConsumerProps,
+  ConsumerStatus,
+  type Envelope,
+  type MessageBody,
+  type Publisher,
+  type PublisherProps,
+} from 'rabbitmq-client';
 
 import type { Logger } from '@ezcounter/logger';
 
-import { closeConnection } from './wrapper';
+type RabbitMqConfig = {
+  protocol: string;
+  host: string;
+  port: number;
+  vhost: string;
+  username: string;
+  password: string;
+};
 
-const RECONNECT_DELAY = 5000;
+const consumers: Consumer[] = [];
+const publishers: Publisher[] = [];
+
+export type Reply = (body: MessageBody, envelope?: Envelope) => Promise<void>;
 
 /**
- * Attempts to connect to RabbitMQ, reconnecting on failure
+ * Setup RabbitMQ connection
  *
- * @param connectOpts Options to connect to rabbitmq
- * @param logger Logger
+ * @param logger - Logger instance
+ * @param config - RabbitMQ configuration
  *
  * @returns RabbitMQ connection
  */
-async function connectToRabbitMQ(
-  connectOpts: amqp.Options.Connect,
-  logger: Logger
-): Promise<amqp.ChannelModel> {
-  try {
-    const connection = await amqp.connect(connectOpts);
-
-    logger.info({
-      config: connectOpts,
-      msg: 'Connected to RabbitMQ',
-    });
-
-    return connection;
-  } catch (error) {
-    logger.error({ err: error, msg: 'Failed to connect to RabbitMQ' });
-    await setTimeout(RECONNECT_DELAY);
-    return connectToRabbitMQ(connectOpts, logger);
-  }
-}
-
-export * as rabbitmq from './wrapper';
-export * from './json-messages';
-
-/**
- * Initialize RabbitMQ connection
- *
- * @param connectOpts - The options to connect to RabbitMQ
- * @param useRabbitMQ - The callback to use the RabbitMQ connection
- * @param logger - The logger
- *
- * @returns Promise that resolves when the connection is closed
- */
 export function setupRabbitMQ(
-  connectOpts: amqp.Options.Connect,
-  useRabbitMQ: (connection: amqp.ChannelModel) => Promise<void>,
-  logger: Logger
-): Promise<void> {
-  // Used to prevent re-connection while stopping
-  let stopping = false;
+  logger: Logger,
+  config: RabbitMqConfig
+): Connection {
+  const client = new Connection({
+    hostname: config.host,
+    password: config.password,
+    port: config.port,
+    tls: config.protocol === 'amqps',
+    username: config.username,
+    vhost: config.vhost,
+  });
 
-  /**
-   * Setup graceful shutdown and automatic re-connection
-   */
-  const init = async (): Promise<void> => {
-    const connection = await connectToRabbitMQ(connectOpts, logger);
-    stopping = false;
-
-    /**
-     * Gracefully close connection
-     */
-    const gracefullyStop = async (): Promise<void> => {
-      stopping = true;
-      try {
-        await closeConnection(connection);
-        logger.debug('Connection closed');
-      } catch (error) {
-        logger.error({ err: error, msg: 'Failed to close connection' });
-      }
-    };
-
-    process.on('SIGTERM', gracefullyStop);
-
-    connection.on('close', () => {
-      if (stopping) {
-        return;
-      }
-
-      // Prevent stopping multiple times
-      process.off('SIGTERM', gracefullyStop);
-
-      // Reconnect and re-run callback
-      logger.debug('Reconnecting to RabbitMQ');
-      init();
-    });
-
-    await useRabbitMQ(connection);
+  const onShutdown = async (): Promise<void> => {
+    await Promise.all(consumers.map((sub) => sub.close()));
+    await Promise.all(publishers.map((pub) => pub.close()));
+    await client.close();
   };
 
-  return init();
+  client.on('connection', () => {
+    logger.info({
+      config,
+      msg: 'Connected to RabbitMQ',
+    });
+  });
+
+  client.on('error', (err) => {
+    logger.error({ err, msg: 'Failed to connect to RabbitMQ' });
+  });
+
+  process.on('SIGINT', onShutdown);
+  process.on('SIGTERM', onShutdown);
+
+  return client;
 }
+
+/**
+ * Type for props used when creating a Consumer
+ */
+export type CreateConsumerProps<DataType> = {
+  /** The schema to validate message */
+  schema: z.ZodType<DataType>;
+  /** The logger */
+  logger: Logger;
+  /** Handler to use when valid message is received */
+  onMessage: (data: DataType, reply: Reply) => void | Promise<void>;
+  /** Options to pass to `createConsumer` */
+  options: ConsumerProps;
+};
+
+/**
+ * Shorthand to consume a queue
+ *
+ * @param client - The RabbitMQ client
+ * @param props - Params to setup consumer
+ *
+ * @returns The RabbitMQ consumer
+ */
+export function createRabbitConsumer<DataType>(
+  client: Connection,
+  props: CreateConsumerProps<DataType>
+): Consumer {
+  const sub = client.createConsumer(props.options, async (msg, reply) => {
+    // Parse message
+    let data = null;
+    try {
+      data = props.schema.parse(msg.body);
+    } catch (error) {
+      props.logger.error({
+        data: process.env.NODE_ENV === 'production' ? undefined : msg.body,
+        err: error,
+        messageId: msg.messageId,
+        msg: 'Message have invalid data',
+      });
+
+      return props.options.noAck ? undefined : ConsumerStatus.DROP;
+    }
+
+    // Call handler
+    await props.onMessage(data, reply);
+    return props.options.noAck ? undefined : ConsumerStatus.ACK;
+  });
+
+  sub.on('error', (err) => {
+    props.logger.error({
+      err,
+      msg: 'Failed to consume queue',
+      options: props.options,
+    });
+  });
+
+  consumers.push(sub);
+  return sub;
+}
+
+/**
+ * Type for props used when creating a Publisher
+ */
+export type CreatePublisherProps = {
+  /** Options to pass to `createConsumer` */
+  options?: PublisherProps;
+};
+
+/**
+ * Shorthand to publish message
+ *
+ * @param client - The RabbitMQ client
+ * @param props - Params to setup publisher
+ *
+ * @returns The RabbitMQ publisher
+ */
+export function createRabbitPublisher(
+  client: Connection,
+  props: CreatePublisherProps
+): Publisher {
+  const pub = client.createPublisher(props.options);
+
+  publishers.push(pub);
+  return pub;
+}
+
+export type * as rabbitmq from 'rabbitmq-client';

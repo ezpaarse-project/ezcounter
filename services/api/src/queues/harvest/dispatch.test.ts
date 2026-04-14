@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
-import type { rabbitmq } from '@ezcounter/rabbitmq';
-import { rabbitmq as mq, sendJSONMessage } from '@ezcounter/rabbitmq/__mocks__';
+
+import { mockedChannel, mockedPublisher } from '~/lib/__mocks__/rabbitmq';
 
 import {
   ensureDataHostQueues,
@@ -10,63 +10,61 @@ import {
   sendHarvestJobsInQueue,
 } from './dispatch';
 
-const chan = {} as unknown as rabbitmq.Channel;
-
 describe('Create queues (ensureDataHostQueues)', () => {
   const hosts = ['dummy-counter-datahost.com', 'google.fr'];
 
   test('should create one queue per host', async () => {
-    mq.assertQueue.mockResolvedValueOnce({
+    mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'foobar',
     });
 
-    await ensureDataHostQueues(chan, hosts);
+    await ensureDataHostQueues(mockedChannel, hosts);
 
-    expect(mq.assertQueue).toBeCalledTimes(2);
+    expect(mockedChannel.queueDeclare).toBeCalledTimes(2);
   });
 
   test('should return Map', async () => {
-    mq.assertQueue.mockResolvedValueOnce({
+    mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'foobar',
     });
 
-    const promise = ensureDataHostQueues(chan, hosts);
+    const promise = ensureDataHostQueues(mockedChannel, hosts);
 
     await expect(promise).resolves.toBeInstanceOf(Map);
   });
 
   test('should track queue creation status', async () => {
     // First queue doesn't exists
-    mq.assertQueue.mockResolvedValueOnce({
+    mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'first.foobar',
     });
     // Second queue does exists
-    mq.assertQueue.mockResolvedValueOnce({
+    mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 1,
       messageCount: 15,
       queue: 'second.foobar',
     });
 
-    const result = await ensureDataHostQueues(chan, hosts);
+    const result = await ensureDataHostQueues(mockedChannel, hosts);
 
     expect(result.get(hosts[0])).toHaveProperty('created', true);
     expect(result.get(hosts[1])).toHaveProperty('created', false);
   });
 
   test('should correctly name queues', async () => {
-    mq.assertQueue.mockResolvedValueOnce({
+    mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
       queue: 'foobar',
     });
 
-    const result = await ensureDataHostQueues(chan, hosts);
+    const result = await ensureDataHostQueues(mockedChannel, hosts);
 
     expect(result.get(hosts[0])?.name).toMatch(
       /^ezcounter:harvest\.job:[a-z0-9]{16}$/
@@ -74,9 +72,11 @@ describe('Create queues (ensureDataHostQueues)', () => {
   });
 
   test('should not throw but report error', async () => {
-    mq.assertQueue.mockRejectedValueOnce(new Error('Creation error'));
+    mockedChannel.queueDeclare.mockRejectedValueOnce(
+      new Error('Creation error')
+    );
 
-    const result = await ensureDataHostQueues(chan, hosts);
+    const result = await ensureDataHostQueues(mockedChannel, hosts);
 
     const queue = result.get(hosts[0]);
     expect(queue).toHaveProperty('created', false);
@@ -91,14 +91,16 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   const jobs = [{ id: 'abcde' } as HarvestJobData];
 
   test('should send jobs', () => {
-    sendHarvestJobsInQueue(chan, { created: true, name: 'foobar' }, jobs);
+    sendHarvestJobsInQueue({ created: true, name: 'foobar' }, jobs);
 
-    expect(sendJSONMessage).toBeCalled();
+    expect(mockedPublisher.send).toBeCalledWith(
+      { messageId: jobs[0].id, routingKey: 'foobar' },
+      jobs[0]
+    );
   });
 
-  test('should return id of jobs', () => {
-    const result = sendHarvestJobsInQueue(
-      chan,
+  test('should return id of jobs', async () => {
+    const result = await sendHarvestJobsInQueue(
       { created: true, name: 'foobar' },
       jobs
     );
@@ -106,14 +108,13 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     expect(result).toHaveProperty('0.id', 'abcde');
   });
 
-  test('should not throw but bubble error', () => {
+  test('should not throw but bubble error', async () => {
     const error = {
       code: 'app:ERROR',
       message: 'Creation error',
     };
 
-    const result = sendHarvestJobsInQueue(
-      chan,
+    const result = await sendHarvestJobsInQueue(
       { created: false, error, name: 'foobar' },
       jobs
     );
@@ -121,13 +122,10 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     expect(result).toHaveProperty('0.error', error);
   });
 
-  test('should not throw but report error', () => {
-    sendJSONMessage.mockImplementationOnce(() => {
-      throw new Error('Send error');
-    });
+  test('should not throw but report error', async () => {
+    mockedPublisher.send.mockRejectedValueOnce(new Error('Send error'));
 
-    const result = sendHarvestJobsInQueue(
-      chan,
+    const result = await sendHarvestJobsInQueue(
       { created: true, name: 'foobar' },
       jobs
     );
@@ -141,15 +139,15 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
 
 describe('Queue dispatch (sendDispatchEvent)', () => {
   test('should send dispatch', async () => {
-    await sendDispatchEvent(chan, { created: true, name: 'foobar' });
+    await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });
 
-    expect(sendJSONMessage).toBeCalled();
+    expect(mockedPublisher.send).toBeCalled();
   });
 
   test('should NOT send dispatch if queue existed', async () => {
-    await sendDispatchEvent(chan, { created: false, name: 'foobar' });
+    await sendDispatchEvent(mockedChannel, { created: false, name: 'foobar' });
 
-    expect(sendJSONMessage).not.toBeCalled();
+    expect(mockedPublisher.send).not.toBeCalled();
   });
 
   test('should not throw but bubble error', async () => {
@@ -158,7 +156,7 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
       message: 'Creation error',
     };
 
-    const promise = sendDispatchEvent(chan, {
+    const promise = sendDispatchEvent(mockedChannel, {
       created: false,
       error,
       name: 'foobar',
@@ -168,11 +166,12 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
   });
 
   test('should not throw but report error', async () => {
-    sendJSONMessage.mockImplementationOnce(() => {
-      throw new Error('Dispatch error');
-    });
+    mockedPublisher.send.mockRejectedValueOnce(new Error('Dispatch error'));
 
-    const promise = sendDispatchEvent(chan, { created: true, name: 'foobar' });
+    const promise = sendDispatchEvent(mockedChannel, {
+      created: true,
+      name: 'foobar',
+    });
 
     await expect(promise).resolves.toHaveProperty('error', {
       code: 'app:ERROR',
@@ -181,12 +180,10 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
   });
 
   test('should delete queue if dispatch failed', async () => {
-    sendJSONMessage.mockImplementationOnce(() => {
-      throw new Error('Dispatch error');
-    });
+    mockedPublisher.send.mockRejectedValueOnce(new Error('Send error'));
 
-    await sendDispatchEvent(chan, { created: true, name: 'foobar' });
+    await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });
 
-    expect(mq.deleteQueue).toBeCalledWith({}, 'foobar');
+    expect(mockedChannel.queueDelete).toBeCalledWith('foobar');
   });
 });

@@ -2,8 +2,8 @@ import { setTimeout } from 'node:timers/promises';
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-import type { HeartbeatConnectedServicePing } from '../dto';
-import { doPingWithTimeout } from './utils';
+import type { HeartbeatConnectedServicePing } from './dto';
+import { doPingWithTimeout } from './index';
 
 describe('Ping with timeout (doPingWithTimeout)', () => {
   beforeEach(() => {

@@ -2,9 +2,8 @@ import { config } from '~/lib/config';
 import { initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
-import { useRabbitMQ } from '~/lib/rabbitmq';
 
-import { initQueues } from '~/queues';
+import { initQueueConsumers } from '~/queues';
 import { routes } from '~/routes';
 
 async function start(): Promise<void> {
@@ -21,10 +20,8 @@ async function start(): Promise<void> {
     await initHTTPServer(routes);
 
     // Initialize other services (if fails, service is degraded)
-    await useRabbitMQ(async (connection) => {
-      await initQueues(connection);
-      await initHeartbeat(connection);
-    });
+    initQueueConsumers();
+    initHeartbeat();
 
     appLogger.info({
       msg: 'Service ready',

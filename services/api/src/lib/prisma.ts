@@ -6,6 +6,9 @@ import { appLogger } from '~/lib/logger';
 
 const logger = appLogger.child({ scope: 'prisma' });
 
+/**
+ * The Prisma client
+ */
 export const dbClient = setupDB(logger, config.postgres);
 
 /**

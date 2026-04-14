@@ -4,9 +4,8 @@ import { config } from '~/lib/config';
 import { getMissingMandatoryServices, initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
-import { useRabbitMQ } from '~/lib/rabbitmq';
 
-import { initQueues } from '~/queues';
+import { initQueueConsumers } from '~/queues';
 
 appLogger.info({
   env: process.env.NODE_ENV,
@@ -35,10 +34,8 @@ try {
   // Initialize core services (if fails, service is not alive)
 
   // Initialize other services (if fails, service is not ready)
-  await useRabbitMQ(async (connection) => {
-    await initQueues(connection);
-    await initHeartbeat(connection);
-  });
+  initQueueConsumers();
+  initHeartbeat();
 
   appLogger.info({
     msg: 'Service ready',

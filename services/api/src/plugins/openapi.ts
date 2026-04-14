@@ -1,8 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify';
-import fastifySwagger, {
-  type FastifyDynamicSwaggerOptions,
-} from '@fastify/swagger';
-import fastifySwaggerUi from '@fastify/swagger-ui';
+import swagget, { type FastifyDynamicSwaggerOptions } from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import fp from 'fastify-plugin';
 
 // oxlint-disable-next-line import/extensions
@@ -44,7 +42,7 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
   fastify,
   opts
 ) => {
-  await fastify.register(fastifySwagger, {
+  await fastify.register(swagget, {
     openapi: {
       info: OPENAPI_INFOS,
       servers: [{ description: 'Direct', url: '/' }],
@@ -54,8 +52,9 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
     transformObject: opts.transformObject,
   });
 
-  await fastify.register(fastifySwaggerUi, {
+  await fastify.register(swaggerUi, {
     routePrefix: '/doc',
+    staticCSP: true,
   });
 };
 

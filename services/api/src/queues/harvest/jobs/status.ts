@@ -1,8 +1,8 @@
 import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
-import { consumeJSONQueue, rabbitmq } from '@ezcounter/rabbitmq';
 import { createThrottledFunction } from '@ezcounter/toolbox/utils';
 
 import { appLogger } from '~/lib/logger';
+import { createConsumer } from '~/lib/rabbitmq';
 
 import { updateOneHarvestJob } from '~/models/harvest';
 
@@ -107,32 +107,20 @@ export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
 }
 
 /**
- * Consume local queue bound to exchange to handle harvest statuses
- *
- * @param channel - The rabbitmq channel
+ * Setup consumer for harvest job status events
  */
-export async function getHarvestJobStatusEventExchange(
-  channel: rabbitmq.Channel
-): Promise<void> {
-  await rabbitmq.assertExchange(channel, EXCHANGE_NAME, 'fanout', {
-    durable: false,
-  });
-
-  const { queue } = await rabbitmq.assertQueue(channel, '', {
-    durable: false,
-    exclusive: true,
-  });
-
-  void rabbitmq.bindQueueToExchange(channel, queue, EXCHANGE_NAME, '');
-
-  // Consume harvest queue
-  await consumeJSONQueue({
-    channel,
+export function consumeHarvestJobStatusEvents(): void {
+  const sub = createConsumer({
     logger,
-    onMessage: (data) => onHarvestJobStatus(data),
-    queue,
+    onMessage: onHarvestJobStatus,
+    options: {
+      exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      queueOptions: { durable: false, exclusive: true },
+    },
     schema: HarvestJobStatusEvent,
   });
 
-  logger.debug('Harvest status queue created');
+  sub.on('ready', () => {
+    logger.debug('Harvest status consumer ready');
+  });
 }

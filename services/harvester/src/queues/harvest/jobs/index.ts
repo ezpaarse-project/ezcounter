@@ -1,14 +1,10 @@
 import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
 import { HarvestJobData } from '@ezcounter/dto/queues';
-import {
-  parseJSONMessage,
-  rabbitmq,
-  sendJSONMessage,
-} from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
+import { rabbitClient, type rabbitmq } from '~/lib/rabbitmq';
 
 import { harvestReport } from '~/models/report';
 
@@ -28,7 +24,7 @@ function markHarvestJobAsProcessing(
   job: HarvestJobData,
   queueName: string
 ): void {
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     id: job.id,
     startedAt: new Date(),
     status: 'processing',
@@ -48,7 +44,7 @@ function markHarvestJobAsProcessing(
  * @param queueName - The name of the queue
  */
 function markHarvestJobAsDelayed(job: HarvestJobData, queueName: string): void {
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     id: job.id,
     status: 'delayed',
   });
@@ -88,7 +84,7 @@ async function requeueHarvestJob(
     logger.info({
       msg: 'Pausing queue',
       pause,
-      queueName: data.queueName,
+      queue: data.queueName,
     });
     // We're having one dispatch for each data host, and don't ack dispatch until all jobs are completed,
     // We're using `prefetch=1` on both connections to ensure that only one job per data host is processed
@@ -100,21 +96,23 @@ async function requeueHarvestJob(
   }
 
   try {
-    sendJSONMessage({ channel, queue: { name: data.queueName } }, data.job, {
-      headers: { 'x-delay': delay },
-    });
+    await channel.basicPublish(
+      { headers: { 'x-delay': delay }, routingKey: data.queueName },
+      data.job
+    );
+
     logger.info({
       delay,
       id: data.job.id,
       msg: 'Harvest job requeued',
-      queueName: data.queueName,
+      queue: data.queueName,
     });
   } catch (error) {
     logger.error({
       err: error,
       id: data.job.id,
       msg: 'Failed to requeue job',
-      queueName: data.queueName,
+      queue: data.queueName,
     });
   }
 }
@@ -128,18 +126,21 @@ async function requeueHarvestJob(
  */
 async function processHarvestMessage(
   channel: rabbitmq.Channel,
-  msg: rabbitmq.GetMessage,
+  msg: rabbitmq.SyncMessage,
   queueName: string
 ): Promise<void> {
   // Parse message
-  const { data, raw, parseError } = parseJSONMessage(msg, HarvestJobData);
-  if (!data) {
+  let data = null;
+  try {
+    data = HarvestJobData.parse(msg.body);
+  } catch (error) {
     logger.error({
-      data: process.env.NODE_ENV === 'production' ? undefined : raw,
-      err: parseError,
+      data: process.env.NODE_ENV === 'production' ? undefined : msg.body,
+      err: error,
       msg: 'Invalid data',
+      queue: queueName,
     });
-    rabbitmq.rejectMessage(channel, msg, false);
+    channel.basicNack({ deliveryTag: msg.deliveryTag, requeue: false });
     return;
   }
 
@@ -168,26 +169,26 @@ async function processHarvestMessage(
     });
   }
 
-  rabbitmq.ackMessage(channel, msg);
+  channel.basicAck({ deliveryTag: msg.deliveryTag });
 }
 
 /**
  * Delete queue if no jobs are delayed
  *
  * @param channel - The rabbitmq channel
- * @param queueName - The name of the queue
+ * @param queue - The name of the queue
  *
  * @returns `true` if queue was deleted
  */
 async function deleteHarvestQueue(
   channel: rabbitmq.Channel,
-  queueName: string
+  queue: string
 ): Promise<boolean> {
-  const delayed = delayedJobs.get(queueName);
+  const delayed = delayedJobs.get(queue);
   if (delayed && delayed.size > 0) {
     logger.debug({
       msg: 'Some jobs are delayed, waiting for them before deleting queue',
-      queueName,
+      queue,
     });
 
     // Waiting a bit more before re-asking for messages
@@ -198,23 +199,21 @@ async function deleteHarvestQueue(
 
   try {
     // Delete queue - ifEmpty will close channel if there's still jobs
-    await rabbitmq.deleteQueue(channel, queueName, {
-      ifEmpty: true,
-    });
+    await channel.queueDelete({ ifEmpty: true, queue });
 
     logger.debug({
       msg: 'Harvest queue deleted',
-      queueName,
+      queue,
     });
 
     // Queue was deleted, no need to track delayed jobs
-    delayedJobs.delete(queueName);
+    delayedJobs.delete(queue);
     return true;
   } catch (error) {
     logger.error({
       err: error,
       msg: 'Unable to delete queue',
-      queueName,
+      queue,
     });
     throw error;
   }
@@ -223,41 +222,38 @@ async function deleteHarvestQueue(
 /**
  * Process all messages in harvest queue
  *
- * @param channel - The rabbitmq channel
- * @param queueName - The name of the queue to process
+ * @param queue - The name of the queue to process
  *
  * @yields After each harvest (or attempt to get harvest)
  *
  * @returns When all messages are processed
  */
-export async function* processHarvestQueue(
-  channel: rabbitmq.Channel,
-  queueName: string
-): AsyncGenerator {
-  await rabbitmq.assertQueue(channel, queueName, {
-    durable: false,
-  });
+export async function* processHarvestQueue(queue: string): AsyncGenerator {
+  const channel = await rabbitClient.acquire();
+  await channel.queueDeclare({ durable: false, queue });
 
   logger.info({
     msg: 'Processing harvest queue',
-    queueName,
+    queue,
   });
 
   // oxlint-disable no-await-in-loop
   while (true) {
     // Get last message
-    const msg = await rabbitmq.getMessage(channel, queueName);
+    const msg = await channel.basicGet({ queue });
     if (msg) {
-      await processHarvestMessage(channel, msg, queueName);
+      await processHarvestMessage(channel, msg, queue);
     } else {
       // There was no message left in queue
-      const deleted = await deleteHarvestQueue(channel, queueName);
+      const deleted = await deleteHarvestQueue(channel, queue);
       if (deleted) {
-        return;
+        break;
       }
     }
 
     yield;
   }
   // oxlint-enable no-await-in-loop
+
+  await channel.close();
 }

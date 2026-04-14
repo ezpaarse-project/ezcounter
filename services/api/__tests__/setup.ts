@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, vi } from 'vitest';
 
-// Mocking RabbitMQ
-vi.mock('@ezcounter/rabbitmq', () => import('@ezcounter/rabbitmq/__mocks__'));
 // Mocking requests
 vi.mock('@ezcounter/counter', () => import('@ezcounter/counter/__mocks__'));
 // Mocking config
 vi.mock(import('~/lib/config'));
 // Mocking logger
 vi.mock(import('~/lib/logger'));
+// Mocking RabbitMQ
+vi.mock(import('~/lib/rabbitmq'));
 // Mocking DB
 vi.mock(import('~/lib/prisma'));
 

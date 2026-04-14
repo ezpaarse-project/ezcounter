@@ -1,51 +1,33 @@
 import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
-import { rabbitmq, sendJSONMessage } from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
+import { createPublisher } from '~/lib/rabbitmq';
 
 const EXCHANGE_NAME = 'ezcounter:harvest.status';
 
 const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 
-// We need a global channel to avoid passing it every time we send an event
-let channel: rabbitmq.Channel | null = null;
-
-/**
- * Assert exchange used to send events about status of harvest jobs
- *
- * @param chan - The RabbitMQ channel
- */
-export async function getHarvestJobStatusEventExchange(
-  chan: rabbitmq.Channel
-): Promise<void> {
-  channel = chan;
-
-  await rabbitmq.assertExchange(chan, EXCHANGE_NAME, 'fanout', {
-    durable: false,
-  });
-  logger.debug('Event exchange created');
-}
+// Publisher creating required exchanges/queues
+const pub = createPublisher({
+  options: {
+    exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+  },
+});
 
 /**
  * Send a event about status of harvest jobs
  *
  * @param data - The content of the event
  */
-export function sendHarvestJobStatusEvent(data: HarvestJobStatusEvent): void {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
+export async function sendHarvestJobStatusEvent(
+  data: HarvestJobStatusEvent
+): Promise<void> {
   try {
-    const { size } = sendJSONMessage(
-      { channel, exchange: { name: EXCHANGE_NAME, routingKey: '' } },
-      data
-    );
+    await pub.send({ exchange: EXCHANGE_NAME }, data);
+
     logger.trace({
       jobId: data.id,
       msg: 'Event sent',
-      size,
-      sizeUnit: 'B',
     });
   } catch (error) {
     logger.error({

@@ -1,11 +1,7 @@
 import { DataHostRefreshData } from '@ezcounter/dto/queues';
-import {
-  parseJSONMessage,
-  rabbitmq,
-  sendJSONMessage,
-} from '@ezcounter/rabbitmq';
 
 import { appLogger } from '~/lib/logger';
+import { createPublisher, rabbitClient, type rabbitmq } from '~/lib/rabbitmq';
 
 import type { DataHostWithSupportedData } from '~/models/data-host/dto';
 import { getDataHostWithSupportedData } from '~/models/data-host';
@@ -13,8 +9,12 @@ import { refreshSupportedReportsOfDataHost } from '~/models/data-host/refresh';
 
 const logger = appLogger.child({ scope: 'queues' });
 
-// We need a global channel to avoid passing it every time we send an event
-let channel: rabbitmq.Channel | null = null;
+// Publisher creating required exchanges/queues
+const pub = createPublisher({
+  options: {
+    confirm: true,
+  },
+});
 
 /**
  * Try refresh supported reports using every auth available
@@ -64,23 +64,27 @@ async function tryRefreshSupportedReports(
 /**
  * Process DataHost refresh
  *
+ * @param channel - The rabbitmq channel
  * @param msg - The message
  * @param queueName - The name of the queue (used to delay jobs)
  */
 async function processDataHostRefresh(
-  msg: rabbitmq.GetMessage,
+  channel: rabbitmq.Channel,
+  msg: rabbitmq.SyncMessage,
   queueName: string
 ): Promise<void> {
   // Parse message
-  const { data, raw, parseError } = parseJSONMessage(msg, DataHostRefreshData);
-  if (!data) {
+  let data = null;
+  try {
+    data = DataHostRefreshData.parse(msg.body);
+  } catch (error) {
     logger.error({
-      data: process.env.NODE_ENV === 'production' ? undefined : raw,
-      err: parseError,
-      msg: 'Invalid data',
-      queue: queueName,
+      data: process.env.NODE_ENV === 'production' ? undefined : msg.body,
+      err: error,
+      messageId: msg.messageId,
+      msg: 'Message have invalid data',
     });
-    rabbitmq.rejectMessage(channel!, msg, false);
+    channel.basicNack({ deliveryTag: msg.deliveryTag, requeue: false });
     return;
   }
 
@@ -105,35 +109,32 @@ async function processDataHostRefresh(
     });
   }
 
-  rabbitmq.ackMessage(channel!, msg);
+  channel.basicAck({ deliveryTag: msg.deliveryTag });
 }
 
 /**
  * Delete queue
  *
  * @param channel - The rabbitmq channel
- * @param queueName - The name of the queue
+ * @param queue - The name of the queue
  */
-async function deleteHarvestQueue(queueName: string): Promise<void> {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
+async function deleteHarvestQueue(
+  channel: rabbitmq.Channel,
+  queue: string
+): Promise<void> {
   try {
     // Delete queue - ifEmpty will close channel if there's still jobs
-    await rabbitmq.deleteQueue(channel, queueName, {
-      ifEmpty: true,
-    });
+    await channel.queueDelete({ ifEmpty: true, queue });
 
     logger.debug({
       msg: 'Refresh queue deleted',
-      queueName,
+      queue,
     });
   } catch (error) {
     logger.error({
       err: error,
       msg: 'Unable to delete queue',
-      queueName,
+      queue,
     });
     throw error;
   }
@@ -142,83 +143,67 @@ async function deleteHarvestQueue(queueName: string): Promise<void> {
 /**
  * Process all messages in refresh queue
  *
- * @param channel - The rabbitmq channel
- * @param queueName - The name of the queue to process
+ * @param queue - The name of the queue to process
  *
  * @yields After each harvest (or attempt to get harvest)
  *
  * @returns When all messages are processed
  */
-export async function* processRefreshQueue(queueName: string): AsyncGenerator {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
-  await rabbitmq.assertQueue(channel, queueName, {
-    durable: false,
-  });
+export async function* processRefreshQueue(queue: string): AsyncGenerator {
+  const channel = await rabbitClient.acquire();
+  await channel.queueDeclare({ durable: false, queue });
 
   logger.info({
     msg: 'Processing data host refresh queue',
-    queueName,
+    queue,
   });
 
   // oxlint-disable no-await-in-loop
   while (true) {
     // Get last message
-    const msg = await rabbitmq.getMessage(channel, queueName);
-    if (msg) {
-      await processDataHostRefresh(msg, queueName);
-    } else {
-      // There was no message left in queue
-      await deleteHarvestQueue(queueName);
-      return;
+    const msg = await channel.basicGet({ queue });
+    if (!msg) {
+      break;
     }
 
+    await processDataHostRefresh(channel, msg, queue);
     yield;
   }
   // oxlint-enable no-await-in-loop
+
+  // There was no message left in queue
+  await deleteHarvestQueue(channel, queue);
+  await channel.close();
 }
 
 /**
  * Queue data host refresh
  *
- * @param queueName - The name of the queue
+ * @param queue - The name of the queue
  * @param data - The request to queue
  */
-export function queueDataHostRefresh(
-  queueName: string,
+export async function queueDataHostRefresh(
+  queue: string,
   data: DataHostRefreshData
-): void {
-  if (!channel) {
-    throw new Error('Channel not initialised');
-  }
-
+): Promise<void> {
   try {
-    const { size } = sendJSONMessage(
-      { channel, queue: { name: queueName } },
+    await pub.send(
+      {
+        messageId: data.id,
+        routingKey: queue,
+      },
       data
     );
+
     logger.trace({
       msg: 'Data host refresh sent',
-      queue: queueName,
-      size,
-      sizeUnit: 'B',
+      queue,
     });
   } catch (error) {
     logger.error({
       err: error,
       msg: 'Failed to send data host refresh',
-      queue: queueName,
+      queue,
     });
   }
-}
-
-/**
- * Assert queue used to send a data host refresh
- *
- * @param chan - The RabbitMQ channel
- */
-export function getDataHostRefreshQueue(chan: rabbitmq.Channel): void {
-  channel = chan;
 }

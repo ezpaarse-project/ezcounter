@@ -14,10 +14,7 @@
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./__mocks__": "./src/__mocks__/index.ts"
-  },
+  "exports": "./src/index.ts",
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
@@ -25,15 +22,13 @@
   },
   "dependencies": {
     "@ezcounter/logger": "workspace:*",
-    "amqplib": "^0.10.9",
-    "typescript": "catalog:",
-    "zod": "^4.3.6"
+    "rabbitmq-client": "^5.0.8",
+    "typescript": "catalog:"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.8",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "vitest-mock-extended": "catalog:"
+    "zod": "^4.3.6"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

@@ -30,7 +30,7 @@ const sendExceptionsStatus = (
   id: string,
   exceptions: HarvestException[]
 ): void => {
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,
@@ -48,7 +48,7 @@ const sendExceptionsStatus = (
  * @param registryId - The id of the registry found in header
  */
 const sendHeaderStatus = (id: string, registryId: string | null): void => {
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,
@@ -67,7 +67,7 @@ const sendHeaderStatus = (id: string, registryId: string | null): void => {
  * @param count - The count of items
  */
 const sendItemsStatus = (id: string, count: number): void => {
-  sendHarvestJobStatusEvent({
+  void sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,

@@ -1,4 +1,5 @@
-import fastifyCors from '@fastify/cors';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 import createFastify, {
   type FastifyInstance,
   type FastifyPluginAsync,
@@ -8,6 +9,9 @@ import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import { loggerPlugin } from '~/plugins/logger';
+
+// oxlint-disable-next-line no-magic-numbers - One day as seconds
+const CACHE_OPTIONS_DURATION = 24 * 60 * 60;
 
 const logger = appLogger.child({ scope: 'http' });
 
@@ -36,9 +40,18 @@ export async function createServer(
   });
 
   // Register cors
-  await fastify.register(fastifyCors, {
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  await fastify.register(cors, {
+    allowedHeaders: ['Content-Type', 'Accept'],
+    cacheControl: CACHE_OPTIONS_DURATION,
+    credentials: false,
+    maxAge: CACHE_OPTIONS_DURATION,
+    methods: ['GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'DELETE'],
     origin: corsOrigin,
+  });
+
+  // Register helmet
+  await fastify.register(helmet, {
+    crossOriginEmbedderPolicy: true,
   });
 
   // Register logger

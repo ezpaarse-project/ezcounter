@@ -1,7 +1,16 @@
-import { type rabbitmq, setupRabbitMQ } from '@ezcounter/rabbitmq';
+import {
+  type CreateConsumerProps,
+  type CreatePublisherProps,
+  createRabbitConsumer,
+  createRabbitPublisher,
+  type rabbitmq,
+  setupRabbitMQ,
+} from '@ezcounter/rabbitmq';
 
 import { config } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
+
+const { rabbitmq: rmqConfig } = config;
 
 const logger = appLogger.child(
   { scope: 'RabbitMQ' },
@@ -14,27 +23,31 @@ const logger = appLogger.child(
   }
 );
 
-const { rabbitmq: rmqConfig } = config;
-
-const connectOpts: rabbitmq.Options.Connect = {
-  hostname: rmqConfig.host,
-  password: rmqConfig.password,
-  port: rmqConfig.port,
-  protocol: rmqConfig.protocol,
-  username: rmqConfig.username,
-  vhost: rmqConfig.vhost,
-};
+/**
+ * The RabbitMQ client
+ */
+export const rabbitClient = setupRabbitMQ(logger, rmqConfig);
 
 /**
- * Setup a connection to RabbitMQ and run a callback
+ * Create a RabbitMQ consumer
  *
- * Handles automatic reconnection and graceful shutdown
+ * @param props - The consumer properties
  *
- * @param setup Init function where rabbitmq connection is passed,
- * will be called on each reconnection
- *
- * @returns When first callback resolves
+ * @returns The consumer
  */
-export const useRabbitMQ = (
-  setup: (connection: rabbitmq.ChannelModel) => Promise<void>
-): Promise<void> => setupRabbitMQ(connectOpts, setup, logger);
+export const createConsumer = <DataType>(
+  props: CreateConsumerProps<DataType>
+): rabbitmq.Consumer => createRabbitConsumer(rabbitClient, props);
+
+/**
+ * Create a RabbitMQ publisher
+ *
+ * @param props - The publisher properties
+ *
+ * @returns The publisher
+ */
+export const createPublisher = (
+  props: CreatePublisherProps
+): rabbitmq.Publisher => createRabbitPublisher(rabbitClient, props);
+
+export type { rabbitmq };

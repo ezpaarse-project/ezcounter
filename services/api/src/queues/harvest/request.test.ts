@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestRequestData } from '@ezcounter/dto/queues';
-import { rabbitmq } from '@ezcounter/rabbitmq/__mocks__';
+
+import { mockedChannel } from '~/lib/__mocks__/rabbitmq';
 
 import type { DataHostSupportedRelease } from '~/models/data-host/dto';
 import { findAllReleasesSupportedByDataHost } from '~/models/data-host/__mocks__';
@@ -112,6 +113,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
       let queueName = '';
       queueDataHostRefresh.mockImplementationOnce((queue) => {
         queueName = queue;
+        return Promise.resolve();
       });
 
       findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
@@ -126,6 +128,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
       queueDataHostRefresh.mockImplementationOnce(
         (__, { dataHost, release }) => {
           auths.set(`${dataHost.id}:${release}`, dataHost.auths);
+          return Promise.resolve();
         }
       );
 
@@ -143,7 +146,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
 
       await onHarvestRequest(request);
 
-      expect(rabbitmq.assertQueue).toHaveBeenCalledOnce();
+      expect(mockedChannel.queueDeclare).toHaveBeenCalledOnce();
     });
 
     test('should ignore unsupported releases', async () => {

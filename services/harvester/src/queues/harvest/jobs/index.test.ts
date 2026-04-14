@@ -1,16 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
-import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
-import type { rabbitmq } from '@ezcounter/rabbitmq';
-import { ZodError } from '@ezcounter/dto';
-import {
-  rabbitmq as mq,
-  parseJSONMessage,
-  sendJSONMessage,
-} from '@ezcounter/rabbitmq/__mocks__';
 
 import { config } from '~/lib/__mocks__/config';
+import { mockedChannel, type rabbitmq } from '~/lib/__mocks__/rabbitmq';
 
 import { processHarvestQueue } from '.';
 import { harvestReport } from '../../../models/report/__mocks__';
@@ -21,19 +14,17 @@ vi.mock(import('~/models/report'));
 vi.mock(import('./status'));
 
 describe('Harvest Process (processHarvestQueue)', () => {
-  const channel = mockDeep<rabbitmq.Channel>();
-
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJobData => ({
     download: {
       cacheKey: '',
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseUrl: 'https://example.com',
       },
       report: {
         id: '',
-        period: { end: '', start: '' },
+        period: { end: '2025-01', start: '2025-12' },
         release: '5.1',
       },
     },
@@ -42,50 +33,34 @@ describe('Harvest Process (processHarvestQueue)', () => {
       index: '',
     },
   });
+
   // oxlint-disable-next-line consistent-function-scoping
-  const getMessage = (data: unknown): rabbitmq.GetMessage => ({
-    content: Buffer.from(JSON.stringify(data)),
-    fields: {
-      deliveryTag: 0,
-      exchange: '',
-      messageCount: 0,
-      redelivered: false,
-      routingKey: '',
-    },
-    properties: {
-      appId: undefined,
-      clusterId: undefined,
-      contentEncoding: undefined,
-      contentType: undefined,
-      correlationId: undefined,
-      deliveryMode: undefined,
-      expiration: undefined,
-      headers: undefined,
-      messageId: undefined,
-      priority: undefined,
-      replyTo: undefined,
-      timestamp: undefined,
-      type: undefined,
-      userId: undefined,
-    },
+  const getMessage = (body: unknown): rabbitmq.SyncMessage => ({
+    body,
+    deliveryTag: 0,
+    exchange: '',
+    messageCount: 0,
+    redelivered: false,
+    routingKey: '',
   });
 
   test('should ensure temporary queue', async () => {
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
     await process.next();
 
-    expect(mq.assertQueue).toBeCalledWith(channel, 'foobar', {
+    expect(mockedChannel.queueDeclare).toBeCalledWith({
       durable: false,
+      queue: 'foobar',
     });
   });
 
   test('should harvest report if message is present', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
@@ -95,67 +70,70 @@ describe('Harvest Process (processHarvestQueue)', () => {
   test('should ack message once harvest is complete', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    const msg = getMessage(job);
+    mockedChannel.basicGet.mockResolvedValueOnce(msg);
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
-    expect(mq.ackMessage).toBeCalled();
+    expect(mockedChannel.basicAck).toBeCalledWith({
+      deliveryTag: msg.deliveryTag,
+    });
   });
 
   test('should nack message if input is invalid', async () => {
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(''));
-    parseJSONMessage.mockReturnValueOnce({
-      parseError: new ZodError([]),
-      raw: '',
-    });
+    const msg = getMessage('');
+    mockedChannel.basicGet.mockResolvedValueOnce(msg);
     await process.next();
 
-    expect(mq.rejectMessage).toBeCalled();
+    expect(mockedChannel.basicNack).toBeCalledWith({
+      deliveryTag: msg.deliveryTag,
+      requeue: false,
+    });
   });
 
   test('should requeue job if endpoint is processing', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
     const newJob = { ...job, try: 1 };
     newJob.download.forceDownload = true;
 
-    expect(sendJSONMessage).toBeCalledWith(
-      { channel, queue: { name: 'foobar' } },
-      newJob,
+    expect(mockedChannel.basicPublish).toBeCalledWith(
       {
         headers: { 'x-delay': config.download.processingBackoff },
-      }
+        routingKey: 'foobar',
+      },
+      newJob
     );
   });
 
   test('should requeue job if endpoint is unavailable', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
     await process.next();
 
     const newJob = { ...job, try: 1 };
     newJob.download.forceDownload = true;
 
-    expect(sendJSONMessage).toBeCalledWith(
-      { channel, queue: { name: 'foobar' } },
-      newJob,
+    expect(mockedChannel.basicPublish).toBeCalledWith(
       {
         headers: {},
-      }
+        routingKey: 'foobar',
+      },
+      newJob
     );
   });
 
@@ -163,25 +141,23 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const job = getJob();
     job.try = config.download.maxTries;
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
-    expect(sendJSONMessage).not.toBeCalled();
+    expect(mockedChannel.basicPublish).not.toBeCalled();
   });
 
   test('should NOT throw if requeued failed', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
-    sendJSONMessage.mockImplementationOnce(() => {
-      throw new Error('Not Implemented');
-    });
+    mockedChannel.basicPublish.mockRejectedValueOnce(new Error('Send error'));
     const promise = process.next();
 
     await expect(promise).resolves.toHaveProperty('done', false);
@@ -190,55 +166,72 @@ describe('Harvest Process (processHarvestQueue)', () => {
   test('should delete queue if no more messages are in queue', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     // No messages left in queue
     await process.next();
 
-    expect(mq.deleteQueue).toBeCalled();
+    expect(mockedChannel.queueDelete).toBeCalled();
   });
 
   test('should NOT delete queue if some messages are delayed', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
     await process.next();
 
     // No messages left in queue - The first one was delayed
     await process.next();
 
-    expect(mq.deleteQueue).not.toBeCalled();
+    expect(mockedChannel.queueDelete).not.toBeCalled();
   });
 
   test("should throw if queue couldn't be deleted", async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
     // No messages left in queue
-    mq.deleteQueue.mockRejectedValueOnce(new Error('Failed to delete queue'));
+    mockedChannel.queueDelete.mockRejectedValueOnce(
+      new Error('Failed to delete queue')
+    );
     const promise = process.next();
 
     await expect(promise).rejects.toThrow('Failed to delete queue');
   });
 
+  test('should close channel if no more messages are in queue', async () => {
+    const job = getJob();
+
+    const process = processHarvestQueue('foobar');
+
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
+    harvestReport.mockResolvedValueOnce({ success: true });
+    await process.next();
+
+    // No messages left in queue
+    await process.next();
+
+    expect(mockedChannel.close).toBeCalled();
+  });
+
   test('should notify that job is processing', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValue(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValue(getMessage(job));
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
@@ -252,9 +245,9 @@ describe('Harvest Process (processHarvestQueue)', () => {
   test('should notify that job is delayed', async () => {
     const job = getJob();
 
-    const process = processHarvestQueue(channel, 'foobar');
+    const process = processHarvestQueue('foobar');
 
-    mq.getMessage.mockResolvedValueOnce(getMessage(job));
+    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
     harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
