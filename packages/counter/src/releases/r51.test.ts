@@ -9,22 +9,18 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 
 import { fetchR51ReportAsStream, fetchR51ReportList } from './r51';
 
+const EXAMPLES_DIR = join(import.meta.dirname, '../../__tests__/examples/5.1');
+
 describe('GET /reports (fetchR51ReportList)', () => {
   const server = setupServer(
     http.get('https://valid-response.localhost/r51/reports', () => {
-      const path = join(
-        import.meta.dirname,
-        '../../tests/examples/5.1/list.json'
-      );
+      const path = join(EXAMPLES_DIR, 'list.json');
       const stream = Readable.toWeb(createReadStream(path));
 
       return new HttpResponse(stream);
     }),
     http.get('https://invalid-response.localhost/r51/reports', () => {
-      const path = join(
-        import.meta.dirname,
-        '../../tests/examples/5.1/list_invalid.json'
-      );
+      const path = join(EXAMPLES_DIR, 'list_invalid.json');
       const stream = Readable.toWeb(createReadStream(path));
 
       return new HttpResponse(stream);
@@ -112,10 +108,7 @@ describe('GET /reports (fetchR51ReportList)', () => {
 describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
   const server = setupServer(
     http.get('https://valid-response.localhost/r51/reports/ir', async () => {
-      const path = join(
-        import.meta.dirname,
-        '../../tests/examples/5.1/ir/valid.json'
-      );
+      const path = join(EXAMPLES_DIR, 'ir/valid.json');
       const stats = await stat(path);
       const stream = Readable.toWeb(createReadStream(path));
 
