@@ -1,7 +1,5 @@
 {
   "port": 8080,
-  "allowedOrigins": "*",
-  "allowedProxies": "*",
   "heartbeat": {
     "self": 5000,
     "connected": {
@@ -15,10 +13,7 @@
     "ignore": ["hostname"]
   },
   "rabbitmq": {
-    "protocol": "amqp",
-    "host": "rabbitmq",
-    "port": 5672,
-    "vhost": "/",
+    "url": "amqp://rabbitmq:5672/",
     "username": "guest",
     "password": "guest"
   },
@@ -30,6 +25,8 @@
     "host": "database",
     "schema": "default"
   },
+  "allowedOrigins": "*",
+  "allowedProxies": "*",
   "dataHost": {
     "supported": {
       "refreshJobDelay": 500,

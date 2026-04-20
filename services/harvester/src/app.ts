@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { getMissingMandatoryServices, initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
@@ -9,8 +9,8 @@ import { initQueueConsumers } from '~/queues';
 
 appLogger.info({
   env: process.env.NODE_ENV,
-  logDir: config.log.dir,
-  logLevel: config.log.level,
+  logDir: appConfig.log.dir,
+  logLevel: appConfig.log.level,
   msg: 'Service starting',
   scope: 'node',
 });
@@ -22,12 +22,13 @@ try {
       res.writeHead(StatusCodes.NO_CONTENT).end();
     },
     '/readiness': (req, res) => {
-      const missing = getMissingMandatoryServices();
-      if (missing.length > 0) {
-        res.writeHead(StatusCodes.SERVICE_UNAVAILABLE).end();
-      } else {
-        res.writeHead(StatusCodes.NO_CONTENT).end();
-      }
+      res
+        .writeHead(
+          getMissingMandatoryServices().length > 0
+            ? StatusCodes.SERVICE_UNAVAILABLE
+            : StatusCodes.NO_CONTENT
+        )
+        .end();
     },
   });
 

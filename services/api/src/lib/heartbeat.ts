@@ -11,7 +11,7 @@ import {
   setupHeartbeat,
 } from '@ezcounter/heartbeats';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { dbPing } from '~/lib/prisma';
 import { rabbitClient } from '~/lib/rabbitmq';
@@ -20,8 +20,6 @@ import type { Heartbeat } from '~/models/heartbeat/dto';
 
 // oxlint-disable-next-line import/extensions
 import { version as appVersion } from '~/../package.json' with { type: 'json' };
-
-const { heartbeat: frequency } = config;
 
 const logger = appLogger.child({ scope: 'heartbeat' });
 
@@ -34,7 +32,7 @@ export const appService: HeartbeatService = {
     database: mandatoryService('database', dbPing),
   },
   filesystems: {
-    logs: config.log.dir,
+    logs: appConfig.log.dir,
   },
   name: 'api',
   version: appVersion,
@@ -48,7 +46,7 @@ export function initHeartbeat(): void {
   const start = process.uptime();
 
   sender = setupHeartbeat(rabbitClient, logger, {
-    frequency,
+    frequency: appConfig.heartbeat,
     isRabbitMQMandatory: false,
     service: appService,
   });

@@ -5,7 +5,7 @@ import createFastify, {
   type FastifyPluginAsync,
 } from 'fastify';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import { loggerPlugin } from '~/plugins/logger';
@@ -27,11 +27,15 @@ export async function createServer(
 ): Promise<FastifyInstance> {
   // Split origins while allowing *
   const corsOrigin: '*' | string[] =
-    config.allowedOrigins === '*' ? '*' : config.allowedOrigins.split(',');
+    appConfig.allowedOrigins === '*'
+      ? '*'
+      : appConfig.allowedOrigins.split(',');
 
   // Split proxies while allowing *
   const trustProxy: true | string[] =
-    config.allowedProxies === '*' ? true : config.allowedProxies.split(',');
+    appConfig.allowedProxies === '*'
+      ? true
+      : appConfig.allowedProxies.split(',');
 
   // Create Fastify instance
   const fastify = createFastify({
@@ -78,7 +82,7 @@ export async function initHTTPServer(
   const fastify = await createServer(routes);
 
   // Start server and wait for it to be ready
-  const address = await fastify.listen({ host: '::', port: config.port });
+  const address = await fastify.listen({ host: '::', port: appConfig.port });
   await fastify.ready();
 
   const onStop = async (): Promise<void> => {
@@ -100,7 +104,7 @@ export async function initHTTPServer(
     initDuration: process.uptime() - start,
     initDurationUnit: 's',
     msg: 'Service listening',
-    port: config.port,
+    port: appConfig.port,
   });
 
   return fastify;

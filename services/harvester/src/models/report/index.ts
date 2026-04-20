@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import type { HarvestError, HarvestException } from '@ezcounter/dto/harvest';
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import { HarvestIdleTimeout } from '~/models/timeout';
@@ -20,6 +20,7 @@ import {
   queueReportItems,
 } from './steps';
 
+const { download: config } = appConfig;
 const logger = appLogger.child({ scope: 'reports' });
 
 // COUNTER Codes that will indicate that data host is processing request
@@ -55,7 +56,7 @@ function getReportPath({
   const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
 
   const reportPath = resolve(
-    config.download.dir,
+    config.dir,
     `${cacheKey}/${report.id}/${filename}`
   );
   logger.debug({

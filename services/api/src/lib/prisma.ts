@@ -1,7 +1,7 @@
 import type { Heartbeat } from '@ezcounter/heartbeats/dto';
 import { pingDB, setupDB } from '@ezcounter/database';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 const logger = appLogger.child({ scope: 'prisma' });
@@ -9,7 +9,7 @@ const logger = appLogger.child({ scope: 'prisma' });
 /**
  * The Prisma client
  */
-export const dbClient = setupDB(logger, config.postgres);
+export const dbClient = setupDB(logger, appConfig.postgres);
 
 /**
  * Execute a dummy query to check if the database connection is working

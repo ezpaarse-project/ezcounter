@@ -1,7 +1,7 @@
 import { HarvestDispatchData } from '@ezcounter/dto/queues';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { createConsumer } from '~/lib/rabbitmq';
 
@@ -9,6 +9,7 @@ import { processHarvestQueue } from './jobs';
 
 const QUEUE_NAME = 'ezcounter:harvest.dispatch';
 
+const { download: config } = appConfig;
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
 /**
@@ -23,7 +24,7 @@ async function onHarvestDispatch(data: HarvestDispatchData): Promise<void> {
     await waitForGenerator(
       processHarvestQueue(data.queueName),
       // Just a little delay to avoid spamming too fast
-      config.download.jobDelay
+      config.jobDelay
     );
   } catch (error) {
     logger.error({

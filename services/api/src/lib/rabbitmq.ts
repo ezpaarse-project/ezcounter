@@ -7,10 +7,8 @@ import {
   setupRabbitMQ,
 } from '@ezcounter/rabbitmq';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
-
-const { rabbitmq: rmqConfig } = config;
 
 const logger = appLogger.child(
   { scope: 'RabbitMQ' },
@@ -26,7 +24,7 @@ const logger = appLogger.child(
 /**
  * The RabbitMQ client
  */
-export const rabbitClient = setupRabbitMQ(logger, rmqConfig);
+export const rabbitClient = setupRabbitMQ(logger, appConfig.rabbitmq);
 
 /**
  * Create a RabbitMQ consumer

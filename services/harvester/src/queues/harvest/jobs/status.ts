@@ -3,7 +3,7 @@ import type { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 import { appLogger } from '~/lib/logger';
 import { createPublisher } from '~/lib/rabbitmq';
 
-const EXCHANGE_NAME = 'ezcounter:harvest.status';
+const EXCHANGE_NAME = 'ezcounter:harvest.jobs.status';
 
 const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 

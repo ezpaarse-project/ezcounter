@@ -4,7 +4,7 @@ import type { HarvestAuthOptions } from '@ezcounter/dto/harvest';
 import { HarvestRequestData } from '@ezcounter/dto/queues';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { createConsumer, createPublisher, rabbitClient } from '~/lib/rabbitmq';
 
@@ -18,6 +18,8 @@ import {
   queueDataHostRefresh,
 } from '../data-host/refresh';
 import { queueHarvestJobs } from './dispatch';
+
+const { supported: config } = appConfig.dataHost;
 
 const QUEUE_NAME = 'ezcounter:harvest.request';
 const HOST_QUEUE_NAME_HASH_LENGTH = 16;
@@ -136,7 +138,7 @@ export async function onHarvestRequest(
         waitForGenerator(
           processRefreshQueue(queueName),
           // Just a little delay to avoid spamming too fast
-          config.dataHost.supported.refreshJobDelay
+          config.refreshJobDelay
         )
       )
     );

@@ -9,7 +9,7 @@ import {
   getStandardReportIDs,
 } from '@ezcounter/counter';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { dbClient } from '~/lib/prisma';
 
 // oxlint-disable-next-line import/extensions
@@ -23,7 +23,7 @@ import type {
   UpdateDataHostSupportedReport,
 } from './dto';
 
-const { cacheDuration } = config.dataHost.supported;
+const { supported: config } = appConfig.dataHost;
 
 /**
  * Type for any report list from any COUNTER release
@@ -79,7 +79,8 @@ function getSupportedRelease(
  */
 const shouldRefresh = (supportedRelease: DataHostSupportedRelease): boolean =>
   !supportedRelease.refreshedAt ||
-  add(supportedRelease.refreshedAt, cacheDuration).getTime() <= Date.now();
+  add(supportedRelease.refreshedAt, config.cacheDuration).getTime() <=
+    Date.now();
 
 /**
  * Shorthand to extract months available from data host's reports

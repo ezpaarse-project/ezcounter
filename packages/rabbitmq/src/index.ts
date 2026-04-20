@@ -13,10 +13,7 @@ import {
 import type { Logger } from '@ezcounter/logger';
 
 type RabbitMqConfig = {
-  protocol: string;
-  host: string;
-  port: number;
-  vhost: string;
+  url: string;
   username: string;
   password: string;
 };
@@ -39,12 +36,9 @@ export function setupRabbitMQ(
   config: RabbitMqConfig
 ): Connection {
   const client = new Connection({
-    hostname: config.host,
     password: config.password,
-    port: config.port,
-    tls: config.protocol === 'amqps',
+    url: config.url,
     username: config.username,
-    vhost: config.vhost,
   });
 
   const onShutdown = async (): Promise<void> => {

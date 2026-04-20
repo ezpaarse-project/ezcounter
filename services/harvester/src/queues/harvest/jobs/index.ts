@@ -2,7 +2,7 @@ import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
 import { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { rabbitClient, type rabbitmq } from '~/lib/rabbitmq';
 
@@ -10,6 +10,7 @@ import { harvestReport } from '~/models/report';
 
 import { sendHarvestJobStatusEvent } from './status';
 
+const { download: config } = appConfig;
 const logger = appLogger.child({ scope: 'queues' });
 
 const delayedJobs = new Map<string, Set<string>>();
@@ -151,20 +152,16 @@ async function processHarvestMessage(
   const result = await harvestReport(data);
 
   // We need to requeue report and we have enough tries left
-  if (
-    (result.processing || result.unavailable) &&
-    data.try < config.download.maxTries
-  ) {
+  if ((result.processing || result.unavailable) && data.try < config.maxTries) {
     data.download.forceDownload = true;
     markHarvestJobAsDelayed(data, queueName);
     // Requeue job
-    const { processingBackoff, unavailableBackoff } = config.download;
     await requeueHarvestJob(channel, {
       // Data host is currently processing report - we'll retry later
-      delay: result.processing ? processingBackoff : undefined,
+      delay: result.processing ? config.processingBackoff : undefined,
       job: data,
       // Data host is currently unavailable - pausing whole data host
-      pause: result.unavailable ? unavailableBackoff : undefined,
+      pause: result.unavailable ? config.unavailableBackoff : undefined,
       queueName,
     });
   }
@@ -192,7 +189,7 @@ async function deleteHarvestQueue(
     });
 
     // Waiting a bit more before re-asking for messages
-    await setTimeoutAsync(config.download.detachDelay);
+    await setTimeoutAsync(config.detachDelay);
 
     return false;
   }

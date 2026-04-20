@@ -14,7 +14,7 @@ export const HarvestJobStatusEvent = z.object({
     .object({
       done: z.boolean().describe('Is step done'),
 
-      httpCode: z.number().optional(),
+      httpCode: z.number().optional().describe('HTTP code of download'),
 
       progress: z
         .number()
@@ -67,7 +67,7 @@ export const HarvestJobStatusEvent = z.object({
     .describe('When job started to be processed'),
 
   status: z
-    .enum(['pending', 'delayed', 'processing', 'error', 'done'])
+    .enum(['pending', 'delayed', 'processing', 'error'])
     .describe('Current status of job'),
 });
 

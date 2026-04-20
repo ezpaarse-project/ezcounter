@@ -14,6 +14,25 @@ type DatabaseConfig = {
   schema?: string;
 };
 
+/**
+ * Test connection to database
+ *
+ * @param logger - The app logger
+ * @param client - The DB client
+ */
+async function testConnection(
+  logger: Logger,
+  client: PrismaClient
+): Promise<void> {
+  try {
+    await client.$connect();
+    logger.info({ msg: 'Connected to database' });
+    await client.$disconnect();
+  } catch (error) {
+    logger.error({ err: error, msg: 'Unable to connect to database' });
+  }
+}
+
 export * from '../.prisma/client';
 
 /**
@@ -56,20 +75,7 @@ export function setupDB(
     logger.error({ ...event, message: undefined, msg: event.message });
   });
 
-  // Test connection
-  client
-    .$connect()
-    // oxlint-disable-next-line prefer-await-to-then
-    .then(() => {
-      logger.info({ msg: 'Connected to database' });
-      client.$disconnect();
-      return true;
-    })
-    // oxlint-disable-next-line prefer-await-to-then,prefer-await-to-callbacks
-    .catch((error) => {
-      logger.fatal({ err: error, msg: 'Unable to connect to database' });
-      throw error;
-    });
+  void testConnection(logger, client);
 
   return client;
 }

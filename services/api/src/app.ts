@@ -1,4 +1,4 @@
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 import { initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
@@ -9,8 +9,8 @@ import { routes } from '~/routes';
 async function start(): Promise<void> {
   appLogger.info({
     env: process.env.NODE_ENV,
-    logDir: config.log.dir,
-    logLevel: config.log.level,
+    logDir: appConfig.log.dir,
+    logLevel: appConfig.log.level,
     msg: 'Service starting',
     scope: 'node',
   });

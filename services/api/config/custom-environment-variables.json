@@ -19,10 +19,7 @@
     "ignore": { "__name": "LOG_IGNORE", "__format": "json" }
   },
   "rabbitmq": {
-    "protocol": "RABBITMQ_PROTOCOL",
-    "host": "RABBITMQ_HOST",
-    "port": { "__name": "RABBITMQ_PORT", "__format": "number" },
-    "vhost": "RABBITMQ_VHOST",
+    "url": "RABBITMQ_URL",
     "username": "RABBITMQ_USERNAME",
     "password": "RABBITMQ_PASSWORD"
   },
@@ -34,6 +31,8 @@
     "host": "POSTGRES_HOST",
     "schema": "POSTGRES_SCHEMA"
   },
+  "allowedOrigins": "ALLOWED_ORIGINS",
+  "allowedProxies": "ALLOWED_PROXIES",
   "dataHost": {
     "supported": {
       "refreshJobDelay": {
