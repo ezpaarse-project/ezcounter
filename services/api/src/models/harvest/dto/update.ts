@@ -17,7 +17,7 @@ export const UpdateHarvestJob = z.object({
 export type UpdateHarvestJob = z.infer<typeof UpdateHarvestJob>;
 
 /**
- * Validation for updating a harvest job from DB
+ * Validation for failing a harvest job from DB
  */
 export const FailHarvestJob = z.object({
   error: HarvestError,
@@ -26,6 +26,6 @@ export const FailHarvestJob = z.object({
 });
 
 /**
- * Type for updating a harvest job from DB
+ * Type for failing a harvest job from DB
  */
 export type FailHarvestJob = z.infer<typeof FailHarvestJob>;

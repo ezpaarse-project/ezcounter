@@ -82,7 +82,7 @@ export function getAllServices(): Heartbeat[] {
     items.push({
       createdAt: now,
       hostname: 'rabbitmq',
-      nextAt: new Date(now.getTime() + frequency.self),
+      nextAt: new Date(now.getTime() + appConfig.heartbeat.self),
       service: 'rabbitmq',
       updatedAt: now,
     });
@@ -92,7 +92,8 @@ export function getAllServices(): Heartbeat[] {
     items
       // Filter out services that haven't given heartbeats in time
       .filter((service) => {
-        const maxTimestamp = service.nextAt.getTime() + frequency.connected.max;
+        const maxTimestamp =
+          service.nextAt.getTime() + appConfig.heartbeat.connected.max;
 
         return isBefore(now, maxTimestamp);
       })

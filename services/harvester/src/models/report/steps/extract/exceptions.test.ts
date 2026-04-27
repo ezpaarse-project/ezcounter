@@ -18,7 +18,7 @@ describe('COUNTER 5', () => {
   describe('Report Exceptions (extractReportExceptions)', () => {
     test('should return exceptions', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS
       );
 
@@ -27,7 +27,7 @@ describe('COUNTER 5', () => {
 
     test('should be empty if no exceptions', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS
       );
 
@@ -36,7 +36,7 @@ describe('COUNTER 5', () => {
 
     test('should have items if exceptions in header', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5/ir/exceptions/in_header.json',
+        '/examples/reports/5/ir/exceptions/in_header.json',
         OPTIONS
       );
 
@@ -45,7 +45,7 @@ describe('COUNTER 5', () => {
 
     test('should have items if exceptions at root', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5/ir/exceptions/root.json',
+        '/examples/reports/5/ir/exceptions/root.json',
         OPTIONS
       );
 
@@ -54,7 +54,7 @@ describe('COUNTER 5', () => {
 
     test('should have items if exceptions are array at root', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5/ir/exceptions/root_array.json',
+        '/examples/reports/5/ir/exceptions/root_array.json',
         OPTIONS
       );
 
@@ -63,7 +63,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if one exception is invalid', async () => {
       const promise = extractReportExceptions(
-        '/examples/5/ir/exceptions/invalid.json',
+        '/examples/reports/5/ir/exceptions/invalid.json',
         OPTIONS
       );
 
@@ -73,7 +73,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if not JSON', async () => {
       const promise = extractReportExceptions(
-        '/examples/5/ir/invalid.json.txt',
+        '/examples/reports/5/ir/invalid.json.txt',
         OPTIONS
       );
 
@@ -84,7 +84,7 @@ describe('COUNTER 5', () => {
 
     test("should throw if doesn't exists", async () => {
       const promise = extractReportExceptions(
-        '/examples/5/ir/does-not-exists.json.txt',
+        '/examples/reports/5/ir/does-not-exists.json.txt',
         OPTIONS
       );
 
@@ -96,7 +96,7 @@ describe('COUNTER 5', () => {
       const controller = new AbortController();
 
       const promise = extractReportExceptions(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS,
         controller.signal
       );
@@ -122,7 +122,7 @@ describe('COUNTER 5.1', () => {
   describe('Report Exceptions (extractReportExceptions)', () => {
     test('should return exceptions', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS
       );
 
@@ -131,7 +131,7 @@ describe('COUNTER 5.1', () => {
 
     test('should be empty if no exceptions', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS
       );
 
@@ -140,7 +140,7 @@ describe('COUNTER 5.1', () => {
 
     test('should have items if exceptions in header', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5.1/ir/exceptions/in_header.json',
+        '/examples/reports/5.1/ir/exceptions/in_header.json',
         OPTIONS
       );
 
@@ -149,7 +149,7 @@ describe('COUNTER 5.1', () => {
 
     test('should have items if exceptions at root', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5.1/ir/exceptions/root.json',
+        '/examples/reports/5.1/ir/exceptions/root.json',
         OPTIONS
       );
 
@@ -158,7 +158,7 @@ describe('COUNTER 5.1', () => {
 
     test('should have items if exceptions are array at root', async () => {
       const exceptions = await extractReportExceptions(
-        '/examples/5.1/ir/exceptions/root_array.json',
+        '/examples/reports/5.1/ir/exceptions/root_array.json',
         OPTIONS
       );
 
@@ -167,7 +167,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if one exception is invalid', async () => {
       const promise = extractReportExceptions(
-        '/examples/5.1/ir/exceptions/invalid.json',
+        '/examples/reports/5.1/ir/exceptions/invalid.json',
         OPTIONS
       );
 
@@ -177,7 +177,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if not JSON', async () => {
       const promise = extractReportExceptions(
-        '/examples/5.1/ir/invalid.json.txt',
+        '/examples/reports/5.1/ir/invalid.json.txt',
         OPTIONS
       );
 
@@ -188,7 +188,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if doesn't exists", async () => {
       const promise = extractReportExceptions(
-        '/examples/5.1/ir/does-not-exists.json.txt',
+        '/examples/reports/5.1/ir/does-not-exists.json.txt',
         OPTIONS
       );
 
@@ -200,7 +200,7 @@ describe('COUNTER 5.1', () => {
       const controller = new AbortController();
 
       const promise = extractReportExceptions(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS,
         controller.signal
       );

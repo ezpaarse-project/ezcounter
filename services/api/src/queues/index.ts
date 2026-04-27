@@ -1,5 +1,6 @@
 import { appLogger } from '~/lib/logger';
 
+import { consumeEnrichJobStatusEvents } from './enrich/jobs/status';
 import { consumeHarvestJobStatusEvents } from './harvest/jobs/status';
 import { consumeHarvestRequests } from './harvest/request';
 
@@ -11,6 +12,7 @@ const logger = appLogger.child({ scope: 'queues' });
 export function initQueueConsumers(): void {
   const start = process.uptime();
 
+  consumeEnrichJobStatusEvents();
   consumeHarvestJobStatusEvents();
   consumeHarvestRequests();
 

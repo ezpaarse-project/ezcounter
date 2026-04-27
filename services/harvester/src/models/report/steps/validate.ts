@@ -262,7 +262,6 @@ function getR5Validation(
       return {
         header,
         item: r5.COUNTERItemUsage,
-        parent: r5.COUNTERItemParent,
       };
 
     default:

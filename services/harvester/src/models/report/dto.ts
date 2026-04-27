@@ -7,7 +7,6 @@ import type {
 import type {
   SUSHIErrorModel as R5ReportException,
   SUSHIReportHeader as R5ReportHeader,
-  COUNTERItemParent as R5ReportItemParent,
 } from '@ezcounter/counter/schemas/r5';
 import type { Exception as R51ReportException } from '@ezcounter/counter/schemas/r51';
 
@@ -23,8 +22,10 @@ export type COUNTERReportItem = R5ReportItem | R51ReportItem;
 
 /**
  * Type for any report item parent from any COUNTER release
+ *
+ * Note: COUNTER 5 parent is included in item
  */
-export type COUNTERReportItemParent = R5ReportItemParent | R51ReportItemParent;
+export type COUNTERReportItemParent = R51ReportItemParent;
 
 /**
  * Type for any report exception from any COUNTER release

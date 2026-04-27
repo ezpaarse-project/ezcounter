@@ -49,9 +49,18 @@ async function generateTypescriptFile(
   ].join('\n');
 
   const typesCode = await compile(openapi, '', {
+    // Don't allow for additional properties in the schema
+    additionalProperties: false,
+    // Match type name with validation
     customName: (value, key) =>
       generateTypeName(((value.title ?? value.$id) || key) ?? ''),
+    // Don't format dist files
     format: false,
+    // Ignore min/max items in types to simplify
+    ignoreMinAndMaxItems: true,
+    // Don't use any
+    unknownAny: true,
+    // Include unreachable types
     unreachableDefinitions: true,
   });
 

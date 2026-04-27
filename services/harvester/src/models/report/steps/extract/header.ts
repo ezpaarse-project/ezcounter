@@ -86,7 +86,7 @@ export async function extractReportHeader(
  * @returns The id or `null` if not found
  */
 export function extractRegistryId(header: COUNTERReportHeader): string | null {
-  if (!header.Registry_Record) {
+  if (!('Registry_Record' in header) || !header.Registry_Record) {
     return null;
   }
 

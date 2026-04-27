@@ -1,9 +1,13 @@
+import { HarvestJobStatus, HarvestJobStep } from '@ezcounter/database';
 import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
   HarvestReportPeriod,
 } from '@ezcounter/dto/harvest';
-import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
+import {
+  EnrichJobStatusEvent,
+  HarvestJobStatusEvent,
+} from '@ezcounter/dto/queues';
 
 const MIN_TIMEOUT = 100;
 
@@ -15,11 +19,16 @@ export * from '@ezcounter/dto/harvest';
 export const HarvestJob = z.object({
   createdAt: z.coerce.date().describe('Creation date'),
 
-  current: HarvestJobStatusEvent.shape.current.nullish(),
+  current: z
+    .enum(HarvestJobStep)
+    .nullish()
+    .describe('Current step being processed'),
 
   dataHostId: z.string().describe('ID of the data host'),
 
   download: HarvestJobStatusEvent.shape.download.unwrap(),
+
+  enrich: EnrichJobStatusEvent.shape.enrich.unwrap(),
 
   error: HarvestJobStatusEvent.shape.error.nullish(),
 
@@ -31,6 +40,8 @@ export const HarvestJob = z.object({
 
   index: z.string().describe('Target Elastic index'),
 
+  insert: EnrichJobStatusEvent.shape.insert.unwrap(),
+
   params: HarvestAdditionalParams.describe('Additional params of the report'),
 
   period: HarvestReportPeriod.describe('Period of the report'),
@@ -41,7 +52,7 @@ export const HarvestJob = z.object({
 
   startedAt: HarvestJobStatusEvent.shape.startedAt.nullish(),
 
-  status: HarvestJobStatusEvent.shape.status,
+  status: z.enum(HarvestJobStatus).describe('Current status of job'),
 
   timeout: z.int().min(MIN_TIMEOUT).describe('Timeout of the job in ms'),
 

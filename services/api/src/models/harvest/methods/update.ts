@@ -5,7 +5,12 @@ import { dbClient } from '~/lib/prisma';
 
 import { type FailHarvestJob, HarvestJob, type UpdateHarvestJob } from '../dto';
 
-const JOB_STEPS = ['download', 'extract'] as const as readonly HarvestJobStep[];
+const JOB_STEPS = [
+  'download',
+  'extract',
+  'enrich',
+  'insert',
+] as const as readonly HarvestJobStep[];
 
 const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 

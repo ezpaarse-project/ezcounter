@@ -170,6 +170,12 @@ export const HarvestInsertOptions = z.object({
     .optional()
     .describe('Data to add to harvested items'),
 
+  additionalIdParts: z
+    .array(z.string())
+    .min(1)
+    .optional()
+    .describe('Parts to add to id of inserted documents'),
+
   index: z.string().describe('Elastic index data will be inserted'),
 });
 

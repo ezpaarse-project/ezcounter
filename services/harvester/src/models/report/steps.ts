@@ -1,5 +1,5 @@
 import type { HarvestException } from '@ezcounter/dto/harvest';
-import type { HarvestJobData } from '@ezcounter/dto/queues';
+import type { EnrichJobContent, HarvestJobData } from '@ezcounter/dto/queues';
 
 import { appLogger } from '~/lib/logger';
 
@@ -25,12 +25,14 @@ const logger = appLogger.child({ scope: 'reports' });
  *
  * @param id - The job id
  * @param exceptions - The exceptions found
+ *
+ * @returns A promise that resolves when the status is sent
  */
 const sendExceptionsStatus = (
   id: string,
   exceptions: HarvestException[]
-): void => {
-  void sendHarvestJobStatusEvent({
+): Promise<void> =>
+  sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,
@@ -39,16 +41,20 @@ const sendExceptionsStatus = (
     id,
     status: 'processing',
   });
-};
 
 /**
  * Shorthand to send header found in report
  *
  * @param id - The job id
  * @param registryId - The id of the registry found in header
+ *
+ * @returns A promise that resolves when the status is sent
  */
-const sendHeaderStatus = (id: string, registryId: string | null): void => {
-  void sendHarvestJobStatusEvent({
+const sendHeaderStatus = (
+  id: string,
+  registryId: string | null
+): Promise<void> =>
+  sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,
@@ -58,16 +64,17 @@ const sendHeaderStatus = (id: string, registryId: string | null): void => {
     id,
     status: 'processing',
   });
-};
 
 /**
  * Shorthand to send items count found in report
  *
  * @param id - The job id
  * @param count - The count of items
+ *
+ * @returns A promise that resolves when the status is sent
  */
-const sendItemsStatus = (id: string, count: number): void => {
-  void sendHarvestJobStatusEvent({
+const sendItemsStatus = (id: string, count: number): Promise<void> =>
+  sendHarvestJobStatusEvent({
     current: 'extract',
     extract: {
       done: false,
@@ -76,7 +83,25 @@ const sendItemsStatus = (id: string, count: number): void => {
     id: id,
     status: 'processing',
   });
-};
+
+/**
+ * Shorthand to queue report item found in report
+ *
+ * @param data - The data to enrich
+ * @param options - The options to harvest
+ *
+ * @returns A promise that resolves when the item is queued
+ */
+const queueReportItem = (
+  data: EnrichJobContent,
+  options: HarvestJobData
+): Promise<void> =>
+  queueEnrichJob({
+    data,
+    enrich: options.enrich,
+    id: options.id,
+    insert: options.insert,
+  });
 
 /**
  * Cache report to a file
@@ -169,7 +194,7 @@ export async function getReportExceptions(
     }
   }
 
-  sendExceptionsStatus(options.id, exceptions);
+  void sendExceptionsStatus(options.id, exceptions);
   return exceptions;
 }
 
@@ -203,7 +228,7 @@ export async function getReportHeader(
       registryId,
     });
 
-    sendHeaderStatus(options.id, registryId);
+    void sendHeaderStatus(options.id, registryId);
 
     return header;
   } catch (error) {
@@ -227,12 +252,11 @@ export async function getReportHeader(
  * @returns `true` if no error occurred
  */
 export async function queueReportItems(
-  report: { path: string; header: COUNTERReportHeader },
+  report: { path: string; header: COUNTERReportHeader; date: string },
   options: HarvestJobData,
   timeout?: HarvestIdleTimeout
 ): Promise<void> {
   let notifier: NodeJS.Timeout | null = null;
-
   try {
     const reportItems = extractReportItems(
       report.path,
@@ -244,17 +268,19 @@ export async function queueReportItems(
     let count = 0;
     // Setup notifier
     notifier = setInterval(() => {
-      sendItemsStatus(options.id, count);
+      void sendItemsStatus(options.id, count);
     }, ITEMS_NOTIFY_INTERVAL);
 
-    for await (const { item, parent } of reportItems) {
+    for await (const data of reportItems) {
       count += 1;
-      queueEnrichJob({ header: report.header, item, parent });
+      await queueReportItem(
+        { harvestDate: report.date, header: report.header, ...data },
+        options
+      );
       timeout?.tick();
     }
 
     clearInterval(notifier);
-
     logger.info({
       count,
       id: options.id,
@@ -262,7 +288,7 @@ export async function queueReportItems(
     });
 
     // Send status with final count
-    sendItemsStatus(options.id, count);
+    void sendItemsStatus(options.id, count);
   } catch (error) {
     if (notifier) {
       clearInterval(notifier);
@@ -272,7 +298,6 @@ export async function queueReportItems(
       err: error,
       msg: 'Unable to extract report items',
     });
-
     throw error;
   }
 }

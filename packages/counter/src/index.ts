@@ -1,5 +1,5 @@
-import type { SUSHIReportList } from '../dist/r5';
-import type { ReportInformation } from '../dist/r51';
+import type { SUSHIReportList as R5ReportListItem } from '../dist/r5';
+import type { ReportInformation as R51ReportListItem } from '../dist/r51';
 import type { CreateDataHostFetchOptions } from './lib/fetch';
 import {
   type R5ReportOptions,
@@ -15,6 +15,14 @@ import {
   fetchR51ReportAsStream,
   fetchR51ReportList,
 } from './releases/r51';
+
+type COUNTERReportList = R5ReportListItem[] | R51ReportListItem[];
+
+type COUNTERReportOptions = R5ReportOptions | R51ReportOptions;
+
+type COUNTERReportStreamResponse =
+  | R5ReportStreamResponse
+  | R51ReportStreamResponse;
 
 /**
  * Format used within app to store periods
@@ -32,7 +40,7 @@ export const PERIOD_FORMAT = 'yyyy-MM';
 export function fetchReportList(
   release: '5' | '5.1',
   fetchOptions: CreateDataHostFetchOptions
-): Promise<SUSHIReportList[] | ReportInformation[]> {
+): Promise<COUNTERReportList> {
   switch (release) {
     case '5':
       return fetchR5ReportList(fetchOptions);
@@ -56,9 +64,9 @@ export function fetchReportList(
  */
 export function fetchReportAsStream(
   release: '5' | '5.1',
-  reportOptions: R5ReportOptions | R51ReportOptions,
+  reportOptions: COUNTERReportOptions,
   fetchOptions: CreateDataHostFetchOptions
-): Promise<R5ReportStreamResponse | R51ReportStreamResponse> {
+): Promise<COUNTERReportStreamResponse> {
   switch (release) {
     case '5':
       return fetchR5ReportAsStream(reportOptions, fetchOptions);

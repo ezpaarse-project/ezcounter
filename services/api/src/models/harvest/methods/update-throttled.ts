@@ -7,7 +7,7 @@ import { updateOneHarvestJob } from './update';
 
 const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
-const HARVEST_JOB_UPDATE_THROTTLE = 100;
+const UPDATE_THROTTLE = 100;
 
 /** Aggregated updates to apply */
 const patchs = new Map<string, UpdateHarvestJob>();
@@ -54,9 +54,16 @@ async function handleUpdate(data: UpdateHarvestJob): Promise<void> {
       patchs.delete(data.id);
       updaters.delete(data.id);
     }
+
+    logger.debug({
+      id: data.id,
+      msg: 'Harvest Job updated',
+      status,
+    });
   } catch (error) {
     logger.error({
       err: error,
+      id: data.id,
       msg: 'Unable to update data of Harvest Job',
     });
   }
@@ -79,7 +86,7 @@ export function updateOneHarvestJobThrottled(data: UpdateHarvestJob): void {
   // Throttle updates per job
   let update = updaters.get(data.id);
   if (!update) {
-    update = createThrottledFunction(handleUpdate, HARVEST_JOB_UPDATE_THROTTLE);
+    update = createThrottledFunction(handleUpdate, UPDATE_THROTTLE);
     updaters.set(data.id, update);
   }
 

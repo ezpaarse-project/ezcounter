@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { HarvestRequestData } from '@ezcounter/dto/queues';
+import {
+  DataHostRefreshData,
+  type HarvestRequestData,
+} from '@ezcounter/dto/queues';
 
 import { mockedChannel } from '~/lib/__mocks__/rabbitmq';
 
@@ -110,35 +113,32 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
     });
 
     test('should correctly name queues', async () => {
-      let queueName = '';
-      queueDataHostRefresh.mockImplementationOnce((queue) => {
-        queueName = queue;
-        return Promise.resolve();
-      });
-
       findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
 
       await onHarvestRequest(request);
 
-      expect(queueName).toMatch(/^ezcounter:data-host\.refresh:[a-z0-9]{16}$/);
+      expect(queueDataHostRefresh).toHaveBeenCalledWith(
+        expect.stringMatching(/^ezcounter:data-host\.refresh:[a-z0-9]{16}$/),
+        expect.schemaMatching(DataHostRefreshData)
+      );
     });
 
     test('should group auths', async () => {
-      const auths = new Map();
-      queueDataHostRefresh.mockImplementationOnce(
-        (__, { dataHost, release }) => {
-          auths.set(`${dataHost.id}:${release}`, dataHost.auths);
-          return Promise.resolve();
-        }
-      );
-
       findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
 
       await onHarvestRequest(request);
 
-      const spy = auths.get('my-counter-datahost:5');
-      expect(spy).toHaveProperty('0.customer_id', 'foobar');
-      expect(spy).toHaveProperty('1.customer_id', 'barfoo');
+      expect(queueDataHostRefresh).toHaveBeenCalledWith(
+        expect.stringContaining(''),
+        {
+          dataHost: {
+            auths: [{ customer_id: 'foobar' }, { customer_id: 'barfoo' }],
+            id: 'my-counter-datahost',
+          },
+          id: expect.stringContaining(''),
+          release: '5',
+        }
+      );
     });
 
     test('should group data host refresh by hostname', async () => {

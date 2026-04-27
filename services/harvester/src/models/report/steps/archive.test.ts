@@ -32,7 +32,7 @@ describe('Archive report (archiveReport)', () => {
     const REPORT = {
       cache: { source: 'remote' as const },
       id: '',
-      path: '/examples/5.1/ir/invalid_item.json',
+      path: '/examples/reports/5.1/ir/invalid_item.json',
     };
 
     test('should archive', async () => {
@@ -74,7 +74,7 @@ describe('Archive report (archiveReport)', () => {
     const REPORT = {
       cache: { source: 'remote' as const },
       id: '',
-      path: '/examples/5.1/ir/valid.json',
+      path: '/examples/reports/5.1/ir/valid.json',
     };
 
     test('should archive', async () => {
@@ -116,7 +116,7 @@ describe('Archive report (archiveReport)', () => {
     const REPORT = {
       cache: { source: 'archive' as const },
       id: '',
-      path: '/examples/5.1/ir/valid.json',
+      path: '/examples/reports/5.1/ir/valid.json',
     };
 
     test("shouldn't archive", async () => {
@@ -159,7 +159,7 @@ describe('Archive report (archiveReport)', () => {
       {
         cache: { source: 'remote' as const },
         id: '',
-        path: '/examples/5.1/ir/does-not-exists.json',
+        path: '/examples/reports/5.1/ir/does-not-exists.json',
       },
       OPTIONS
     );
@@ -175,7 +175,7 @@ describe('Archive report (archiveReport)', () => {
       {
         cache: { source: 'remote' as const },
         id: '',
-        path: '/examples/5.1/ir/valid.json',
+        path: '/examples/reports/5.1/ir/valid.json',
       },
       OPTIONS,
       timeout

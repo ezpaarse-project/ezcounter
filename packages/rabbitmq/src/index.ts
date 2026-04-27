@@ -35,11 +35,11 @@ export function setupRabbitMQ(
   logger: Logger,
   config: RabbitMqConfig
 ): Connection {
-  const client = new Connection({
-    password: config.password,
-    url: config.url,
-    username: config.username,
-  });
+  const url = new URL(config.url);
+  url.username = config.username;
+  url.password = config.password;
+
+  const client = new Connection(url.href);
 
   const onShutdown = async (): Promise<void> => {
     await Promise.all(consumers.map((sub) => sub.close()));

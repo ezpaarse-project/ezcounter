@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
@@ -191,10 +192,10 @@ describe('Report Header (getReportHeader)', () => {
 });
 
 describe('Report Items (queueReportItems)', () => {
-  const HEADER = {} as unknown as COUNTERReportHeader;
+  const header = mockDeep<COUNTERReportHeader>();
 
   test('should extract items', async () => {
-    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
+    await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     expect(extractReportItems).toBeCalled();
   });
@@ -204,7 +205,7 @@ describe('Report Items (queueReportItems)', () => {
       throw new Error('Something happened');
     });
 
-    const promise = queueReportItems({ header: HEADER, path: '' }, OPTIONS);
+    const promise = queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     await expect(promise).rejects.toThrow('Something happened');
   });
@@ -213,7 +214,7 @@ describe('Report Items (queueReportItems)', () => {
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    await queueReportItems({ header: HEADER, path: '' }, OPTIONS, timeout);
+    await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
 
     expect(timeout.tick).toBeCalled();
   });
@@ -221,21 +222,21 @@ describe('Report Items (queueReportItems)', () => {
   test('should tick timeout after every item', async () => {
     extractReportItems.mockImplementationOnce(async function* dummy() {
       for (let index = 0; index < 5000; index += 1) {
-        yield { item: {} as COUNTERReportItem };
+        yield { item: mockDeep<COUNTERReportItem>() };
       }
     });
 
     const timeout = new HarvestIdleTimeout();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    await queueReportItems({ header: HEADER, path: '' }, OPTIONS, timeout);
+    await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
 
     // Should tick after extracting then after every item
     expect(timeout.tick).toBeCalledTimes(5000 + 1);
   });
 
   test('should notify progress', async () => {
-    await queueReportItems({ header: HEADER, path: '' }, OPTIONS);
+    await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
       current: 'extract',
@@ -251,11 +252,11 @@ describe('Report Items (queueReportItems)', () => {
   test('should notify progress after time', async () => {
     extractReportItems.mockImplementationOnce(async function* dummy() {
       for (let index = 0; index < 5000; index += 1) {
-        yield { item: {} as COUNTERReportItem };
+        yield { item: mockDeep<COUNTERReportItem>() };
       }
     });
 
-    const promise = queueReportItems({ header: HEADER, path: '' }, OPTIONS);
+    const promise = queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).not.toBeCalled();
     vi.advanceTimersByTime(900);

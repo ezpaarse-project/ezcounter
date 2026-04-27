@@ -65,6 +65,8 @@ services:
       - path: .env.local
         required: false
     restart: unless-stopped
+    extra_hosts:
+      - host.docker.internal:host-gateway # Used because elastic is on the same machine, but not the same network
     depends_on:
       rabbitmq:
         condition: service_healthy

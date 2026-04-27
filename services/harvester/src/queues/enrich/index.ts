@@ -1,3 +1,5 @@
+import type { EnrichJobData } from '@ezcounter/dto/queues';
+
 import { appLogger } from '~/lib/logger';
 import { createPublisher } from '~/lib/rabbitmq';
 
@@ -8,6 +10,7 @@ const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 // Publisher creating required exchanges/queues
 const pub = createPublisher({
   options: {
+    confirm: true,
     queues: [{ durable: false, queue: QUEUE_NAME }],
   },
 });
@@ -17,7 +20,7 @@ const pub = createPublisher({
  *
  * @param data - The content of the job
  */
-export async function queueEnrichJob(data: unknown): Promise<void> {
+export async function queueEnrichJob(data: EnrichJobData): Promise<void> {
   try {
     await pub.send({ routingKey: QUEUE_NAME }, data);
 

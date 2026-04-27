@@ -199,12 +199,12 @@ export async function harvestReport(
 ): Promise<HarvestResult> {
   const timeout = new HarvestIdleTimeout(options.download.timeout);
 
-  const reportPath = getReportPath(options);
+  const path = getReportPath(options);
   timeout.tick();
 
   let cache = null;
   try {
-    cache = await cacheReportToFile(reportPath, options, timeout);
+    cache = await cacheReportToFile(path, options, timeout);
   } catch (error) {
     timeout.clear();
     return markHarvestAsError(options, asHarvestError(error));
@@ -212,35 +212,35 @@ export async function harvestReport(
 
   try {
     const exceptions = await getReportExceptions(
-      { httpCode: cache.httpCode, path: reportPath },
+      { httpCode: cache.httpCode, path: path },
       options,
       timeout
     );
 
-    const harvestResult = handleExceptions(exceptions);
-    if (harvestResult) {
+    const result = handleExceptions(exceptions);
+    if (result) {
       timeout.clear();
-      return harvestResult;
+      return result;
     }
 
-    const reportHeader = await getReportHeader(reportPath, options, timeout);
+    const header = await getReportHeader(path, options, timeout);
     await queueReportItems(
-      { header: reportHeader, path: reportPath },
+      { date: new Date().toISOString(), header, path },
       options,
       timeout
     );
 
     return markHarvestAsSuccess(options);
   } catch (error) {
-    const harvestResult = reharvestOrMarkAsError(
-      { cache, path: reportPath },
+    const result = reharvestOrMarkAsError(
+      { cache, path: path },
       options,
       error
     );
 
-    return harvestResult ?? harvestReport(options);
+    return result ?? harvestReport(options);
   } finally {
-    await archiveReportToFile({ cache, path: reportPath }, options, timeout);
+    await archiveReportToFile({ cache, path: path }, options, timeout);
     timeout.clear();
   }
 }

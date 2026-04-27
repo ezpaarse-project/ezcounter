@@ -29,7 +29,7 @@ const OPTIONS: HarvestDownloadOptions = {
 
 describe('Cache report (cacheReport)', () => {
   describe('file exists', () => {
-    const REPORT = { jobId: '', path: '/examples/5.1/ir/valid.json' };
+    const REPORT = { jobId: '', path: '/examples/reports/5.1/ir/valid.json' };
 
     test('should have source "file"', async () => {
       const result = await cacheReport(REPORT, OPTIONS);
@@ -77,7 +77,7 @@ describe('Cache report (cacheReport)', () => {
   describe('archive exists', () => {
     const ARCHIVED_REPORT = {
       jobId: '',
-      path: '/examples/5.1/ir/valid_archived.json',
+      path: '/examples/reports/5.1/ir/valid_archived.json',
     };
 
     test('should have source "archive"', async () => {
@@ -135,7 +135,7 @@ describe('Cache report (cacheReport)', () => {
   describe('download', () => {
     const NO_REPORT = {
       jobId: '',
-      path: '/examples/5.1/ir/does-not-exists.json',
+      path: '/examples/reports/5.1/ir/does-not-exists.json',
     };
 
     test('should have source "remote"', async () => {
@@ -194,7 +194,7 @@ describe('Cache report (cacheReport)', () => {
       ...OPTIONS,
       forceDownload: true,
     };
-    const REPORT = { jobId: '', path: '/examples/5.1/ir/valid.json' };
+    const REPORT = { jobId: '', path: '/examples/reports/5.1/ir/valid.json' };
 
     test('should have source "remote"', async () => {
       const result = await cacheReport(REPORT, FORCE_OPTIONS);

@@ -3,7 +3,7 @@ import { logLevels } from '@ezcounter/logger';
 
 import type defaultConfig from '../../config/default.json';
 
-export const config = setupConfig<typeof defaultConfig>({
+export const appConfig = setupConfig<typeof defaultConfig>({
   watch: {
     logger: {
       levels: logLevels.values,

@@ -94,7 +94,10 @@ function extractMonthsAvailable(item: ReportListItem): {
   lastMonthAvailable: string;
 } {
   let firstMonthAvailable = '';
-  if (typeof item.First_Month_Available === 'string') {
+  if (
+    'First_Month_Available' in item &&
+    typeof item.First_Month_Available === 'string'
+  ) {
     const dateAvailable = new Date(item.First_Month_Available);
     if (isValid(dateAvailable)) {
       firstMonthAvailable = format(dateAvailable, PERIOD_FORMAT);
@@ -102,7 +105,10 @@ function extractMonthsAvailable(item: ReportListItem): {
   }
 
   let lastMonthAvailable = '';
-  if (typeof item.Last_Month_Available === 'string') {
+  if (
+    'Last_Month_Available' in item &&
+    typeof item.Last_Month_Available === 'string'
+  ) {
     const dateAvailable = new Date(item.Last_Month_Available);
     if (isValid(dateAvailable)) {
       lastMonthAvailable = format(dateAvailable, PERIOD_FORMAT);

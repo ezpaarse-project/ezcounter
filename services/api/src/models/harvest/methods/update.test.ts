@@ -37,9 +37,13 @@ describe(updateOneHarvestJob, () => {
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({ id: '' });
+    await updateOneHarvestJob({ id: 'foobar' });
 
-    expect(dbClient.harvestJob.update).toBeCalled();
+    expect(dbClient.harvestJob.update).toBeCalledWith(
+      expect.objectContaining({
+        where: { id: 'foobar' },
+      })
+    );
   });
 
   test('should return job', async () => {
@@ -59,21 +63,24 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    let updatedData: unknown = null;
-    // @ts-expect-error - Prisma types are more complex
-    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
-      updatedData = data;
-      return Promise.resolve(job);
-    });
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { done: true },
+      enrich: { done: true },
       extract: { done: true },
       id: '',
+      insert: { done: true },
     });
 
-    expect(updatedData).toHaveProperty('status', 'done');
-    expect(updatedData).toHaveProperty('took');
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: 'done',
+          took: expect.closeTo(0, 5),
+        }),
+      })
+    );
   });
 
   test('should update status and took if started and error occurred', async () => {
@@ -82,12 +89,7 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    let updatedData: unknown = null;
-    // @ts-expect-error - Prisma types are more complex
-    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
-      updatedData = data;
-      return Promise.resolve(job);
-    });
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     const error = {
       code: '',
@@ -99,9 +101,15 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(updatedData).toHaveProperty('status', 'error');
-    expect(updatedData).toHaveProperty('error', error);
-    expect(updatedData).toHaveProperty('took');
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          error,
+          status: 'error',
+          took: expect.closeTo(0, 5),
+        }),
+      })
+    );
   });
 
   test('should NOT update status if processing', async () => {
@@ -110,12 +118,7 @@ describe(updateOneHarvestJob, () => {
     job.startedAt = new Date();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    let updatedData: unknown = null;
-    // @ts-expect-error - Prisma types are more complex
-    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
-      updatedData = data;
-      return Promise.resolve(job);
-    });
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { done: true },
@@ -123,21 +126,26 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(updatedData).toHaveProperty('status', job.status);
-    expect(updatedData).toHaveProperty('download.done', true);
-    expect(updatedData).toHaveProperty('extract.done', false);
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          download: expect.objectContaining({
+            done: true,
+          }),
+          extract: expect.objectContaining({
+            done: false,
+          }),
+          status: job.status,
+        }),
+      })
+    );
   });
 
   test('should NOT update status if not started', async () => {
     const job = getJob();
 
     dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    let updatedData: unknown = null;
-    // @ts-expect-error - Prisma types are more complex
-    dbClient.harvestJob.update.mockImplementationOnce(({ data }) => {
-      updatedData = data;
-      return Promise.resolve(job);
-    });
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { done: true },
@@ -145,9 +153,19 @@ describe(updateOneHarvestJob, () => {
       id: '',
     });
 
-    expect(updatedData).toHaveProperty('status', job.status);
-    expect(updatedData).toHaveProperty('download.done', true);
-    expect(updatedData).toHaveProperty('extract.done', false);
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          download: expect.objectContaining({
+            done: true,
+          }),
+          extract: expect.objectContaining({
+            done: false,
+          }),
+          status: job.status,
+        }),
+      })
+    );
   });
 
   test('should throw if trying to update a done job', async () => {

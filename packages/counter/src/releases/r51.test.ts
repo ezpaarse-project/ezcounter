@@ -9,7 +9,10 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 
 import { fetchR51ReportAsStream, fetchR51ReportList } from './r51';
 
-const EXAMPLES_DIR = join(import.meta.dirname, '../../__tests__/examples/5.1');
+const EXAMPLES_DIR = join(
+  import.meta.dirname,
+  '../../__tests__/examples/reports/5.1'
+);
 
 describe('GET /reports (fetchR51ReportList)', () => {
   const server = setupServer(

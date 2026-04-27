@@ -19,7 +19,7 @@ async function addExamplesToVol(): Promise<void> {
   // Read examples
   const state: Record<string, string> = {};
 
-  const exampleDir = join(import.meta.dirname, 'examples');
+  const exampleDir = join(import.meta.dirname, 'examples/reports');
   const examplesGlob = join(exampleDir, '**/*.json*');
 
   for await (const path of glob(examplesGlob)) {
@@ -27,7 +27,7 @@ async function addExamplesToVol(): Promise<void> {
     state[filePath] = await readFile(path, 'utf8');
   }
   // Add them to in-memory fs
-  vol.fromJSON(state, '/examples');
+  vol.fromJSON(state, '/examples/reports');
 }
 
 beforeEach(() => {

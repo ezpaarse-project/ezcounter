@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { config } from '~/lib/__mocks__/config';
+import { appConfig } from '~/lib/__mocks__/config';
 import { mockedChannel, type rabbitmq } from '~/lib/__mocks__/rabbitmq';
 
 import { processHarvestQueue } from '.';
@@ -109,7 +109,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     expect(mockedChannel.basicPublish).toBeCalledWith(
       {
-        headers: { 'x-delay': config.download.processingBackoff },
+        headers: { 'x-delay': appConfig.download.processingBackoff },
         routingKey: 'foobar',
       },
       newJob
@@ -139,7 +139,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
   test('should NOT requeue job if try limit is reached', async () => {
     const job = getJob();
-    job.try = config.download.maxTries;
+    job.try = appConfig.download.maxTries;
 
     const process = processHarvestQueue('foobar');
 

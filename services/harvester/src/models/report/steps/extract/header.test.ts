@@ -20,7 +20,7 @@ describe('COUNTER 5', () => {
   describe('Report Header (extractReportHeader)', () => {
     test('should return header', async () => {
       const header = await extractReportHeader(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS
       );
 
@@ -32,7 +32,7 @@ describe('COUNTER 5', () => {
 
     test("should throw if release doesn't match", async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/ir/empty.json',
+        '/examples/reports/5.1/ir/empty.json',
         OPTIONS
       );
 
@@ -40,14 +40,17 @@ describe('COUNTER 5', () => {
     });
 
     test("should throw if id doesn't match", async () => {
-      const promise = extractReportHeader('/examples/5/pr/valid.json', OPTIONS);
+      const promise = extractReportHeader(
+        '/examples/reports/5/pr/valid.json',
+        OPTIONS
+      );
 
       await expect(promise).rejects.toThrow('Expected Report_ID IR, got PR');
     });
 
     test('should throw if no header is found', async () => {
       const promise = extractReportHeader(
-        '/examples/5/ir/missing_header.json',
+        '/examples/reports/5/ir/missing_header.json',
         OPTIONS
       );
 
@@ -58,7 +61,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if header is invalid', async () => {
       const promise = extractReportHeader(
-        '/examples/5/ir/invalid_header.json',
+        '/examples/reports/5/ir/invalid_header.json',
         OPTIONS
       );
 
@@ -76,7 +79,7 @@ describe('COUNTER 5', () => {
       };
 
       const promise = extractReportHeader(
-        '/examples/5/custom:ir/invalid_header.json',
+        '/examples/reports/5/custom:ir/invalid_header.json',
         options
       );
 
@@ -85,7 +88,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if not JSON', async () => {
       const promise = extractReportHeader(
-        '/examples/5/ir/invalid.json.txt',
+        '/examples/reports/5/ir/invalid.json.txt',
         OPTIONS
       );
 
@@ -96,7 +99,7 @@ describe('COUNTER 5', () => {
 
     test("should throw if doesn't exists", async () => {
       const promise = extractReportHeader(
-        '/examples/5/ir/does-not-exists.json.txt',
+        '/examples/reports/5/ir/does-not-exists.json.txt',
         OPTIONS
       );
 
@@ -108,7 +111,7 @@ describe('COUNTER 5', () => {
       const controller = new AbortController();
 
       const promise = extractReportHeader(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS,
         controller.signal
       );
@@ -160,6 +163,7 @@ describe('COUNTER 5', () => {
     test('should return null if unable to parse', () => {
       const id = extractRegistryId({
         ...HEADER,
+        // @ts-expect-error - Registry_Record shouldn't be present in R5
         Registry_Record: undefined,
       });
 
@@ -182,7 +186,7 @@ describe('COUNTER 5.1', () => {
   describe('Report Header (extractReportHeader)', () => {
     test('should return header', async () => {
       const header = await extractReportHeader(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS
       );
 
@@ -193,14 +197,17 @@ describe('COUNTER 5.1', () => {
     });
 
     test("should throw if release doesn't match", async () => {
-      const promise = extractReportHeader('/examples/5/ir/empty.json', OPTIONS);
+      const promise = extractReportHeader(
+        '/examples/reports/5/ir/empty.json',
+        OPTIONS
+      );
 
       await expect(promise).rejects.toThrow('Expected Release 5.1, got 5');
     });
 
     test("should throw if id doesn't match", async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/pr/valid.json',
+        '/examples/reports/5.1/pr/valid.json',
         OPTIONS
       );
 
@@ -209,7 +216,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if no header is found', async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/ir/missing_header.json',
+        '/examples/reports/5.1/ir/missing_header.json',
         OPTIONS
       );
 
@@ -220,7 +227,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if header is invalid', async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/ir/invalid_header.json',
+        '/examples/reports/5.1/ir/invalid_header.json',
         OPTIONS
       );
 
@@ -238,7 +245,7 @@ describe('COUNTER 5.1', () => {
       };
 
       const promise = extractReportHeader(
-        '/examples/5.1/custom:ir/invalid_header.json',
+        '/examples/reports/5.1/custom:ir/invalid_header.json',
         options
       );
 
@@ -247,7 +254,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if not JSON', async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/ir/invalid.json.txt',
+        '/examples/reports/5.1/ir/invalid.json.txt',
         OPTIONS
       );
 
@@ -258,7 +265,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if doesn't exists", async () => {
       const promise = extractReportHeader(
-        '/examples/5.1/ir/does-not-exists.json.txt',
+        '/examples/reports/5.1/ir/does-not-exists.json.txt',
         OPTIONS
       );
 
@@ -270,7 +277,7 @@ describe('COUNTER 5.1', () => {
       const controller = new AbortController();
 
       const promise = extractReportHeader(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS,
         controller.signal
       );

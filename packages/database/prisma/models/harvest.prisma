@@ -11,6 +11,8 @@ enum HarvestJobStatus {
 enum HarvestJobStep {
   download
   extract
+  enrich
+  insert
 }
 
 /// Information about a harvest job
@@ -45,6 +47,10 @@ model HarvestJob {
   download      Json             @default("{ \"done\": false }")
   /// Information about extract step
   extract       Json             @default("{ \"done\": false }")
+  /// Information about enrich step
+  enrich        Json             @default("{ \"done\": false }")
+  /// Information about insert step
+  insert        Json             @default("{ \"done\": false }")
   /// Time harvest took
   took          Int?
   /// When the harvest job was created/queued

@@ -13,18 +13,21 @@
     "ignore": ["hostname"]
   },
   "rabbitmq": {
-    "protocol": "amqp",
-    "host": "rabbitmq",
-    "port": 5672,
-    "vhost": "/",
+    "url": "amqp://rabbitmq:5672/",
     "username": "guest",
     "password": "guest"
   },
+  "elasticsearch": {
+    "url": "https://host.docker.internal:9000/",
+    "username": "elastic",
+    "password": "changeme",
+    "apiKey": "",
+    "tls": {
+      "rejectUnauthorized": false
+    }
+  },
   "redis": {
-    "protocol": "redis",
-    "host": "redis",
-    "port": 6379,
-    "vhost": "/",
+    "url": "redis://redis:6379/",
     "username": "",
     "password": ""
   }

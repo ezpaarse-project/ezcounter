@@ -21,10 +21,7 @@ const delayedJobs = new Map<string, Set<string>>();
  * @param job - The job
  * @param queueName - The name of the queue
  */
-function markHarvestJobAsProcessing(
-  job: HarvestJobData,
-  queueName: string
-): void {
+function markJobAsProcessing(job: HarvestJobData, queueName: string): void {
   void sendHarvestJobStatusEvent({
     id: job.id,
     startedAt: new Date(),
@@ -38,13 +35,14 @@ function markHarvestJobAsProcessing(
     delayedJobs.set(queueName, delayed);
   }
 }
+
 /**
  * Mark harvest job as delayed
  *
  * @param job - The job
  * @param queueName - The name of the queue
  */
-function markHarvestJobAsDelayed(job: HarvestJobData, queueName: string): void {
+function markJobAsDelayed(job: HarvestJobData, queueName: string): void {
   void sendHarvestJobStatusEvent({
     id: job.id,
     status: 'delayed',
@@ -73,7 +71,7 @@ type RequeueData = {
  * @param channel - The rabbitmq channel
  * @param data - How to requeue job
  */
-async function requeueHarvestJob(
+async function requeueJob(
   channel: rabbitmq.Channel,
   data: RequeueData
 ): Promise<void> {
@@ -146,7 +144,7 @@ async function processHarvestMessage(
   }
 
   // Mark job as processing
-  markHarvestJobAsProcessing(data, queueName);
+  markJobAsProcessing(data, queueName);
 
   data.try = (data.try ?? 0) + 1;
   const result = await harvestReport(data);
@@ -154,9 +152,9 @@ async function processHarvestMessage(
   // We need to requeue report and we have enough tries left
   if ((result.processing || result.unavailable) && data.try < config.maxTries) {
     data.download.forceDownload = true;
-    markHarvestJobAsDelayed(data, queueName);
+    markJobAsDelayed(data, queueName);
     // Requeue job
-    await requeueHarvestJob(channel, {
+    await requeueJob(channel, {
       // Data host is currently processing report - we'll retry later
       delay: result.processing ? config.processingBackoff : undefined,
       job: data,

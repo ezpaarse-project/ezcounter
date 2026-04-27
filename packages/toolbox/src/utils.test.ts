@@ -76,6 +76,17 @@ describe('Throttled Function', () => {
     await vi.runAllTimersAsync();
     expect(spy).toHaveBeenCalledWith('foobar');
   });
+
+  test('should return same promise if no delay', async () => {
+    const throttled = createThrottledFunction(spy, 500);
+
+    const promise1 = throttled();
+    const promise2 = throttled();
+
+    // Waiting for last call to resolve
+    await vi.runAllTimersAsync();
+    expect(promise1).toBe(promise2);
+  });
 });
 
 describe('Wait for generator', () => {

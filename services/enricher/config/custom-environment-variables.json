@@ -19,18 +19,24 @@
     "ignore": { "__name": "LOG_IGNORE", "__format": "json" }
   },
   "rabbitmq": {
-    "protocol": "RABBITMQ_PROTOCOL",
-    "host": "RABBITMQ_HOST",
-    "port": { "__name": "RABBITMQ_PORT", "__format": "number" },
-    "vhost": "RABBITMQ_VHOST",
+    "url": "RABBITMQ_URL",
     "username": "RABBITMQ_USERNAME",
     "password": "RABBITMQ_PASSWORD"
   },
+  "elasticsearch": {
+    "url": "ELASTIC_URL",
+    "username": "ELASTIC_USERNAME",
+    "password": "ELASTIC_PASSWORD",
+    "apiKey": "ELASTIC_API_KEY",
+    "tls": {
+      "rejectUnauthorized": {
+        "__name": "ELASTIC_TLS_REJECT_UNAUTHORIZED",
+        "__format": "boolean"
+      }
+    }
+  },
   "redis": {
-    "protocol": "REDIS_PROTOCOL",
-    "host": "REDIS_HOST",
-    "port": { "__name": "REDIS_PORT", "__format": "number" },
-    "vhost": "REDIS_VHOST",
+    "url": "REDIS_URL",
     "username": "REDIS_USERNAME",
     "password": "REDIS_PASSWORD"
   }

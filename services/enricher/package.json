@@ -31,7 +31,11 @@
     "@ezcounter/rabbitmq": "workspace:*",
     "@ezcounter/simple-http": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",
-    "ioredis": "^5.9.2",
+    "@keyv/redis": "^5.1.6",
+    "date-fns": "^4.1.0",
+    "http-status-codes": "^2.3.0",
+    "isbn3": "2.0.6",
+    "keyv": "^5.6.0",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },

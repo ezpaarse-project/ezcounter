@@ -25,7 +25,10 @@ describe('COUNTER 5', () => {
         },
       };
 
-      const iterator = extractReportItems('/examples/5/pr/valid.json', options);
+      const iterator = extractReportItems(
+        '/examples/reports/5/pr/valid.json',
+        options
+      );
 
       const promise = iterator.next();
 
@@ -33,7 +36,10 @@ describe('COUNTER 5', () => {
     });
 
     test('should return iterator for IR', async () => {
-      const iterator = extractReportItems('/examples/5/ir/valid.json', OPTIONS);
+      const iterator = extractReportItems(
+        '/examples/reports/5/ir/valid.json',
+        OPTIONS
+      );
 
       const promise = iterator.next();
 
@@ -42,7 +48,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if an item is invalid', async () => {
       const iterator = extractReportItems(
-        '/examples/5/ir/invalid_item.json',
+        '/examples/reports/5/ir/invalid_item.json',
         OPTIONS
       );
 
@@ -53,7 +59,10 @@ describe('COUNTER 5', () => {
     });
 
     test("should throw if doesn't have items", async () => {
-      const iterator = extractReportItems('/examples/5/ir/empty.json', OPTIONS);
+      const iterator = extractReportItems(
+        '/examples/reports/5/ir/empty.json',
+        OPTIONS
+      );
       const promise = iterator.next();
 
       await expect(promise).rejects.toThrow("Report doesn't have any Items");
@@ -69,7 +78,7 @@ describe('COUNTER 5', () => {
       };
 
       const iterator = extractReportItems(
-        '/examples/5/custom:ir/invalid_item.json',
+        '/examples/reports/5/custom:ir/invalid_item.json',
         options
       );
       const promise = iterator.next();
@@ -79,7 +88,7 @@ describe('COUNTER 5', () => {
 
     test('should throw if not JSON', async () => {
       const iterator = extractReportItems(
-        '/examples/5/ir/invalid.json.txt',
+        '/examples/reports/5/ir/invalid.json.txt',
         OPTIONS
       );
       const promise = iterator.next();
@@ -91,7 +100,7 @@ describe('COUNTER 5', () => {
 
     test("should throw if doesn't exists", async () => {
       const iterator = extractReportItems(
-        '/examples/5/ir/does-not-exists.json.txt',
+        '/examples/reports/5/ir/does-not-exists.json.txt',
         OPTIONS
       );
       const promise = iterator.next();
@@ -104,7 +113,7 @@ describe('COUNTER 5', () => {
       const controller = new AbortController();
 
       const iterator = extractReportItems(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS,
         controller.signal
       );
@@ -119,7 +128,7 @@ describe('COUNTER 5', () => {
       const controller = new AbortController();
 
       const iterator = extractReportItems(
-        '/examples/5/ir/valid.json',
+        '/examples/reports/5/ir/valid.json',
         OPTIONS,
         controller.signal
       );
@@ -154,7 +163,7 @@ describe('COUNTER 5.1', () => {
       };
 
       const iterator = extractReportItems(
-        '/examples/5.1/pr/valid.json',
+        '/examples/reports/5.1/pr/valid.json',
         options
       );
 
@@ -165,7 +174,7 @@ describe('COUNTER 5.1', () => {
 
     test('should return iterator for IR', async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS
       );
 
@@ -176,7 +185,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if an item is invalid', async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/invalid_item.json',
+        '/examples/reports/5.1/ir/invalid_item.json',
         OPTIONS
       );
 
@@ -188,7 +197,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if an item parent is invalid', async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/invalid_parent.json',
+        '/examples/reports/5.1/ir/invalid_parent.json',
         OPTIONS
       );
       const promise = iterator.next();
@@ -199,7 +208,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if doesn't have items", async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/empty.json',
+        '/examples/reports/5.1/ir/empty.json',
         OPTIONS
       );
       const promise = iterator.next();
@@ -209,7 +218,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if an item parent doesn't have items", async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/missing_items.json',
+        '/examples/reports/5.1/ir/missing_items.json',
         OPTIONS
       );
       const promise = iterator.next();
@@ -220,7 +229,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if an item parent doesn't have items", async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/missing_items.json',
+        '/examples/reports/5.1/ir/missing_items.json',
         OPTIONS
       );
       const promise = iterator.next();
@@ -231,7 +240,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if an item parent have empty items', async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/empty_items.json',
+        '/examples/reports/5.1/ir/empty_items.json',
         OPTIONS
       );
       const promise = iterator.next();
@@ -252,7 +261,7 @@ describe('COUNTER 5.1', () => {
       };
 
       const iterator = extractReportItems(
-        '/examples/5.1/custom:ir/invalid_item.json',
+        '/examples/reports/5.1/custom:ir/invalid_item.json',
         options
       );
       const promise = iterator.next();
@@ -262,7 +271,7 @@ describe('COUNTER 5.1', () => {
 
     test('should throw if not JSON', async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/invalid.json.txt',
+        '/examples/reports/5.1/ir/invalid.json.txt',
         OPTIONS
       );
       const promise = iterator.next();
@@ -274,7 +283,7 @@ describe('COUNTER 5.1', () => {
 
     test("should throw if doesn't exists", async () => {
       const iterator = extractReportItems(
-        '/examples/5.1/ir/does-not-exists.json.txt',
+        '/examples/reports/5.1/ir/does-not-exists.json.txt',
         OPTIONS
       );
       const promise = iterator.next();
@@ -287,7 +296,7 @@ describe('COUNTER 5.1', () => {
       const controller = new AbortController();
 
       const iterator = extractReportItems(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS,
         controller.signal
       );
@@ -302,7 +311,7 @@ describe('COUNTER 5.1', () => {
       const controller = new AbortController();
 
       const iterator = extractReportItems(
-        '/examples/5.1/ir/valid.json',
+        '/examples/reports/5.1/ir/valid.json',
         OPTIONS,
         controller.signal
       );

@@ -4,14 +4,14 @@ import {
   isPrettierInstalled,
 } from '@ezcounter/logger';
 
-import { config } from '~/lib/config';
+import { appConfig } from '~/lib/config';
 
-const { level, dir, ignore } = config.log;
+const { log: config } = appConfig;
 
 const options: Omit<LoggerOptions, 'name'> = {
-  dir,
-  ignore: Array.isArray(ignore) ? ignore : [ignore],
-  level,
+  dir: config.dir,
+  ignore: Array.isArray(config.ignore) ? config.ignore : [config.ignore],
+  level: config.level,
   pretty: isPrettierInstalled((spec) => import.meta.resolve(spec)),
 };
 
