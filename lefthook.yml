@@ -1,7 +1,7 @@
 templates:
-  lint_flags: --fix --format unix
+  lint_flags: --fix
   fmt_flags: --no-error-on-unmatched-pattern
-  turbo_flags: --log-order grouped --no-color
+  turbo_flags: --log-order grouped
 
 pre-commit:
   piped: true

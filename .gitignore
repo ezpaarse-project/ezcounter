@@ -148,3 +148,4 @@ data/
 logs/
 _bak*/
 .turbo/
+lefthook-local.yaml
