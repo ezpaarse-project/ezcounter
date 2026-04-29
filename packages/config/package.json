@@ -14,7 +14,10 @@
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
   "type": "module",
-  "exports": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./env": "./src/env-utils.ts"
+  },
   "scripts": {
     "lint": "oxlint",
     "fmt": "oxfmt",

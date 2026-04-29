@@ -1,3 +1,5 @@
+import { milliseconds } from 'date-fns';
+
 import { HarvestDispatchData } from '@ezcounter/dto/queues';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
@@ -24,7 +26,7 @@ async function onHarvestDispatch(data: HarvestDispatchData): Promise<void> {
     await waitForGenerator(
       processHarvestQueue(data.queueName),
       // Just a little delay to avoid spamming too fast
-      config.jobDelay
+      config.jobDelay.milliseconds || milliseconds(config.jobDelay)
     );
   } catch (error) {
     logger.error({

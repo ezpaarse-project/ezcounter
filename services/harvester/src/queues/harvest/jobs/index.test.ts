@@ -109,7 +109,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     expect(mockedChannel.basicPublish).toBeCalledWith(
       {
-        headers: { 'x-delay': appConfig.download.processingBackoff },
+        headers: {
+          // X-Delay should be in milliseconds and use config (default in tests)
+          'x-delay': appConfig.download.processingBackoff.minutes * 60 * 1000,
+        },
         routingKey: 'foobar',
       },
       newJob

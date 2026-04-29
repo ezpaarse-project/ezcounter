@@ -39,9 +39,9 @@ const log = (logger: MinimalLogger, msg: Record<string, unknown>): void => {
 /**
  * Setup watcher for a config file
  *
- * @param path The path to watch
- * @param signal Signal to abort
- * @param logger Logger
+ * @param path - The path to watch
+ * @param signal - Signal to abort
+ * @param logger - Logger
  */
 async function setupConfigWatcher(
   path: string,
@@ -81,7 +81,7 @@ async function setupConfigWatcher(
 /**
  * Watch all config sources
  *
- * @param logger Logger
+ * @param logger - Logger
  */
 function watchConfigSources(logger: MinimalLogger): void {
   const sources = config.util.getConfigSources();

@@ -1,5 +1,7 @@
 import { setTimeout as setTimeoutAsync } from 'node:timers/promises';
 
+import { type Duration, milliseconds } from 'date-fns';
+
 import { HarvestJobData } from '@ezcounter/dto/queues';
 
 import { appConfig } from '~/lib/config';
@@ -60,9 +62,9 @@ type RequeueData = {
   /** The queue where to requeue the job */
   queueName: string;
   /** The delay to apply to message, none by default */
-  delay?: number;
+  delay?: Duration & { milliseconds?: number };
   /** The time to pause queue, none by default */
-  pause?: number;
+  pause?: Duration & { milliseconds?: number };
 };
 
 /**
@@ -75,8 +77,13 @@ async function requeueJob(
   channel: rabbitmq.Channel,
   data: RequeueData
 ): Promise<void> {
-  const pause = data.pause ? Math.max(1, data.pause) : 0;
-  const delay = data.delay ? Math.max(1, data.delay) : undefined;
+  const pause = data.pause
+    ? Math.max(1, data.pause.milliseconds || milliseconds(data.pause))
+    : 0;
+
+  const delay = data.delay
+    ? Math.max(1, data.delay.milliseconds || milliseconds(data.delay))
+    : undefined;
 
   // Pause whole queue if needed
   if (pause > 0) {
@@ -187,7 +194,9 @@ async function deleteHarvestQueue(
     });
 
     // Waiting a bit more before re-asking for messages
-    await setTimeoutAsync(config.detachDelay);
+    await setTimeoutAsync(
+      config.detachDelay.milliseconds || milliseconds(config.detachDelay)
+    );
 
     return false;
   }

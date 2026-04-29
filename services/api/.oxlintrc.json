@@ -4,6 +4,15 @@
 
   "overrides": [
     {
+      "files": ["config/*.ts"],
+      "rules": {
+        // node-config expect default exports
+        "import/no-default-export": "off",
+        // dont sort keys as we want it to match config
+        "sort-keys": "off"
+      }
+    },
+    {
       "files": ["src/routes/*.ts", "src/routes/**/*.ts"],
       "rules": {
         // Route definitions can be large and are in one function

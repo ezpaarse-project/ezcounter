@@ -18,10 +18,30 @@
     "password": "guest"
   },
   "download": {
-    "processingBackoff": 600000,
-    "unavailableBackoff": 600000,
-    "detachDelay": 5000,
-    "jobDelay": 500,
+    "processingBackoff": {
+      "hours": 0,
+      "minutes": 10,
+      "seconds": 0,
+      "milliseconds": 0
+    },
+    "unavailableBackoff": {
+      "hours": 0,
+      "minutes": 10,
+      "seconds": 0,
+      "milliseconds": 0
+    },
+    "detachDelay": {
+      "hours": 0,
+      "minutes": 0,
+      "seconds": 5,
+      "milliseconds": 0
+    },
+    "jobDelay": {
+      "hours": 0,
+      "minutes": 0,
+      "seconds": 0,
+      "milliseconds": 500
+    },
     "maxTries": 5,
     "dir": "/var/lib/app-harvester/data/reports"
   }
