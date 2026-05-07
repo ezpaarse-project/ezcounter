@@ -91,7 +91,9 @@ export function extractRegistryId(header: COUNTERReportHeader): string | null {
   }
 
   const url = new URL(header.Registry_Record);
-  const matches = /^\/platform\/(?<id>[a-z0-9-]+)\/?/i.exec(url.pathname);
+  const matches = /^\/(platform|usage-data-host)\/(?<id>[a-z0-9-]+)\/?/i.exec(
+    url.pathname
+  );
 
   return matches?.groups?.id ?? null;
 }

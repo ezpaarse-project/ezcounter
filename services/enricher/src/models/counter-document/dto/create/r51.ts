@@ -72,6 +72,8 @@ export type CreateR51DocumentItem = BaseItem & {
 export type CreateR51DocumentAttribute = {
   Access_Method?: string;
   Access_Type?: string;
+  Country_Code?: string;
+  Country_Name?: string;
   Data_Type?: string;
   YOP?: string;
 };

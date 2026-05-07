@@ -1,4 +1,9 @@
 import { z } from '.';
+import {
+  EnrichEzUnpaywallOptions,
+  EnrichOpenAlexOptions,
+  EnrichSource,
+} from './enrich';
 
 const MIN_TIMEOUT = 100;
 
@@ -154,7 +159,20 @@ export type HarvestDownloadOptions = z.infer<typeof HarvestDownloadOptions>;
 /**
  * Validation for the options to enrich a COUNTER report
  */
-export const HarvestEnrichOptions = z.object({});
+export const HarvestEnrichOptions = z.object({
+  ezunpaywall: EnrichEzUnpaywallOptions.optional().describe(
+    'Options to enrich items using ezunpaywall'
+  ),
+
+  openalex: EnrichOpenAlexOptions.optional().describe(
+    'Options to enrich items using openalex'
+  ),
+
+  sources: z
+    .array(EnrichSource)
+    .optional()
+    .describe('Sources to enrich items, defaults to all'),
+});
 
 /**
  * Type for the options to enrich a COUNTER report
@@ -166,7 +184,7 @@ export type HarvestEnrichOptions = z.infer<typeof HarvestEnrichOptions>;
  */
 export const HarvestInsertOptions = z.object({
   additionalData: z
-    .record(z.string(), z.string())
+    .record(z.string(), z.json())
     .optional()
     .describe('Data to add to harvested items'),
 

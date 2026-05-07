@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
 import { format } from 'date-fns';
-import { asIsbn13 } from 'isbn3';
+import isbn from 'isbn3';
 
 import type {
   R51ReportHeader,
@@ -17,7 +17,7 @@ import type {
   CreateR51DocumentHeader,
   CreateR51DocumentItem,
   CreateR51DocumentParent,
-} from '../dto';
+} from '~/models/counter-document/dto';
 
 /**
  * Format Item_ID into human readable entries
@@ -31,7 +31,7 @@ function formatItemID(ids: R51ItemID): R51ItemID {
 
   if (ids?.ISBN) {
     // We want to show the hyphened version of ISBN13
-    result.ISBN = asIsbn13(ids.ISBN, true) || undefined;
+    result.ISBN = isbn.asIsbn13(ids.ISBN, true) || undefined;
   }
 
   if (ids?.Online_ISSN) {
@@ -47,18 +47,6 @@ function formatItemID(ids: R51ItemID): R51ItemID {
 }
 
 /**
- * Get identifiers specific to item
- *
- * @param ids - The Item_ID object
- *
- * @returns The identifiers
- */
-const getIdentifiers = (ids: R51ItemID): string[] =>
-  Object.entries(ids)
-    .map(([key, value]) => `${key}:${value}`)
-    .sort();
-
-/**
  * Generate unique ID based on data
  *
  * @param parts - The parts of the ID
@@ -66,7 +54,10 @@ const getIdentifiers = (ids: R51ItemID): string[] =>
  *
  * @returns The generated ID
  */
-const generateId = (parts: string[], itemIdentifiers: string[]): string =>
+const generateId = (
+  parts: string[],
+  itemIdentifiers: (string | undefined)[]
+): string =>
   [
     ...parts,
     createHash('sha256').update(itemIdentifiers.join('|')).digest('hex'),
@@ -169,10 +160,40 @@ const transformAttribute = (
 
   Access_Type: 'Access_Type' in attr ? attr.Access_Type : undefined,
 
+  Country_Code: 'Country_Code' in attr ? attr.Country_Code : undefined,
+
+  Country_Name: 'Country_Name' in attr ? attr.Country_Name : undefined,
+
   Data_Type: 'Data_Type' in attr ? attr.Data_Type : undefined,
 
   YOP: 'YOP' in attr ? attr.YOP : undefined,
 });
+
+/**
+ * Get identifiers specific to item
+ *
+ * @param item - The item
+ * @param attr - The attributes
+ *
+ * @returns The identifiers
+ */
+const getIdentifiers = (
+  item: CreateR51DocumentItem,
+  attr: CreateR51DocumentAttribute
+): (string | undefined)[] => [
+  attr.YOP,
+  attr.Access_Method,
+  attr.Access_Type,
+  attr.Data_Type,
+  attr.Country_Code,
+  item.Platform,
+  item.Publisher,
+  item.Title,
+  item.Database,
+  ...Object.entries(item.Item_ID ?? {})
+    .map(([key, value]) => `${key}:${value}`)
+    .toSorted(),
+];
 
 export type R51ReportData = {
   harvestDate: string;
@@ -192,13 +213,8 @@ export type R51ReportData = {
 export function* transformR51ItemToDocuments(
   data: R51ReportData,
   options: HarvestInsertOptions
-): Generator<CreateR51Document & { _id: string }> {
+): Generator<{ document: CreateR51Document; id: string }> {
   const reportId = data.header.Report_ID.toLowerCase();
-
-  const identifiers =
-    'Item_ID' in data.item && data.item.Item_ID
-      ? getIdentifiers(data.item.Item_ID)
-      : [];
 
   const header = transformHeader(data.header);
   const item = transformItem(data.item);
@@ -206,6 +222,8 @@ export function* transformR51ItemToDocuments(
 
   for (const attr of data.item.Attribute_Performance) {
     const attribute = transformAttribute(attr);
+
+    const identifiers = getIdentifiers(item, attribute);
 
     for (const [Metric_Type, perf] of Object.entries(attr.Performance)) {
       const metricType = Metric_Type.toLowerCase();
@@ -220,15 +238,17 @@ export function* transformR51ItemToDocuments(
         }
 
         yield {
-          ...item,
-          ...attribute,
-          Count: count,
-          Item_Parent: parent,
-          Metric_Type: Metric_Type,
-          Report_Header: header,
-          X_Date_Month: date,
-          X_Harvested_At: data.harvestDate,
-          _id: generateId(
+          document: {
+            ...item,
+            ...attribute,
+            Count: count,
+            Item_Parent: parent,
+            Metric_Type: Metric_Type,
+            Report_Header: header,
+            X_Date_Month: date,
+            X_Harvested_At: data.harvestDate,
+          },
+          id: generateId(
             [date, reportId, metricType, ...(options.additionalIdParts ?? [])],
             identifiers
           ),

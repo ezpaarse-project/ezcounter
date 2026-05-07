@@ -23,7 +23,7 @@ import type {
   UpdateDataHostSupportedReport,
 } from './dto';
 
-const { supported: config } = appConfig.dataHost;
+const config = appConfig.dataHost.supported;
 
 /**
  * Type for any report list from any COUNTER release

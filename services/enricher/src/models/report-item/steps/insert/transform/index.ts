@@ -1,7 +1,8 @@
 import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
-import type { CreateCOUNTERDocument } from '../dto';
+import type { CreateCOUNTERDocument } from '~/models/counter-document/dto';
+
 import { type R5ReportData, transformR5ItemToDocuments } from './r5';
 import { type R51ReportData, transformR51ItemToDocuments } from './r51';
 
@@ -18,7 +19,7 @@ import { type R51ReportData, transformR51ItemToDocuments } from './r51';
 export function transformReportItemToDocuments(
   data: EnrichJobContent,
   options: HarvestInsertOptions
-): Generator<CreateCOUNTERDocument & { _id: string }> {
+): Generator<{ document: CreateCOUNTERDocument; id: string }> {
   switch (data.header.Release) {
     case '5':
       return transformR5ItemToDocuments(data as R5ReportData, options);

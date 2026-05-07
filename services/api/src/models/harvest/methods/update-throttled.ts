@@ -3,7 +3,7 @@ import { createThrottledFunction } from '@ezcounter/toolbox/utils';
 import { appLogger } from '~/lib/logger';
 
 import type { UpdateHarvestJob } from '../dto';
-import { updateOneHarvestJob } from './update';
+import { mergeUpdateData, updateOneHarvestJob } from './update';
 
 const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
@@ -15,55 +15,30 @@ const patchs = new Map<string, UpdateHarvestJob>();
 const updaters = new Map<string, typeof handleUpdate>();
 
 /**
- * Deeply merge updates of a harvest job
- *
- * @param source - The previous value of the harvest job
- * @param target - The patch to apply
- *
- * @returns - The patched harvest job
- */
-const mergeUpdateData = (
-  source: UpdateHarvestJob,
-  target: UpdateHarvestJob
-): UpdateHarvestJob => ({
-  ...source,
-  ...target,
-  // Merge steps
-  download: {
-    done: source.download?.done ?? target.download?.done ?? false,
-    ...source.download,
-    ...target.download,
-  },
-  extract: {
-    done: source.extract?.done ?? target.extract?.done ?? false,
-    ...source.extract,
-    ...target.extract,
-  },
-});
-
-/**
  * Update status of harvest job in DB and clear state when job is ended
  *
- * @param data - The data to update in harvest job
+ * @param id - The id of harvest job to update
  */
-async function handleUpdate(data: UpdateHarvestJob): Promise<void> {
+async function handleUpdate(id: string): Promise<void> {
+  const data = patchs.get(id);
+  patchs.delete(id);
+
   try {
-    const { status } = await updateOneHarvestJob(data);
+    const { status } = await updateOneHarvestJob({ id, ...data });
 
     if (status === 'done' || status === 'error') {
-      patchs.delete(data.id);
-      updaters.delete(data.id);
+      updaters.delete(id);
     }
 
-    logger.debug({
-      id: data.id,
+    logger.trace({
+      id,
       msg: 'Harvest Job updated',
       status,
     });
   } catch (error) {
     logger.error({
       err: error,
-      id: data.id,
+      id,
       msg: 'Unable to update data of Harvest Job',
     });
   }
@@ -90,5 +65,5 @@ export function updateOneHarvestJobThrottled(data: UpdateHarvestJob): void {
     updaters.set(data.id, update);
   }
 
-  void update(event);
+  void update(event.id);
 }

@@ -6,7 +6,7 @@ import {
   isLastDayOfMonth,
   isSameMonth,
 } from 'date-fns';
-import { asIsbn13 } from 'isbn3';
+import isbn from 'isbn3';
 
 import type { R5ReportItem } from '@ezcounter/counter/dto';
 import type {
@@ -22,7 +22,7 @@ import type {
   CreateR5DocumentHeader,
   CreateR5DocumentItem,
   CreateR5DocumentParent,
-} from '../dto';
+} from '~/models/counter-document/dto';
 
 /**
  * Transform a list of attributes into an object
@@ -64,7 +64,7 @@ const formatItemID = (ids: R5ItemID[]): R5ItemID[] =>
       switch (item.Type) {
         case 'ISBN':
           // We want to show the hyphened version of ISBN13
-          return { ...item, Value: asIsbn13(item.Value, true) || '' };
+          return { ...item, Value: isbn.asIsbn13(item.Value, true) || '' };
 
         case 'Online_ISSN':
         case 'Print_ISSN':
@@ -78,16 +78,6 @@ const formatItemID = (ids: R5ItemID[]): R5ItemID[] =>
     .filter((id) => id.Value !== '');
 
 /**
- * Get identifiers specific to item
- *
- * @param ids - The Item_ID array
- *
- * @returns The identifiers
- */
-const getIdentifiers = (ids: R5ItemID[]): string[] =>
-  ids.map(({ Type, Value }) => `${Type}:${Value}`).sort();
-
-/**
  * Generate unique ID based on data
  *
  * @param parts - The parts of the ID
@@ -95,7 +85,10 @@ const getIdentifiers = (ids: R5ItemID[]): string[] =>
  *
  * @returns The generated ID
  */
-const generateId = (parts: string[], itemIdentifiers: string[]): string =>
+const generateId = (
+  parts: string[],
+  itemIdentifiers: (string | undefined)[]
+): string =>
   [
     ...parts,
     createHash('sha256').update(itemIdentifiers.join('|')).digest('hex'),
@@ -211,6 +204,27 @@ const transformItem = (item: R5ReportItem): CreateR5DocumentItem => ({
 });
 
 /**
+ * Get identifiers specific to item
+ *
+ * @param item - The item
+ *
+ * @returns The identifiers
+ */
+const getIdentifiers = (item: CreateR5DocumentItem): (string | undefined)[] => [
+  item.YOP,
+  item.Access_Method,
+  item.Access_Type,
+  item.Data_Type,
+  item.Platform,
+  item.Publisher,
+  item.Title,
+  item.Database,
+  ...Object.entries(item.Item_ID ?? {})
+    .map(([key, value]) => `${key}:${value}`)
+    .toSorted(),
+];
+
+/**
  * Get the date of an item performance
  *
  * @param performance - The item performance
@@ -218,10 +232,7 @@ const transformItem = (item: R5ReportItem): CreateR5DocumentItem => ({
  *
  * @returns - The date of the item performance (format: yyyy-MM)
  */
-function getPerformanceDate(
-  performance: R5ReportItemPerformance,
-  identifiers: string[]
-): string {
+function getPerformanceDate(performance: R5ReportItemPerformance): string {
   const start = new Date(performance.Period.Begin_Date);
   const end = new Date(performance.Period.End_Date);
 
@@ -230,13 +241,13 @@ function getPerformanceDate(
 
   if (!isSameMonth(start, end)) {
     throw new Error('Performance cover more than a month', {
-      cause: { beginDate, endDate, identifiers },
+      cause: { beginDate, endDate },
     });
   }
 
   if (!isFirstDayOfMonth(start) || !isLastDayOfMonth(end)) {
     throw new Error('Performance does not cover the entire month', {
-      cause: { beginDate, endDate, identifiers },
+      cause: { beginDate, endDate },
     });
   }
 
@@ -260,13 +271,8 @@ export type R5ReportData = {
 export function* transformR5ItemToDocuments(
   data: R5ReportData,
   options: HarvestInsertOptions
-): Generator<CreateR5Document & { _id: string }> {
+): Generator<{ document: CreateR5Document; id: string }> {
   const reportId = data.header.Report_ID.toLowerCase();
-
-  const identifiers =
-    'Item_ID' in data.item && data.item.Item_ID
-      ? getIdentifiers(data.item.Item_ID)
-      : [];
 
   const header = transformHeader(data.header);
   const item = transformItem(data.item);
@@ -275,21 +281,25 @@ export function* transformR5ItemToDocuments(
       ? transformParent(data.item.Item_Parent)
       : undefined;
 
+  const identifiers = getIdentifiers(item);
+
   for (const performance of data.item.Performance) {
-    const date = getPerformanceDate(performance, identifiers);
+    const date = getPerformanceDate(performance);
 
     for (const { Metric_Type, Count } of performance.Instance) {
       const metricType = Metric_Type.toLowerCase();
 
       yield {
-        ...item,
-        Count,
-        Item_Parent: parent,
-        Metric_Type,
-        Report_Header: header,
-        X_Date_Month: date,
-        X_Harvested_At: data.harvestDate,
-        _id: generateId(
+        document: {
+          ...item,
+          Count,
+          Item_Parent: parent,
+          Metric_Type,
+          Report_Header: header,
+          X_Date_Month: date,
+          X_Harvested_At: data.harvestDate,
+        },
+        id: generateId(
           [date, reportId, metricType, ...(options.additionalIdParts ?? [])],
           identifiers
         ),

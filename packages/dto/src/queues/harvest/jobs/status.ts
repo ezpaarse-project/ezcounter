@@ -5,15 +5,8 @@ import { HarvestError, HarvestException } from '../../../harvest';
  * Validation for the event about the harvest of a COUNTER report
  */
 export const HarvestJobStatusEvent = z.object({
-  current: z
-    .enum(['download', 'extract'])
-    .optional()
-    .describe('Current step being processed'),
-
   download: z
     .object({
-      done: z.boolean().describe('Is step done'),
-
       httpCode: z.number().optional().describe('HTTP code of download'),
 
       progress: z
@@ -24,9 +17,13 @@ export const HarvestJobStatusEvent = z.object({
         .describe('Progress of download'),
 
       source: z
-        .enum(['remote', 'archive'])
+        .enum(['remote', 'archive', 'file'])
         .optional()
         .describe('Source of the report'),
+
+      status: z
+        .enum(['pending', 'processing', 'done'])
+        .describe('Current status of step'),
 
       url: z.string().optional().describe('URL of the remote, or to the file'),
     })
@@ -39,8 +36,6 @@ export const HarvestJobStatusEvent = z.object({
 
   extract: z
     .object({
-      done: z.boolean().describe('Is step done'),
-
       exceptions: z
         .array(HarvestException)
         .optional()
@@ -55,6 +50,10 @@ export const HarvestJobStatusEvent = z.object({
         .or(z.null())
         .optional()
         .describe('Registry ID extracted from header, null if not found'),
+
+      status: z
+        .enum(['pending', 'processing', 'done'])
+        .describe('Current status of step'),
     })
     .optional()
     .describe('Information about extract step'),

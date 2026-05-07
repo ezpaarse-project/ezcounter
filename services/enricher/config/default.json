@@ -18,7 +18,7 @@
     "password": "guest"
   },
   "elasticsearch": {
-    "url": "https://host.docker.internal:9000/",
+    "url": "https://host.docker.internal:9200/",
     "username": "elastic",
     "password": "changeme",
     "apiKey": "",
@@ -30,5 +30,54 @@
     "url": "redis://redis:6379/",
     "username": "",
     "password": ""
+  },
+  "enrich": {
+    "sources": {
+      "ezunpaywall": {
+        "baseUrl": "https://unpaywall.inist.fr/api/graphql/",
+        "apiKey": "",
+        "retry": 3,
+        "retryDelay": {
+          "minutes": 0,
+          "seconds": 0,
+          "milliseconds": 500
+        },
+        "timeout": {
+          "minutes": 0,
+          "seconds": 20,
+          "milliseconds": 0
+        },
+        "storeTtl": {
+          "months": 0,
+          "weeks": 1,
+          "days": 0,
+          "hours": 0,
+          "minutes": 0
+        }
+      },
+      "openalex": {
+        "baseUrl": "https://api.openalex.org/",
+        "apiKey": "",
+        "isCNRSGateway": false,
+        "retry": 3,
+        "retryDelay": {
+          "minutes": 0,
+          "seconds": 0,
+          "milliseconds": 500
+        },
+        "timeout": {
+          "minutes": 0,
+          "seconds": 20,
+          "milliseconds": 0
+        },
+        "storeTtl": {
+          "months": 0,
+          "weeks": 1,
+          "days": 0,
+          "hours": 0,
+          "minutes": 0
+        }
+      }
+    }
   }
 }

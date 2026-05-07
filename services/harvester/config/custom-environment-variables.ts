@@ -34,19 +34,19 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
       'seconds',
       'milliseconds',
     ]),
-    unavailableBackoff: defineDuration('DOWNLOAD_PROCESSING_BACKOFF', [
+    unavailableBackoff: defineDuration('DOWNLOAD_UNAVAILABLE_BACKOFF', [
       'hours',
       'minutes',
       'seconds',
       'milliseconds',
     ]),
-    detachDelay: defineDuration('DOWNLOAD_PROCESSING_BACKOFF', [
+    detachDelay: defineDuration('DOWNLOAD_DETACH_DELAY', [
       'hours',
       'minutes',
       'seconds',
       'milliseconds',
     ]),
-    jobDelay: defineDuration('DOWNLOAD_PROCESSING_BACKOFF', [
+    jobDelay: defineDuration('DOWNLOAD_JOB_DELAY', [
       'hours',
       'minutes',
       'seconds',

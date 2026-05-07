@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { updateOneHarvestJob } from './__mocks__/update';
+import { mergeUpdateData, updateOneHarvestJob } from './__mocks__/update';
 import { updateOneHarvestJobThrottled } from './update-throttled';
 
 vi.mock(import('./update'));
@@ -16,27 +16,27 @@ describe(updateOneHarvestJobThrottled, () => {
     });
     updateOneHarvestJobThrottled({
       download: {
-        done: true,
         progress: 1,
+        status: 'done',
       },
       id: 'second-job',
       status: 'processing',
     });
     updateOneHarvestJobThrottled({
       download: {
-        done: false,
         httpCode: 500,
+        status: 'processing',
       },
       id: 'first-job',
       status: 'delayed',
     });
     updateOneHarvestJobThrottled({
       download: {
-        done: true,
         httpCode: 200,
+        status: 'done',
       },
       extract: {
-        done: true,
+        status: 'done',
       },
       id: 'second-job',
       status: 'done',
@@ -45,18 +45,60 @@ describe(updateOneHarvestJobThrottled, () => {
     // Let throttled function run
     await vi.runAllTimersAsync();
 
-    expect(updateOneHarvestJob).toBeCalledWith({
+    // TODO: missing steps should NOT be undefined (just absent)
+    expect(updateOneHarvestJob).toBeCalledWith(
+      expect.objectContaining({
+        download: {
+          httpCode: 500,
+          status: 'processing',
+        },
+        id: 'first-job',
+        status: 'delayed',
+      })
+    );
+    expect(updateOneHarvestJob).toBeCalledWith(
+      expect.objectContaining({
+        download: {
+          httpCode: 200,
+          progress: 1,
+          status: 'done',
+        },
+        extract: {
+          status: 'done',
+        },
+        id: 'second-job',
+        status: 'done',
+      })
+    );
+  });
+
+  test.only('should properly merge tricky steps', async () => {
+    updateOneHarvestJob.mockRejectedValueOnce({ status: 'done' });
+
+    // Send events of 2 jobs to check if updates are correctly merged by job id
+    updateOneHarvestJobThrottled({
+      id: 'first-job',
+      status: 'pending',
+    });
+    updateOneHarvestJobThrottled({
       download: {
-        done: true,
-        httpCode: 200,
         progress: 1,
-      },
-      extract: {
-        done: true,
+        status: 'done',
       },
       id: 'second-job',
-      status: 'done',
+      status: 'processing',
     });
+    updateOneHarvestJobThrottled({
+      enrich: { status: 'pending' },
+      id: 'second-job',
+      insert: { status: 'pending' },
+      status: 'processing',
+    });
+
+    // Let throttled function run
+    await vi.runAllTimersAsync();
+
+    expect(mergeUpdateData).toBeCalled();
   });
 
   test('should throttle updates', async () => {

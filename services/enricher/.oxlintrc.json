@@ -1,4 +1,16 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
-  "extends": ["../../.oxlintrc.json"]
+  "extends": ["../../.oxlintrc.json"],
+
+  "overrides": [
+    {
+      "files": ["config/*.ts"],
+      "rules": {
+        // node-config expect default exports
+        "import/no-default-export": "off",
+        // dont sort keys as we want it to match config
+        "sort-keys": "off"
+      }
+    }
+  ]
 }

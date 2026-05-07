@@ -1,6 +1,6 @@
 import { appLogger } from '~/lib/logger';
 
-import { consumeEnrichJobs } from './enrich';
+import { consumeEnrichJobs } from './enrich/jobs/sub';
 
 const logger = appLogger.child({ scope: 'queues' });
 

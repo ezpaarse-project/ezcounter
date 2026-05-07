@@ -19,7 +19,7 @@ import {
 } from '../data-host/refresh';
 import { queueHarvestJobs } from './dispatch';
 
-const { supported: config } = appConfig.dataHost;
+const config = appConfig.dataHost.supported;
 
 const QUEUE_NAME = 'ezcounter:harvest.request';
 const HOST_QUEUE_NAME_HASH_LENGTH = 16;

@@ -5,13 +5,13 @@ import type { Heartbeat } from '@ezcounter/heartbeats/dto';
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-const { elasticsearch: config } = appConfig;
+const config = appConfig.elasticsearch;
 const logger = appLogger.child(
   { scope: 'elastic' },
   {
     redact: {
       censor: (value) => value && ''.padStart(`${value}`.length, '*'),
-      paths: ['config.*.password'],
+      paths: ['config.password', 'config.apiKey'],
     },
   }
 );
@@ -99,8 +99,8 @@ export type BulkIndexOperation = {
 
 export type BulkIndexResult = {
   errors: Error[];
-  created: number;
-  updated: number;
+  created: string[];
+  updated: string[];
 };
 
 /**
@@ -120,37 +120,34 @@ export async function esBulkIndex(
     ]),
   });
 
-  const stats: BulkIndexResult = {
-    created: 0,
+  const items: BulkIndexResult = {
+    created: [],
     errors: [],
-    updated: 0,
+    updated: [],
   };
 
   for (const { index } of body.items) {
-    const { result, error } = index ?? {};
-    if (!result) {
-      // oxlint-disable-next-line no-continue
-      continue;
-    }
+    const { result, error, _id: id } = index ?? {};
+    if (result && id) {
+      switch (result) {
+        case 'created':
+          items.created.push(id);
+          break;
+        case 'updated':
+          items.updated.push(id);
+          break;
 
-    switch (result) {
-      case 'created':
-        stats.created += 1;
-        break;
-      case 'updated':
-        stats.updated += 1;
-        break;
-
-      default:
-        break;
+        default:
+          break;
+      }
     }
 
     if (error) {
       const err = new Error(error.reason);
       err.name = error.type;
-      stats.errors.push(err);
+      items.errors.push(err);
     }
   }
 
-  return stats;
+  return items;
 }

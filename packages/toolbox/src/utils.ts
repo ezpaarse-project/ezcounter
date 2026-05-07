@@ -54,6 +54,40 @@ export function createThrottledFunction<Args extends unknown[], Return>(
 }
 
 /**
+ * Limits function execution to occur once no longer called
+ *
+ * @param fnc - The function
+ * @param interval - Min interval between 2 calls
+ *
+ * @returns The throttled function
+ */
+export function createDebouncedFunction<Args extends unknown[], Return>(
+  fnc: (...args: Args) => Return | Promise<Return>,
+  interval: number
+): (...args: Args) => Promise<Return> {
+  let timer: NodeJS.Timeout | null = null;
+
+  return (...args) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    // oxlint-disable-next-line promise/avoid-new
+    return new Promise<Return>((resolve, reject) => {
+      timer = setTimeout(async () => {
+        try {
+          // Using await to support sync and async functions
+          const result = await fnc(...args);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      }, interval);
+    });
+  };
+}
+
+/**
  * Wait for generator completion, adding a delay between each iteration
  *
  * @param process - The generator to wait for
@@ -71,6 +105,7 @@ export async function waitForGenerator(
     }
 
     if (delay > 1) {
+      // oxlint-disable-next-line promise/avoid-new
       await new Promise<void>((resolve) => {
         setTimeout(() => {
           resolve();

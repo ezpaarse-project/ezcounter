@@ -24,7 +24,7 @@ import {
 import { extractReportItems } from './steps/extract/items/__mocks__';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
-vi.mock(import('~/queues/enrich'));
+vi.mock(import('~/queues/enrich/jobs'));
 vi.mock(import('./steps/download'));
 vi.mock(import('./steps/extract/exceptions'));
 vi.mock(import('./steps/extract/header'));
@@ -132,10 +132,9 @@ describe('Report Exceptions (getReportExceptions)', () => {
     const res = await getReportExceptions({ path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      current: 'extract',
       extract: {
-        done: false,
         exceptions: res,
+        status: 'processing',
       },
       id: OPTIONS.id,
       status: 'processing',
@@ -179,11 +178,10 @@ describe('Report Header (getReportHeader)', () => {
     await getReportHeader('', OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      current: 'extract',
       extract: {
-        done: false,
         header: true,
         registryId: null,
+        status: 'pending',
       },
       id: OPTIONS.id,
       status: 'processing',
@@ -239,10 +237,9 @@ describe('Report Items (queueReportItems)', () => {
     await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
-      current: 'extract',
       extract: {
-        done: false,
         items: 0,
+        status: 'pending',
       },
       id: OPTIONS.id,
       status: 'processing',

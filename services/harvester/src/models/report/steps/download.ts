@@ -29,33 +29,7 @@ type EventStreamData = {
   expectedSize: number;
   url: string;
   httpCode?: number;
-  source: 'remote' | 'archive';
-};
-
-/**
- * Shorthand to send event that report is currently downloading
- *
- * @param id - The id of the job
- * @param data - The data used to setup event stream
- * @param progress - The current progress of stream
- */
-const sendDownloadStatus = (
-  id: string,
-  data: EventStreamData,
-  progress: number
-): void => {
-  sendHarvestJobStatusEvent({
-    current: 'download',
-    download: {
-      done: progress === 1,
-      httpCode: data.httpCode,
-      progress,
-      source: data.source,
-      url: data.url,
-    },
-    id,
-    status: 'processing',
-  });
+  source: 'remote' | 'archive' | 'file';
 };
 
 /**
@@ -74,7 +48,7 @@ function calcProgress(
 ): number | false {
   // oxlint-disable no-magic-numbers
   if (expected != null) {
-    const progress = total / expected;
+    const progress = Math.max(0, Math.min(total / expected, 1));
     return Math.round(progress * 100) % 10 === 0 && progress;
   }
   return count % 1000 === 0 && 0;
@@ -112,14 +86,23 @@ function createEventStream(
 
     const progress = calcProgress(totalSize, expectedSize, chunkCount);
     if (progress !== false) {
-      sendDownloadStatus(id, data, progress);
+      sendHarvestJobStatusEvent({
+        download: {
+          httpCode: data.httpCode,
+          progress,
+          source: data.source,
+          status: progress === 1 ? 'done' : 'processing',
+          url: data.url,
+        },
+        id,
+        status: 'processing',
+      });
     }
   });
 
   // Send final event
   stream.on('end', () => {
     timeout?.tick();
-    sendDownloadStatus(id, data, 1);
   });
 
   return stream;
@@ -268,6 +251,16 @@ export async function cacheReport(
   if (!(await exists(report.path))) {
     throw new Error(`Report ${report.path} isn't downloaded`);
   }
+
+  // Send final event
+  void sendHarvestJobStatusEvent({
+    download: {
+      source: result.source,
+      status: 'done',
+    },
+    id: report.jobId,
+    status: 'processing',
+  });
 
   return result;
 }

@@ -1,5 +1,6 @@
 import type { Prisma } from '@ezcounter/database';
 import type { HarvestJobData } from '@ezcounter/dto/queues';
+import { EnrichSource } from '@ezcounter/dto/enrich';
 
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
@@ -15,9 +16,13 @@ export async function createManyHarvestJob(
   items: HarvestJobData[]
 ): Promise<void> {
   await dbClient.harvestJob.createMany({
-    data: items.map(
-      (item): Prisma.HarvestJobCreateManyInput => ({
+    data: items.map((item): Prisma.HarvestJobCreateManyInput => {
+      const enrichSources =
+        item.enrich?.sources ?? Object.values(EnrichSource.enum);
+      return {
         dataHostId: item.download.cacheKey,
+        enrich: { status: enrichSources.length === 0 ? 'skipped' : 'pending' },
+        enrichSources,
         forceDownload: item.download.forceDownload,
         id: item.id,
         index: item.insert.index,
@@ -25,13 +30,12 @@ export async function createManyHarvestJob(
         period: item.download.report.period,
         release: item.download.report.release,
         reportId: item.download.report.id,
-
         status: 'pending',
-      })
-    ),
+      };
+    }),
   });
 
-  logger.debug({
+  logger.trace({
     action: 'Created',
     count: items.length,
     msg: 'Created multiple harvests',

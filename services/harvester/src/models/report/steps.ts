@@ -5,7 +5,7 @@ import { appLogger } from '~/lib/logger';
 
 import type { HarvestIdleTimeout } from '~/models/timeout';
 
-import { queueEnrichJob } from '~/queues/enrich';
+import { queueEnrichJob } from '~/queues/enrich/jobs';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import type { COUNTERReportHeader } from './dto';
@@ -33,10 +33,9 @@ const sendExceptionsStatus = (
   exceptions: HarvestException[]
 ): Promise<void> =>
   sendHarvestJobStatusEvent({
-    current: 'extract',
     extract: {
-      done: false,
       exceptions,
+      status: 'processing',
     },
     id,
     status: 'processing',
@@ -55,11 +54,10 @@ const sendHeaderStatus = (
   registryId: string | null
 ): Promise<void> =>
   sendHarvestJobStatusEvent({
-    current: 'extract',
     extract: {
-      done: false,
       header: true,
       registryId,
+      status: 'processing',
     },
     id,
     status: 'processing',
@@ -75,10 +73,9 @@ const sendHeaderStatus = (
  */
 const sendItemsStatus = (id: string, count: number): Promise<void> =>
   sendHarvestJobStatusEvent({
-    current: 'extract',
     extract: {
-      done: false,
       items: count,
+      status: 'processing',
     },
     id: id,
     status: 'processing',

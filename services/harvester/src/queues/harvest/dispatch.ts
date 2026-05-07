@@ -11,7 +11,7 @@ import { processHarvestQueue } from './jobs';
 
 const QUEUE_NAME = 'ezcounter:harvest.dispatch';
 
-const { download: config } = appConfig;
+const config = appConfig.download;
 const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 
 /**

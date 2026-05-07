@@ -1,4 +1,4 @@
-import { HarvestJobStatus, HarvestJobStep } from '@ezcounter/database';
+import { HarvestJobStatus } from '@ezcounter/database';
 import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
@@ -19,16 +19,13 @@ export * from '@ezcounter/dto/harvest';
 export const HarvestJob = z.object({
   createdAt: z.coerce.date().describe('Creation date'),
 
-  current: z
-    .enum(HarvestJobStep)
-    .nullish()
-    .describe('Current step being processed'),
-
   dataHostId: z.string().describe('ID of the data host'),
 
   download: HarvestJobStatusEvent.shape.download.unwrap(),
 
   enrich: EnrichJobStatusEvent.shape.enrich.unwrap(),
+
+  enrichSources: z.array(z.string()).describe('Sources to use with enrich'),
 
   error: HarvestJobStatusEvent.shape.error.nullish(),
 

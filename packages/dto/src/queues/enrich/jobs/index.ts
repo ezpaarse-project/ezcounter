@@ -50,9 +50,17 @@ export const EnrichJobData = z.object({
     'Data to be enriched and inserted. Wont be validated on message reception'
   ),
 
-  enrich: HarvestEnrichOptions.optional().describe(
-    'Information about enrich that needs to be done'
-  ),
+  enrich: z
+    .object({
+      ...HarvestEnrichOptions.shape,
+
+      results: z
+        .record(z.string(), z.json())
+        .optional()
+        .describe('Results from enrich sources'),
+    })
+    .optional()
+    .describe('Information about enrich that needs to be done'),
 
   id: z.string().describe('Job ID'),
 

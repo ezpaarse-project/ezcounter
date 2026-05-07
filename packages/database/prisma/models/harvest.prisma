@@ -7,14 +7,6 @@ enum HarvestJobStatus {
   done
 }
 
-/// Step of a Harvest Job
-enum HarvestJobStep {
-  download
-  extract
-  enrich
-  insert
-}
-
 /// Information about a harvest job
 model HarvestJob {
   /// ID of the job
@@ -37,20 +29,20 @@ model HarvestJob {
   forceDownload Boolean          @default(false)
   /// Target Elastic index
   index         String
+  /// Sources to use for enrich
+  enrichSources String[]
   /// Status of the job
   status        HarvestJobStatus
-  /// Current step of the job
-  current       HarvestJobStep?
   /// Error that occurred while harvesting
   error         Json?
   /// Information about download step
-  download      Json             @default("{ \"done\": false }")
+  download      Json             @default("{ \"status\": \"pending\" }")
   /// Information about extract step
-  extract       Json             @default("{ \"done\": false }")
+  extract       Json             @default("{ \"status\": \"pending\" }")
   /// Information about enrich step
-  enrich        Json             @default("{ \"done\": false }")
+  enrich        Json             @default("{ \"status\": \"pending\" }")
   /// Information about insert step
-  insert        Json             @default("{ \"done\": false }")
+  insert        Json             @default("{ \"status\": \"pending\" }")
   /// Time harvest took
   took          Int?
   /// When the harvest job was created/queued

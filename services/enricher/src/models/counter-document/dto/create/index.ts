@@ -5,6 +5,6 @@ export * from './r5';
 export * from './r51';
 
 /**
- * Type for inserting a COUNTER document
+ * Type for transforming a COUNTER document
  */
 export type CreateCOUNTERDocument = CreateR5Document | CreateR51Document;

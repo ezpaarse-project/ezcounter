@@ -20,7 +20,7 @@ import {
   queueReportItems,
 } from './steps';
 
-const { download: config } = appConfig;
+const config = appConfig.download;
 const logger = appLogger.child({ scope: 'reports' });
 
 // COUNTER Codes that will indicate that data host is processing request
@@ -110,9 +110,8 @@ function markHarvestAsSuccess(options: HarvestJobData): HarvestResult {
   });
 
   void sendHarvestJobStatusEvent({
-    current: 'extract',
     extract: {
-      done: true,
+      status: 'done',
     },
     id: options.id,
     status: 'processing',

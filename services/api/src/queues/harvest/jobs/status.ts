@@ -36,6 +36,7 @@ export function consumeHarvestJobStatusEvents(): void {
     onMessage: onHarvestJobStatus,
     options: {
       exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      queueBindings: [{ exchange: EXCHANGE_NAME }],
       queueOptions: { durable: false, exclusive: true },
     },
     schema: HarvestJobStatusEvent,

@@ -10,16 +10,16 @@ describe(updateOneHarvestJob, () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJob => ({
     createdAt: new Date(),
-    current: null,
     dataHostId: '',
-    download: { done: false },
-    enrich: { done: false },
+    download: { status: 'processing' },
+    enrich: { status: 'processing' },
+    enrichSources: [],
     error: null,
-    extract: { done: false },
+    extract: { status: 'processing' },
     forceDownload: false,
     id: '',
     index: '',
-    insert: { done: false },
+    insert: { status: 'processing' },
     params: {},
     period: { end: '2025-12', start: '2025-01' },
     release: '5.1',
@@ -66,11 +66,11 @@ describe(updateOneHarvestJob, () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      download: { done: true },
-      enrich: { done: true },
-      extract: { done: true },
+      download: { status: 'done' },
+      enrich: { status: 'done' },
+      extract: { status: 'done' },
       id: '',
-      insert: { done: true },
+      insert: { status: 'done' },
     });
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
@@ -112,6 +112,114 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
+  test.only('should update enrich step', async () => {
+    const job = getJob();
+    job.extract = { items: 10, status: 'done' };
+    job.enrich = {
+      sources: {
+        ezunpaywall: {
+          items: 5,
+          miss: 9,
+          remote: 12,
+          store: 4,
+        },
+      },
+      status: 'processing',
+    };
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    await updateOneHarvestJob({
+      enrich: {
+        sources: {
+          ezunpaywall: {
+            items: 5,
+            miss: 1,
+            remote: 5,
+            store: 3,
+          },
+          openalex: {
+            items: 10,
+            miss: 0,
+            remote: 3,
+            store: 0,
+          },
+        },
+        status: 'processing',
+      },
+      id: '',
+    });
+
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          enrich: {
+            progress: 1,
+            sources: {
+              ezunpaywall: {
+                items: 10,
+                miss: 10,
+                progress: 1,
+                remote: 17,
+                store: 7,
+              },
+              openalex: {
+                items: 10,
+                miss: 0,
+                progress: 1,
+                remote: 3,
+                store: 0,
+              },
+            },
+            status: 'done',
+          },
+        }),
+      })
+    );
+  });
+
+  test('should update insert step', async () => {
+    const job = getJob();
+    job.extract = { items: 10, status: 'done' };
+    job.insert = {
+      coveredMonths: ['2025-02'],
+      created: 5,
+      items: 7,
+      status: 'processing',
+      updated: 2,
+    };
+
+    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+
+    await updateOneHarvestJob({
+      id: '',
+      insert: {
+        coveredMonths: ['2025-01', '2025-06'],
+        created: 2,
+        items: 3,
+        status: 'processing',
+        updated: 8,
+      },
+    });
+
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          insert: {
+            coveredMonths: ['2025-01', '2025-02', '2025-06'],
+            created: 7,
+            items: 10,
+            progress: 1,
+            status: 'done',
+            updated: 10,
+          },
+        }),
+      })
+    );
+  });
+
   test('should NOT update status if processing', async () => {
     const job = getJob();
     job.status = 'processing';
@@ -121,8 +229,8 @@ describe(updateOneHarvestJob, () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      download: { done: true },
-      extract: { done: false },
+      download: { status: 'done' },
+      extract: { status: 'processing' },
       id: '',
     });
 
@@ -130,10 +238,10 @@ describe(updateOneHarvestJob, () => {
       expect.objectContaining({
         data: expect.objectContaining({
           download: expect.objectContaining({
-            done: true,
+            status: 'done',
           }),
           extract: expect.objectContaining({
-            done: false,
+            status: 'processing',
           }),
           status: job.status,
         }),
@@ -148,8 +256,8 @@ describe(updateOneHarvestJob, () => {
     dbClient.harvestJob.update.mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
-      download: { done: true },
-      extract: { done: false },
+      download: { status: 'done' },
+      extract: { status: 'processing' },
       id: '',
     });
 
@@ -157,10 +265,10 @@ describe(updateOneHarvestJob, () => {
       expect.objectContaining({
         data: expect.objectContaining({
           download: expect.objectContaining({
-            done: true,
+            status: 'done',
           }),
           extract: expect.objectContaining({
-            done: false,
+            status: 'processing',
           }),
           status: job.status,
         }),

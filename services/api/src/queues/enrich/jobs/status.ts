@@ -22,7 +22,7 @@ export function onEnrichJobStatus(data: EnrichJobStatusEvent): void {
   } catch (error) {
     logger.error({
       err: error,
-      msg: 'Unable to process Harvest Job status event',
+      msg: 'Unable to process Enrich Job status event',
     });
   }
 }
@@ -36,6 +36,7 @@ export function consumeEnrichJobStatusEvents(): void {
     onMessage: onEnrichJobStatus,
     options: {
       exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      queueBindings: [{ exchange: EXCHANGE_NAME }],
       queueOptions: { durable: false, exclusive: true },
     },
     schema: EnrichJobStatusEvent,

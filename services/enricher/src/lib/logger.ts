@@ -6,7 +6,7 @@ import {
 
 import { appConfig } from '~/lib/config';
 
-const { log: config } = appConfig;
+const config = appConfig.log;
 
 const options: Omit<LoggerOptions, 'name'> = {
   dir: config.dir,
@@ -15,5 +15,5 @@ const options: Omit<LoggerOptions, 'name'> = {
   pretty: isPrettierInstalled((spec) => import.meta.resolve(spec)),
 };
 
-export const appLogger = createLogger({ ...options, name: 'api' });
+export const appLogger = createLogger({ ...options, name: 'enricher' });
 export const accessLogger = createLogger({ ...options, name: 'access' });

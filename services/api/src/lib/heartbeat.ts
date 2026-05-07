@@ -81,7 +81,7 @@ export function getAllServices(): Heartbeat[] {
   if (rabbitClient.ready) {
     items.push({
       createdAt: now,
-      hostname: 'rabbitmq',
+      hostname: URL.parse(appConfig.rabbitmq.url)?.hostname || 'rabbitmq',
       nextAt: new Date(now.getTime() + appConfig.heartbeat.self),
       service: 'rabbitmq',
       updatedAt: now,

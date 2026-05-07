@@ -24,6 +24,7 @@
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7",
     "@ezcounter/config": "workspace:*",
     "@ezcounter/dto": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
@@ -31,17 +32,21 @@
     "@ezcounter/rabbitmq": "workspace:*",
     "@ezcounter/simple-http": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",
+    "@keyv/compress-lz4": "^1.0.1",
     "@keyv/redis": "^5.1.6",
     "date-fns": "^4.1.0",
     "http-status-codes": "^2.3.0",
     "isbn3": "2.0.6",
     "keyv": "^5.6.0",
+    "ofetch": "^2.0.0-alpha.3",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },
   "devDependencies": {
+    "@ezcounter/counter": "workspace:*",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
+    "msw": "^2.12.7",
     "pino-pretty": "catalog:",
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:",

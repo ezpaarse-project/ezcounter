@@ -12,7 +12,7 @@ import { harvestReport } from '~/models/report';
 
 import { sendHarvestJobStatusEvent } from './status';
 
-const { download: config } = appConfig;
+const config = appConfig.download;
 const logger = appLogger.child({ scope: 'queues' });
 
 const delayedJobs = new Map<string, Set<string>>();

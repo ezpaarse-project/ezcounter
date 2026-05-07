@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
 
-import { asIsbn13 } from '~/../__mocks__/isbn3';
+// oxlint-disable-next-line import/default
+import isbn from '~/../__mocks__/isbn3';
 
 import { type R51ReportData, transformR51ItemToDocuments } from './r51';
 
@@ -13,7 +14,7 @@ vi.mock(import('isbn3'));
 
 const EXAMPLES_DIR = join(
   import.meta.dirname,
-  '../../../../__tests__/examples/items/5.1'
+  '../../../../../../__tests__/examples/items/5.1'
 );
 
 const readExampleFile = (file: string): R51ReportData =>
@@ -26,7 +27,7 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     index: '',
   };
 
-  it('should return iterator', () => {
+  test('should return iterator', () => {
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -36,7 +37,7 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(iteration).toHaveProperty('value');
   });
 
-  it('should transform item', () => {
+  test('should transform item', () => {
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -66,7 +67,7 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     });
   });
 
-  it('should transform parent', () => {
+  test('should transform parent', () => {
     const data = readExampleFile('ir.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -76,7 +77,7 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(value).toHaveProperty('Item_Parent.Item_Name', 'Title 2');
   });
 
-  it('should generate id with additionalIdParts', () => {
+  test('should generate id with additionalIdParts', () => {
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -86,17 +87,17 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(value._id).toContain('foobar');
   });
 
-  it('should format ISBN', () => {
+  test('should format ISBN', () => {
     const data = readExampleFile('ir.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
 
     iterator.next();
 
-    expect(asIsbn13).toBeCalled();
+    expect(isbn.asIsbn13).toBeCalled();
   });
 
-  it('should resolve on each count on each Performance on each Attribute_Performance', () => {
+  test('should resolve on each count on each Performance on each Attribute_Performance', () => {
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);

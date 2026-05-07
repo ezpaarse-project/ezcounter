@@ -5,7 +5,7 @@ import type { Heartbeat } from '@ezcounter/heartbeats/dto';
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-const { redis: config } = appConfig;
+const config = appConfig.redis;
 const logger = appLogger.child(
   { scope: 'redis' },
   {
@@ -30,22 +30,28 @@ process.on('SIGTERM', onShutdown);
  * Test connection to redis
  *
  * @param client - The redis client
+ * @param namespace - The namespace of the client
  */
-async function testConnection(client: RedisClientType): Promise<void> {
+async function testConnection(
+  client: RedisClientType,
+  namespace: string
+): Promise<void> {
   try {
     await client.connect();
-    logger.info({ msg: 'Connected to redis' });
+    logger.info({ msg: 'Connected to redis', namespace });
   } catch (error) {
-    logger.error({ err: error, msg: 'Unable to connect to redis' });
+    logger.error({ err: error, msg: 'Unable to connect to redis', namespace });
   }
 }
 
 /**
  * Create a Redis Client
  *
+ * @param namespace - The namespace of the client
+ *
  * @returns Redis connection
  */
-function createRedisClient(): RedisClientType {
+function createRedisClient(namespace: string): RedisClientType {
   const client = createClient({
     password: config.password,
     url: config.url,
@@ -53,26 +59,30 @@ function createRedisClient(): RedisClientType {
   });
 
   client.on('error', (error) => {
-    logger.error({ err: error, msg: 'Redis client error' });
+    logger.error({ err: error, msg: 'Redis client error', namespace });
   });
 
-  void testConnection(client);
+  void testConnection(client, namespace);
 
   clients.push(client);
   return client;
 }
 
 // Create a redis client to check connection
-const rootRedis = createRedisClient();
+const rootRedis = createRedisClient('heartbeat');
 clients.push(rootRedis);
 
 /**
  * Create a Keyv adapter for Redis
  *
+ * @param namespace - The namespace of the client
+ *
  * @returns Keyv adapter
  */
-export function createKeyvRedis<DataType>(): KeyvRedis<DataType> {
-  const store = new KeyvRedis<DataType>(createRedisClient());
+export function createKeyvRedis<DataType>(
+  namespace: string
+): KeyvRedis<DataType> {
+  const store = new KeyvRedis<DataType>(createRedisClient(namespace));
 
   store.on('error', (error) => {
     logger.error({ err: error, msg: 'Redis client error' });
@@ -92,7 +102,7 @@ export async function redisPing(): Promise<
   await rootRedis.ping();
 
   return {
-    hostname: 'redis',
+    hostname: URL.parse(config.url)?.hostname ?? 'redis',
     service: 'redis',
   };
 }

@@ -10,6 +10,7 @@ import {
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
+const config = appConfig.rabbitmq;
 const logger = appLogger.child(
   { scope: 'RabbitMQ' },
   {
@@ -24,7 +25,7 @@ const logger = appLogger.child(
 /**
  * The RabbitMQ client
  */
-export const rabbitClient = setupRabbitMQ(logger, appConfig.rabbitmq);
+export const rabbitClient = setupRabbitMQ(logger, config);
 
 /**
  * Create a RabbitMQ consumer

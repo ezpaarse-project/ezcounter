@@ -1,6 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { createThrottledFunction, waitForGenerator } from './utils';
+import {
+  createDebouncedFunction,
+  createThrottledFunction,
+  waitForGenerator,
+} from './utils';
 
 describe('Throttled Function', () => {
   const spy = vi.fn().mockResolvedValue('foobar');
@@ -22,6 +26,7 @@ describe('Throttled Function', () => {
 
     const promise = throttled();
 
+    vi.runAllTimers();
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
@@ -34,10 +39,11 @@ describe('Throttled Function', () => {
 
     const promise = throttled();
 
+    vi.runAllTimers();
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
-  test('should call 1 times if not enough time', async () => {
+  test('should call at most 1 times in interval', async () => {
     const throttled = createThrottledFunction(spy, 500);
 
     throttled();
@@ -50,18 +56,29 @@ describe('Throttled Function', () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should call 2 times if enough time', async () => {
+  test('should call every interval', async () => {
     const throttled = createThrottledFunction(spy, 500);
 
+    // Should call - First should always call
     throttled();
+    // Should not call
+    await vi.advanceTimersByTimeAsync(100);
     throttled();
-    await vi.runAllTimersAsync();
+    // Should call
+    await vi.advanceTimersByTimeAsync(405);
     throttled();
+    // Should not call
+    await vi.advanceTimersByTimeAsync(100);
+    throttled();
+    // Should call
+    await vi.advanceTimersByTimeAsync(405);
+    throttled();
+    // Should call - Last should always call
+    await vi.advanceTimersByTimeAsync(100);
     throttled();
 
-    // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toBeCalledTimes(4);
   });
 
   test('should call with last argument', async () => {
@@ -86,6 +103,107 @@ describe('Throttled Function', () => {
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
     expect(promise1).toBe(promise2);
+  });
+});
+
+describe('Debounced Function', () => {
+  const spy = vi.fn().mockResolvedValue('foobar');
+
+  test('should call original function', async () => {
+    const debounced = createDebouncedFunction(spy, 500);
+
+    debounced();
+
+    // Waiting for last call to resolve
+    await vi.runAllTimersAsync();
+    expect(spy).toBeCalled();
+  });
+
+  test('should bubble async error', async () => {
+    const errSpy = vi
+      .fn()
+      .mockRejectedValue(new Error('Async Not Implemented'));
+
+    const debounced = createDebouncedFunction(errSpy, 500);
+
+    const promise = debounced();
+
+    // Waiting for last call to resolve
+    vi.runAllTimers();
+    await expect(promise).rejects.toThrow('Not Implemented');
+  });
+
+  test('should bubble sync error', async () => {
+    const errSpy = vi.fn(() => {
+      throw new Error('Not Implemented');
+    });
+
+    const debounced = createDebouncedFunction(errSpy, 500);
+
+    const promise = debounced();
+
+    // Waiting for last call to resolve
+    vi.runAllTimers();
+    await expect(promise).rejects.toThrow('Not Implemented');
+  });
+
+  test('should call after final call', async () => {
+    const debounced = createDebouncedFunction(spy, 500);
+
+    debounced();
+    debounced();
+    debounced();
+    debounced();
+
+    // Waiting for last call to resolve
+    await vi.runAllTimersAsync();
+    expect(spy).toHaveBeenCalledOnce();
+  });
+
+  test('should NOT call every interval', async () => {
+    const debounced = createDebouncedFunction(spy, 500);
+
+    // Should not call
+    debounced();
+    // Should not call
+    await vi.advanceTimersByTimeAsync(100);
+    debounced();
+    // Should not call
+    await vi.advanceTimersByTimeAsync(405);
+    debounced();
+    // Should not call
+    await vi.advanceTimersByTimeAsync(100);
+    debounced();
+    // Should call
+    await vi.advanceTimersByTimeAsync(405);
+    debounced();
+
+    await vi.runAllTimersAsync();
+    expect(spy).toHaveBeenCalledOnce();
+  });
+
+  test('should call with last argument', async () => {
+    const debounced = createDebouncedFunction(spy, 500);
+
+    debounced();
+    debounced('f');
+    debounced('foo');
+    debounced('foobar');
+
+    // Waiting for last call to resolve
+    await vi.runAllTimersAsync();
+    expect(spy).toHaveBeenCalledWith('foobar');
+  });
+
+  test('should NOT return same promise if no delay', async () => {
+    const throttled = createDebouncedFunction(spy, 500);
+
+    const promise1 = throttled();
+    const promise2 = throttled();
+
+    // Waiting for last call to resolve
+    await vi.runAllTimersAsync();
+    expect(promise1).not.toBe(promise2);
   });
 });
 
