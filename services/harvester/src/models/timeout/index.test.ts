@@ -16,6 +16,13 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
     expect(timeout.signal.aborted).toBe(true);
   });
 
+  test('should allow 0ms (no abort)', () => {
+    const timeout = new HarvestIdleTimeout(0);
+
+    vi.runAllTimers();
+    expect(timeout.signal.aborted).toBe(false);
+  });
+
   test('should have explicit reason when aborting', () => {
     const timeout = new HarvestIdleTimeout(5);
 
@@ -23,7 +30,7 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
     expect(timeout.signal.reason).toBe('Timeout of 5ms exceeded');
   });
 
-  test('should not abort before expected delay', () => {
+  test('should NOT abort before expected delay', () => {
     const timeout = new HarvestIdleTimeout(5);
 
     vi.advanceTimersByTime(2);
@@ -33,17 +40,17 @@ describe('Idle Timeout (HarvestIdleTimeout)', () => {
   test('should reset time left when tick', () => {
     const timeout = new HarvestIdleTimeout(5);
 
-    // We're before the 5 mark, should not abort
+    // We're before the 5 mark, should NOT abort
     vi.advanceTimersByTime(3);
     expect(timeout.signal.aborted).toBe(false);
     timeout.tick();
 
-    // We're after the 5 mark, should not abort because we ticked
+    // We're after the 5 mark, should NOT abort because we ticked
     vi.advanceTimersByTime(3);
     expect(timeout.signal.aborted).toBe(false);
   });
 
-  test('should not abort after clear', () => {
+  test('should NOT abort after clear', () => {
     const timeout = new HarvestIdleTimeout();
     timeout.clear();
 

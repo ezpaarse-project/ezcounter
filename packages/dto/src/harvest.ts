@@ -5,8 +5,6 @@ import {
   EnrichSource,
 } from './enrich';
 
-const MIN_TIMEOUT = 100;
-
 /**
  * Validation for the auth to use when requesting a COUNTER endpoint
  */
@@ -65,6 +63,11 @@ export type HarvestAdditionalParams = z.infer<typeof HarvestAdditionalParams>;
  */
 export const HarvestReportOptions = z.object({
   id: z.string().describe('Report ID to harvest'),
+
+  isGlobal: z
+    .boolean()
+    .optional()
+    .describe('Is report Global (Global Item Report for example)'),
 
   params: z
     .intersection(
@@ -144,11 +147,7 @@ export const HarvestDownloadOptions = z.object({
 
   report: HarvestReportOptions.describe('Information on report to harvest'),
 
-  timeout: z
-    .int()
-    .min(MIN_TIMEOUT)
-    .optional()
-    .describe('Maximum idle time of a job'),
+  timeout: z.int().min(0).optional().describe('Maximum idle time of a job'),
 });
 
 /**

@@ -56,10 +56,17 @@ describe('Cache report (cacheReport)', () => {
       expect(createWriteStream).not.toBeCalled();
     });
 
-    test("shouldn't notify progress", async () => {
+    test('should notify progress', async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).not.toBeCalled();
+      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+        download: {
+          source: 'file',
+          status: 'done',
+        },
+        id: '',
+        status: 'processing',
+      });
     });
 
     test("shouldn't be able to be aborted", async () => {
@@ -109,7 +116,14 @@ describe('Cache report (cacheReport)', () => {
     test('should notify progress', async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalled();
+      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+        download: {
+          source: 'archive',
+          status: 'done',
+        },
+        id: '',
+        status: 'processing',
+      });
     });
 
     test('should be able to be aborted', async () => {
@@ -166,7 +180,14 @@ describe('Cache report (cacheReport)', () => {
     test('should notify progress', async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalled();
+      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+        download: {
+          source: 'remote',
+          status: 'done',
+        },
+        id: '',
+        status: 'processing',
+      });
     });
 
     test('should be able to be aborted', async () => {
@@ -224,7 +245,14 @@ describe('Cache report (cacheReport)', () => {
     test('should notify progress', async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalled();
+      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+        download: {
+          source: 'remote',
+          status: 'done',
+        },
+        id: '',
+        status: 'processing',
+      });
     });
 
     test('should be able to be aborted', async () => {

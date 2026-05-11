@@ -37,6 +37,10 @@ export class HarvestIdleTimeout {
    * Indicate action has been done, resetting time left
    */
   tick(): void {
+    if (this.delay <= 0) {
+      return;
+    }
+
     this.clear();
     this.timeoutId = setTimeout(() => {
       this.controller.abort(`Timeout of ${this.delay}ms exceeded`);

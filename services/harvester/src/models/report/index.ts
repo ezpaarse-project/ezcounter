@@ -53,12 +53,10 @@ function getReportPath({
   download: { cacheKey, report },
 }: HarvestJobData): string {
   const release = report.release.replaceAll('.', '');
+  const reportId = `${report.isGlobal ? 'g' : ''}${report.id}`;
   const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
 
-  const reportPath = resolve(
-    config.dir,
-    `${cacheKey}/${report.id}/${filename}`
-  );
+  const reportPath = resolve(config.dir, `${cacheKey}/${reportId}/${filename}`);
   logger.debug({
     id,
     msg: 'Resolved report path',

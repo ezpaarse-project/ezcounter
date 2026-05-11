@@ -33,7 +33,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
 
   fastify.route({
     handler: async (request, reply) => {
-      queueHarvestRequest(request.body);
+      void queueHarvestRequest(request.body);
 
       reply.statusCode = StatusCodes.CREATED;
     },

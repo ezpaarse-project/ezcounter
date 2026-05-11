@@ -142,10 +142,10 @@ function applyInsertUpdate(
  * @returns The updated job
  */
 function updateHarvestJobStatuses(job: UpdateHarvestJob): UpdateHarvestJob {
-  if (job.enrich?.progress === 1) {
+  if (job.extract?.status === 'done' && job.enrich?.progress === 1) {
     job.enrich.status = 'done';
   }
-  if (job.insert?.progress === 1) {
+  if (job.extract?.status === 'done' && job.insert?.progress === 1) {
     job.insert.status = 'done';
   }
 

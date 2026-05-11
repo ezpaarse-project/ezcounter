@@ -181,7 +181,7 @@ describe('Report Header (getReportHeader)', () => {
       extract: {
         header: true,
         registryId: null,
-        status: 'pending',
+        status: 'processing',
       },
       id: OPTIONS.id,
       status: 'processing',
@@ -239,7 +239,7 @@ describe('Report Items (queueReportItems)', () => {
     expect(sendHarvestJobStatusEvent).toBeCalledWith({
       extract: {
         items: 0,
-        status: 'pending',
+        status: 'processing',
       },
       id: OPTIONS.id,
       status: 'processing',
