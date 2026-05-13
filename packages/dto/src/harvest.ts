@@ -95,8 +95,6 @@ export const HarvestReportOptions = z.object({
     .describe('Query parameters to use when downloading report'),
 
   period: HarvestReportPeriod.describe('Period of the harvest'),
-
-  release: z.literal(['5', '5.1']).describe('COUNTER release of the report'),
 });
 
 /**
@@ -144,6 +142,8 @@ export const HarvestDownloadOptions = z.object({
     .describe(
       'Should force the download of the report even if cache is present'
     ),
+
+  release: z.literal(['5', '5.1']).describe('COUNTER release to use'),
 
   report: HarvestReportOptions.describe('Information on report to harvest'),
 

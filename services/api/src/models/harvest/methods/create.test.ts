@@ -24,6 +24,7 @@ describe(createManyHarvestJob, () => {
           periodFormat: 'download.dataHost.periodFormat',
         },
         forceDownload: true,
+        release: '5.1',
         report: {
           id: 'download.report.id',
           params: {
@@ -34,7 +35,6 @@ describe(createManyHarvestJob, () => {
             end: 'download.report.period.end',
             start: 'download.report.period.start',
           },
-          release: '5.1',
         },
         timeout: 10,
       },
@@ -79,13 +79,14 @@ describe(createManyHarvestJob, () => {
           auth: {},
           baseUrl: 'download.dataHost.baseUrl',
         },
+        release: '5.1',
+
         report: {
           id: 'download.report.id',
           period: {
             end: 'download.report.period.end',
             start: 'download.report.period.start',
           },
-          release: '5.1',
         },
         timeout: 10,
       },

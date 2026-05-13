@@ -112,7 +112,7 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test.only('should update enrich step', async () => {
+  test('should update enrich step', async () => {
     const job = getJob();
     job.extract = { items: 10, status: 'done' };
     job.enrich = {

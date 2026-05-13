@@ -8,7 +8,7 @@ import {
   getDataHostWithSupportedData,
 } from '~/models/data-host';
 import { DataHostSupportedReport } from '~/models/data-host/dto';
-import { refreshSupportedReportsOfDataHost } from '~/models/data-host/refresh';
+import { fetchSupportedReportsOfDataHost } from '~/models/data-host/supported-reports';
 import { HarvestAuthOptions } from '~/models/harvest/dto';
 
 import {
@@ -64,16 +64,13 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
     handler: async (request, reply) => {
       const { id, release } = request.params;
-      const { auth, ...options } = request.body;
+      const { auth } = request.body;
 
       const dataHost = await getDataHostWithSupportedData(id);
 
       return buildResponse(
         reply,
-        await refreshSupportedReportsOfDataHost(dataHost!, auth, {
-          release,
-          ...options,
-        })
+        await fetchSupportedReportsOfDataHost(dataHost!, auth, release)
       );
     },
     method: 'POST',
@@ -85,8 +82,6 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     schema: {
       body: z.object({
         auth: HarvestAuthOptions,
-        dryRun: z.boolean().optional(),
-        forceRefresh: z.boolean().optional(),
       }),
       params: RouterParams,
       response: {
@@ -97,10 +92,10 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.OK]: describeSuccess(z.array(DataHostSupportedReport)),
       },
-      summary: 'Refresh supported reports of a data host for a release',
+      summary: 'Fetch supported reports of a data host for a release',
       tags: ['data-host'],
     },
-    url: '/_refresh',
+    url: '/_fetch',
   });
 };
 

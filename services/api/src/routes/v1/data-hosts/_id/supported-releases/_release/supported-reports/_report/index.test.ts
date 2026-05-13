@@ -27,20 +27,17 @@ const server = await createTestServer(async (fastify) => {
 
 describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
   const body: UpdateDataHostSupportedReport = {
-    firstMonthAvailableOverride: null,
-    lastMonthAvailableOverride: null,
+    firstMonthAvailable: null,
+    lastMonthAvailable: null,
     params: {},
-    supportedOverride: null,
+    supported: null,
   };
 
   const report: DataHostSupportedReport = {
     createdAt: new Date(),
     dataHostId: 'id',
-    firstMonthAvailable: '',
     id: 'tr',
-    lastMonthAvailable: '',
     release: '5.1',
-    supported: true,
     updatedAt: null,
     ...body,
   };

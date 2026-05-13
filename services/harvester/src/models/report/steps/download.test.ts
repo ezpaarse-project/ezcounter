@@ -20,10 +20,10 @@ vi.mock(import('~/queues/harvest/jobs/status'));
 const OPTIONS: HarvestDownloadOptions = {
   cacheKey: '',
   dataHost: { auth: {}, baseUrl: '' },
+  release: '5.1',
   report: {
     id: 'ir',
     period: { end: '', start: '' },
-    release: '5.1',
   },
 };
 

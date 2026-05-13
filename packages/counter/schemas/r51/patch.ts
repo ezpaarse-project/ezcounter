@@ -157,7 +157,7 @@ function fixPerfMinProperties(
  *
  * Updates by reference
  *
- * @deprecated should be fixed by R5.1.1
+ * @deprecated should be partially fixed by R5.1.1
  *
  * @param schemas to fix
  */
@@ -173,17 +173,9 @@ function fixISBNHyphens(
   for (const schema of schemas) {
     if (schema.type === 'object') {
       schema.properties.ISBN = {
-        oneOf: [
-          // Keep original validation
-          schema.properties.ISBN,
-          // Add un-hyphened validation
-          {
-            maxLength: 13,
-            minLength: 13,
-            pattern: '^97[89][0-9]+$',
-            type: 'string',
-          },
-        ],
+        minLength: 13,
+        pattern: '^97[89][0-9-]+$',
+        type: 'string',
       };
     }
   }

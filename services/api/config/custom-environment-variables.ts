@@ -1,6 +1,5 @@
 import {
   type EnvOfConfig,
-  defineDuration,
   defineJSON,
   defineNumber,
   defineString,
@@ -39,11 +38,7 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
   allowedProxies: 'ALLOWED_PROXIES',
   dataHost: {
     supported: {
-      refreshJobDelay: defineNumber('DATAHOST_SUPPORTED_REFRESH_JOB_DELAY'),
-      cacheDuration: defineDuration(
-        'DATAHOST_SUPPORTED_CACHE_DURATION_MONTHS',
-        ['months', 'weeks', 'days', 'hours', 'minutes']
-      ),
+      fetchDelay: defineNumber('DATAHOST_SUPPORTED_REFRESH_JOB_DELAY'),
     },
   },
 };

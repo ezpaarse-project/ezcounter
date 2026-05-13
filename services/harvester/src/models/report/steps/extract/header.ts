@@ -51,10 +51,8 @@ export async function extractReportHeader(
 
   // Basic checks
   const min = MinimalHeader.parse(data);
-  if (min.Release !== options.report.release) {
-    throw new Error(
-      `Expected Release ${options.report.release}, got ${min.Release}`
-    );
+  if (min.Release !== options.release) {
+    throw new Error(`Expected Release ${options.release}, got ${min.Release}`);
   }
   if (min.Report_ID.toUpperCase() !== options.report.id.toUpperCase()) {
     throw new Error(

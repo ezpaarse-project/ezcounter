@@ -150,14 +150,11 @@ describe(findOneReportSupportedByDataHost, () => {
     createdAt: new Date(),
     dataHostId: 'id',
     firstMonthAvailable: '',
-    firstMonthAvailableOverride: null,
     id: 'tr',
     lastMonthAvailable: '',
-    lastMonthAvailableOverride: null,
     params: {},
     release: '5.1',
     supported: true,
-    supportedOverride: null,
     updatedAt: null,
   };
 

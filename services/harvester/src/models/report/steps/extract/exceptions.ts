@@ -82,7 +82,7 @@ export async function extractReportExceptions(
       createReadStream(reportPath),
       jsonParser(),
       jsonFilter({
-        filter: getReportExceptionsJsonPath(options.report.release),
+        filter: getReportExceptionsJsonPath(options.release),
       }),
       jsonStreamValues(),
     ]),
@@ -99,10 +99,7 @@ export async function extractReportExceptions(
   const exceptions = resolveExceptions(data);
 
   // Getting JSON schema of exceptions
-  const { exception: validate } = getCounterValidation(
-    options.report.release,
-    ''
-  );
+  const { exception: validate } = getCounterValidation(options.release, '');
 
   return exceptions.map((ex) => {
     if (validate(ex)) {

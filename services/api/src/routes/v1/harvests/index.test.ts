@@ -45,18 +45,16 @@ describe('POST /harvests/_bulk', () => {
           auth: { customer_id: 'foobar' },
           id: 'my-counter-datahost',
         },
-
+        release: '5',
         reports: [
           {
             id: 'tr',
             params: { attributes_to_show: ['Access_Method'] },
             period: { end: '2025-12', start: '2025-01' },
-            release: '5',
           },
           {
             id: 'pr',
             period: { end: '2025-11', start: '2025-02' },
-            release: '5',
           },
         ],
       },
@@ -73,12 +71,11 @@ describe('POST /harvests/_bulk', () => {
           auth: { customer_id: 'foobar' },
           id: 'my-counter-datahost',
         },
-
+        release: '5.1',
         reports: [
           {
             id: 'ir',
             period: { end: '2025-12', start: '2025-01' },
-            release: '5.1',
             splitPeriodBy: 1,
           },
         ],

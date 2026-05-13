@@ -6,7 +6,7 @@ import {
   doesDataHostSupportsRelease,
   findAllReportsSupportedByDataHost,
 } from '~/models/data-host/__mocks__';
-import { refreshSupportedReportsOfDataHost } from '~/models/data-host/__mocks__/refresh';
+import { fetchSupportedReportsOfDataHost } from '~/models/data-host/__mocks__/supported-reports';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -14,7 +14,7 @@ import { createTestServer } from '~/../__tests__/fastify/v1';
 import router from '.';
 
 vi.mock(import('~/models/data-host'));
-vi.mock(import('~/models/data-host/refresh'));
+vi.mock(import('~/models/data-host/supported-reports'));
 
 const server = await createTestServer(async (fastify) => {
   fastify.register(router, {
@@ -94,7 +94,7 @@ describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', ()
   });
 });
 
-describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_refresh', () => {
+describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fetch', () => {
   const body = {
     auth: {},
   };
@@ -102,12 +102,12 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_re
   test('should return array of releases supported by data host', async () => {
     doesDataHostExists.mockResolvedValueOnce(true);
     doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    refreshSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
 
     const response = await server.inject({
       body,
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
     const { content } =
@@ -120,40 +120,32 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_re
   test('should refresh supported data for the release', async () => {
     doesDataHostExists.mockResolvedValueOnce(true);
     doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    refreshSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
 
     await server.inject({
       body,
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
-    expect(refreshSupportedReportsOfDataHost).toHaveBeenCalledOnce();
+    expect(fetchSupportedReportsOfDataHost).toHaveBeenCalledOnce();
   });
 
   test('should pass options to refresh', async () => {
     doesDataHostExists.mockResolvedValueOnce(true);
     doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    refreshSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
 
     await server.inject({
-      body: {
-        ...body,
-        dryRun: true,
-        forceRefresh: true,
-      },
+      body,
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
-    expect(refreshSupportedReportsOfDataHost).toBeCalledWith(
+    expect(fetchSupportedReportsOfDataHost).toBeCalledWith(
       undefined,
       body.auth,
-      {
-        dryRun: true,
-        forceRefresh: true,
-        release: '5.1',
-      }
+      '5.1'
     );
   });
 
@@ -163,7 +155,7 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_re
     const response = await server.inject({
       body,
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -179,7 +171,7 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_re
     const response = await server.inject({
       body: {},
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
     const { error } = response.json<ErrorResponse>();
@@ -199,7 +191,7 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_re
     const response = await server.inject({
       body,
       method: 'POST',
-      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_refresh',
+      url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
     const { error } = response.json<ErrorResponse>();

@@ -45,16 +45,17 @@ const UNAVAILABLE_CODES = new Set(
  * @param options.download - The download options
  * @param options.download.cacheKey - The cache key
  * @param options.download.report - The report options
+ * @param options.download.release - The COUNTER release to use
  *
  * @returns The path to file
  */
 function getReportPath({
   id,
-  download: { cacheKey, report },
+  download: { cacheKey, report, release },
 }: HarvestJobData): string {
-  const release = report.release.replaceAll('.', '');
+  const releaseId = release.replaceAll('.', '');
   const reportId = `${report.isGlobal ? 'g' : ''}${report.id}`;
-  const filename = `${report.period.start}_${report.period.end}_r${release}.json`;
+  const filename = `${report.period.start}_${report.period.end}_r${releaseId}.json`;
 
   const reportPath = resolve(config.dir, `${cacheKey}/${reportId}/${filename}`);
   logger.debug({

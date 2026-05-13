@@ -44,11 +44,8 @@ export type UpdateDataHostSupportedRelease = z.infer<
 export const UpdateDataHostSupportedReport = DataHostSupportedReport.omit({
   createdAt: true,
   dataHostId: true,
-  firstMonthAvailable: true,
   id: true,
-  lastMonthAvailable: true,
   release: true,
-  supported: true,
   updatedAt: true,
 });
 

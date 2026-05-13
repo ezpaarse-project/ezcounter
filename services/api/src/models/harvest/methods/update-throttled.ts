@@ -65,5 +65,5 @@ export function updateOneHarvestJobThrottled(data: UpdateHarvestJob): void {
     updaters.set(data.id, update);
   }
 
-  void update(event.id);
+  void update(data.id);
 }

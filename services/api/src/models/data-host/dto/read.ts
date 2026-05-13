@@ -2,6 +2,7 @@ import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
   HarvestDataHostOptions,
+  HarvestDownloadOptions,
   HarvestReportOptions,
 } from '@ezcounter/dto/harvest';
 
@@ -45,7 +46,7 @@ export const DataHostSupportedRelease = z.object({
 
   refreshedAt: z.coerce.date().nullable().describe('Last report refresh date'),
 
-  release: HarvestReportOptions.shape.release,
+  release: HarvestDownloadOptions.shape.release,
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
 });
@@ -65,23 +66,19 @@ export const DataHostSupportedReport = z.object({
 
   firstMonthAvailable: z
     .string()
-    .describe('First month available in report - empty if no date'),
-
-  firstMonthAvailableOverride: z
-    .string()
     .nullable()
-    .describe('Override of the `firstMonthAvailable` property'),
+    .describe(
+      'First month available in report - empty if no date - null to not override'
+    ),
 
   id: HarvestReportOptions.shape.id,
 
   lastMonthAvailable: z
     .string()
-    .describe('Last month available in report - empty if no date'),
-
-  lastMonthAvailableOverride: z
-    .string()
     .nullable()
-    .describe('Override of the `lastMonthAvailable` property'),
+    .describe(
+      'Last month available in report - empty if no date - null to not override'
+    ),
 
   params: HarvestAdditionalParams.describe(
     'Additional params to use when requesting data host using report'
@@ -89,12 +86,10 @@ export const DataHostSupportedReport = z.object({
 
   release: DataHostSupportedRelease.shape.release,
 
-  supported: z.boolean().describe('Is report supported by data host'),
-
-  supportedOverride: z
+  supported: z
     .boolean()
     .nullable()
-    .describe('Override of the `supported` property'),
+    .describe('Is report supported by data - null to not override'),
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
 });

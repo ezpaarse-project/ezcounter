@@ -22,10 +22,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
         auth: {},
         baseUrl: 'https://example.com',
       },
+      release: '5.1',
       report: {
         id: '',
         period: { end: '2025-01', start: '2025-12' },
-        release: '5.1',
       },
     },
     id: '',

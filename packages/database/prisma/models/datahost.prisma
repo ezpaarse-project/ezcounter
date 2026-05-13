@@ -33,8 +33,6 @@ model DataHostSupportedRelease {
   createdAt   DateTime  @default(now())
   /// When the info was updated for the last time
   updatedAt   DateTime? @updatedAt
-  /// When the reports were refreshed for the last time
-  refreshedAt DateTime?
 
   /// Data Host
   dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
@@ -45,7 +43,7 @@ model DataHostSupportedRelease {
   @@id([dataHostId, release])
 }
 
-/// Report (un)supported by data host
+/// Report (un)supported by data host - Overrides endpoint information
 model DataHostSupportedReport {
   /// ID of the data host
   dataHostId                  String
@@ -55,18 +53,12 @@ model DataHostSupportedReport {
   id                          String
   /// Additional params of the host for this report
   params                      Json      @default("{}")
-  /// Is the report supported
-  supported                   Boolean   @default(true)
-  /// Admin override of supported - null if no override
-  supportedOverride           Boolean?
-  /// First month available in report - empty if no date
-  firstMonthAvailable         String    @default("")
-  /// Admin override of firstMonthAvailable - null if no override
-  firstMonthAvailableOverride String?
-  /// Last month available in report - empty if no date
-  lastMonthAvailable          String    @default("")
-  /// Admin override of lastMonthAvailable - null if no override
-  lastMonthAvailableOverride  String?
+  /// Is the report supported, overrides the datahost's info - null to skip
+  supported                   Boolean?
+  /// First month available in report, overrides the datahost's info - empty if no date - null to skip
+  firstMonthAvailable         String?
+  /// Last month available in report, overrides the datahost's info - empty if no date - null to skip
+  lastMonthAvailable          String?
   /// When the info was created
   createdAt                   DateTime  @default(now())
   /// When the info was updated for the last time

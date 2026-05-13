@@ -38,10 +38,10 @@ const OPTIONS: HarvestJobData = {
       auth: {},
       baseUrl: '',
     },
+    release: '5.1',
     report: {
       id: '',
       period: { end: '', start: '' },
-      release: '5.1',
     },
   },
   id: '',

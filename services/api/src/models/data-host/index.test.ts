@@ -31,14 +31,11 @@ describe(getDataHostWithSupportedData, () => {
     createdAt: new Date(),
     dataHostId: '',
     firstMonthAvailable: '',
-    firstMonthAvailableOverride: null,
     id: 'tr',
     lastMonthAvailable: '',
-    lastMonthAvailableOverride: null,
     params: {},
     release: '5.1',
     supported: false,
-    supportedOverride: null,
     updatedAt: null,
   };
 

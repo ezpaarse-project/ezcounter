@@ -123,7 +123,7 @@ async function downloadReport(
   timeout?: HarvestIdleTimeout
 ): Promise<{ httpCode: number }> {
   const response = await fetchReportAsStream(
-    options.report.release,
+    options.release,
     {
       id: options.report.id,
       period: options.report.period,

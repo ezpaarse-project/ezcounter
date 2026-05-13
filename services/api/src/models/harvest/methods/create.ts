@@ -28,7 +28,7 @@ export async function createManyHarvestJob(
         index: item.insert.index,
         params: item.download.report.params,
         period: item.download.report.period,
-        release: item.download.report.release,
+        release: item.download.release,
         reportId: item.download.report.id,
         status: 'pending',
       };

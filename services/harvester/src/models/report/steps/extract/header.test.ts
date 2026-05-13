@@ -10,10 +10,10 @@ describe('COUNTER 5', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
+    release: '5',
     report: {
       id: 'ir',
       period: { end: '', start: '' },
-      release: '5',
     },
   };
 
@@ -176,10 +176,10 @@ describe('COUNTER 5.1', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
+    release: '5.1',
     report: {
       id: 'ir',
       period: { end: '', start: '' },
-      release: '5.1',
     },
   };
 

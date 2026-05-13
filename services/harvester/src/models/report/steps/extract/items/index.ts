@@ -105,12 +105,12 @@ export async function* extractReportItems(
   const reportId = options.report.id.toUpperCase();
 
   const { item: validateItem, parent: validateParent } = getCounterValidation(
-    options.report.release,
+    options.release,
     reportId
   );
 
   const stream = createReportStream(
-    { id: reportId, path: reportPath, release: options.report.release },
+    { id: reportId, path: reportPath, release: options.release },
     signal
   );
 
