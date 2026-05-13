@@ -30,13 +30,13 @@
   "dependencies": {
     "@ezcounter/heartbeats": "workspace:*",
     "@ezcounter/logger": "workspace:*",
-    "@prisma/adapter-pg": "^7.4.1",
-    "@prisma/client": "^7.4.1"
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.52.0",
-    "@types/pg": "^8.18.0",
-    "prisma": "^7.4.1",
+    "@dotenvx/dotenvx": "^1.65.0",
+    "@types/pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "typescript": "catalog:"
   },
   "engines": {

@@ -24,10 +24,9 @@
     "type-check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
-    "config": "^4.2.0"
+    "config": "^4.4.1"
   },
   "devDependencies": {
-    "@types/config": "^3.3.5",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   },

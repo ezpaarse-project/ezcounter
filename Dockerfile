@@ -46,7 +46,7 @@ WORKDIR /usr/build/counter
 
 COPY --from=counter-turbo /usr/src/counter/json .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY --from=counter-turbo /usr/src/counter/full .
 
@@ -79,7 +79,7 @@ WORKDIR /usr/build/database
 
 COPY --from=database-turbo /usr/src/database/json .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY --from=database-turbo /usr/src/database/full .
 
@@ -123,7 +123,7 @@ WORKDIR /usr/build/api
 COPY ./tsconfig.json .
 COPY --from=api-turbo /usr/src/api/json .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY --from=api-turbo /usr/src/api/full .
 
@@ -166,7 +166,7 @@ WORKDIR /usr/build/enricher
 COPY ./tsconfig.json .
 COPY --from=enricher-turbo /usr/src/enricher/json .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY --from=enricher-turbo /usr/src/enricher/full .
 
@@ -206,7 +206,7 @@ WORKDIR /usr/build/harvester
 COPY ./tsconfig.json .
 COPY --from=harvester-turbo /usr/src/harvester/json .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY --from=harvester-turbo /usr/src/harvester/full .
 
