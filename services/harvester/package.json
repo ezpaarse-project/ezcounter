@@ -35,8 +35,8 @@
     "@ezcounter/toolbox": "workspace:*",
     "date-fns": "^4.1.0",
     "http-status-codes": "^2.3.0",
-    "stream-chain": "^3.4.0",
-    "stream-json": "^1.9.1",
+    "stream-chain": "~3.4.0",
+    "stream-json": "~1.9.1",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },

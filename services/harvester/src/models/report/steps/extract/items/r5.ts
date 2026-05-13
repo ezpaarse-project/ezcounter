@@ -4,14 +4,14 @@ import { chain } from 'stream-chain';
 
 import { createReadStream } from '~/lib/fs';
 import {
-  type JSONStreamedValue,
+  type JSONStreamItem,
   jsonParser,
   jsonPick,
   jsonStreamArray,
 } from '~/lib/stream/json';
 
-export type R5StreamedValue = {
-  item: JSONStreamedValue;
+export type R5StreamItem = {
+  item: JSONStreamItem;
 };
 
 /**
@@ -32,7 +32,7 @@ export function createR5ReportStream(
       jsonParser(),
       jsonPick({ filter: /^Report_Items$/ }),
       jsonStreamArray(),
-      (data: JSONStreamedValue): R5StreamedValue => ({
+      (data: JSONStreamItem): R5StreamItem => ({
         item: data,
       }),
     ],

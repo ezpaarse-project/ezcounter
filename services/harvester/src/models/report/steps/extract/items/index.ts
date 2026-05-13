@@ -5,10 +5,10 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import type { COUNTERReportItem, COUNTERReportItemParent } from '../../../dto';
 import { getCounterValidation } from '../../validate';
-import { type R5StreamedValue, createR5ReportStream } from './r5';
-import { type R51StreamedValue, createR51ReportStream } from './r51';
+import { type R5StreamItem, createR5ReportStream } from './r5';
+import { type R51StreamItem, createR51ReportStream } from './r51';
 
-type StreamedValue = R5StreamedValue & R51StreamedValue;
+type COUNTERStreamItem = R5StreamItem & R51StreamItem;
 
 /**
  * Create a stream that will extract Items from a COUNTER Report
@@ -119,7 +119,7 @@ export async function* extractReportItems(
   for await (const data of stream) {
     signal?.throwIfAborted();
 
-    const { item, parent } = data as StreamedValue;
+    const { item, parent } = data as COUNTERStreamItem;
 
     const ctx = { itemKey: item.key, parentKey: parent?.key };
     isItem(item.value, validateItem, ctx);

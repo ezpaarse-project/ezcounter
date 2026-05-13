@@ -4,7 +4,7 @@ import { chain } from 'stream-chain';
 
 import { createReadStream } from '~/lib/fs';
 import {
-  type JSONStreamedValue,
+  type JSONStreamItem,
   type JSONToken,
   jsonIgnore,
   jsonParser,
@@ -38,8 +38,7 @@ function createR51IRParentStream(
     jsonPick({ filter: /^Report_Items\.\d+$/ }),
     // Check if have the "Items" property
     (token: JSONToken): JSONToken => {
-      hadItems =
-        hadItems || (token.name === 'keyValue' && token.value === 'Items');
+      hadItems ||= token.name === 'keyValue' && token.value === 'Items';
       return token;
     },
     // Removing the Items property to save some memory
@@ -47,7 +46,7 @@ function createR51IRParentStream(
     // Streaming next tokens as one value
     jsonStreamValues(),
     // Resolve Parent before resolving any item
-    async (parent: JSONStreamedValue): Promise<JSONStreamedValue> => {
+    async (parent: JSONStreamItem): Promise<JSONStreamItem> => {
       if (!hadItems) {
         throw new Error("Parent doesn't have Items", {
           cause: { parentKey: parent.key },
@@ -118,7 +117,7 @@ function createR51IRItemStream(
     },
     // Streaming each value as a single event, while tracking if we had items resolved
     jsonStreamArray(),
-    (item: JSONStreamedValue): JSONStreamedValue => {
+    (item: JSONStreamItem): JSONStreamItem => {
       items.had = true;
       return item;
     },
@@ -137,12 +136,12 @@ function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
   const parentsLock = new HarvestLock(true);
   const itemsLock = new HarvestLock(true);
 
-  let lastParent: JSONStreamedValue | null = null;
+  let lastParent: JSONStreamItem | null = null;
   // Streaming parents
   const parentsStream = chain(
     [
       createR51IRParentStream(reportPath, itemsLock, parentsLock),
-      (parent: JSONStreamedValue): void => {
+      (parent: JSONStreamItem): void => {
         lastParent = parent;
       },
     ],
@@ -153,7 +152,7 @@ function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
   const itemsStream = chain(
     [
       createR51IRItemStream(reportPath, itemsLock, parentsLock),
-      (item: JSONStreamedValue): R51StreamedValue => ({
+      (item: JSONStreamItem): R51StreamItem => ({
         item,
         parent: lastParent,
       }),
@@ -176,9 +175,9 @@ function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
   return itemsStream;
 }
 
-export type R51StreamedValue = {
-  item: JSONStreamedValue;
-  parent: JSONStreamedValue | null;
+export type R51StreamItem = {
+  item: JSONStreamItem;
+  parent: JSONStreamItem | null;
 };
 
 /**
@@ -206,7 +205,7 @@ export function createR51ReportStream(
           jsonParser(),
           jsonPick({ filter: /^Report_Items$/ }),
           jsonStreamArray(),
-          (item: JSONStreamedValue): R51StreamedValue => ({
+          (item: JSONStreamItem): R51StreamItem => ({
             item,
             parent: null,
           }),

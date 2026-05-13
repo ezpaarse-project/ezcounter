@@ -10,7 +10,7 @@ export type JSONToken = {
   value: unknown;
 };
 
-export type JSONStreamedValue = {
+export type JSONStreamItem = {
   key: number | string;
   value: unknown;
 };
