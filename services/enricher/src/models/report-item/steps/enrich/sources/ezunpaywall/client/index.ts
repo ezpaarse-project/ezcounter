@@ -1,26 +1,13 @@
-import { milliseconds } from 'date-fns';
-
-import { appConfig } from '~/lib/config';
-import { createStore } from '~/lib/keyv';
 import { appLogger } from '~/lib/logger';
 
 import { EzUnpaywallDocument } from '../dto';
 import { bufferedFetchOneDocumentByDOI } from './documents';
-import { EzUnpaywallRemote } from './remotes';
+import { createEzUnpaywallRemote, createEzUnpaywallStore } from './remotes';
 
-const { ezunpaywall: config } = appConfig.enrich.sources;
 const logger = appLogger.child({ scope: 'enrich', source: 'ezunpaywall' });
 
-const store = createStore('unpaywall', {
-  compression: false, // TODO: fix compression
-  ttl: milliseconds(config.storeTtl),
-});
-
-const remote = new EzUnpaywallRemote({
-  ...config,
-  retryDelay: config.retryDelay.milliseconds || milliseconds(config.retryDelay),
-  timeout: config.timeout.milliseconds || milliseconds(config.timeout),
-});
+const store = createEzUnpaywallStore();
+const remote = createEzUnpaywallRemote();
 
 /**
  * Get ezUnpaywall document by DOI, either from cache or from remote
@@ -28,7 +15,7 @@ const remote = new EzUnpaywallRemote({
  * @param doi - The DOI of the document
  * @param onDocument - Callback resolving with the ezUnpaywall document or null if not found
  *
- * @returns Promise resolving when further fetch are possible
+ * @returns Promise that resolves true when further fetch are possible
  */
 export async function getDocumentByDOI(
   doi: string,
@@ -36,14 +23,14 @@ export async function getDocumentByDOI(
     doc: EzUnpaywallDocument | null,
     status: 'remote' | 'store'
   ) => Promise<void>
-): Promise<void> {
+): Promise<true> {
   const cacheKey = `document:doi:${doi}`;
 
   try {
     const stored = await store.get(cacheKey);
     if (stored) {
       await onDocument(EzUnpaywallDocument.parse(stored), 'store');
-      return;
+      return true;
     }
   } catch (error) {
     logger.warn({
@@ -68,4 +55,6 @@ export async function getDocumentByDOI(
 
     return onDocument(doc, 'remote');
   });
+
+  return true;
 }

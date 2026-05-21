@@ -44,7 +44,6 @@ describe('Resolve context of Harvest Request', () => {
         createdAt: new Date(),
         dataHostId: 'my-counter-datahost',
         params: {},
-        refreshedAt: null,
         release: '5.1',
         supportedReports: [],
         updatedAt: null,
@@ -58,7 +57,7 @@ describe('Resolve context of Harvest Request', () => {
 
     await resolveRequestContextPerHostname([request]);
 
-    expect(getDataHostWithSupportedData).toBeCalled();
+    expect(getDataHostWithSupportedData).toHaveBeenCalled();
   });
 
   test('should skip if host in unknown', async () => {

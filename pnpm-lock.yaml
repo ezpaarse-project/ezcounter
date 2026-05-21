@@ -9,6 +9,9 @@ catalogs:
     '@types/node':
       specifier: ^24
       version: 24.10.9
+    '@typescript/native-preview':
+      specifier: ^7.0.0-dev.20260519.1
+      version: 7.0.0-dev.20260519.1
     '@vitest/coverage-v8':
       specifier: ^4.1.6
       version: 4.1.6
@@ -72,6 +75,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -94,6 +100,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       json-schema-to-typescript:
         specifier: ^15.0.4
         version: 15.0.4
@@ -131,6 +140,9 @@ importers:
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       prisma:
         specifier: ^7.8.0
         version: 7.8.0(@types/react@19.2.14)(magicast@0.5.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@6.0.2)
@@ -140,9 +152,6 @@ importers:
 
   packages/dto:
     dependencies:
-      '@ezcounter/counter':
-        specifier: 'workspace:'
-        version: link:../counter
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -150,12 +159,19 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@types/node@24.10.9)(@vitest/coverage-v8@4.1.6)(msw@2.14.6(@types/node@24.10.9)(typescript@6.0.2))(vite@7.3.1(@types/node@24.10.9)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+    optionalDependencies:
+      '@ezcounter/counter':
+        specifier: 'workspace:'
+        version: link:../counter
 
   packages/heartbeats:
     dependencies:
@@ -169,6 +185,9 @@ importers:
         specifier: workspace:*
         version: link:../rabbitmq
     devDependencies:
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.6(vitest@4.1.6)
@@ -188,6 +207,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -203,13 +225,17 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
-      zod:
-        specifier: ^4
-        version: 4.3.6
     devDependencies:
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       vitest:
         specifier: 'catalog:'
         version: 4.1.6(@types/node@25.0.9)(@vitest/coverage-v8@4.1.6)(msw@2.14.6(@types/node@25.0.9)(typescript@6.0.2))(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.2))
+    optionalDependencies:
+      '@ezcounter/dto':
+        specifier: workspace:*
+        version: link:../dto
 
   packages/simple-http:
     dependencies:
@@ -223,6 +249,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
 
   packages/toolbox:
     dependencies:
@@ -233,6 +262,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.10.9
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -281,6 +313,9 @@ importers:
       '@fastify/swagger-ui':
         specifier: ^5.2.6
         version: 5.2.6
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -354,6 +389,9 @@ importers:
       '@keyv/redis':
         specifier: ^5.1.6
         version: 5.1.6(keyv@5.6.0)
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -427,6 +465,9 @@ importers:
       '@ezcounter/toolbox':
         specifier: workspace:*
         version: link:../../packages/toolbox
+      '@typescript/native-preview':
+        specifier: 'catalog:'
+        version: 7.0.0-dev.20260519.1
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -1839,6 +1880,53 @@ packages:
 
   '@types/stream-json@1.7.8':
     resolution: {integrity: sha512-MU1OB1eFLcYWd1LjwKXrxdoPtXSRzRmAnnxs4Js/ayB5O/NvHraWwuOaqMWIebpYwM6khFlsJOHEhI9xK/ab4Q==}
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-c9zdG6sGJf25Jpz04JgE23zhYeprqFypDGuqiX94yMTvR8IWXjq3R2oMnim66YLBDon/V1nCEy6cFixeSd/4fg==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-N16V3wiM0tsNmSSA7nZrxqXXt5OCJxBwiCVn35rnA7fr4WzJw6rJmwf9heNNhZ6Gh4ne3+Pexajf5akzuHR75Q==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-ltf91vAwKdbu0SlRQbFgi1h5ZrLLrBn6a4qIeN2VILGbtYrCXnARHRznLBv81yUETQ7aVr/LSQcmsWo1ejCK0w==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-8v4BExeeuCTrhaSGfeIJqm3qQkTzlZix/Qd/FkPlWoz9f7d7COvXb3Z4qhbaVolL0MMnUvQ7m005Z4kYsZ645A==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-AVD0tczTtFCHNa4RQRVPvu8Hnw4P3hQ+OlUAjnz/lHowvc6o1pYB46elMqfDuaoWqIpv+EAkAPP4ipFCofJ5IA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-TM+qatljyejqjHevCta3WIH53i0oGC7K8SoJ6t+mf4cGMTpZTyd7NhC1ts7e6/aydZnG53Bsta2iQi1SMIlQEw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-r9LEsoY7JC/82gXo8hlOmpQaUXcqmngCVOv+mUx1UeMt9f+1S6oNO0W48o75mlBqqC7jfcMHqw8YS4LfVxPRGw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20260519.1':
+    resolution: {integrity: sha512-VVER7vFUDdfm5k3jbH5765tVEJa7+0rTUkFeXyGYrXPxpw9BIjA0QDxdtdlRyaU8MCZV9IKZUo6doxeAQRAjPg==}
+    engines: {node: '>=16.20.0'}
+    hasBin: true
 
   '@vitest/coverage-v8@4.1.6':
     resolution: {integrity: sha512-36l628fQ/9a/8ihy97eOtEnvWQEdqULQOJtcaxtoNq0G1w3Mxd4szSahOaMM9/NGyZ+hyKcMtIW/WIxq0XQViQ==}
@@ -3474,9 +3562,6 @@ packages:
   zeptomatch@2.1.0:
     resolution: {integrity: sha512-KiGErG2J0G82LSpniV0CtIzjlJ10E04j02VOudJsPyPwNZgGnRKQy7I1R7GMyg/QswnE4l7ohSGrQbQbjXPPDA==}
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
-
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
@@ -4718,6 +4803,37 @@ snapshots:
     dependencies:
       '@types/node': 25.0.9
       '@types/stream-chain': 2.1.0
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260519.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20260519.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260519.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260519.1
 
   '@vitest/coverage-v8@4.1.6(vitest@4.1.6)':
     dependencies:
@@ -6358,7 +6474,5 @@ snapshots:
     dependencies:
       grammex: 3.1.12
       graphmatch: 1.1.1
-
-  zod@4.3.6: {}
 
   zod@4.4.3: {}

@@ -59,7 +59,7 @@ describe('Cache report (cacheReportToFile)', () => {
 
     await cacheReportToFile('', OPTIONS);
 
-    expect(cacheReport).toBeCalled();
+    expect(cacheReport).toHaveBeenCalled();
   });
 
   test('should throw on error', async () => {
@@ -77,7 +77,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     await getReportExceptions({ path: '' }, OPTIONS);
 
-    expect(extractReportExceptions).toBeCalled();
+    expect(extractReportExceptions).toHaveBeenCalled();
   });
 
   test('should treat HTTP status as exception', async () => {
@@ -112,7 +112,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     const promise = getReportExceptions({ path: '' }, OPTIONS, timeout);
 
-    await expect(promise).rejects.toThrowError('This operation was aborted');
+    await expect(promise).rejects.toThrow('This operation was aborted');
   });
 
   test('should tick timeout', async () => {
@@ -123,7 +123,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toBeCalled();
+    expect(timeout.tick).toHaveBeenCalled();
   });
 
   test('should notify progress', async () => {
@@ -131,7 +131,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     const res = await getReportExceptions({ path: '' }, OPTIONS);
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       extract: {
         exceptions: res,
         status: 'processing',
@@ -146,13 +146,13 @@ describe('Report Header (getReportHeader)', () => {
   test('should extract header', async () => {
     await getReportHeader('', OPTIONS);
 
-    expect(extractReportHeader).toBeCalled();
+    expect(extractReportHeader).toHaveBeenCalled();
   });
 
   test('should extract registryId', async () => {
     await getReportHeader('', OPTIONS);
 
-    expect(extractRegistryId).toBeCalled();
+    expect(extractRegistryId).toHaveBeenCalled();
   });
 
   test('should throw on error', async () => {
@@ -169,7 +169,7 @@ describe('Report Header (getReportHeader)', () => {
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toBeCalled();
+    expect(timeout.tick).toHaveBeenCalled();
   });
 
   test('should notify progress', async () => {
@@ -177,7 +177,7 @@ describe('Report Header (getReportHeader)', () => {
 
     await getReportHeader('', OPTIONS);
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       extract: {
         header: true,
         registryId: null,
@@ -195,7 +195,7 @@ describe('Report Items (queueReportItems)', () => {
   test('should extract items', async () => {
     await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
-    expect(extractReportItems).toBeCalled();
+    expect(extractReportItems).toHaveBeenCalled();
   });
 
   test('should throw on error', async () => {
@@ -214,7 +214,7 @@ describe('Report Items (queueReportItems)', () => {
 
     await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toBeCalled();
+    expect(timeout.tick).toHaveBeenCalled();
   });
 
   test('should tick timeout after every item', async () => {
@@ -230,13 +230,13 @@ describe('Report Items (queueReportItems)', () => {
     await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
 
     // Should tick after extracting then after every item
-    expect(timeout.tick).toBeCalledTimes(5000 + 1);
+    expect(timeout.tick).toHaveBeenCalledTimes(5000 + 1);
   });
 
   test('should notify progress', async () => {
     await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       extract: {
         items: 0,
         status: 'processing',
@@ -255,9 +255,9 @@ describe('Report Items (queueReportItems)', () => {
 
     const promise = queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
-    expect(sendHarvestJobStatusEvent).not.toBeCalled();
+    expect(sendHarvestJobStatusEvent).not.toHaveBeenCalled();
     vi.advanceTimersByTime(900);
-    expect(sendHarvestJobStatusEvent).toBeCalledTimes(3);
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledTimes(3);
     await promise;
   });
 });
@@ -269,7 +269,7 @@ describe('Archive Report (archiveReportToFile)', () => {
       OPTIONS
     );
 
-    expect(archiveReport).toBeCalled();
+    expect(archiveReport).toHaveBeenCalled();
   });
 
   test('should not throw on error', async () => {

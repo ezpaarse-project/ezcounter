@@ -22,7 +22,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/config": "workspace:*",
@@ -38,6 +38,7 @@
     "@fastify/helmet": "^13.0.2",
     "@fastify/swagger": "^9.7.0",
     "@fastify/swagger-ui": "^5.2.6",
+    "@typescript/native-preview": "catalog:",
     "date-fns": "^4.1.0",
     "fastify": "^5.8.5",
     "fastify-plugin": "^5.1.0",

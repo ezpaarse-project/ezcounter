@@ -32,7 +32,6 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   const release: DataHostSupportedRelease = {
     createdAt: new Date(),
     dataHostId: 'id',
-    refreshedAt: null,
     release: '5.1',
     updatedAt: null,
     ...body,

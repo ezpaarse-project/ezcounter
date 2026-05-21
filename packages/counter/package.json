@@ -27,7 +27,7 @@
     "fmt": "oxfmt",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "ajv": "^8.20.0",
@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "json-schema-to-typescript": "^15.0.4",
     "msw": "^2.14.6",
     "tsx": "catalog:",

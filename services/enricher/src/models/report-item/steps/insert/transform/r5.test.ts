@@ -12,10 +12,7 @@ import { type R5ReportData, transformR5ItemToDocuments } from './r5';
 
 vi.mock(import('isbn3'));
 
-const EXAMPLES_DIR = join(
-  import.meta.dirname,
-  '../../../../../../__tests__/examples/items/5'
-);
+const EXAMPLES_DIR = join(process.cwd(), '__tests__/examples/items/5');
 
 const readExampleFile = (file: string): R5ReportData =>
   JSON.parse(readFileSync(join(EXAMPLES_DIR, file), 'utf8'));
@@ -43,28 +40,32 @@ describe('Transform COUNTER 5 Item (transformR5ItemToDocuments)', () => {
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
     const { value } = iterator.next();
 
-    expect(value).toMatchObject({
-      // Should resolves count
-      Count: 21,
-      // Should transform Attribute_Performance
-      Data_Type: 'Platform',
-      // Should resolves metric type
-      Metric_Type: 'Total_Item_Requests',
-      // Should transform item data
-      Platform: 'EBSCOhost',
-      // Should transform header
-      Report_Header: {
-        Report_ID: 'PR',
-      },
-      // Should resolves date
-      X_Date_Month: '2015-01',
-      // Should resolves harvest date
-      X_Harvested_At: '2026-04-23T13:30:24.204Z',
-      // Should generate id
-      _id: expect.stringMatching(
-        /[0-9]{4}-[0-9]{2}:[a-z]{2}(:[a-z_]+){2}:[0-9a-f]+/
-      ),
-    });
+    expect(value).toHaveProperty(
+      'document',
+      expect.objectContaining({
+        // Should resolves count
+        Count: 21,
+        // Should transform Attribute_Performance
+        Data_Type: 'Platform',
+        // Should resolves metric type
+        Metric_Type: 'Total_Item_Requests',
+        // Should transform item data
+        Platform: 'EBSCOhost',
+        // Should transform header
+        Report_Header: expect.objectContaining({
+          Report_ID: 'PR',
+        }),
+        // Should resolves date
+        X_Date_Month: '2015-01',
+        // Should resolves harvest date
+        X_Harvested_At: '2026-04-23T13:30:24.204Z',
+      })
+    );
+    // Should generate id
+    expect(value).toHaveProperty(
+      'id',
+      expect.stringMatching(/[0-9]{4}-[0-9]{2}:[a-z]{2}(:[a-z_]+){2}:[0-9a-f]+/)
+    );
   });
 
   test('should transform parent', () => {
@@ -75,7 +76,7 @@ describe('Transform COUNTER 5 Item (transformR5ItemToDocuments)', () => {
     const { value } = iterator.next();
 
     expect(value).toHaveProperty(
-      'Item_Parent.Item_Name',
+      'document.Item_Parent.Item_Name',
       'Journal of Economics'
     );
   });
@@ -87,7 +88,7 @@ describe('Transform COUNTER 5 Item (transformR5ItemToDocuments)', () => {
 
     const { value } = iterator.next();
 
-    expect(value._id).toContain('foobar');
+    expect(value).toHaveProperty('id', expect.stringContaining('foobar'));
   });
 
   test('should format ISBN', () => {
@@ -97,7 +98,7 @@ describe('Transform COUNTER 5 Item (transformR5ItemToDocuments)', () => {
 
     iterator.next();
 
-    expect(isbn.asIsbn13).toBeCalled();
+    expect(isbn.asIsbn13).toHaveBeenCalled();
   });
 
   test('should resolve on each count on each Performance on each Attribute_Performance', () => {

@@ -39,7 +39,7 @@ describe(updateOneHarvestJob, () => {
 
     await updateOneHarvestJob({ id: 'foobar' });
 
-    expect(dbClient.harvestJob.update).toBeCalledWith(
+    expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'foobar' },
       })
@@ -114,6 +114,7 @@ describe(updateOneHarvestJob, () => {
 
   test('should update enrich step', async () => {
     const job = getJob();
+    job.enrichSources = ['ezunpaywall', 'openalex'];
     job.extract = { items: 10, status: 'done' };
     job.enrich = {
       sources: {
@@ -315,7 +316,7 @@ describe(failManyHarvestJob, () => {
       },
     ]);
 
-    expect(dbClient.harvestJob.update).toBeCalled();
+    expect(dbClient.harvestJob.update).toHaveBeenCalled();
   });
 
   test('should use transaction', async () => {
@@ -329,6 +330,6 @@ describe(failManyHarvestJob, () => {
       },
     ]);
 
-    expect(dbClient.$transaction).toBeCalled();
+    expect(dbClient.$transaction).toHaveBeenCalled();
   });
 });

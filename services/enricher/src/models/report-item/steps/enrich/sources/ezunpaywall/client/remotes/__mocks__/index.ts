@@ -1,9 +1,14 @@
 import { vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
+
+import type { Store } from '~/lib/keyv';
 
 import type { IEzUnpaywallRemote } from '../types';
 
-class MockedRemote implements IEzUnpaywallRemote {
-  public fetchManyDocumentByDOI = vi.fn();
-}
+export const mockedStore = mockDeep<Store>();
 
-export const EzUnpaywallRemote = vi.fn(MockedRemote);
+export const mockedRemote = mockDeep<IEzUnpaywallRemote>();
+
+export const createEzUnpaywallStore = vi.fn().mockReturnValue(mockedStore);
+
+export const createEzUnpaywallRemote = vi.fn().mockReturnValue(mockedRemote);

@@ -1,34 +1,13 @@
-import { milliseconds } from 'date-fns';
-
-import { appConfig } from '~/lib/config';
-import { createStore } from '~/lib/keyv';
 import { appLogger } from '~/lib/logger';
 
 import { OpenAlexWork } from '../dto';
-import { CNRSGatewayRemote, OpenAlexRemote } from './remotes';
+import { createOpenAlexRemote, createOpenAlexStore } from './remotes';
 import { bufferedFetchOneWorkByDOI } from './works';
 
-const { openalex: config } = appConfig.enrich.sources;
 const logger = appLogger.child({ scope: 'enrich', source: 'openalex' });
 
-const store = createStore('openalex', {
-  compression: false, // TODO: fix compression
-  ttl: milliseconds(config.storeTtl),
-});
-
-const remote = config.isCNRSGateway
-  ? new CNRSGatewayRemote({
-      ...config,
-      retryDelay:
-        config.retryDelay.milliseconds || milliseconds(config.retryDelay),
-      timeout: config.timeout.milliseconds || milliseconds(config.timeout),
-    })
-  : new OpenAlexRemote({
-      ...config,
-      retryDelay:
-        config.retryDelay.milliseconds || milliseconds(config.retryDelay),
-      timeout: config.timeout.milliseconds || milliseconds(config.timeout),
-    });
+const store = createOpenAlexStore();
+const remote = createOpenAlexRemote();
 
 /**
  * Get OpenAlex work by DOI, either from cache or from remote
@@ -36,7 +15,7 @@ const remote = config.isCNRSGateway
  * @param doi - The DOI of the work
  * @param onWork - Callback resolving with the OpenAlex work or null if not found
  *
- * @returns The OpenAlex work or null if not found
+ * @returns Promise that resolves true when further fetch are possible
  */
 export async function getWorkByDOI(
   doi: string,
@@ -44,14 +23,14 @@ export async function getWorkByDOI(
     doc: OpenAlexWork | null,
     status: 'remote' | 'store'
   ) => Promise<void>
-): Promise<void> {
+): Promise<true> {
   const cacheKey = `work:doi:${doi}`;
 
   try {
     const stored = await store.get(cacheKey);
     if (stored) {
       await onWork(OpenAlexWork.parse(stored), 'store');
-      return;
+      return true;
     }
   } catch (error) {
     logger.warn({
@@ -76,4 +55,6 @@ export async function getWorkByDOI(
 
     return onWork(work, 'remote');
   });
+
+  return true;
 }

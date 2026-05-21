@@ -16,6 +16,6 @@ describe('Handle job status (onHarvestJobStatus)', () => {
     // Let throttled function run
     await vi.runAllTimersAsync();
 
-    expect(updateOneHarvestJobThrottled).toBeCalled();
+    expect(updateOneHarvestJobThrottled).toHaveBeenCalled();
   });
 });

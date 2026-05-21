@@ -51,7 +51,7 @@ describe('GET /health/services', () => {
       url: '/health/services',
     });
 
-    expect(getAllServices).toBeCalled();
+    expect(getAllServices).toHaveBeenCalled();
   });
 });
 
@@ -71,7 +71,7 @@ describe('GET /health/services/:name', () => {
       url: '/health/services/dummy',
     });
 
-    expect(getAllServices).toBeCalled();
+    expect(getAllServices).toHaveBeenCalled();
   });
 
   test("should return NOT_FOUND if service doesn't exists", async () => {
@@ -114,7 +114,7 @@ describe('GET /health/probes/readiness', () => {
       url: '/health/probes/readiness',
     });
 
-    expect(getMissingMandatoryServices).toBeCalled();
+    expect(getMissingMandatoryServices).toHaveBeenCalled();
   });
 
   test('should return SERVICE_UNAVAILABLE if some mandatory services are missing', async () => {

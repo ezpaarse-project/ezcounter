@@ -76,7 +76,6 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},
-      refreshedAt: null,
       release: '5.1',
       updatedAt: null,
     },
@@ -85,7 +84,6 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},
-      refreshedAt: null,
       release: '5',
       updatedAt: null,
     },
@@ -97,7 +95,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
 
       await onHarvestRequest(request);
 
-      expect(prepareHarvestJobsFromHarvestRequest).toBeCalled();
+      expect(prepareHarvestJobsFromHarvestRequest).toHaveBeenCalled();
     });
 
     test('should create jobs in DB', async () => {
@@ -105,7 +103,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
 
       await onHarvestRequest(request);
 
-      expect(createManyHarvestJob).toBeCalled();
+      expect(createManyHarvestJob).toHaveBeenCalled();
     });
 
     test('should queue jobs', async () => {
@@ -113,7 +111,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
 
       await onHarvestRequest(request);
 
-      expect(queueHarvestJobs).toBeCalled();
+      expect(queueHarvestJobs).toHaveBeenCalled();
     });
   });
 });

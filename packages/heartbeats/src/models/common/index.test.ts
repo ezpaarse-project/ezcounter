@@ -18,7 +18,7 @@ describe('Ping with timeout (doPingWithTimeout)', () => {
 
     await doPingWithTimeout(ping, 100);
 
-    expect(ping).toBeCalled();
+    expect(ping).toHaveBeenCalled();
   });
 
   test('should throw TimeoutError if timeout is reached', async () => {

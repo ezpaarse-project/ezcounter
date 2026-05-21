@@ -38,25 +38,25 @@ describe('Archive report (archiveReport)', () => {
     test('should archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createGzip).toBeCalled();
+      expect(createGzip).toHaveBeenCalled();
     });
 
     test('should read file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createReadStream).toBeCalledWith(REPORT.path);
+      expect(createReadStream).toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should write archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).toBeCalledWith(`${REPORT.path}.gz`);
+      expect(createWriteStream).toHaveBeenCalledWith(`${REPORT.path}.gz`);
     });
 
     test('should delete file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(unlink).toBeCalledWith(REPORT.path);
+      expect(unlink).toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should be able to be aborted', async () => {
@@ -80,25 +80,25 @@ describe('Archive report (archiveReport)', () => {
     test('should archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createGzip).toBeCalled();
+      expect(createGzip).toHaveBeenCalled();
     });
 
     test('should read file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createReadStream).toBeCalledWith(REPORT.path);
+      expect(createReadStream).toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should write archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).toBeCalledWith(`${REPORT.path}.gz`);
+      expect(createWriteStream).toHaveBeenCalledWith(`${REPORT.path}.gz`);
     });
 
     test('should delete file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(unlink).toBeCalledWith(REPORT.path);
+      expect(unlink).toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should be able to be aborted', async () => {
@@ -122,25 +122,25 @@ describe('Archive report (archiveReport)', () => {
     test("shouldn't archive", async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createGzip).not.toBeCalled();
+      expect(createGzip).not.toHaveBeenCalled();
     });
 
     test("shouldn't read file", async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createReadStream).not.toBeCalled();
+      expect(createReadStream).not.toHaveBeenCalled();
     });
 
     test("shouldn't write archive", async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).not.toBeCalled();
+      expect(createWriteStream).not.toHaveBeenCalled();
     });
 
     test('should delete file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(unlink).toBeCalledWith(REPORT.path);
+      expect(unlink).toHaveBeenCalledWith(REPORT.path);
     });
 
     test("shouldn't be able to be aborted", async () => {
@@ -164,7 +164,7 @@ describe('Archive report (archiveReport)', () => {
       OPTIONS
     );
 
-    await expect(promise).rejects.toThrowError("isn't downloaded");
+    await expect(promise).rejects.toThrow("isn't downloaded");
   });
 
   test('should tick timeout', async () => {
@@ -181,6 +181,6 @@ describe('Archive report (archiveReport)', () => {
       timeout
     );
 
-    expect(spy).toBeCalled();
+    expect(spy).toHaveBeenCalled();
   });
 });

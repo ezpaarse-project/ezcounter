@@ -48,41 +48,45 @@ export class EzUnpaywallRemote implements IEzUnpaywallRemote {
   public async fetchManyDocumentByDOI(
     dois: string[]
   ): Promise<EzUnpaywallDocument[]> {
-    // Dedupe DOIs and format query
-    const query = [...new Set(dois)].map((doi) => `"${doi}"`).join(',');
-
     try {
       const response = await this.$fetch('/', {
         body: {
-          query: `{
-            unpaywall(dois: [${query}]) {
+          query: `query GetByDOI($dois: [ID!]!) {
+            unpaywall(dois: $dois) {
               doi
               is_oa
+              title
               oa_status
+              data_standard
+              genre
               year
               journal_issns
               journal_issn_l
               journal_is_oa
             }
           }`,
+          variables: {
+            // Dedupe DOIs
+            dois: [...new Set(dois)],
+          },
         },
       });
 
       const { data, errors } = EzUnpaywallResponse.parse(response);
-      if (data.unpaywall) {
+      if (data.unpaywall && data.unpaywall.length > 0) {
         logger.debug({
-          count: data.unpaywall.length,
-          dois: dois.length,
           msg: 'Got documents from ezUnpaywall',
+          requestCount: dois.length,
+          resultCount: data.unpaywall.length,
         });
         return data.unpaywall;
       }
       throw new Error(errors?.[0]?.message || 'Unknown error from ezUNPAYWALL');
     } catch (error) {
       logger.warn({
-        dois: dois.length,
         err: error,
         msg: 'Failed to fetch documents',
+        requestCount: dois.length,
       });
     }
     return [];

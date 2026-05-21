@@ -67,7 +67,7 @@ describe('COUNTER 5', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError('Exception is invalid');
+      await expect(promise).rejects.toThrow('Exception is invalid');
       await expect(promise).rejects.toHaveProperty('cause.validation');
     });
 
@@ -77,7 +77,7 @@ describe('COUNTER 5', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError(
+      await expect(promise).rejects.toThrow(
         'Parser cannot parse input: expected a value'
       );
     });
@@ -88,7 +88,7 @@ describe('COUNTER 5', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError('no such file or directory');
+      await expect(promise).rejects.toThrow('no such file or directory');
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 
@@ -171,7 +171,7 @@ describe('COUNTER 5.1', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError('Exception is invalid');
+      await expect(promise).rejects.toThrow('Exception is invalid');
       await expect(promise).rejects.toHaveProperty('cause.validation');
     });
 
@@ -181,7 +181,7 @@ describe('COUNTER 5.1', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError(
+      await expect(promise).rejects.toThrow(
         'Parser cannot parse input: expected a value'
       );
     });
@@ -192,7 +192,7 @@ describe('COUNTER 5.1', () => {
         OPTIONS
       );
 
-      await expect(promise).rejects.toThrowError('no such file or directory');
+      await expect(promise).rejects.toThrow('no such file or directory');
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 

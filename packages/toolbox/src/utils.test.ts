@@ -16,7 +16,7 @@ describe('Throttled Function', () => {
 
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toBeCalled();
+    expect(spy).toHaveBeenCalled();
   });
 
   test('should bubble async error', async () => {
@@ -78,7 +78,7 @@ describe('Throttled Function', () => {
     throttled();
 
     await vi.runAllTimersAsync();
-    expect(spy).toBeCalledTimes(4);
+    expect(spy).toHaveBeenCalledTimes(4);
   });
 
   test('should call with last argument', async () => {
@@ -116,7 +116,7 @@ describe('Debounced Function', () => {
 
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toBeCalled();
+    expect(spy).toHaveBeenCalled();
   });
 
   test('should bubble async error', async () => {
@@ -257,6 +257,6 @@ describe('Wait for generator', () => {
 
     const promise = waitForGenerator(process);
 
-    await expect(promise).rejects.toThrowError('Excepted error');
+    await expect(promise).rejects.toThrow('Excepted error');
   });
 });

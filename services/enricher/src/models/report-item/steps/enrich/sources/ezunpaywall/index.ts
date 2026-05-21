@@ -19,6 +19,7 @@ type EnrichEzUnpaywalData = {
     year?: number;
   };
 };
+
 /**
  * Transform document from ezUnpaywall into enrich data added to documents
  *
@@ -47,7 +48,7 @@ const transformDocumentToEnrichData = (
  * @param options - The options to use for ezUnpaywall enrichment
  * @param next - Callback with enriched data
  *
- * @returns Promise resolving when further fetch are possible
+ * @returns Promise that resolves true when further fetch are possible
  */
 export async function enrichItemUsingEzUnpaywall(
   data: EnrichJobContent,
@@ -56,15 +57,15 @@ export async function enrichItemUsingEzUnpaywall(
     data: EnrichEzUnpaywalData | null,
     status: 'remote' | 'store' | 'miss' | 'skipped'
   ) => Promise<void>
-): Promise<void> {
+): Promise<true> {
   // If Release is absent, it's a COUNTER 5 Report
   const release = data.header.Release || '5';
 
   // Resolve identifiers
   const doi = getDOIOfItem(data.item, release);
   if (!doi) {
-    next(null, 'skipped');
-    return;
+    await next(null, 'skipped');
+    return true;
   }
 
   // Fetch item using found identifier
@@ -75,4 +76,6 @@ export async function enrichItemUsingEzUnpaywall(
 
     return next(transformDocumentToEnrichData(doc), status);
   });
+
+  return true;
 }

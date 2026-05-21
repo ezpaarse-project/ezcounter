@@ -18,13 +18,14 @@
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "pino": "^10.3.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

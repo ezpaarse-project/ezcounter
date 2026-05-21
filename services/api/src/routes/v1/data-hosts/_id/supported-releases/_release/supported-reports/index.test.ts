@@ -38,7 +38,10 @@ describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', ()
 
     expect(response).toHaveProperty('statusCode', 200);
     expect(findAllReportsSupportedByDataHost).toHaveBeenCalledOnce();
-    expect(findAllReportsSupportedByDataHost).toBeCalledWith(':id', '5.1');
+    expect(findAllReportsSupportedByDataHost).toHaveBeenCalledWith(
+      ':id',
+      '5.1'
+    );
     expect(content).toBeInstanceOf(Array);
   });
 
@@ -142,7 +145,7 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/_fetch',
     });
 
-    expect(fetchSupportedReportsOfDataHost).toBeCalledWith(
+    expect(fetchSupportedReportsOfDataHost).toHaveBeenCalledWith(
       undefined,
       body.auth,
       '5.1'

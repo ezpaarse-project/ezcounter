@@ -67,7 +67,7 @@ const transformWorkToEnrichData = (work: OpenAlexWork): EnrichOpenAlexData => {
  * @param options - The options to use for OpenAlex enrichment
  * @param next - Callback with enriched data
  *
- * @returns The enriched data
+ * @returns Promise that resolves true when further fetch are possible
  */
 export async function enrichItemUsingOpenAlex(
   data: EnrichJobContent,
@@ -76,15 +76,15 @@ export async function enrichItemUsingOpenAlex(
     data: EnrichOpenAlexData | null,
     status: 'remote' | 'store' | 'miss' | 'skipped'
   ) => Promise<void>
-): Promise<void> {
+): Promise<true> {
   // If Release is absent, it's a COUNTER 5 Report
   const release = data.header.Release || '5';
 
   // Resolve identifiers
   const doi = getDOIOfItem(data.item, release);
   if (!doi) {
-    next(null, 'skipped');
-    return;
+    await next(null, 'skipped');
+    return true;
   }
 
   // Fetch item using found identifier
@@ -95,4 +95,6 @@ export async function enrichItemUsingOpenAlex(
 
     return next(transformWorkToEnrichData(work), status);
   });
+
+  return true;
 }

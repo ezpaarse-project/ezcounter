@@ -28,7 +28,7 @@ describe(upsertDataHost, () => {
 
     await upsertDataHost(dataHost);
 
-    expect(dbClient.dataHost.upsert).toBeCalled();
+    expect(dbClient.dataHost.upsert).toHaveBeenCalled();
   });
 
   test('should return updated job', async () => {
@@ -46,7 +46,6 @@ describe(upsertReleaseSupportedByDataHost, () => {
     createdAt: new Date(),
     dataHostId: 'id',
     params: {},
-    refreshedAt: null,
     release: '5.1',
     updatedAt: null,
   };
@@ -56,7 +55,7 @@ describe(upsertReleaseSupportedByDataHost, () => {
 
     await upsertReleaseSupportedByDataHost(release);
 
-    expect(dbClient.dataHostSupportedRelease.upsert).toBeCalled();
+    expect(dbClient.dataHostSupportedRelease.upsert).toHaveBeenCalled();
   });
 
   test('should return updated job', async () => {
@@ -86,7 +85,7 @@ describe(upsertReportSupportedByDataHost, () => {
 
     await upsertReportSupportedByDataHost(report);
 
-    expect(dbClient.dataHostSupportedReport.upsert).toBeCalled();
+    expect(dbClient.dataHostSupportedReport.upsert).toHaveBeenCalled();
   });
 
   test('should return updated job', async () => {

@@ -31,6 +31,14 @@
     "Item": "Journal of Economics",
     "Item_ID": [
       {
+        "Type": "DOI",
+        "Value": "10.9999/xxxxi05"
+      },
+      {
+        "Type": "Online_ISSN",
+        "Value": "0931-86x"
+      },
+      {
         "Type": "Print_ISSN",
         "Value": "0931-865"
       },

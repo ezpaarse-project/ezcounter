@@ -54,14 +54,14 @@ function compareStepStatus<
  *
  * @param source - The step present in DB
  * @param target - The update to apply
- * @param totalItems - The number of items, or 0 to skip progress calculation
+ * @param totals - The totals used to calc progress, omit to avoid calculations
  *
  * @returns The updated step
  */
 function applyEnrichUpdate(
   source: UpdateHarvestJob['enrich'],
   target: UpdateHarvestJob['enrich'],
-  totalItems = 0
+  totals: { items?: number; sources?: number } = {}
 ): UpdateHarvestJob['enrich'] {
   if (!source || !target) {
     return source || target;
@@ -74,7 +74,8 @@ function applyEnrichUpdate(
     const previous = enrichSources[key];
 
     const items = (previous?.items ?? 0) + (next?.items ?? 0);
-    const progress = totalItems > 0 ? calcProgress(items, totalItems) : 0;
+    const progress =
+      (totals.items ?? 0) > 0 ? calcProgress(items, totals.items ?? 0) : 0;
     totalProgress += progress;
 
     enrichSources[key] = {
@@ -89,7 +90,8 @@ function applyEnrichUpdate(
   return {
     ...source,
     ...target,
-    progress: totalProgress / (Object.keys(enrichSources).length || 1),
+    progress:
+      (totals?.sources ?? 0) > 0 ? totalProgress / (totals?.sources ?? 0) : 0,
     sources: enrichSources,
   };
 }
@@ -196,7 +198,10 @@ export function mergeUpdateData(
   }
   if (job.enrich) {
     job.enrich = {
-      ...applyEnrichUpdate(source.enrich, target.enrich, job.extract?.items),
+      ...applyEnrichUpdate(source.enrich, target.enrich, {
+        items: job.extract?.items,
+        sources: job.enrichSources?.length,
+      }),
       status: compareStepStatus(source.enrich, target.enrich),
     };
   }

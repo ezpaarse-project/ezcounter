@@ -172,7 +172,7 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
       new Error('Error')
     );
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       error: {
         code: 'app:ERROR',
         message: 'Error',

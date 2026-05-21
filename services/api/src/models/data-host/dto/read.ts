@@ -44,8 +44,6 @@ export const DataHostSupportedRelease = z.object({
     'Additional params to use when requesting data host using release'
   ),
 
-  refreshedAt: z.coerce.date().nullable().describe('Last report refresh date'),
-
   release: HarvestDownloadOptions.shape.release,
 
   updatedAt: z.coerce.date().nullable().describe('Last update date'),

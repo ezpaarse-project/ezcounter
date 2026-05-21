@@ -3,12 +3,12 @@ import { createDebouncedFunction } from '@ezcounter/toolbox/utils';
 import type { EzUnpaywallDocument } from '../dto';
 import type { IEzUnpaywallRemote } from './remotes/types';
 
-const MAX_BUFFER_SIZE = 100;
-const FETCH_MANY_DEBOUNCE = 1000;
+const MAX_BUFFER_SIZE = 1000;
+const FETCH_MANY_DEBOUNCE = 500;
 
 type BufferedPayload = {
   doi: string;
-  onFetched?: (doc: EzUnpaywallDocument | null) => void;
+  onFetched: (doc: EzUnpaywallDocument | null) => void;
 };
 
 const buffer: BufferedPayload[] = [];
@@ -28,7 +28,7 @@ const debouncedFetchMany = createDebouncedFunction(
     // Iterate overs input to properly resolves all callbacks
     return items.map((item) => {
       const result = results.find(({ doi }) => doi === item.doi);
-      return item.onFetched?.(result ?? null);
+      return item.onFetched(result ?? null);
     });
   },
   FETCH_MANY_DEBOUNCE
@@ -41,17 +41,19 @@ const debouncedFetchMany = createDebouncedFunction(
  * @param doi - The doi
  * @param onFetched - Callback called when item is fetched
  *
- * @returns Promise that is resolved when buffer allows for more writes
+ * @returns Promise that resolves true when buffer allows for more writes
  */
 export async function bufferedFetchOneDocumentByDOI(
   remote: IEzUnpaywallRemote,
   doi: string,
-  onFetched?: (doc: EzUnpaywallDocument | null) => void
-): Promise<void> {
+  onFetched: (doc: EzUnpaywallDocument | null) => void
+): Promise<true> {
   buffer.push({ doi, onFetched });
   const promise = debouncedFetchMany(remote);
 
   if (buffer.length >= MAX_BUFFER_SIZE) {
     await promise;
   }
+
+  return true;
 }

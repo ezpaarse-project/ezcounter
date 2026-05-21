@@ -40,6 +40,24 @@ type OpenAlexRemoteConfig = {
 };
 
 /**
+ * Format Work from OpenAlex into something more usable
+ *
+ * @param work - The work to format
+ *
+ * @returns The formatted work
+ */
+const formatWork = (work: OpenAlexWork): OpenAlexWork => {
+  // Remove URL from ids
+  work.ids = {
+    ...work.ids,
+    doi: work.ids.doi.replace('https://doi.org/', ''),
+    openalex: work.ids.openalex.replace('https://openalex.org/', ''),
+  };
+
+  return work;
+};
+
+/**
  * Wrapper around OpenAlex API to fetch OpenAlex data
  *
  * @see https://developers.openalex.org/api-reference/
@@ -90,13 +108,15 @@ export class OpenAlexRemote implements IOpenAlexRemote {
 
         const { meta, results } = OpenAlexResponse.parse(response);
 
-        works.push(...results);
+        for (const work of results) {
+          works.push(formatWork(work));
+        }
         cursor = meta.next_cursor;
       } catch (error) {
         logger.warn({
-          dois: dois.length,
           err: error,
           msg: 'Failed to fetch works',
+          requestCount: dois.length,
         });
         break;
       }
@@ -105,9 +125,9 @@ export class OpenAlexRemote implements IOpenAlexRemote {
     }
 
     logger.debug({
-      count: works.length,
-      dois: dois.length,
       msg: 'Got works from OpenAlex',
+      requestCount: dois.length,
+      resultCount: works.length,
     });
 
     return works;

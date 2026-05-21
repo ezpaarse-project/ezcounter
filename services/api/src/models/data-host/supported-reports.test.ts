@@ -19,7 +19,6 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
         createdAt: new Date(),
         dataHostId: '',
         params: {},
-        refreshedAt: null,
         release: '5.1',
         supportedReports: [
           {
@@ -57,7 +56,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
 
       await fetchSupportedReportsOfDataHost(dataHost, {}, '5.1');
 
-      expect(fetchReportList).toBeCalled();
+      expect(fetchReportList).toHaveBeenCalled();
     });
 
     test('should mark missing standard reports as unsupported', async () => {

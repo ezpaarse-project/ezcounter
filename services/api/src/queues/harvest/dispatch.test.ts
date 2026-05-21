@@ -22,7 +22,7 @@ describe('Create queues (ensureDataHostQueues)', () => {
 
     await ensureDataHostQueues(mockedChannel, hosts);
 
-    expect(mockedChannel.queueDeclare).toBeCalledTimes(2);
+    expect(mockedChannel.queueDeclare).toHaveBeenCalledTimes(2);
   });
 
   test('should return Map', async () => {
@@ -93,7 +93,7 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   test('should send jobs', () => {
     sendHarvestJobsInQueue({ created: true, name: 'foobar' }, jobs);
 
-    expect(mockedPublisher.send).toBeCalledWith(
+    expect(mockedPublisher.send).toHaveBeenCalledWith(
       { messageId: jobs[0].id, routingKey: 'foobar' },
       jobs[0]
     );
@@ -141,13 +141,13 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
   test('should send dispatch', async () => {
     await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });
 
-    expect(mockedPublisher.send).toBeCalled();
+    expect(mockedPublisher.send).toHaveBeenCalled();
   });
 
   test('should NOT send dispatch if queue existed', async () => {
     await sendDispatchEvent(mockedChannel, { created: false, name: 'foobar' });
 
-    expect(mockedPublisher.send).not.toBeCalled();
+    expect(mockedPublisher.send).not.toHaveBeenCalled();
   });
 
   test('should not throw but bubble error', async () => {
@@ -184,6 +184,6 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
 
     await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });
 
-    expect(mockedChannel.queueDelete).toBeCalledWith('foobar');
+    expect(mockedChannel.queueDelete).toHaveBeenCalledWith('foobar');
   });
 });

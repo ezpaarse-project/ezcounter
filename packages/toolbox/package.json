@@ -22,13 +22,14 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/dto": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

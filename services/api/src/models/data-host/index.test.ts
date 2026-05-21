@@ -23,7 +23,6 @@ describe(getDataHostWithSupportedData, () => {
     createdAt: new Date(),
     dataHostId: '',
     params: {},
-    refreshedAt: null,
     release: '5.1',
     updatedAt: null,
   };
@@ -53,7 +52,7 @@ describe(getDataHostWithSupportedData, () => {
 
     await getDataHostWithSupportedData('');
 
-    expect(dbClient.dataHost.findUnique).toBeCalled();
+    expect(dbClient.dataHost.findUnique).toHaveBeenCalled();
   });
 
   test('should return data', async () => {

@@ -10,7 +10,7 @@ describe(findAllHarvestJob, () => {
 
     await findAllHarvestJob();
 
-    expect(dbClient.harvestJob.findMany).toBeCalled();
+    expect(dbClient.harvestJob.findMany).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
@@ -28,7 +28,7 @@ describe(findManyHarvestJobById, () => {
 
     await findManyHarvestJobById([]);
 
-    expect(dbClient.harvestJob.findMany).toBeCalled();
+    expect(dbClient.harvestJob.findMany).toHaveBeenCalled();
   });
 
   test('should return array', async () => {

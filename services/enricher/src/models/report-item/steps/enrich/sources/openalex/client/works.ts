@@ -8,7 +8,7 @@ const FETCH_MANY_DEBOUNCE = 1000;
 
 type BufferedPayload = {
   doi: string;
-  onFetched?: (doc: OpenAlexWork | null) => void;
+  onFetched: (doc: OpenAlexWork | null) => void;
 };
 
 const buffer: BufferedPayload[] = [];
@@ -27,10 +27,8 @@ const debouncedFetchMany = createDebouncedFunction(
 
     // Iterate overs input to properly resolves all callbacks
     return items.map((item) => {
-      const result = results.find(
-        ({ ids }) => ids.doi === `https://doi.org/${item.doi}`
-      );
-      return item.onFetched?.(result ?? null);
+      const result = results.find(({ ids }) => ids.doi === item.doi);
+      return item.onFetched(result ?? null);
     });
   },
   FETCH_MANY_DEBOUNCE
@@ -43,17 +41,19 @@ const debouncedFetchMany = createDebouncedFunction(
  * @param doi - The doi
  * @param onFetched - Callback called when item is fetched
  *
- * @returns Promise that is resolved when buffer allows for more writes
+ * @returns Promise that resolves true when buffer allows for more writes
  */
 export async function bufferedFetchOneWorkByDOI(
   remote: IOpenAlexRemote,
   doi: string,
-  onFetched?: (doc: OpenAlexWork | null) => void
-): Promise<void> {
+  onFetched: (doc: OpenAlexWork | null) => void
+): Promise<true> {
   buffer.push({ doi, onFetched });
   const promise = debouncedFetchMany(remote);
 
   if (buffer.length >= MAX_BUFFER_SIZE) {
     await promise;
   }
+
+  return true;
 }

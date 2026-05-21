@@ -21,17 +21,18 @@
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "type-check": "tsc --noEmit --skipLibCheck"
+    "type-check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "peerDependencies": {
+  "optionalDependencies": {
     "@ezcounter/counter": "workspace:"
   },
   "engines": {

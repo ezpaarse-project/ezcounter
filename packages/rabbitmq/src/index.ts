@@ -1,4 +1,3 @@
-import type { z } from 'zod';
 import {
   Connection,
   type Consumer,
@@ -10,6 +9,7 @@ import {
   type PublisherProps,
 } from 'rabbitmq-client';
 
+import type { z } from '@ezcounter/dto';
 import type { Logger } from '@ezcounter/logger';
 
 type RabbitMqConfig = {

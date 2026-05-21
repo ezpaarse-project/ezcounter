@@ -20,6 +20,24 @@ type CNRSGatewayRemoteConfig = {
 };
 
 /**
+ * Format Work from OpenAlex into something more usable
+ *
+ * @param work - The work to format
+ *
+ * @returns The formatted work
+ */
+const formatWork = (work: OpenAlexWork): OpenAlexWork => {
+  // Remove URL from ids
+  work.ids = {
+    ...work.ids,
+    doi: work.ids.doi.replace('https://doi.org/', ''),
+    openalex: work.ids.openalex.replace('https://openalex.org/', ''),
+  };
+
+  return work;
+};
+
+/**
  * Wrapper around CNRS's OpenAlex gateway to fetch OpenAlex data
  *
  * @see ...
@@ -50,23 +68,23 @@ export class CNRSGatewayRemote implements IOpenAlexRemote {
    */
   public async fetchManyWorkByDOI(dois: string[]): Promise<OpenAlexWork[]> {
     try {
-      const response = await this.$fetch('/', {
+      const response = await this.$fetch('/openalex/works', {
         body: [...new Set(dois)],
       });
 
       const { data } = CNRSGatewayResponse.parse(response);
       logger.debug({
-        count: data.length,
-        dois: dois.length,
         msg: 'Got works from OpenAlex',
+        requestCount: dois.length,
+        resultCount: data.length,
       });
 
-      return data;
+      return data.map((work) => formatWork(work));
     } catch (error) {
       logger.warn({
-        dois: dois.length,
         err: error,
         msg: 'Failed to fetch works',
+        requestCount: dois.length,
       });
     }
     return [];

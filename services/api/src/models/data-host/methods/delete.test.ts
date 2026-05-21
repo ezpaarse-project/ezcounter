@@ -14,7 +14,7 @@ describe(deleteDataHost, () => {
 
     await deleteDataHost('id');
 
-    expect(dbClient.dataHost.delete).toBeCalled();
+    expect(dbClient.dataHost.delete).toHaveBeenCalled();
   });
 
   test('should return if deleted', async () => {
@@ -32,7 +32,7 @@ describe(deleteReleaseSupportedByDataHost, () => {
 
     await deleteReleaseSupportedByDataHost('id', '5.1');
 
-    expect(dbClient.dataHostSupportedRelease.delete).toBeCalled();
+    expect(dbClient.dataHostSupportedRelease.delete).toHaveBeenCalled();
   });
 
   test('should return if deleted', async () => {
@@ -50,7 +50,7 @@ describe(deleteReportSupportedByDataHost, () => {
 
     await deleteReportSupportedByDataHost('id', '5.1', 'tr');
 
-    expect(dbClient.dataHostSupportedReport.delete).toBeCalled();
+    expect(dbClient.dataHostSupportedReport.delete).toHaveBeenCalled();
   });
 
   test('should return if deleted', async () => {

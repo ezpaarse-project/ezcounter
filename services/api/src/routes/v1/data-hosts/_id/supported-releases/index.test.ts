@@ -32,7 +32,7 @@ describe('GET /data-hosts/:id/supported-releases', () => {
 
     expect(response).toHaveProperty('statusCode', 200);
     expect(findAllReleasesSupportedByDataHost).toHaveBeenCalledOnce();
-    expect(findAllReleasesSupportedByDataHost).toBeCalledWith(':id');
+    expect(findAllReleasesSupportedByDataHost).toHaveBeenCalledWith(':id');
     expect(content).toBeInstanceOf(Array);
   });
 

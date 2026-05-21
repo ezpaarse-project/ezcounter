@@ -83,7 +83,7 @@ describe('COUNTER 5', () => {
       );
       const promise = iterator.next();
 
-      await expect(promise).resolves.not.toThrowError('Exception is invalid');
+      await expect(promise).resolves.not.toThrow('Exception is invalid');
     });
 
     test('should throw if not JSON', async () => {
@@ -266,7 +266,7 @@ describe('COUNTER 5.1', () => {
       );
       const promise = iterator.next();
 
-      await expect(promise).resolves.not.toThrowError('Exception is invalid');
+      await expect(promise).resolves.not.toThrow('Exception is invalid');
     });
 
     test('should throw if not JSON', async () => {

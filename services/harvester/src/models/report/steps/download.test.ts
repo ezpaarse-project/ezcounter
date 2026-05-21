@@ -41,25 +41,25 @@ describe('Cache report (cacheReport)', () => {
     test("shouldn't read archive", async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(createGunzip).not.toBeCalled();
+      expect(createGunzip).not.toHaveBeenCalled();
     });
 
     test("shouldn't download", async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(fetchReportAsStream).not.toBeCalled();
+      expect(fetchReportAsStream).not.toHaveBeenCalled();
     });
 
     test("shouldn't write file", async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).not.toBeCalled();
+      expect(createWriteStream).not.toHaveBeenCalled();
     });
 
     test('should notify progress', async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+      expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
         download: {
           source: 'file',
           status: 'done',
@@ -97,26 +97,28 @@ describe('Cache report (cacheReport)', () => {
     test('should read archive', async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(createReadStream).toBeCalledWith(`${ARCHIVED_REPORT.path}.gz`);
-      expect(createGunzip).toBeCalled();
+      expect(createReadStream).toHaveBeenCalledWith(
+        `${ARCHIVED_REPORT.path}.gz`
+      );
+      expect(createGunzip).toHaveBeenCalled();
     });
 
     test("shouldn't download", async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(fetchReportAsStream).not.toBeCalled();
+      expect(fetchReportAsStream).not.toHaveBeenCalled();
     });
 
     test('should write file', async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(createWriteStream).toBeCalledWith(ARCHIVED_REPORT.path);
+      expect(createWriteStream).toHaveBeenCalledWith(ARCHIVED_REPORT.path);
     });
 
     test('should notify progress', async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+      expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
         download: {
           source: 'archive',
           status: 'done',
@@ -142,7 +144,7 @@ describe('Cache report (cacheReport)', () => {
 
       await cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
 
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -162,25 +164,25 @@ describe('Cache report (cacheReport)', () => {
     test("shouldn't read archive", async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(createGunzip).not.toBeCalled();
+      expect(createGunzip).not.toHaveBeenCalled();
     });
 
     test('should download', async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(fetchReportAsStream).toBeCalled();
+      expect(fetchReportAsStream).toHaveBeenCalled();
     });
 
     test('should write file', async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(createWriteStream).toBeCalledWith(NO_REPORT.path);
+      expect(createWriteStream).toHaveBeenCalledWith(NO_REPORT.path);
     });
 
     test('should notify progress', async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+      expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
         download: {
           source: 'remote',
           status: 'done',
@@ -206,7 +208,7 @@ describe('Cache report (cacheReport)', () => {
 
       await cacheReport(NO_REPORT, OPTIONS, timeout);
 
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -227,25 +229,25 @@ describe('Cache report (cacheReport)', () => {
     test("shouldn't read archive", async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(createGunzip).not.toBeCalled();
+      expect(createGunzip).not.toHaveBeenCalled();
     });
 
     test('should download', async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(fetchReportAsStream).toBeCalled();
+      expect(fetchReportAsStream).toHaveBeenCalled();
     });
 
     test('should write file', async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(createWriteStream).toBeCalledWith(REPORT.path);
+      expect(createWriteStream).toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should notify progress', async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(sendHarvestJobStatusEvent).toBeCalledWith({
+      expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
         download: {
           source: 'remote',
           status: 'done',
@@ -271,7 +273,7 @@ describe('Cache report (cacheReport)', () => {
 
       await cacheReport(REPORT, FORCE_OPTIONS, timeout);
 
-      expect(spy).toBeCalled();
+      expect(spy).toHaveBeenCalled();
     });
   });
 });

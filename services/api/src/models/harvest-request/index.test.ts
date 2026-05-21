@@ -57,7 +57,6 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},
-      refreshedAt: null,
       release: '5.1',
       updatedAt: null,
     },
@@ -97,7 +96,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
 
     await prepareHarvestJobsFromHarvestRequest([context.content]);
 
-    expect(fetchSupportedReportsOfDataHost).toBeCalled();
+    expect(fetchSupportedReportsOfDataHost).toHaveBeenCalled();
   });
 
   test('should merge params', async () => {

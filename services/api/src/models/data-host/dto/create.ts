@@ -24,7 +24,6 @@ export type CreateDataHost = z.infer<typeof CreateDataHost>;
  */
 export const CreateDataHostSupportedRelease = DataHostSupportedRelease.omit({
   createdAt: true,
-  refreshedAt: true,
   updatedAt: true,
 });
 

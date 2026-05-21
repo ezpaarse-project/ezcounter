@@ -10,7 +10,7 @@ describe(createManyHarvestJob, () => {
   test('should query DB', async () => {
     await createManyHarvestJob([]);
 
-    expect(dbClient.harvestJob.createMany).toBeCalled();
+    expect(dbClient.harvestJob.createMany).toHaveBeenCalled();
   });
 
   test('should transform input', async () => {
@@ -46,7 +46,7 @@ describe(createManyHarvestJob, () => {
 
     await createManyHarvestJob([item]);
 
-    expect(dbClient.harvestJob.createMany).toBeCalledWith({
+    expect(dbClient.harvestJob.createMany).toHaveBeenCalledWith({
       data: [
         {
           dataHostId: 'download.cacheKey',
@@ -101,7 +101,7 @@ describe(createManyHarvestJob, () => {
 
     await createManyHarvestJob([item]);
 
-    expect(dbClient.harvestJob.createMany).toBeCalledWith({
+    expect(dbClient.harvestJob.createMany).toHaveBeenCalledWith({
       data: [
         {
           dataHostId: 'download.cacheKey',

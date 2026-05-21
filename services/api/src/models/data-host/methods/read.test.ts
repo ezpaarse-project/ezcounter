@@ -19,7 +19,7 @@ describe(doesDataHostExists, () => {
 
     await doesDataHostExists('id');
 
-    expect(dbClient.dataHost.count).toBeCalled();
+    expect(dbClient.dataHost.count).toHaveBeenCalled();
   });
 
   test('should return true if found', async () => {
@@ -45,7 +45,7 @@ describe(findAllDataHost, () => {
 
     await findAllDataHost();
 
-    expect(dbClient.dataHost.findMany).toBeCalled();
+    expect(dbClient.dataHost.findMany).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
@@ -63,7 +63,7 @@ describe(doesDataHostSupportsRelease, () => {
 
     await doesDataHostSupportsRelease('id', '5');
 
-    expect(dbClient.dataHostSupportedRelease.count).toBeCalled();
+    expect(dbClient.dataHostSupportedRelease.count).toHaveBeenCalled();
   });
 
   test('should return true if found', async () => {
@@ -89,7 +89,7 @@ describe(findAllReleasesSupportedByDataHost, () => {
 
     await findAllReleasesSupportedByDataHost('id');
 
-    expect(dbClient.dataHostSupportedRelease.findMany).toBeCalled();
+    expect(dbClient.dataHostSupportedRelease.findMany).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
@@ -107,7 +107,7 @@ describe(doesDataHostSupportsReport, () => {
 
     await doesDataHostSupportsReport('id', '5', 'tr');
 
-    expect(dbClient.dataHostSupportedReport.count).toBeCalled();
+    expect(dbClient.dataHostSupportedReport.count).toHaveBeenCalled();
   });
 
   test('should return true if found', async () => {
@@ -133,7 +133,7 @@ describe(findAllReportsSupportedByDataHost, () => {
 
     await findAllReportsSupportedByDataHost('id', '5.1');
 
-    expect(dbClient.dataHostSupportedReport.findMany).toBeCalled();
+    expect(dbClient.dataHostSupportedReport.findMany).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
@@ -163,7 +163,7 @@ describe(findOneReportSupportedByDataHost, () => {
 
     await findOneReportSupportedByDataHost('id', '5.1', 'tr');
 
-    expect(dbClient.dataHostSupportedReport.findUnique).toBeCalled();
+    expect(dbClient.dataHostSupportedReport.findUnique).toHaveBeenCalled();
   });
 
   test('should return report', async () => {

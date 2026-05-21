@@ -45,7 +45,7 @@ describe(updateOneHarvestJobThrottled, () => {
     // Let throttled function run
     await vi.runAllTimersAsync();
 
-    expect(mergeUpdateData).toBeCalled();
+    expect(mergeUpdateData).toHaveBeenCalled();
   });
 
   test('should throttle updates', async () => {
@@ -73,6 +73,6 @@ describe(updateOneHarvestJobThrottled, () => {
     await vi.runAllTimersAsync();
 
     // Should have been called 1 per job id
-    expect(updateOneHarvestJob).toBeCalledTimes(2);
+    expect(updateOneHarvestJob).toHaveBeenCalledTimes(2);
   });
 });

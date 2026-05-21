@@ -1,10 +1,14 @@
 import { vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
+
+import type { Store } from '~/lib/keyv';
 
 import type { IOpenAlexRemote } from '../types';
 
-class MockedRemote implements IOpenAlexRemote {
-  public fetchManyWorkByDOI = vi.fn();
-}
+export const mockedStore = mockDeep<Store>();
 
-export const CNRSGatewayRemote = vi.fn(MockedRemote);
-export const OpenAlexRemote = vi.fn(MockedRemote);
+export const mockedRemote = mockDeep<IOpenAlexRemote>();
+
+export const createOpenAlexStore = vi.fn().mockReturnValue(mockedStore);
+
+export const createOpenAlexRemote = vi.fn().mockReturnValue(mockedRemote);

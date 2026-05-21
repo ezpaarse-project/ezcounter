@@ -3,6 +3,8 @@ import { Keyv } from 'keyv';
 
 import { createKeyvRedis } from './redis';
 
+export type Store<DataType = unknown> = Keyv<DataType>;
+
 /**
  * Setup Keyv store
  *
@@ -14,7 +16,7 @@ import { createKeyvRedis } from './redis';
 export function createStore<DataType = unknown>(
   namespace: string,
   options?: { ttl?: number; compression?: boolean }
-): Keyv<DataType> {
+): Store<DataType> {
   const store = new Keyv({
     namespace,
     store: createKeyvRedis<DataType>(namespace),

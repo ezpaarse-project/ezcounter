@@ -49,7 +49,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     await process.next();
 
-    expect(mockedChannel.queueDeclare).toBeCalledWith({
+    expect(mockedChannel.queueDeclare).toHaveBeenCalledWith({
       durable: false,
       queue: 'foobar',
     });
@@ -64,7 +64,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
-    expect(harvestReport).toBeCalled();
+    expect(harvestReport).toHaveBeenCalled();
   });
 
   test('should ack message once harvest is complete', async () => {
@@ -77,7 +77,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
-    expect(mockedChannel.basicAck).toBeCalledWith({
+    expect(mockedChannel.basicAck).toHaveBeenCalledWith({
       deliveryTag: msg.deliveryTag,
     });
   });
@@ -89,7 +89,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     mockedChannel.basicGet.mockResolvedValueOnce(msg);
     await process.next();
 
-    expect(mockedChannel.basicNack).toBeCalledWith({
+    expect(mockedChannel.basicNack).toHaveBeenCalledWith({
       deliveryTag: msg.deliveryTag,
       requeue: false,
     });
@@ -107,7 +107,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const newJob = { ...job, try: 1 };
     newJob.download.forceDownload = true;
 
-    expect(mockedChannel.basicPublish).toBeCalledWith(
+    expect(mockedChannel.basicPublish).toHaveBeenCalledWith(
       {
         headers: {
           // X-Delay should be in milliseconds and use config (default in tests)
@@ -131,7 +131,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const newJob = { ...job, try: 1 };
     newJob.download.forceDownload = true;
 
-    expect(mockedChannel.basicPublish).toBeCalledWith(
+    expect(mockedChannel.basicPublish).toHaveBeenCalledWith(
       {
         headers: {},
         routingKey: 'foobar',
@@ -150,7 +150,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
-    expect(mockedChannel.basicPublish).not.toBeCalled();
+    expect(mockedChannel.basicPublish).not.toHaveBeenCalled();
   });
 
   test('should NOT throw if requeued failed', async () => {
@@ -178,7 +178,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     // No messages left in queue
     await process.next();
 
-    expect(mockedChannel.queueDelete).toBeCalled();
+    expect(mockedChannel.queueDelete).toHaveBeenCalled();
   });
 
   test('should NOT delete queue if some messages are delayed', async () => {
@@ -193,7 +193,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     // No messages left in queue - The first one was delayed
     await process.next();
 
-    expect(mockedChannel.queueDelete).not.toBeCalled();
+    expect(mockedChannel.queueDelete).not.toHaveBeenCalled();
   });
 
   test("should throw if queue couldn't be deleted", async () => {
@@ -226,7 +226,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     // No messages left in queue
     await process.next();
 
-    expect(mockedChannel.close).toBeCalled();
+    expect(mockedChannel.close).toHaveBeenCalled();
   });
 
   test('should notify that job is processing', async () => {
@@ -238,7 +238,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     harvestReport.mockResolvedValueOnce({ success: true });
     await process.next();
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       id: job.id,
       startedAt: new Date(),
       status: 'processing',
@@ -254,7 +254,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     harvestReport.mockResolvedValueOnce({ processing: true, success: false });
     await process.next();
 
-    expect(sendHarvestJobStatusEvent).toBeCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       id: job.id,
       status: 'delayed',
     });

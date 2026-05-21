@@ -5,6 +5,7 @@ packages:
 catalog:
   # deps
   typescript: ^6.0.2
+  '@typescript/native-preview': ^7.0.0-dev.20260519.1
   tsx: ^4.21.0
   # dev deps
   '@types/node': ^24

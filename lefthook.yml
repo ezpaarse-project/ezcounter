@@ -15,7 +15,6 @@ pre-commit:
       stage_fixed: true
 
     - name: type checking
-      skip: true # NodeJS memory issue
       run: pnpm turbo {turbo_flags} type-check
 
 commit-msg:
