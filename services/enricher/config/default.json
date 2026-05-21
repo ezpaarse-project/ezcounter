@@ -18,13 +18,17 @@
     "password": "guest"
   },
   "elasticsearch": {
-    "url": "https://host.docker.internal:9200/",
     "username": "elastic",
     "password": "changeme",
     "apiKey": "",
-    "tls": {
-      "rejectUnauthorized": false
-    }
+    "nodes": [
+      {
+        "url": "https://host.docker.internal:9200/",
+        "tls": {
+          "rejectUnauthorized": false
+        }
+      }
+    ]
   },
   "redis": {
     "url": "redis://redis:6379/",

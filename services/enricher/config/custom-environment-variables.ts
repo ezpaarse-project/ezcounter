@@ -29,13 +29,10 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
     password: defineString('RABBITMQ_PASSWORD'),
   },
   elasticsearch: {
-    url: defineString('ELASTIC_URL'),
     username: defineString('ELASTIC_USERNAME'),
     password: defineString('ELASTIC_PASSWORD'),
     apiKey: defineString('ELASTIC_API_KEY'),
-    tls: {
-      rejectUnauthorized: defineBoolean('ELASTIC_TLS_REJECT_UNAUTHORIZED'),
-    },
+    nodes: defineJSON('ELASTIC_NODES'),
   },
   redis: {
     url: defineString('REDIS_URL'),

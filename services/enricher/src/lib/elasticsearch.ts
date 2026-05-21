@@ -40,12 +40,12 @@ function setupElasticSearch(): Client {
     auth: config.apiKey
       ? { apiKey: config.apiKey }
       : { password: config.password, username: config.username },
-    node: {
-      url: new URL(config.url),
-    },
-    ssl: {
-      rejectUnauthorized: config.tls.rejectUnauthorized,
-    },
+    nodes: config.nodes.map((node) => ({
+      ssl: {
+        rejectUnauthorized: node.tls.rejectUnauthorized,
+      },
+      url: new URL(node.url),
+    })),
   });
 
   void testConnection(client);
