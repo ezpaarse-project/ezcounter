@@ -2,9 +2,7 @@ import { createDebouncedFunction } from '@ezcounter/toolbox/utils';
 
 import type { OpenAlexWork } from '../dto';
 import type { IOpenAlexRemote } from './remotes/types';
-
-const MAX_BUFFER_SIZE = 100;
-const FETCH_MANY_DEBOUNCE = 1000;
+import { FETCH_MANY_DEBOUNCE, MAX_BUFFER_SIZE } from '../constants';
 
 type BufferedPayload = {
   doi: string;

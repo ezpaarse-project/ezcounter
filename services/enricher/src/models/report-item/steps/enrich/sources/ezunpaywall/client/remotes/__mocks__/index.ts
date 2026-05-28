@@ -1,7 +1,7 @@
 import { vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
-import type { Store } from '~/lib/keyv';
+import type { Store } from '~/lib/store';
 
 import type { IEzUnpaywallRemote } from '../types';
 

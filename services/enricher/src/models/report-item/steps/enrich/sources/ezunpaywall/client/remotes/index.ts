@@ -1,9 +1,10 @@
 import { milliseconds } from 'date-fns';
 
 import { appConfig } from '~/lib/config';
-import { type Store, createStore } from '~/lib/keyv';
+import { type Store, createStore } from '~/lib/store';
 
 import type { IEzUnpaywallRemote } from './types';
+import { MAX_STORE_SIZE } from '../constants';
 import { EzUnpaywallRemote } from './ezunpaywall';
 
 const { ezunpaywall: config } = appConfig.enrich.sources;
@@ -15,7 +16,7 @@ const { ezunpaywall: config } = appConfig.enrich.sources;
  */
 export const createEzUnpaywallStore = (): Store =>
   createStore('unpaywall', {
-    compression: false, // TODO: fix compression
+    l1: { size: MAX_STORE_SIZE },
     ttl: milliseconds(config.storeTtl),
   });
 

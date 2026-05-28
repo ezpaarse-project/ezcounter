@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { createStore } from '~/lib/keyv/__mocks__';
+import { createStore } from '~/lib/store/__mocks__';
 
 import { EzUnpaywallRemote } from './ezunpaywall/__mocks__';
 import { createEzUnpaywallRemote, createEzUnpaywallStore } from './index';
@@ -15,8 +15,6 @@ describe('Create store (createEzUnpaywallStore)', () => {
       // Might break previous installs
       'unpaywall',
       expect.objectContaining({
-        // Might break previous installs
-        compression: false,
         // TTL should be transformed to a number
         ttl: expect.any(Number),
       })

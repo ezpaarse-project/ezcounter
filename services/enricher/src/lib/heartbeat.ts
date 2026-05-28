@@ -6,9 +6,9 @@ import { mandatoryService, setupHeartbeat } from '@ezcounter/heartbeats';
 
 import { appConfig } from '~/lib/config';
 import { esPing } from '~/lib/elasticsearch';
-import { redisPing } from '~/lib/keyv/redis';
 import { appLogger } from '~/lib/logger';
 import { rabbitClient } from '~/lib/rabbitmq';
+import { redisPing } from '~/lib/store/redis';
 
 // oxlint-disable-next-line import/extensions
 import { version } from '~/../package.json' with { type: 'json' };

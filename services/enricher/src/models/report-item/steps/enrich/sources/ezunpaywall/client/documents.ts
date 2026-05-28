@@ -2,9 +2,7 @@ import { createDebouncedFunction } from '@ezcounter/toolbox/utils';
 
 import type { EzUnpaywallDocument } from '../dto';
 import type { IEzUnpaywallRemote } from './remotes/types';
-
-const MAX_BUFFER_SIZE = 1000;
-const FETCH_MANY_DEBOUNCE = 500;
+import { FETCH_MANY_DEBOUNCE, MAX_BUFFER_SIZE } from './constants';
 
 type BufferedPayload = {
   doi: string;

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import { appConfig } from '~/lib/__mocks__/config';
-import { createStore } from '~/lib/keyv/__mocks__';
+import { createStore } from '~/lib/store/__mocks__';
 
 import { CNRSGatewayRemote } from './cnrs-gateway/__mocks__';
 import { createOpenAlexRemote, createOpenAlexStore } from './index';
@@ -18,8 +18,6 @@ describe('Create store (createOpenAlexStore)', () => {
       // Might break previous installs
       'openalex',
       expect.objectContaining({
-        // Might break previous installs
-        compression: false,
         // TTL should be transformed to a number
         ttl: expect.any(Number),
       })

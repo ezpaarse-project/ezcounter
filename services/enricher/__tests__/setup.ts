@@ -9,7 +9,7 @@ vi.mock(import('~/lib/rabbitmq'));
 // Mocking ElasticSearch
 vi.mock(import('~/lib/elasticsearch'));
 // Mocking Redis
-vi.mock(import('~/lib/keyv'));
+vi.mock(import('~/lib/store'));
 
 beforeEach(() => {
   vi.useFakeTimers();

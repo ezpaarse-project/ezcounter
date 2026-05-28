@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
+import { MAX_BUFFER_SIZE } from './constants';
 import { bufferedFetchOneDocumentByDOI } from './documents';
 import { mockedRemote } from './remotes/__mocks__';
 
@@ -45,17 +46,19 @@ describe('Fetch Documents by DOI (bufferedFetchOneDocumentByDOI)', () => {
       bufferedFetchOneDocumentByDOI(mockedRemote, '', vi.fn())
     );
 
-    for (let index = 0; index < 1000; index += 1) {
+    for (let index = 0; index < MAX_BUFFER_SIZE; index += 1) {
       addToBuffer();
     }
 
-    // Let promises resolves (FETCH_MANY_DEBOUNCE is 500ms so shouldn't trigger debounce)
+    // Let promises resolves
     await vi.advanceTimersByTimeAsync(1);
 
-    // MAX_BUFFER_SIZE is 1000, 500th call shouldn't be blocking
-    expect.soft(addToBuffer).toHaveNthResolvedWith(500, true);
-    // 1000th should be blocking as buffer is full
-    expect.soft(addToBuffer).not.toHaveNthResolvedWith(1000, true);
+    // Calls before MAX_BUFFER_SIZE shouldn't be blocking
+    expect
+      .soft(addToBuffer)
+      .toHaveNthResolvedWith(Math.floor(MAX_BUFFER_SIZE / 2), true);
+    // Last call should be blocking as buffer is full
+    expect.soft(addToBuffer).not.toHaveNthResolvedWith(MAX_BUFFER_SIZE, true);
 
     await vi.runAllTimersAsync();
   });
