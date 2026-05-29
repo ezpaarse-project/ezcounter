@@ -5,29 +5,22 @@ FROM node:24.4.1-alpine3.22 AS base
 LABEL maintainer="ezTeam <ezteam@couperin.org>"
 LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
 
-ENV HUSKY=0
-ENV TURBO_UI=false
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 # Update APK registry
 RUN apk update \
   && apk upgrade -U -a
-
-RUN corepack enable \
-  && corepack prepare pnpm@10.28.2 --activate
-
-# endregion
 # ---
-# region Turbo
-
-# Base image for turbo, allow to properly install split each service
-FROM base AS turbo
+# Base image for dependencies
+FROM base AS pnpm
 WORKDIR /usr/src
 
-COPY ./package.json ./
+COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./
 
-RUN pnpm run turbo:install
+RUN corepack enable && corepack install
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
 COPY . .
 
@@ -35,59 +28,37 @@ COPY . .
 # ---
 # region COUNTER
 
-# Extract COUNTER schemas from repo
-FROM turbo AS counter-turbo
-
-RUN turbo prune @ezcounter/counter --docker --out-dir ./counter
-# ---
 # Prepare dependencies for COUNTER schemas
-FROM turbo AS counter-pnpm
-WORKDIR /usr/build/counter
+FROM pnpm AS counter-pnpm
+WORKDIR /usr/src
 
-COPY --from=counter-turbo /usr/src/counter/json .
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY --from=counter-turbo /usr/src/counter/full .
-
-RUN pnpm deploy --legacy --filter @ezcounter/counter ./dev
+RUN pnpm deploy --filter @ezcounter/counter /usr/build/counter/dev
 # ---
 # Generate COUNTER schemas using dev dependencies
-FROM turbo AS counter-builder
-WORKDIR /usr/build/counter/dev
+FROM base AS counter-builder
+WORKDIR /usr/build/counter
 
 COPY --from=counter-pnpm /usr/build/counter/dev .
 
 # Shared TS config
-COPY ./tsconfig.json /usr/build/tsconfig.json
+COPY ./tsconfig.json ../../tsconfig.json
 
 # Generate COUNTER schemas
-RUN pnpm run build:schemas
+RUN npm run build:schemas
 
 # endregion
 # ---
 # region Database
 
-# Extract database from repo
-FROM turbo AS database-turbo
-
-RUN turbo prune @ezcounter/database --docker --out-dir ./database
-# ---
 # Prepare dependencies for DATABASE
-FROM turbo AS database-pnpm
-WORKDIR /usr/build/database
+FROM pnpm AS database-pnpm
+WORKDIR /usr/src
 
-COPY --from=database-turbo /usr/src/database/json .
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY --from=database-turbo /usr/src/database/full .
-
-RUN pnpm deploy --legacy --filter @ezcounter/database ./dev
+RUN pnpm deploy --filter @ezcounter/database /usr/build/database/dev
 # ---
 # Generate prisma client using dev dependencies
-FROM turbo AS database-prisma
-WORKDIR /usr/build/database/dev
+FROM base AS database-builder
+WORKDIR /usr/build/database
 
 # Install prisma dependencies
 RUN apk add --no-cache --update python3 \
@@ -96,13 +67,13 @@ RUN apk add --no-cache --update python3 \
 COPY --from=database-pnpm /usr/build/database/dev .
 
 # Shared TS config
-COPY ./tsconfig.json /usr/build/tsconfig.json
+COPY ./tsconfig.json ../../tsconfig.json
 
 # Generate prisma-client
-RUN pnpm run db:generate
+RUN npm run db:generate
 # ---
 # Final image to run migrations
-FROM database-prisma AS migrate
+FROM database-builder AS migrate
 
 CMD [ "npm", "run", "db:deploy" ]
 
@@ -110,27 +81,15 @@ CMD [ "npm", "run", "db:deploy" ]
 # ---
 # region API
 
-# Extract api from repo
-FROM turbo AS api-turbo
-
-RUN turbo prune ezcounter-api --docker --out-dir ./api
-# ---
 # Prepare prod dependencies for API
-FROM turbo AS api-pnpm
-WORKDIR /usr/build/api
+FROM pnpm AS api-pnpm
+WORKDIR /usr/src
 
-# Shared TS config
-COPY ./tsconfig.json .
-COPY --from=api-turbo /usr/src/api/json .
+RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api/prod
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY --from=api-turbo /usr/src/api/full .
-
-COPY --from=counter-builder /usr/build/counter/dev/dist ./packages/counter/dist
-COPY --from=database-prisma /usr/build/database/dev/.prisma /usr/build/api/packages/database/.prisma
-
-RUN pnpm deploy --legacy --filter ezcounter-api --prod ./prod
+# Copy generated files
+COPY --from=counter-builder /usr/build/counter/dist /usr/build/api/prod/node_modules/@ezcounter/counter/dist
+COPY --from=database-builder /usr/build/database/.prisma /usr/build/api/prod/node_modules/@ezcounter/database/.prisma
 
 # ---
 # Final image to run API service
@@ -153,24 +112,11 @@ CMD [ "npm", "run", "start" ]
 # ---
 # region Enricher
 
-# Extract enricher from repo
-FROM turbo AS enricher-turbo
-
-RUN turbo prune ezcounter-enricher --docker --out-dir ./enricher
-# ---
 # Prepare prod dependencies for enricher
-FROM turbo AS enricher-pnpm
-WORKDIR /usr/build/enricher
+FROM pnpm AS enricher-pnpm
+WORKDIR /usr/src
 
-# Shared TS config
-COPY ./tsconfig.json .
-COPY --from=enricher-turbo /usr/src/enricher/json .
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY --from=enricher-turbo /usr/src/enricher/full .
-
-RUN pnpm deploy --legacy --filter ezcounter-enricher --prod ./prod
+RUN pnpm deploy --filter ezcounter-enricher --prod /usr/build/enricher/prod
 
 # ---
 # Final image to run Enricher service
@@ -182,7 +128,7 @@ WORKDIR /usr/build/enricher
 # Shared TS config
 COPY ./tsconfig.json ../../tsconfig.json
 
-COPY --from=enricher-pnpm /usr/build/enricher/prod .
+COPY --from=enricher-pnpm /usr/src/dist/enricher/prod .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
@@ -193,26 +139,14 @@ CMD [ "npm", "run", "start" ]
 # ---
 # region Harvester
 
-# Extract harvester from repo
-FROM turbo AS harvester-turbo
-
-RUN turbo prune ezcounter-harvester --docker --out-dir ./harvester
-# ---
 # Prepare prod dependencies for Harvester
-FROM turbo AS harvester-pnpm
-WORKDIR /usr/build/harvester
+FROM pnpm AS harvester-pnpm
+WORKDIR /usr/src
 
-# Shared TS config
-COPY ./tsconfig.json .
-COPY --from=harvester-turbo /usr/src/harvester/json .
+RUN pnpm deploy --filter ezcounter-harvester --prod /usr/build/harvester/prod
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY --from=harvester-turbo /usr/src/harvester/full .
-
-COPY --from=counter-builder /usr/build/counter/dev/dist ./packages/counter/dist
-
-RUN pnpm deploy --legacy --filter ezcounter-harvester --prod ./prod
+# Copy generated files
+COPY --from=counter-builder /usr/build/counter/dist /usr/build/harvester/prod/node_modules/@ezcounter/counter/dist
 
 # ---
 # Final image to run Harvester service
@@ -225,7 +159,7 @@ WORKDIR /usr/build/harvester
 # Shared TS config
 COPY ./tsconfig.json ../../tsconfig.json
 
-COPY --from=harvester-pnpm /usr/build/harvester/prod .
+COPY --from=harvester-pnpm /usr/src/dist/harvester/prod .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1

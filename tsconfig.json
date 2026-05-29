@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    // Required by PNPM
+    "preserveSymlinks": false,
     // Used by ESBuild
     "target": "ESNext",
     "strict": true,

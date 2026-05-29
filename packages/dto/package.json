@@ -32,7 +32,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "optionalDependencies": {
+  "peerDependencies": {
     "@ezcounter/counter": "workspace:"
   },
   "engines": {

@@ -25,3 +25,5 @@ allowBuilds:
   lefthook: true
   msw: false
   prisma: false
+
+injectWorkspacePackages: false
