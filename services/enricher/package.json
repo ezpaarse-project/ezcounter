@@ -51,7 +51,6 @@
     "@vitest/coverage-v8": "catalog:",
     "msw": "^2.14.6",
     "pino-pretty": "catalog:",
-    "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:",
     "vitest-mock-extended": "catalog:"
   },
