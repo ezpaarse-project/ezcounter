@@ -3,6 +3,7 @@ lockfileVersion: '9.0'
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
+  injectWorkspacePackages: true
 
 catalogs:
   default:
@@ -278,22 +279,22 @@ importers:
         version: link:../../packages/counter
       '@ezcounter/database':
         specifier: workspace:*
-        version: link:../../packages/database
+        version: file:packages/database(@ezcounter/heartbeats@file:packages/heartbeats(@ezcounter/counter@file:packages/counter))(@ezcounter/logger@file:packages/logger)(prisma@7.8.0(@types/react@19.2.15)(magicast@0.5.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3))(typescript@6.0.3)
       '@ezcounter/dto':
         specifier: workspace:*
         version: link:../../packages/dto
       '@ezcounter/heartbeats':
         specifier: workspace:*
-        version: link:../../packages/heartbeats
+        version: file:packages/heartbeats(@ezcounter/counter@file:packages/counter)
       '@ezcounter/logger':
         specifier: workspace:*
         version: link:../../packages/logger
       '@ezcounter/rabbitmq':
         specifier: workspace:*
-        version: link:../../packages/rabbitmq
+        version: file:packages/rabbitmq(@ezcounter/counter@file:packages/counter)
       '@ezcounter/toolbox':
         specifier: workspace:*
-        version: link:../../packages/toolbox
+        version: file:packages/toolbox(@ezcounter/counter@file:packages/counter)
       '@fastify/autoload':
         specifier: ^6.3.1
         version: 6.3.1
@@ -303,6 +304,9 @@ importers:
       '@fastify/helmet':
         specifier: ^13.0.2
         version: 13.0.2
+      '@fastify/multipart':
+        specifier: ^10.0.0
+        version: 10.0.0
       '@fastify/swagger':
         specifier: ^9.7.0
         version: 9.7.0
@@ -363,19 +367,19 @@ importers:
         version: link:../../packages/dto
       '@ezcounter/heartbeats':
         specifier: workspace:*
-        version: link:../../packages/heartbeats
+        version: file:packages/heartbeats(@ezcounter/counter@file:packages/counter)
       '@ezcounter/logger':
         specifier: workspace:*
         version: link:../../packages/logger
       '@ezcounter/rabbitmq':
         specifier: workspace:*
-        version: link:../../packages/rabbitmq
+        version: file:packages/rabbitmq(@ezcounter/counter@file:packages/counter)
       '@ezcounter/simple-http':
         specifier: workspace:*
         version: link:../../packages/simple-http
       '@ezcounter/toolbox':
         specifier: workspace:*
-        version: link:../../packages/toolbox
+        version: file:packages/toolbox(@ezcounter/counter@file:packages/counter)
       '@keyv/redis':
         specifier: ^5.1.6
         version: 5.1.6(keyv@5.6.0)
@@ -445,19 +449,19 @@ importers:
         version: link:../../packages/dto
       '@ezcounter/heartbeats':
         specifier: workspace:*
-        version: link:../../packages/heartbeats
+        version: file:packages/heartbeats(@ezcounter/counter@file:packages/counter)
       '@ezcounter/logger':
         specifier: workspace:*
         version: link:../../packages/logger
       '@ezcounter/rabbitmq':
         specifier: workspace:*
-        version: link:../../packages/rabbitmq
+        version: file:packages/rabbitmq(@ezcounter/counter@file:packages/counter)
       '@ezcounter/simple-http':
         specifier: workspace:*
         version: link:../../packages/simple-http
       '@ezcounter/toolbox':
         specifier: workspace:*
-        version: link:../../packages/toolbox
+        version: file:packages/toolbox(@ezcounter/counter@file:packages/counter)
       '@typescript/native-preview':
         specifier: 'catalog:'
         version: 7.0.0-dev.20260527.2
@@ -872,6 +876,39 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@ezcounter/counter@file:packages/counter':
+    resolution: {directory: packages/counter, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+
+  '@ezcounter/database@file:packages/database':
+    resolution: {directory: packages/database, type: directory}
+    engines: {node: ^24}
+    peerDependencies:
+      '@ezcounter/heartbeats': workspace:*
+      '@ezcounter/logger': workspace:*
+
+  '@ezcounter/dto@file:packages/dto':
+    resolution: {directory: packages/dto, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+    peerDependencies:
+      '@ezcounter/counter': 'workspace:'
+
+  '@ezcounter/heartbeats@file:packages/heartbeats':
+    resolution: {directory: packages/heartbeats, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+
+  '@ezcounter/logger@file:packages/logger':
+    resolution: {directory: packages/logger, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+
+  '@ezcounter/rabbitmq@file:packages/rabbitmq':
+    resolution: {directory: packages/rabbitmq, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+
+  '@ezcounter/toolbox@file:packages/toolbox':
+    resolution: {directory: packages/toolbox, type: directory}
+    engines: {node: ^20 || ^22 || ^24}
+
   '@ezpaarse-project/oxlint-config@0.2.3':
     resolution: {integrity: sha512-DGZ7+YFwmTC6FmwVCz2Lgwrn9L6jtmdiuHf2Y2RFVodLO43XH13Hv7WmVeIh6qppfUm1EsdzmQGqRyLJOs2Hsw==}
     peerDependencies:
@@ -886,8 +923,14 @@ packages:
   '@fastify/autoload@6.3.1':
     resolution: {integrity: sha512-0fsG+lO3m5yEZVjXKpltCe+2eHhM6rfAPQhvlGUgLUFTw/N2wA9WqPTObMtrF3oUCUrxbSDv60HlUIoh+aFM1A==}
 
+  '@fastify/busboy@3.2.0':
+    resolution: {integrity: sha512-m9FVDXU3GT2ITSe0UaMA5rU3QkfC/UXtCU8y0gSN/GugTqtVldOBWIB5V6V3sbmenVZUIpU6f+mPEO2+m5iTaA==}
+
   '@fastify/cors@11.2.0':
     resolution: {integrity: sha512-LbLHBuSAdGdSFZYTLVA3+Ch2t+sA6nq3Ejc6XLAKiQ6ViS2qFnvicpj0htsx03FyYeLs04HfRNBsz/a8SvbcUw==}
+
+  '@fastify/deepmerge@3.2.1':
+    resolution: {integrity: sha512-N5Oqvltoa2r9z1tbx4xjky0oRR60v+T47Ic4J1ukoVQcptLOrIdRnCSdTGmOmajZuHVKlTnfcmrjyqsGEW1ztA==}
 
   '@fastify/error@4.2.0':
     resolution: {integrity: sha512-RSo3sVDXfHskiBZKBPRgnQTtIqpi/7zhJOEmAxCiBcM7d0uwdGdxLlsCaLzGs8v8NnxIRlfG0N51p5yFaOentQ==}
@@ -903,6 +946,9 @@ packages:
 
   '@fastify/merge-json-schemas@0.2.1':
     resolution: {integrity: sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A==}
+
+  '@fastify/multipart@10.0.0':
+    resolution: {integrity: sha512-pUx3Z1QStY7E7kwvDTIvB6P+rF5lzP+iqPgZyJyG3yBJVPvQaZxzDHYbQD89rbY0ciXrMOyGi8ezHDVexLvJDA==}
 
   '@fastify/proxy-addr@5.1.0':
     resolution: {integrity: sha512-INS+6gh91cLUjB+PVHfu1UqcB76Sqtpyp7bnL+FYojhjygvOPA9ctiD/JDKsyD9Xgu4hUhCSJBPig/w7duNajw==}
@@ -3955,6 +4001,57 @@ snapshots:
   '@esbuild/win32-x64@0.28.0':
     optional: true
 
+  '@ezcounter/counter@file:packages/counter':
+    dependencies:
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      date-fns: 4.3.0
+      ofetch: 2.0.0-alpha.3
+
+  '@ezcounter/database@file:packages/database(@ezcounter/heartbeats@file:packages/heartbeats(@ezcounter/counter@file:packages/counter))(@ezcounter/logger@file:packages/logger)(prisma@7.8.0(@types/react@19.2.15)(magicast@0.5.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3))(typescript@6.0.3)':
+    dependencies:
+      '@ezcounter/heartbeats': file:packages/heartbeats(@ezcounter/counter@file:packages/counter)
+      '@ezcounter/logger': file:packages/logger
+      '@prisma/adapter-pg': 7.8.0
+      '@prisma/client': 7.8.0(prisma@7.8.0(@types/react@19.2.15)(magicast@0.5.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3))(typescript@6.0.3)
+    transitivePeerDependencies:
+      - pg-native
+      - prisma
+      - typescript
+
+  '@ezcounter/dto@file:packages/dto(@ezcounter/counter@file:packages/counter)':
+    dependencies:
+      '@ezcounter/counter': file:packages/counter
+      zod: 4.4.3
+
+  '@ezcounter/heartbeats@file:packages/heartbeats(@ezcounter/counter@file:packages/counter)':
+    dependencies:
+      '@ezcounter/dto': file:packages/dto(@ezcounter/counter@file:packages/counter)
+      '@ezcounter/logger': file:packages/logger
+      '@ezcounter/rabbitmq': file:packages/rabbitmq(@ezcounter/counter@file:packages/counter)
+    transitivePeerDependencies:
+      - '@ezcounter/counter'
+
+  '@ezcounter/logger@file:packages/logger':
+    dependencies:
+      pino: 10.3.1
+
+  '@ezcounter/rabbitmq@file:packages/rabbitmq(@ezcounter/counter@file:packages/counter)':
+    dependencies:
+      '@ezcounter/logger': file:packages/logger
+      rabbitmq-client: 5.0.8
+      typescript: 6.0.3
+    optionalDependencies:
+      '@ezcounter/dto': file:packages/dto(@ezcounter/counter@file:packages/counter)
+    transitivePeerDependencies:
+      - '@ezcounter/counter'
+
+  '@ezcounter/toolbox@file:packages/toolbox(@ezcounter/counter@file:packages/counter)':
+    dependencies:
+      '@ezcounter/dto': file:packages/dto(@ezcounter/counter@file:packages/counter)
+    transitivePeerDependencies:
+      - '@ezcounter/counter'
+
   '@ezpaarse-project/oxlint-config@0.2.3(oxlint@1.57.0)':
     dependencies:
       oxlint: 1.57.0
@@ -3969,10 +4066,14 @@ snapshots:
 
   '@fastify/autoload@6.3.1': {}
 
+  '@fastify/busboy@3.2.0': {}
+
   '@fastify/cors@11.2.0':
     dependencies:
       fastify-plugin: 5.1.0
       toad-cache: 3.7.1
+
+  '@fastify/deepmerge@3.2.1': {}
 
   '@fastify/error@4.2.0': {}
 
@@ -3990,6 +4091,14 @@ snapshots:
   '@fastify/merge-json-schemas@0.2.1':
     dependencies:
       dequal: 2.0.3
+
+  '@fastify/multipart@10.0.0':
+    dependencies:
+      '@fastify/busboy': 3.2.0
+      '@fastify/deepmerge': 3.2.1
+      '@fastify/error': 4.2.0
+      fastify-plugin: 5.1.0
+      secure-json-parse: 4.1.0
 
   '@fastify/proxy-addr@5.1.0':
     dependencies:

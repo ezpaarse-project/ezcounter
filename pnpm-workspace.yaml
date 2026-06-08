@@ -25,4 +25,4 @@ allowBuilds:
   msw: false
   prisma: false
 
-injectWorkspacePackages: false
+injectWorkspacePackages: true

@@ -14,7 +14,7 @@
 git clone https://github.com/ezpaarse-project/ezcounter.git
 cd ezcounter
 corepack enable
-pnpm i --frozen-lockfile
+pnpm ci
 ```
 
 ---

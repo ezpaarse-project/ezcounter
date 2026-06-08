@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: ezcounter_postgres
-    image: postgres:18.0-alpine3.22
+    image: postgres:18.4-alpine3.22
     env_file:
       - .env
       - path: .env.local
@@ -17,7 +17,7 @@ services:
 
   rabbitmq:
     container_name: ezcounter_rabbitmq
-    image: rabbitmq:4.1.4-alpine
+    image: rabbitmq:4.3.1-alpine
     restart: unless-stopped
     volumes:
       # ezCOUNTER needs specific plugins to be enabled
@@ -30,7 +30,7 @@ services:
 
   redis:
     container_name: ezcounter_redis
-    image: redis:8.4.0-alpine3.22
+    image: redis:8.8.0-alpine3.22
     restart: unless-stopped
     healthcheck:
       test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
@@ -84,7 +84,7 @@ services:
         required: false
     restart: unless-stopped
     volumes:
-      - ./data/harvester:/var/lib/app-harvester/data
+      - ./data/harvester:/var/lib/ezcounter-harvester
     depends_on:
       rabbitmq:
         condition: service_healthy

@@ -1,0 +1,19 @@
+# Env
+.env*
+config/local*.json
+
+# Git files
+.git/
+**/.gitignore
+
+# Tests
+**/__mocks__/*
+**/__tests__/*
+**/*.test.ts
+coverage/
+
+# Dev tools
+.oxlint*
+*.config.ts
+.turbo
+turbo.json
