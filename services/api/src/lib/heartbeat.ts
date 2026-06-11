@@ -1,3 +1,5 @@
+import { access, constants as fsConstants, mkdir } from 'node:fs/promises';
+
 import { isBefore } from 'date-fns';
 
 import type {
@@ -98,4 +100,15 @@ export function getAllServices(): Heartbeat[] {
         return isBefore(now, maxTimestamp);
       })
   );
+}
+
+/**
+ * Assert if service can use filesystems
+ */
+export async function assertFilesystemsAccess(): Promise<void> {
+  // Log dir - Used for writing logs
+  if (appConfig.log.dir) {
+    await mkdir(appConfig.log.dir, { recursive: true });
+    await access(appConfig.log.dir, fsConstants.W_OK);
+  }
 }

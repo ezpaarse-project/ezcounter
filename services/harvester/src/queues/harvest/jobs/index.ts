@@ -8,7 +8,7 @@ import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { rabbitClient, type rabbitmq } from '~/lib/rabbitmq';
 
-import { harvestReport } from '~/models/report';
+import { harvestReport } from '~/models/report/harvest';
 
 import { sendHarvestJobStatusEvent } from './status';
 
@@ -124,7 +124,7 @@ async function requeueJob(
 }
 
 /**
- * Process Harvest Job request
+ * Process Harvest Job
  *
  * @param channel - The RabbitMQ channel
  * @param msg - The message
@@ -234,7 +234,7 @@ async function deleteHarvestQueue(
  */
 export async function* processHarvestQueue(queue: string): AsyncGenerator {
   const channel = await rabbitClient.acquire();
-  await channel.queueDeclare({ durable: false, queue });
+  await channel.queueDeclare({ durable: true, queue });
 
   logger.info({
     msg: 'Processing harvest queue',

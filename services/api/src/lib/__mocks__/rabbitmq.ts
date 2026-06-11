@@ -6,6 +6,7 @@ import type { rabbitmq } from '@ezcounter/rabbitmq';
 const mockedChannel = mockDeep<rabbitmq.Channel>();
 const mockedConsumer = mockDeep<rabbitmq.Consumer>();
 const mockedPublisher = mockDeep<rabbitmq.Publisher>();
+const mockedRPC = mockDeep<rabbitmq.RPCClient>();
 
 const rabbitClient = mockDeep<rabbitmq.Connection>();
 rabbitClient.acquire.mockResolvedValue(mockedChannel);
@@ -13,6 +14,8 @@ rabbitClient.acquire.mockResolvedValue(mockedChannel);
 export const createConsumer = vi.fn().mockReturnValue(mockedConsumer);
 
 export const createPublisher = vi.fn().mockReturnValue(mockedPublisher);
+
+export const createRPCClient = vi.fn().mockReturnValue(mockedRPC);
 
 export {
   rabbitClient,

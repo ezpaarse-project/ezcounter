@@ -27,11 +27,10 @@ export function setupHeartbeatListener(
       listener.emit('heartbeat', data);
     },
     options: {
-      exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      exchanges: [{ exchange: EXCHANGE_NAME, type: 'fanout' }],
       noAck: true,
-      queue: '',
       queueBindings: [{ exchange: EXCHANGE_NAME }],
-      queueOptions: { exclusive: true },
+      queueOptions: { durable: false, exclusive: true },
     },
     schema: Heartbeat,
   });

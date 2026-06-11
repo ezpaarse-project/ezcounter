@@ -1,7 +1,7 @@
 import { access } from 'node:fs/promises';
 
-export { stat, unlink, mkdir } from 'node:fs/promises';
-export { createWriteStream, createReadStream } from 'node:fs';
+export { stat, unlink, mkdir, access } from 'node:fs/promises';
+export { createWriteStream, createReadStream, constants } from 'node:fs';
 
 /**
  * Check if file exists at path

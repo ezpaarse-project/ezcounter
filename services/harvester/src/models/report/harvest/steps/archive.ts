@@ -8,7 +8,7 @@ import { createReadStream, createWriteStream, exists, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
-import type { HarvestIdleTimeout } from '~/models/timeout';
+import type { IdleTimeoutController } from '~/models/timeout';
 
 import type { CacheResult } from './download';
 
@@ -24,7 +24,7 @@ const logger = appLogger.child({ scope: 'reports' });
 async function zipReport(
   report: { id: string; path: string },
   archivePath: string,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<void> {
   const stream = chain(
     [
@@ -59,7 +59,7 @@ async function zipReport(
 export async function archiveReport(
   report: { id: string; path: string; cache: CacheResult },
   options: HarvestDownloadOptions,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<void> {
   if (!(await exists(report.path))) {
     throw new Error(`Report ${report.path} isn't downloaded`);

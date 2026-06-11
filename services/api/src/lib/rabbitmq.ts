@@ -1,8 +1,10 @@
 import {
   type CreateConsumerProps,
   type CreatePublisherProps,
+  type CreateRPCClientProps,
   createRabbitConsumer,
   createRabbitPublisher,
+  createRabbitRPCClient,
   type rabbitmq,
   setupRabbitMQ,
 } from '@ezcounter/rabbitmq';
@@ -48,5 +50,16 @@ export const createConsumer = <DataType>(
 export const createPublisher = (
   props: CreatePublisherProps
 ): rabbitmq.Publisher => createRabbitPublisher(rabbitClient, props);
+
+/**
+ * Create a RabbitMQ publisher
+ *
+ * @param props - The publisher properties
+ *
+ * @returns The publisher
+ */
+export const createRPCClient = (
+  props: CreateRPCClientProps
+): rabbitmq.RPCClient => createRabbitRPCClient(rabbitClient, props);
 
 export type { rabbitmq };

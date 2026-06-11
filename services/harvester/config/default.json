@@ -43,6 +43,9 @@
       "milliseconds": 500
     },
     "maxTries": 5,
-    "dir": "/var/lib/app-harvester/data/reports"
+    "dir": "/var/lib/ezcounter-harvester/downloads"
+  },
+  "temp": {
+    "dir": "/var/lib/ezcounter-harvester/temp"
   }
 }

@@ -30,7 +30,7 @@ import {
 const RouterParams = z.object({
   id: z.string().min(1).describe('ID of the data host'),
   release: z.literal(['5', '5.1']).describe('Release'),
-  report: z.string().describe('Report ID'),
+  report: z.string().toLowerCase().describe('Report ID'),
 });
 
 const router: FastifyPluginAsyncZod = async (fastify) => {

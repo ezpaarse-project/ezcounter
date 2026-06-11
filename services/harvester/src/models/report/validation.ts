@@ -9,7 +9,7 @@ import type {
   COUNTERReportHeader,
   COUNTERReportItem,
   COUNTERReportItemParent,
-} from '../dto';
+} from '~/models/report/dto';
 
 /**
  * Type for a COUNTER Report validation

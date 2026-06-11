@@ -17,7 +17,7 @@ import {
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
-import type { HarvestIdleTimeout } from '~/models/timeout';
+import type { IdleTimeoutController } from '~/models/timeout';
 
 // oxlint-disable-next-line import/extensions
 import { version as appVersion } from '~/../package.json' with { type: 'json' };
@@ -67,7 +67,7 @@ function calcProgress(
 function createEventStream(
   id: string,
   data: EventStreamData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): PassThrough {
   const expectedSize =
     Number.isNaN(data.expectedSize) || data.expectedSize <= 0
@@ -120,7 +120,7 @@ function createEventStream(
 async function downloadReport(
   report: { jobId: string; path: string },
   options: HarvestDownloadOptions,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<{ httpCode: number }> {
   const response = await fetchReportAsStream(
     options.release,
@@ -176,7 +176,7 @@ async function downloadReport(
 async function unzipReport(
   report: { jobId: string; path: string },
   archivePath: string,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<void> {
   const { size } = await stat(archivePath);
 
@@ -225,7 +225,7 @@ export type CacheResult = {
 export async function cacheReport(
   report: { jobId: string; path: string },
   options: HarvestDownloadOptions,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<CacheResult> {
   const archivePath = `${report.path}.gz`;
 

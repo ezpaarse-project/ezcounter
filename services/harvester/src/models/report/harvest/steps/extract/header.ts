@@ -7,8 +7,8 @@ import { createReadStream } from '~/lib/fs';
 import { jsonParser, jsonPick, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
-import type { COUNTERReportHeader } from '../../dto';
-import { getCounterValidation } from '../validate';
+import type { COUNTERReportHeader } from '~/models/report/dto';
+import { getCounterValidation } from '~/models/report/validation';
 
 /**
  * Validation for an object that look like a Report_Header

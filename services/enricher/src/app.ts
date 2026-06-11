@@ -1,7 +1,11 @@
 import { StatusCodes } from 'http-status-codes';
 
 import { appConfig } from '~/lib/config';
-import { getMissingMandatoryServices, initHeartbeat } from '~/lib/heartbeat';
+import {
+  assertFilesystemsAccess,
+  getMissingMandatoryServices,
+  initHeartbeat,
+} from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
 
@@ -16,6 +20,8 @@ appLogger.info({
 });
 
 try {
+  // Initialize core services (if fails, service is not alive)
+  await assertFilesystemsAccess();
   // Initialize health routes
   await initHTTPServer({
     '/liveness': (req, res) => {
@@ -31,8 +37,6 @@ try {
         .end();
     },
   });
-
-  // Initialize core services (if fails, service is not alive)
 
   // Initialize other services (if fails, service is not ready)
   initQueueConsumers();

@@ -17,7 +17,7 @@ const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 // Publisher creating required exchanges/queues
 const pub = createPublisher({
   options: {
-    queues: [{ durable: false, queue: QUEUE_NAME }],
+    queues: [{ durable: true, queue: QUEUE_NAME }],
   },
 });
 
@@ -82,7 +82,7 @@ export function consumeHarvestRequests(): void {
     options: {
       qos: { prefetchCount: 1 },
       queue: QUEUE_NAME,
-      queueOptions: { durable: false },
+      queueOptions: { durable: true },
     },
     schema: HarvestRequestData,
   });

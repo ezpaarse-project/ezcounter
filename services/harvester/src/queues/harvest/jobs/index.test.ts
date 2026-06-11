@@ -5,12 +5,13 @@ import type { HarvestJobData } from '@ezcounter/dto/queues';
 import { appConfig } from '~/lib/__mocks__/config';
 import { mockedChannel, type rabbitmq } from '~/lib/__mocks__/rabbitmq';
 
+import { harvestReport } from '~/models/report/harvest/__mocks__';
+
 import { processHarvestQueue } from '.';
-import { harvestReport } from '../../../models/report/__mocks__';
 import { sendHarvestJobStatusEvent } from './__mocks__/status';
 
 vi.mock(import('node:timers/promises'));
-vi.mock(import('~/models/report'));
+vi.mock(import('~/models/report/harvest'));
 vi.mock(import('./status'));
 
 describe('Harvest Process (processHarvestQueue)', () => {
@@ -50,7 +51,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     await process.next();
 
     expect(mockedChannel.queueDeclare).toHaveBeenCalledWith({
-      durable: false,
+      durable: true,
       queue: 'foobar',
     });
   });

@@ -62,7 +62,7 @@ export type HarvestAdditionalParams = z.infer<typeof HarvestAdditionalParams>;
  * Validation for the options to harvest a COUNTER report
  */
 export const HarvestReportOptions = z.object({
-  id: z.string().describe('Report ID to harvest'),
+  id: z.string().toLowerCase().describe('Report ID to harvest'),
 
   isGlobal: z
     .boolean()

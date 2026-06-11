@@ -19,7 +19,7 @@ const logger = appLogger.child({ queue: QUEUE_NAME, scope: 'queues' });
 const pub = createPublisher({
   options: {
     confirm: true,
-    queues: [{ durable: false, queue: QUEUE_NAME }],
+    queues: [{ durable: true, queue: QUEUE_NAME }],
   },
 });
 
@@ -72,7 +72,7 @@ export const ensureDataHostQueues = async (
         const queue = getDataHostQueueName(host);
         try {
           const { consumerCount, messageCount } = await channel.queueDeclare({
-            durable: false,
+            durable: true,
             queue,
           });
 

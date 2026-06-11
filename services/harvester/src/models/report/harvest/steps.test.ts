@@ -3,10 +3,14 @@ import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
+import type {
+  COUNTERReportHeader,
+  COUNTERReportItem,
+} from '~/models/report/dto';
+import { IdleTimeoutController } from '~/models/timeout';
+
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
-import type { COUNTERReportHeader, COUNTERReportItem } from './dto';
-import { HarvestIdleTimeout } from '../timeout';
 import {
   archiveReportToFile,
   cacheReportToFile,
@@ -102,7 +106,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should throw on abort', async () => {
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     timeout.abort();
 
     extractReportExceptions.mockImplementationOnce(() => {
@@ -116,7 +120,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should tick timeout', async () => {
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     extractReportExceptions.mockResolvedValueOnce([]);
@@ -164,7 +168,7 @@ describe('Report Header (getReportHeader)', () => {
   });
 
   test('should tick timeout', async () => {
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
@@ -209,7 +213,7 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should tick timeout', async () => {
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
@@ -224,7 +228,7 @@ describe('Report Items (queueReportItems)', () => {
       }
     });
 
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);

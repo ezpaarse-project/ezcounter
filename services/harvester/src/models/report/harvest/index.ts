@@ -6,12 +6,12 @@ import type { HarvestJobData } from '@ezcounter/dto/queues';
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-import { HarvestIdleTimeout } from '~/models/timeout';
+import { CounterCodes, asHarvestError } from '~/models/report/exceptions';
+import { IdleTimeoutController } from '~/models/timeout';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import type { CacheResult } from './steps/download';
-import { CounterCodes, asHarvestError } from './exceptions';
 import {
   archiveReportToFile,
   cacheReportToFile,
@@ -21,7 +21,7 @@ import {
 } from './steps';
 
 const config = appConfig.download;
-const logger = appLogger.child({ scope: 'reports' });
+const logger = appLogger.child({ scope: 'harvest' });
 
 // COUNTER Codes that will indicate that data host is processing request
 const PROCESSING_CODES = new Set(
@@ -195,7 +195,7 @@ export function reharvestOrMarkAsError(
 export async function harvestReport(
   options: HarvestJobData
 ): Promise<HarvestResult> {
-  const timeout = new HarvestIdleTimeout(options.download.timeout);
+  const timeout = new IdleTimeoutController(options.download.timeout);
 
   const path = getReportPath(options);
   timeout.tick();

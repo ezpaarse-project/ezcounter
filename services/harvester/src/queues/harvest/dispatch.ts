@@ -46,6 +46,7 @@ export function consumeHarvestDispatchJobs(): void {
     options: {
       qos: { prefetchCount: 1 },
       queue: QUEUE_NAME,
+      queueOptions: { durable: true },
     },
     schema: HarvestDispatchData,
   });

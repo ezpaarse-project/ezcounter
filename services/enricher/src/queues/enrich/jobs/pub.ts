@@ -12,7 +12,7 @@ const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 const pub = createPublisher({
   options: {
     confirm: true,
-    exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'direct' }],
+    exchanges: [{ exchange: EXCHANGE_NAME, type: 'direct' }],
   },
 });
 

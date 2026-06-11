@@ -21,7 +21,7 @@ services:
       watch:
         - action: sync
           path: ./services/api/src
-          target: /usr/build/api/src
+          target: /usr/build/api/prod/src
           initial_sync: true
         - action: rebuild
           path: ./services/api/package.json
@@ -41,7 +41,7 @@ services:
       watch:
         - action: sync
           path: ./services/enricher/src
-          target: /usr/build/enricher/src
+          target: /usr/build/enricher/prod/src
           initial_sync: true
         - action: rebuild
           path: ./services/enricher/package.json
@@ -61,7 +61,7 @@ services:
       watch:
         - action: sync
           path: ./services/harvester/src
-          target: /usr/build/harvester/src
+          target: /usr/build/harvester/prod/src
           initial_sync: true
         - action: rebuild
           path: ./services/harvester/package.json

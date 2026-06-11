@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { getCounterValidation } from './validate';
+import { getCounterValidation } from './validation';
 
 describe('COUNTER unknown', () => {
   test('should throws if release is unknown', () => {

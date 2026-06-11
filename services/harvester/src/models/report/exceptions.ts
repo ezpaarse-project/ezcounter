@@ -2,7 +2,7 @@ import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
 import type { HarvestException } from '@ezcounter/dto/harvest';
 
-import type { COUNTERReportException } from './dto';
+import type { COUNTERReportException } from '~/models/report/dto';
 
 /**
  * Exception code 0 is considered as custom info from COUNTER CoP

@@ -1,5 +1,5 @@
 import { appConfig } from '~/lib/config';
-import { initHeartbeat } from '~/lib/heartbeat';
+import { assertFilesystemsAccess, initHeartbeat } from '~/lib/heartbeat';
 import { initHTTPServer } from '~/lib/http';
 import { appLogger } from '~/lib/logger';
 
@@ -17,6 +17,7 @@ async function start(): Promise<void> {
 
   try {
     // Initialize core services (if fails, service is unhealthy)
+    await assertFilesystemsAccess();
     await initHTTPServer(routes);
 
     // Initialize other services (if fails, service is degraded)

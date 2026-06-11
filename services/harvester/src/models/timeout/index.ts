@@ -1,7 +1,7 @@
 // oxlint-disable-next-line no-magic-numbers
 const DEFAULT_DELAY = 60 * 1000;
 
-export class HarvestIdleTimeout {
+export class IdleTimeoutController {
   private controller = new AbortController();
 
   private timeoutId: NodeJS.Timeout | undefined;

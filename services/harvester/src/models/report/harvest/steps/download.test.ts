@@ -3,9 +3,13 @@ import { describe, expect, test, vi } from 'vitest';
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { fetchReportAsStream } from '@ezcounter/counter/__mocks__';
 
-import { createReadStream, createWriteStream } from '~/lib/__mocks__/fs';
+import {
+  createReadStream,
+  createWriteStream,
+  exists,
+} from '~/lib/__mocks__/fs';
 
-import { HarvestIdleTimeout } from '~/models/timeout';
+import { IdleTimeoutController } from '~/models/timeout';
 
 import { createGunzip } from '~/../__mocks__/zlib';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
@@ -53,7 +57,7 @@ describe('Cache report (cacheReport)', () => {
     test("shouldn't write file", async () => {
       await cacheReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).not.toHaveBeenCalled();
+      expect(createWriteStream).not.toHaveBeenCalledWith(REPORT.path);
     });
 
     test('should notify progress', async () => {
@@ -70,7 +74,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test("shouldn't be able to be aborted", async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(REPORT, OPTIONS, timeout);
 
@@ -112,7 +116,7 @@ describe('Cache report (cacheReport)', () => {
     test('should write file', async () => {
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
-      expect(createWriteStream).toHaveBeenCalledWith(ARCHIVED_REPORT.path);
+      await expect(exists(ARCHIVED_REPORT.path)).resolves.toBe(true);
     });
 
     test('should notify progress', async () => {
@@ -129,7 +133,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
 
@@ -139,7 +143,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should tick timeout', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
@@ -176,7 +180,7 @@ describe('Cache report (cacheReport)', () => {
     test('should write file', async () => {
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(createWriteStream).toHaveBeenCalledWith(NO_REPORT.path);
+      await expect(exists(NO_REPORT.path)).resolves.toBe(true);
     });
 
     test('should notify progress', async () => {
@@ -193,7 +197,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(NO_REPORT, OPTIONS, timeout);
 
@@ -203,7 +207,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should tick timeout', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(NO_REPORT, OPTIONS, timeout);
@@ -241,7 +245,7 @@ describe('Cache report (cacheReport)', () => {
     test('should write file', async () => {
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(createWriteStream).toHaveBeenCalledWith(REPORT.path);
+      await expect(exists(REPORT.path)).resolves.toBe(true);
     });
 
     test('should notify progress', async () => {
@@ -258,7 +262,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(REPORT, FORCE_OPTIONS, timeout);
 
@@ -268,7 +272,7 @@ describe('Cache report (cacheReport)', () => {
     });
 
     test('should tick timeout', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(REPORT, FORCE_OPTIONS, timeout);

@@ -35,7 +35,7 @@ export function consumeEnrichJobStatusEvents(): void {
     logger,
     onMessage: onEnrichJobStatus,
     options: {
-      exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      exchanges: [{ exchange: EXCHANGE_NAME, type: 'fanout' }],
       queueBindings: [{ exchange: EXCHANGE_NAME }],
       queueOptions: { durable: false, exclusive: true },
     },

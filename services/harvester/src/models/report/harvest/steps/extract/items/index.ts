@@ -3,8 +3,12 @@ import type { Readable } from 'node:stream';
 import type { ValidateFunction } from '@ezcounter/counter/schemas';
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
-import type { COUNTERReportItem, COUNTERReportItemParent } from '../../../dto';
-import { getCounterValidation } from '../../validate';
+import type {
+  COUNTERReportItem,
+  COUNTERReportItemParent,
+} from '~/models/report/dto';
+import { getCounterValidation } from '~/models/report/validation';
+
 import { type R5StreamItem, createR5ReportStream } from './r5';
 import { type R51StreamItem, createR51ReportStream } from './r51';
 

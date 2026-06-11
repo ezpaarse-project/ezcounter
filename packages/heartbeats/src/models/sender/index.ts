@@ -138,7 +138,7 @@ export function setupHeartbeatSender(
 
   const pub = createRabbitPublisher(rabbitClient, {
     options: {
-      exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+      exchanges: [{ exchange: EXCHANGE_NAME, type: 'fanout' }],
     },
   });
 

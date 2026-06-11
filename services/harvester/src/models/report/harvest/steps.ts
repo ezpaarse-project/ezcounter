@@ -3,13 +3,13 @@ import type { EnrichJobContent, HarvestJobData } from '@ezcounter/dto/queues';
 
 import { appLogger } from '~/lib/logger';
 
-import type { HarvestIdleTimeout } from '~/models/timeout';
+import type { COUNTERReportHeader } from '~/models/report/dto';
+import type { IdleTimeoutController } from '~/models/timeout';
+import { asHarvestException } from '~/models/report/exceptions';
 
 import { queueEnrichJob } from '~/queues/enrich/jobs';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import type { COUNTERReportHeader } from './dto';
-import { asHarvestException } from './exceptions';
 import { archiveReport } from './steps/archive';
 import { type CacheResult, cacheReport } from './steps/download';
 import { extractReportExceptions } from './steps/extract/exceptions';
@@ -112,7 +112,7 @@ const queueReportItem = (
 export async function cacheReportToFile(
   reportPath: string,
   options: HarvestJobData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<CacheResult> {
   try {
     const result = await cacheReport(
@@ -153,7 +153,7 @@ export async function cacheReportToFile(
 export async function getReportExceptions(
   report: { path: string; httpCode?: number },
   options: HarvestJobData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<HarvestException[]> {
   const exceptions: HarvestException[] = [];
   if (report.httpCode) {
@@ -207,7 +207,7 @@ export async function getReportExceptions(
 export async function getReportHeader(
   reportPath: string,
   options: HarvestJobData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<COUNTERReportHeader> {
   try {
     const header = await extractReportHeader(
@@ -251,7 +251,7 @@ export async function getReportHeader(
 export async function queueReportItems(
   report: { path: string; header: COUNTERReportHeader; date: string },
   options: HarvestJobData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<void> {
   let notifier: NodeJS.Timeout | null = null;
   try {
@@ -311,7 +311,7 @@ export async function queueReportItems(
 export async function archiveReportToFile(
   report: { path: string; cache: CacheResult },
   options: HarvestJobData,
-  timeout?: HarvestIdleTimeout
+  timeout?: IdleTimeoutController
 ): Promise<void> {
   try {
     await archiveReport(

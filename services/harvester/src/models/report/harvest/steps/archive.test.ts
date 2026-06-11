@@ -5,10 +5,11 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import {
   createReadStream,
   createWriteStream,
+  exists,
   unlink,
 } from '~/lib/__mocks__/fs';
 
-import { HarvestIdleTimeout } from '~/models/timeout';
+import { IdleTimeoutController } from '~/models/timeout';
 
 import { createGzip } from '~/../__mocks__/zlib';
 
@@ -50,7 +51,7 @@ describe('Archive report (archiveReport)', () => {
     test('should write archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).toHaveBeenCalledWith(`${REPORT.path}.gz`);
+      await expect(exists(`${REPORT.path}.gz`)).resolves.toBe(true);
     });
 
     test('should delete file', async () => {
@@ -60,7 +61,7 @@ describe('Archive report (archiveReport)', () => {
     });
 
     test('should be able to be aborted', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
 
@@ -92,17 +93,17 @@ describe('Archive report (archiveReport)', () => {
     test('should write archive', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).toHaveBeenCalledWith(`${REPORT.path}.gz`);
+      await expect(exists(`${REPORT.path}.gz`)).resolves.toBe(true);
     });
 
     test('should delete file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(unlink).toHaveBeenCalledWith(REPORT.path);
+      await expect(exists(REPORT.path)).resolves.toBe(false);
     });
 
     test('should be able to be aborted', async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
 
@@ -128,23 +129,23 @@ describe('Archive report (archiveReport)', () => {
     test("shouldn't read file", async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createReadStream).not.toHaveBeenCalled();
+      expect(createReadStream).not.toHaveBeenCalledWith(REPORT.path);
     });
 
     test("shouldn't write archive", async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createWriteStream).not.toHaveBeenCalled();
+      expect(createWriteStream).not.toHaveBeenCalledWith(`${REPORT.path}.gz`);
     });
 
     test('should delete file', async () => {
       await archiveReport(REPORT, OPTIONS);
 
-      expect(unlink).toHaveBeenCalledWith(REPORT.path);
+      await expect(exists(REPORT.path)).resolves.toBe(false);
     });
 
     test("shouldn't be able to be aborted", async () => {
-      const timeout = new HarvestIdleTimeout();
+      const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
 
@@ -168,7 +169,7 @@ describe('Archive report (archiveReport)', () => {
   });
 
   test('should tick timeout', async () => {
-    const timeout = new HarvestIdleTimeout();
+    const timeout = new IdleTimeoutController();
     const spy = vi.spyOn(timeout, 'tick');
 
     await archiveReport(

@@ -25,7 +25,7 @@ function createEnrichConsumer(
     logger,
     onMessage,
     options: {
-      exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'direct' }],
+      exchanges: [{ exchange: EXCHANGE_NAME, type: 'direct' }],
       qos: { prefetchCount: 1 },
       queueBindings: [{ exchange: EXCHANGE_NAME, routingKey }],
       queueOptions: { durable: false, exclusive: true },

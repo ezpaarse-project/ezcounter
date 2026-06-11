@@ -10,7 +10,7 @@ const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
 // Publisher creating required exchanges/queues
 const pub = createPublisher({
   options: {
-    exchanges: [{ durable: false, exchange: EXCHANGE_NAME, type: 'fanout' }],
+    exchanges: [{ exchange: EXCHANGE_NAME, type: 'fanout' }],
   },
 });
 
