@@ -7,33 +7,27 @@ import type {
   COUNTERReportHeader,
   COUNTERReportItem,
 } from '~/models/report/dto';
-import { IdleTimeoutController } from '~/models/timeout';
+import { IdleTimeoutController } from '~/models/idle-timeout';
+import { extractReportExceptions } from '~/models/report/extraction/exceptions';
+import {
+  extractRegistryId,
+  extractReportHeader,
+} from '~/models/report/extraction/header';
+import { extractReportItems } from '~/models/report/extraction/items';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
 
 import {
-  archiveReportToFile,
-  cacheReportToFile,
   getReportExceptions,
   getReportHeader,
   queueReportItems,
-} from './steps';
-import { archiveReport } from './steps/__mocks__/archive';
-import { cacheReport } from './steps/__mocks__/download';
-import { extractReportExceptions } from './steps/extract/__mocks__/exceptions';
-import {
-  extractRegistryId,
-  extractReportHeader,
-} from './steps/extract/__mocks__/header';
-import { extractReportItems } from './steps/extract/items/__mocks__';
+} from './extract';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
 vi.mock(import('~/queues/enrich/jobs'));
-vi.mock(import('./steps/download'));
-vi.mock(import('./steps/extract/exceptions'));
-vi.mock(import('./steps/extract/header'));
-vi.mock(import('./steps/extract/items'));
-vi.mock(import('./steps/archive'));
+vi.mock(import('~/models/report/extraction/exceptions'));
+vi.mock(import('~/models/report/extraction/header'));
+vi.mock(import('~/models/report/extraction/items'));
 
 const OPTIONS: HarvestJobData = {
   download: {
@@ -54,30 +48,9 @@ const OPTIONS: HarvestJobData = {
   },
 };
 
-describe('Cache report (cacheReportToFile)', () => {
-  test('should cache report', async () => {
-    cacheReport.mockResolvedValueOnce({
-      httpCode: 200,
-      source: 'remote',
-    });
-
-    await cacheReportToFile('', OPTIONS);
-
-    expect(cacheReport).toHaveBeenCalled();
-  });
-
-  test('should throw on error', async () => {
-    cacheReport.mockRejectedValueOnce(new Error('Something happened'));
-
-    const promise = cacheReportToFile('', OPTIONS);
-
-    await expect(promise).rejects.toThrow('Something happened');
-  });
-});
-
 describe('Report Exceptions (getReportExceptions)', () => {
   test('should extract exceptions from report', async () => {
-    extractReportExceptions.mockResolvedValueOnce([]);
+    vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     await getReportExceptions({ path: '' }, OPTIONS);
 
@@ -85,7 +58,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should treat HTTP status as exception', async () => {
-    extractReportExceptions.mockResolvedValueOnce([]);
+    vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const result = await getReportExceptions(
       { httpCode: 418, path: '' },
@@ -96,7 +69,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should not throw on error', async () => {
-    extractReportExceptions.mockRejectedValueOnce(
+    vi.mocked(extractReportExceptions).mockRejectedValueOnce(
       new Error('Something happened')
     );
 
@@ -109,7 +82,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
     const timeout = new IdleTimeoutController();
     timeout.abort();
 
-    extractReportExceptions.mockImplementationOnce(() => {
+    vi.mocked(extractReportExceptions).mockImplementationOnce(() => {
       timeout.signal.throwIfAborted();
       return Promise.resolve([]);
     });
@@ -123,7 +96,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
     const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
-    extractReportExceptions.mockResolvedValueOnce([]);
+    vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
@@ -131,7 +104,7 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 
   test('should notify progress', async () => {
-    extractReportExceptions.mockResolvedValueOnce([]);
+    vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const res = await getReportExceptions({ path: '' }, OPTIONS);
 
@@ -160,7 +133,9 @@ describe('Report Header (getReportHeader)', () => {
   });
 
   test('should throw on error', async () => {
-    extractReportHeader.mockRejectedValueOnce(new Error('Something happened'));
+    vi.mocked(extractReportHeader).mockRejectedValueOnce(
+      new Error('Something happened')
+    );
 
     const promise = getReportHeader('', OPTIONS);
 
@@ -177,7 +152,7 @@ describe('Report Header (getReportHeader)', () => {
   });
 
   test('should notify progress', async () => {
-    extractRegistryId.mockReturnValueOnce(null);
+    vi.mocked(extractRegistryId).mockReturnValueOnce(null);
 
     await getReportHeader('', OPTIONS);
 
@@ -203,7 +178,7 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should throw on error', async () => {
-    extractReportItems.mockImplementationOnce(() => {
+    vi.mocked(extractReportItems).mockImplementationOnce(() => {
       throw new Error('Something happened');
     });
 
@@ -222,11 +197,13 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should tick timeout after every item', async () => {
-    extractReportItems.mockImplementationOnce(async function* dummy() {
-      for (let index = 0; index < 5000; index += 1) {
-        yield { item: mockDeep<COUNTERReportItem>() };
+    vi.mocked(extractReportItems).mockImplementationOnce(
+      async function* dummy() {
+        for (let index = 0; index < 5000; index += 1) {
+          yield { item: mockDeep<COUNTERReportItem>() };
+        }
       }
-    });
+    );
 
     const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
@@ -251,11 +228,13 @@ describe('Report Items (queueReportItems)', () => {
   });
 
   test('should notify progress after time', async () => {
-    extractReportItems.mockImplementationOnce(async function* dummy() {
-      for (let index = 0; index < 5000; index += 1) {
-        yield { item: mockDeep<COUNTERReportItem>() };
+    vi.mocked(extractReportItems).mockImplementationOnce(
+      async function* dummy() {
+        for (let index = 0; index < 5000; index += 1) {
+          yield { item: mockDeep<COUNTERReportItem>() };
+        }
       }
-    });
+    );
 
     const promise = queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
@@ -263,27 +242,5 @@ describe('Report Items (queueReportItems)', () => {
     vi.advanceTimersByTime(900);
     expect(sendHarvestJobStatusEvent).toHaveBeenCalledTimes(3);
     await promise;
-  });
-});
-
-describe('Archive Report (archiveReportToFile)', () => {
-  test('should archive report', async () => {
-    await archiveReportToFile(
-      { cache: { source: 'remote' }, path: '' },
-      OPTIONS
-    );
-
-    expect(archiveReport).toHaveBeenCalled();
-  });
-
-  test('should not throw on error', async () => {
-    archiveReport.mockRejectedValueOnce(new Error('Something happened'));
-
-    const promise = archiveReportToFile(
-      { cache: { source: 'remote' }, path: '' },
-      OPTIONS
-    );
-
-    await expect(promise).resolves.not.toThrow();
   });
 });

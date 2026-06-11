@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { ReportValidationResult } from '@ezcounter/dto/validate';
+import type { ReportValidationResult } from '@ezcounter/dto/validate-report';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';

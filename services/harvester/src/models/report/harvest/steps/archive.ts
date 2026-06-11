@@ -8,7 +8,7 @@ import { createReadStream, createWriteStream, exists, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
-import type { IdleTimeoutController } from '~/models/timeout';
+import type { IdleTimeoutController } from '~/models/idle-timeout';
 
 import type { CacheResult } from './download';
 
@@ -22,7 +22,7 @@ const logger = appLogger.child({ scope: 'reports' });
  * @param timeout - The timeout before an harvest job is considered as cancelled
  */
 async function zipReport(
-  report: { id: string; path: string },
+  report: { jobId: string; path: string },
   archivePath: string,
   timeout?: IdleTimeoutController
 ): Promise<void> {
@@ -40,7 +40,7 @@ async function zipReport(
   );
 
   logger.debug({
-    id: report.id,
+    id: report.jobId,
     msg: 'Zipping report...',
     reportPath: report.path,
   });
@@ -57,24 +57,37 @@ async function zipReport(
  * @param timeout - The timeout before an harvest job is considered as cancelled
  */
 export async function archiveReport(
-  report: { id: string; path: string; cache: CacheResult },
+  report: { jobId: string; path: string; cache: CacheResult },
   options: HarvestDownloadOptions,
   timeout?: IdleTimeoutController
 ): Promise<void> {
-  if (!(await exists(report.path))) {
-    throw new Error(`Report ${report.path} isn't downloaded`);
+  try {
+    if (!(await exists(report.path))) {
+      throw new Error(`Report ${report.path} isn't downloaded`);
+    }
+
+    const archivePath = `${report.path}.gz`;
+
+    const isFromRemote =
+      options.forceDownload ?? report.cache.source === 'remote';
+    const isArchived = !isFromRemote && (await exists(archivePath));
+
+    if (!isArchived) {
+      await zipReport(report, archivePath, timeout);
+    }
+
+    await unlink(report.path);
+    timeout?.tick();
+
+    logger.info({
+      id: report.jobId,
+      msg: 'Archived report',
+    });
+  } catch (error) {
+    logger.error({
+      err: error,
+      id: report.jobId,
+      msg: 'Unable to archive report',
+    });
   }
-
-  const archivePath = `${report.path}.gz`;
-
-  const isFromRemote =
-    options.forceDownload ?? report.cache.source === 'remote';
-  const isArchived = !isFromRemote && (await exists(archivePath));
-
-  if (!isArchived) {
-    await zipReport(report, archivePath, timeout);
-  }
-
-  await unlink(report.path);
-  timeout?.tick();
 }

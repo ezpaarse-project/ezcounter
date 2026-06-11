@@ -13,7 +13,7 @@ import {
   jsonStreamValues,
 } from '~/lib/stream/json';
 
-import { HarvestLock } from '~/models/lock';
+import { ExtractionLock } from '~/models/report/extraction/lock';
 
 /**
  * Initialize stream to extract Item_Parents from a COUNTER 5.1 Item Report
@@ -26,8 +26,8 @@ import { HarvestLock } from '~/models/lock';
  */
 function createR51IRParentStream(
   reportPath: string,
-  itemsLock: HarvestLock,
-  parentsLock: HarvestLock
+  itemsLock: ExtractionLock,
+  parentsLock: ExtractionLock
 ): Readable {
   let hadItems = false;
 
@@ -75,8 +75,8 @@ function createR51IRParentStream(
  */
 function createR51IRItemStream(
   reportPath: string,
-  itemsLock: HarvestLock,
-  parentsLock: HarvestLock
+  itemsLock: ExtractionLock,
+  parentsLock: ExtractionLock
 ): Readable {
   let arrayLevel = 0;
   let parentKey = -1;
@@ -133,8 +133,8 @@ function createR51IRItemStream(
  * @returns A stream emitting items
  */
 function createR51IRStream(reportPath: string, signal?: AbortSignal): Readable {
-  const parentsLock = new HarvestLock(true);
-  const itemsLock = new HarvestLock(true);
+  const parentsLock = new ExtractionLock(true);
+  const itemsLock = new ExtractionLock(true);
 
   let lastParent: JSONStreamItem | null = null;
   // Streaming parents

@@ -1,12 +1,12 @@
 import EventEmitter from 'node:events';
 
-type HarvestLockEvents = {
+type ExtractionLockEvents = {
   release: [];
   lock: [];
 };
 
-export class HarvestLock {
-  private events = new EventEmitter<HarvestLockEvents>();
+export class ExtractionLock {
+  private events = new EventEmitter<ExtractionLockEvents>();
 
   /**
    * In memory lock

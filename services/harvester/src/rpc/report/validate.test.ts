@@ -7,12 +7,12 @@ import type { MessageMeta } from '@ezcounter/rabbitmq';
 
 import { receiveThroughTCP } from '~/lib/tcp/__mocks__/server';
 
-import { validateReport } from '~/models/report/validate/__mocks__';
+import { validateReport } from '~/models/report/validation';
 
 import { onValidationRequest } from './validate';
 
 vi.mock(import('~/lib/tcp/server'));
-vi.mock(import('~/models/report/validate'));
+vi.mock(import('~/models/report/validation'));
 
 describe('Handle Validation Request (onValidationRequest)', () => {
   test('should setup TCP server before sending address', async () => {

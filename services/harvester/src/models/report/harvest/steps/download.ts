@@ -17,7 +17,7 @@ import {
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
-import type { IdleTimeoutController } from '~/models/timeout';
+import type { IdleTimeoutController } from '~/models/idle-timeout';
 
 // oxlint-disable-next-line import/extensions
 import { version as appVersion } from '~/../package.json' with { type: 'json' };
@@ -115,13 +115,15 @@ function createEventStream(
  * @param options - Options to download report
  * @param timeout - The timeout before an harvest job is considered as cancelled
  *
- * @returns The HTTP code returned by host
+ * @returns Information about how cache was used
  */
 async function downloadReport(
   report: { jobId: string; path: string },
   options: HarvestDownloadOptions,
   timeout?: IdleTimeoutController
-): Promise<{ httpCode: number }> {
+): Promise<CacheResult> {
+  await mkdir(dirname(report.path), { recursive: true });
+
   const response = await fetchReportAsStream(
     options.release,
     {
@@ -163,7 +165,7 @@ async function downloadReport(
   // Wait for download to complete
   await waitForStreamEnd(stream);
 
-  return { httpCode: response.httpCode };
+  return { httpCode: response.httpCode, source: 'remote' };
 }
 
 /**
@@ -172,12 +174,14 @@ async function downloadReport(
  * @param report - Information about report
  * @param archivePath - The path to the archive
  * @param timeout - The timeout before an harvest job is considered as cancelled
+ *
+ * @returns Information about how cache was used
  */
 async function unzipReport(
   report: { jobId: string; path: string },
   archivePath: string,
   timeout?: IdleTimeoutController
-): Promise<void> {
+): Promise<CacheResult> {
   const { size } = await stat(archivePath);
 
   const stream = chain(
@@ -206,6 +210,8 @@ async function unzipReport(
 
   // Wait for unzip to complete
   await waitForStreamEnd(stream);
+
+  return { source: 'archive' };
 }
 
 export type CacheResult = {
@@ -227,40 +233,48 @@ export async function cacheReport(
   options: HarvestDownloadOptions,
   timeout?: IdleTimeoutController
 ): Promise<CacheResult> {
-  const archivePath = `${report.path}.gz`;
+  try {
+    const archivePath = `${report.path}.gz`;
 
-  const isFile = !options.forceDownload && (await exists(report.path));
-  const isArchived = !options.forceDownload && (await exists(archivePath));
+    const isFile = !options.forceDownload && (await exists(report.path));
+    const isArchived = !options.forceDownload && (await exists(archivePath));
 
-  const result: CacheResult = { source: 'file' };
-  // If current version of report doesn't exists
-  if (!isFile) {
-    if (isArchived) {
-      result.source = 'archive';
-      await unzipReport(report, archivePath, timeout);
-    } else {
-      result.source = 'remote';
-
-      await mkdir(dirname(report.path), { recursive: true });
-
-      const { httpCode } = await downloadReport(report, options, timeout);
-      result.httpCode = httpCode;
+    let result: CacheResult = { source: 'file' };
+    // If current version of report doesn't exists
+    if (!isFile) {
+      result = isArchived
+        ? await unzipReport(report, archivePath, timeout)
+        : await downloadReport(report, options, timeout);
     }
-  }
+    if (!(await exists(report.path))) {
+      throw new Error(`Report ${report.path} isn't downloaded`);
+    }
 
-  if (!(await exists(report.path))) {
-    throw new Error(`Report ${report.path} isn't downloaded`);
-  }
+    // Send final event
+    void sendHarvestJobStatusEvent({
+      download: {
+        source: result.source,
+        status: 'done',
+      },
+      id: report.jobId,
+      status: 'processing',
+    });
 
-  // Send final event
-  void sendHarvestJobStatusEvent({
-    download: {
+    logger.info({
+      httpCode: result.httpCode,
+      id: report.jobId,
+      msg: 'Cached report',
       source: result.source,
-      status: 'done',
-    },
-    id: report.jobId,
-    status: 'processing',
-  });
+    });
 
-  return result;
+    return result;
+  } catch (error) {
+    logger.error({
+      err: error,
+      id: report.jobId,
+      msg: 'Unable to cache report',
+    });
+
+    throw error;
+  }
 }

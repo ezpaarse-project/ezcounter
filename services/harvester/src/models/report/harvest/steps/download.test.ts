@@ -1,18 +1,15 @@
+import { createGunzip } from 'node:zlib';
+
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
-import { fetchReportAsStream } from '@ezcounter/counter/__mocks__';
+import { fetchReportAsStream } from '@ezcounter/counter';
 
-import {
-  createReadStream,
-  createWriteStream,
-  exists,
-} from '~/lib/__mocks__/fs';
+import { createReadStream, createWriteStream, exists } from '~/lib/fs';
 
-import { IdleTimeoutController } from '~/models/timeout';
+import { IdleTimeoutController } from '~/models/idle-timeout';
 
-import { createGunzip } from '~/../__mocks__/zlib';
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import { cacheReport } from './download';
 

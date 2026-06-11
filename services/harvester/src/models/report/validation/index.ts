@@ -2,13 +2,14 @@ import type { Readable } from 'node:stream';
 import { randomUUID } from 'node:crypto';
 import { dirname, join } from 'node:path';
 
+import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { z } from '@ezcounter/dto';
 import {
   type ReportValidationOptions,
   type ReportValidationResult,
   ReportValidationResultError,
   type ReportValidationResultPart,
-} from '@ezcounter/dto/validate';
+} from '@ezcounter/dto/validate-report';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
 import { appConfig } from '~/lib/config';
@@ -16,8 +17,8 @@ import { createWriteStream, mkdir, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
 import { waitForStreamEnd } from '~/lib/stream/utils';
 
-import { extractReportHeader } from '../harvest/steps/extract/header';
-import { extractReportItems } from '../harvest/steps/extract/items';
+import { extractReportHeader } from '~/models/report/extraction/header';
+import { extractReportItems } from '~/models/report/extraction/items';
 
 const config = appConfig.temp;
 const logger = appLogger.child({ scope: 'validate' });
@@ -25,6 +26,22 @@ const logger = appLogger.child({ scope: 'validate' });
 const ErrorCause = z.object({
   cause: z.object({ validation: z.array(ReportValidationResultError) }),
 });
+
+/**
+ * Cache report data into a file
+ *
+ * @param stream - The report data
+ * @param reportPath - The path to cached report
+ */
+async function cacheReport(
+  stream: Readable,
+  reportPath: string
+): Promise<void> {
+  await mkdir(dirname(reportPath), { recursive: true });
+  stream.pipe(createWriteStream(reportPath, 'utf8'));
+
+  await waitForStreamEnd(stream);
+}
 
 /**
  * Transform errors from extraction into validation errors
@@ -60,13 +77,16 @@ async function validateHeader(
   reportPath: string,
   options: ReportValidationOptions
 ): Promise<ReportValidationResultPart> {
+  // Mapping options into harvest ones, leaving blank unused ones
+  const harvestOptions: HarvestDownloadOptions = {
+    cacheKey: '',
+    dataHost: { auth: {}, baseUrl: '' },
+    release: options.release,
+    report: { id: options.reportId, period: { end: '', start: '' } },
+  };
+
   try {
-    await extractReportHeader(reportPath, {
-      cacheKey: '',
-      dataHost: { auth: {}, baseUrl: '' },
-      release: options.release,
-      report: { id: options.reportId, period: { end: '', start: '' } },
-    });
+    await extractReportHeader(reportPath, harvestOptions);
   } catch (error) {
     return { errors: asValidationResultError(error), valid: false };
   }
@@ -86,36 +106,24 @@ async function validateItems(
   reportPath: string,
   options: ReportValidationOptions
 ): Promise<ReportValidationResultPart> {
+  // Mapping options into harvest ones, leaving blank unused ones
+  const harvestOptions: HarvestDownloadOptions = {
+    cacheKey: '',
+    dataHost: { auth: {}, baseUrl: '' },
+    release: options.release,
+    report: { id: options.reportId, period: { end: '', start: '' } },
+  };
+
   try {
     await waitForGenerator(
-      extractReportItems(reportPath, {
-        cacheKey: '',
-        dataHost: { auth: {}, baseUrl: '' },
-        release: options.release,
-        report: { id: options.reportId, period: { end: '', start: '' } },
-      })
+      // Mapping options into harvest ones, leaving blank unused ones
+      extractReportItems(reportPath, harvestOptions)
     );
   } catch (error) {
     return { errors: asValidationResultError(error), valid: false };
   }
 
   return { errors: [], valid: true };
-}
-
-/**
- * Cache report data into a file
- *
- * @param stream - The report data
- * @param reportPath - The path to cached report
- */
-async function cacheReport(
-  stream: Readable,
-  reportPath: string
-): Promise<void> {
-  await mkdir(dirname(reportPath), { recursive: true });
-  stream.pipe(createWriteStream(reportPath, 'utf8'));
-
-  await waitForStreamEnd(stream);
 }
 
 /**
@@ -157,7 +165,6 @@ export async function validateReport(
       items: await validateItems(reportPath, options),
     };
 
-    await uncacheReport(reportPath);
     return result;
   } catch (error) {
     logger.error({
@@ -165,7 +172,8 @@ export async function validateReport(
       msg: 'Failed to validate report',
     });
 
-    await uncacheReport(reportPath);
     throw error;
+  } finally {
+    await uncacheReport(reportPath);
   }
 }

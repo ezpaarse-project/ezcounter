@@ -3,18 +3,18 @@ import type { EnrichJobContent, HarvestJobData } from '@ezcounter/dto/queues';
 
 import { appLogger } from '~/lib/logger';
 
+import type { IdleTimeoutController } from '~/models/idle-timeout';
 import type { COUNTERReportHeader } from '~/models/report/dto';
-import type { IdleTimeoutController } from '~/models/timeout';
 import { asHarvestException } from '~/models/report/exceptions';
+import { extractReportExceptions } from '~/models/report/extraction/exceptions';
+import {
+  extractRegistryId,
+  extractReportHeader,
+} from '~/models/report/extraction/header';
+import { extractReportItems } from '~/models/report/extraction/items';
 
 import { queueEnrichJob } from '~/queues/enrich/jobs';
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
-
-import { archiveReport } from './steps/archive';
-import { type CacheResult, cacheReport } from './steps/download';
-import { extractReportExceptions } from './steps/extract/exceptions';
-import { extractRegistryId, extractReportHeader } from './steps/extract/header';
-import { extractReportItems } from './steps/extract/items';
 
 const ITEMS_NOTIFY_INTERVAL = 250;
 
@@ -99,47 +99,6 @@ const queueReportItem = (
     id: options.id,
     insert: options.insert,
   });
-
-/**
- * Cache report to a file
- *
- * @param reportPath - The path to the report
- * @param options - The options to harvest
- * @param timeout - The timeout before an harvest job is considered as cancelled
- *
- * @returns Information about how cache was used
- */
-export async function cacheReportToFile(
-  reportPath: string,
-  options: HarvestJobData,
-  timeout?: IdleTimeoutController
-): Promise<CacheResult> {
-  try {
-    const result = await cacheReport(
-      { jobId: options.id, path: reportPath },
-      options.download,
-      timeout
-    );
-
-    // No need to tick timeout as cache already does it
-    logger.info({
-      httpCode: result.httpCode,
-      id: options.id,
-      msg: 'Cached report',
-      source: result.source,
-    });
-
-    return result;
-  } catch (error) {
-    logger.error({
-      err: error,
-      id: options.id,
-      msg: 'Unable to cache report',
-    });
-
-    throw error;
-  }
-}
 
 /**
  * Get report exceptions from options
@@ -296,39 +255,5 @@ export async function queueReportItems(
       msg: 'Unable to extract report items',
     });
     throw error;
-  }
-}
-
-/**
- * Archive report to a file
- *
- * @param report - Information about report
- * @param options - The options to harvest
- * @param timeout - The timeout before an harvest job is considered as cancelled
- *
- * @returns `true` if no error occurred
- */
-export async function archiveReportToFile(
-  report: { path: string; cache: CacheResult },
-  options: HarvestJobData,
-  timeout?: IdleTimeoutController
-): Promise<void> {
-  try {
-    await archiveReport(
-      { cache: report.cache, id: options.id, path: report.path },
-      options.download,
-      timeout
-    );
-
-    logger.info({
-      id: options.id,
-      msg: 'Archived report',
-    });
-  } catch (error) {
-    logger.error({
-      err: error,
-      id: options.id,
-      msg: 'Unable to archive report',
-    });
   }
 }

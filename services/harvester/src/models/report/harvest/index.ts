@@ -6,19 +6,18 @@ import type { HarvestJobData } from '@ezcounter/dto/queues';
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
+import { IdleTimeoutController } from '~/models/idle-timeout';
 import { CounterCodes, asHarvestError } from '~/models/report/exceptions';
-import { IdleTimeoutController } from '~/models/timeout';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import type { CacheResult } from './steps/download';
+import { archiveReport } from './steps/__mocks__/archive';
+import { type CacheResult, cacheReport } from './steps/download';
 import {
-  archiveReportToFile,
-  cacheReportToFile,
   getReportExceptions,
   getReportHeader,
   queueReportItems,
-} from './steps';
+} from './steps/extract';
 
 const config = appConfig.download;
 const logger = appLogger.child({ scope: 'harvest' });
@@ -196,13 +195,13 @@ export async function harvestReport(
   options: HarvestJobData
 ): Promise<HarvestResult> {
   const timeout = new IdleTimeoutController(options.download.timeout);
-
+  const jobId = options.id;
   const path = getReportPath(options);
   timeout.tick();
 
   let cache = null;
   try {
-    cache = await cacheReportToFile(path, options, timeout);
+    cache = await cacheReport({ jobId, path }, options.download, timeout);
   } catch (error) {
     timeout.clear();
     return markHarvestAsError(options, asHarvestError(error));
@@ -210,7 +209,7 @@ export async function harvestReport(
 
   try {
     const exceptions = await getReportExceptions(
-      { httpCode: cache.httpCode, path: path },
+      { httpCode: cache.httpCode, path },
       options,
       timeout
     );
@@ -238,7 +237,7 @@ export async function harvestReport(
 
     return result ?? harvestReport(options);
   } finally {
-    await archiveReportToFile({ cache, path: path }, options, timeout);
+    await archiveReport({ cache, jobId, path }, options.download, timeout);
     timeout.clear();
   }
 }

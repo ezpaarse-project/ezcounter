@@ -8,7 +8,7 @@ import { jsonFilter, jsonParser, jsonStreamValues } from '~/lib/stream/json';
 import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
 
 import type { COUNTERReportException } from '~/models/report/dto';
-import { getCounterValidation } from '~/models/report/validation';
+import { getCounterValidation } from '~/models/report/validation/schemas';
 
 /**
  * Validation for an object that contains exceptions

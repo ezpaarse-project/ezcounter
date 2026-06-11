@@ -2,21 +2,17 @@ import { describe, expect, test, vi } from 'vitest';
 
 import { IRReportHeader as validate } from '@ezcounter/counter/schemas/r51';
 
-import { appConfig } from '~/lib/__mocks__/config';
-import {
-  createReadStream,
-  createWriteStream,
-  mkdir,
-  unlink,
-} from '~/lib/__mocks__/fs';
+import { appConfig } from '~/lib/config';
+import { createReadStream, createWriteStream, mkdir, unlink } from '~/lib/fs';
+
+import { extractReportHeader } from '~/models/report/extraction/header';
+import { extractReportItems } from '~/models/report/extraction/items';
 
 import type { COUNTERReportItem } from '../dto';
 import { validateReport } from '.';
-import { extractReportHeader } from '../harvest/steps/extract/__mocks__/header';
-import { extractReportItems } from '../harvest/steps/extract/items/__mocks__';
 
-vi.mock(import('../harvest/steps/extract/header'));
-vi.mock(import('../harvest/steps/extract/items'));
+vi.mock(import('~/models/report/extraction/header'));
+vi.mock(import('~/models/report/extraction/items'));
 
 describe('Validate report from stream (validateReport)', () => {
   test('should write file into temp dir', async () => {
@@ -55,7 +51,7 @@ describe('Validate report from stream (validateReport)', () => {
   });
 
   test('should return validation errors', async () => {
-    extractReportHeader.mockImplementationOnce(() => {
+    vi.mocked(extractReportHeader).mockImplementationOnce(() => {
       validate({});
       throw new Error('Validation error', {
         cause: { validation: validate.errors },
@@ -77,7 +73,7 @@ describe('Validate report from stream (validateReport)', () => {
   });
 
   test('should return basic errors', async () => {
-    extractReportHeader.mockRejectedValueOnce('Unknown error');
+    vi.mocked(extractReportHeader).mockRejectedValueOnce('Unknown error');
 
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
@@ -91,10 +87,12 @@ describe('Validate report from stream (validateReport)', () => {
   });
 
   test('should return generic errors', async () => {
-    extractReportItems.mockImplementationOnce(async function* dummy() {
-      yield { item: {} as COUNTERReportItem };
-      throw new Error('Unknown error');
-    });
+    vi.mocked(extractReportItems).mockImplementationOnce(
+      async function* dummy() {
+        yield { item: {} as COUNTERReportItem };
+        throw new Error('Unknown error');
+      }
+    );
 
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
@@ -108,7 +106,7 @@ describe('Validate report from stream (validateReport)', () => {
   });
 
   test('should throw if unable to cache report', async () => {
-    mkdir.mockRejectedValueOnce(new Error('Folder error'));
+    vi.mocked(mkdir).mockRejectedValueOnce(new Error('Folder error'));
 
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 

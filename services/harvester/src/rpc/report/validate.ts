@@ -3,13 +3,13 @@ import type { MessageMeta, Reply } from '@ezcounter/rabbitmq';
 import {
   ReportValidationOptions,
   type ReportValidationResult,
-} from '@ezcounter/dto/validate';
+} from '@ezcounter/dto/validate-report';
 
 import { appLogger } from '~/lib/logger';
 import { createRPCServer } from '~/lib/rabbitmq';
 import { receiveThroughTCP } from '~/lib/tcp/server';
 
-import { validateReport } from '~/models/report/validate';
+import { validateReport } from '~/models/report/validation';
 
 const QUEUE_NAME = 'ezcounter.rpc:reports.validate';
 
@@ -27,20 +27,28 @@ export async function onValidationRequest(
   meta: MessageMeta,
   reply: Reply<ReportValidationResponse>
 ): Promise<void> {
-  const expiration = meta.expiration
-    ? Number.parseInt(meta.expiration, 10)
-    : undefined;
+  try {
+    const expiration = meta.expiration
+      ? Number.parseInt(meta.expiration, 10)
+      : undefined;
 
-  let validationPromise: Promise<ReportValidationResult | null> =
-    Promise.resolve(null);
+    let validationPromise: Promise<ReportValidationResult | null> =
+      Promise.resolve(null);
 
-  const { addr, stream } = await receiveThroughTCP(() => validationPromise, {
-    expiration,
-  });
-  // Starting validation as soon as data is available
-  validationPromise = validateReport(stream, data);
+    const { addr, stream } = await receiveThroughTCP(() => validationPromise, {
+      expiration,
+    });
+    // Starting validation as soon as data is available
+    validationPromise = validateReport(stream, data);
 
-  await reply({ host: addr.address, port: addr.port });
+    await reply({ host: addr.address, port: addr.port });
+  } catch (error) {
+    logger.error({
+      err: error,
+      msg: 'Failed to validate report',
+    });
+    throw error;
+  }
 }
 
 /**

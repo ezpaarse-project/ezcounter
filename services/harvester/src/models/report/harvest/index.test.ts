@@ -7,7 +7,7 @@ import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/statu
 import { handleExceptions, reharvestOrMarkAsError } from '.';
 
 vi.mock(import('~/queues/harvest/jobs/status'));
-vi.mock(import('./steps'));
+vi.mock(import('./steps/extract'));
 
 describe('Report Exceptions (handleExceptions)', () => {
   test('should return null if no exceptions', () => {

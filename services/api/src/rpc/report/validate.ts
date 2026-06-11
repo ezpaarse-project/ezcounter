@@ -4,7 +4,7 @@ import { ReportValidationResponse } from '@ezcounter/dto/rpc';
 import {
   type ReportValidationOptions,
   ReportValidationResult,
-} from '@ezcounter/dto/validate';
+} from '@ezcounter/dto/validate-report';
 
 import { appLogger } from '~/lib/logger';
 import { createRPCClient } from '~/lib/rabbitmq';
