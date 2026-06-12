@@ -9,7 +9,7 @@ import {
   type ReportValidationResult,
   ReportValidationResultError,
   type ReportValidationResultPart,
-} from '@ezcounter/dto/validate-report';
+} from '@ezcounter/dto/report';
 import { waitForGenerator } from '@ezcounter/toolbox/utils';
 
 import { appConfig } from '~/lib/config';

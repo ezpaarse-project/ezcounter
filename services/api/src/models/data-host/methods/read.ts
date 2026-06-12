@@ -75,6 +75,33 @@ export async function findAllReleasesSupportedByDataHost(
 }
 
 /**
+ * Get supported release by data host ID - assume that DataHost AND SupportedRelease exists
+ *
+ * @see `doesDataHostExists`
+ * @see `doesDataHostSupportsRelease`
+ *
+ * @param dataHostId - The id of the host
+ * @param release - The release
+ *
+ * @returns The supported release with data host if found
+ */
+export async function findOneReleaseSupportedByDataHost(
+  dataHostId: string,
+  release: '5' | '5.1'
+): Promise<DataHostSupportedRelease & { dataHost: DataHost }> {
+  const { dataHost, ...supportedRelease } =
+    await dbClient.dataHostSupportedRelease.findUniqueOrThrow({
+      include: { dataHost: true },
+      where: { dataHostId_release: { dataHostId, release } },
+    });
+
+  return {
+    ...DataHostSupportedRelease.parse(supportedRelease),
+    dataHost: DataHost.parse(dataHost),
+  };
+}
+
+/**
  * Check for the support of a report for a data host
  *
  * @param dataHostId - The id of the host

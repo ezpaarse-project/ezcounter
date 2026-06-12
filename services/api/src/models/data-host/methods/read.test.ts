@@ -10,6 +10,7 @@ import {
   findAllDataHost,
   findAllReleasesSupportedByDataHost,
   findAllReportsSupportedByDataHost,
+  findOneReleaseSupportedByDataHost,
   findOneReportSupportedByDataHost,
 } from './read';
 
@@ -142,6 +143,34 @@ describe(findAllReportsSupportedByDataHost, () => {
     const promise = findAllReportsSupportedByDataHost('id', '5.1');
 
     await expect(promise).resolves.toBeInstanceOf(Array);
+  });
+});
+
+describe(findOneReleaseSupportedByDataHost, () => {
+  test('should query DB', async () => {
+    dbClient.dataHostSupportedRelease.findUniqueOrThrow.mockResolvedValueOnce({
+      baseUrl: 'https://counter.localhost/r51',
+      createdAt: new Date(),
+      // @ts-expect-error - Should include DataHost
+      dataHost: {
+        createdAt: new Date(),
+        id: ':id',
+        params: {},
+        paramsSeparator: '|',
+        periodFormat: 'yyyy-MM-dd',
+        updatedAt: null,
+      },
+      dataHostId: 'id',
+      params: {},
+      release: '5.1',
+      updatedAt: null,
+    });
+
+    await findOneReleaseSupportedByDataHost('id', '5.1');
+
+    expect(
+      dbClient.dataHostSupportedRelease.findUniqueOrThrow
+    ).toHaveBeenCalled();
   });
 });
 

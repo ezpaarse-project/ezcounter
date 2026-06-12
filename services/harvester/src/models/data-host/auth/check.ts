@@ -33,6 +33,14 @@ import { version as appVersion } from '~/../package.json' with { type: 'json' };
 const config = appConfig.temp;
 const logger = appLogger.child({ scope: 'credentials' });
 
+/**
+ * If no period is defined, offset current month
+ */
+const DEFAULT_PERIOD_OFFSET = -3;
+
+/**
+ * Exception codes related to auth
+ */
 const AUTH_EXCEPTION_CODES = new Set([
   `http:${StatusCodes.FORBIDDEN}`,
   `http:${StatusCodes.UNAUTHORIZED}`,
@@ -57,7 +65,10 @@ async function cacheReport(
   options: DataHostAuthCheckOptions,
   timeout?: IdleTimeoutController
 ): Promise<number> {
-  const threeMonthsAgo = formatDate(addMonths(new Date(), -3), PERIOD_FORMAT);
+  const defaultMonth = formatDate(
+    addMonths(new Date(), DEFAULT_PERIOD_OFFSET),
+    PERIOD_FORMAT
+  );
 
   // Mapping options into fetch ones, leaving blank unused ones
   const response = await fetchReportAsStream(
@@ -65,8 +76,8 @@ async function cacheReport(
     {
       id: options.report.id,
       period: options.report.period ?? {
-        end: threeMonthsAgo,
-        start: threeMonthsAgo,
+        end: defaultMonth,
+        start: defaultMonth,
       },
       periodFormat: options.dataHost.periodFormat,
     },

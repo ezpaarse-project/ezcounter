@@ -41,6 +41,33 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
+  test('should set period to 3 months prior if not provided', async () => {
+    vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
+    vi.setSystemTime(new Date(2025, 5));
+
+    const options: DataHostAuthCheckOptions = {
+      dataHost: {
+        auth: {},
+        baseUrl: 'https://counter.localhost/',
+      },
+      release: '5',
+      report: { id: 'pr' },
+    };
+
+    await checkCredentials(options);
+
+    expect.soft(fetchReportAsStream).toHaveBeenCalledExactlyOnceWith(
+      '5',
+      { id: 'pr', period: { end: '2025-03', start: '2025-03' } },
+      expect.objectContaining({
+        auth: {},
+        baseUrl: 'https://counter.localhost/',
+      })
+    );
+
+    await vi.runAllTimersAsync();
+  });
+
   test('should write file into temp dir', async () => {
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 

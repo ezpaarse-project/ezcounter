@@ -19,6 +19,9 @@ export const doesDataHostSupportsRelease =
 export const findAllReleasesSupportedByDataHost =
   vi.fn<typeof original.findAllReleasesSupportedByDataHost>();
 
+export const findOneReleaseSupportedByDataHost =
+  vi.fn<typeof original.findOneReleaseSupportedByDataHost>();
+
 export const doesDataHostSupportsReport =
   vi.fn<typeof original.doesDataHostSupportsReport>();
 

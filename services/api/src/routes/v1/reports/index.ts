@@ -5,7 +5,7 @@ import multipart from '@fastify/multipart';
 import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
-import { ReportValidationResult } from '@ezcounter/dto/validate-report';
+import { ReportValidationResult } from '@ezcounter/dto/report';
 
 import { validateCOUNTERReport } from '~/rpc/report/validate';
 

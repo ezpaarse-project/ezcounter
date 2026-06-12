@@ -3,7 +3,7 @@ import type { MessageMeta, Reply } from '@ezcounter/rabbitmq';
 import {
   ReportValidationOptions,
   type ReportValidationResult,
-} from '@ezcounter/dto/validate-report';
+} from '@ezcounter/dto/report';
 
 import { appLogger } from '~/lib/logger';
 import { createRPCServer } from '~/lib/rabbitmq';

@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import type { ReportValidationResult } from '@ezcounter/dto/validate-report';
+import type { ReportValidationResult } from '@ezcounter/dto/report';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -34,7 +34,10 @@ describe('POST /reports/_validate', () => {
         response.json<SuccessResponse<ReportValidationResult>>();
 
       expect(response).toHaveProperty('statusCode', 200);
-      expect(content).toMatchObject({});
+      expect(content).toMatchObject({
+        header: { errors: [], valid: true },
+        items: { errors: [], valid: true },
+      });
     });
 
     test('should return BAD_REQUEST if body is invalid', async () => {
@@ -77,7 +80,10 @@ describe('POST /reports/_validate', () => {
         response.json<SuccessResponse<ReportValidationResult>>();
 
       expect(response).toHaveProperty('statusCode', 200);
-      expect(content).toMatchObject({});
+      expect(content).toMatchObject({
+        header: { errors: [], valid: true },
+        items: { errors: [], valid: true },
+      });
     });
 
     test('should return BAD_REQUEST if body is invalid', async () => {

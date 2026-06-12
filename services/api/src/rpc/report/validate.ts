@@ -1,10 +1,10 @@
 import type { Readable } from 'node:stream';
 
-import { ReportValidationResponse } from '@ezcounter/dto/rpc';
 import {
   type ReportValidationOptions,
   ReportValidationResult,
-} from '@ezcounter/dto/validate-report';
+} from '@ezcounter/dto/report';
+import { ReportValidationResponse } from '@ezcounter/dto/rpc';
 
 import { appLogger } from '~/lib/logger';
 import { createRPCClient } from '~/lib/rabbitmq';
@@ -29,7 +29,6 @@ const client = createRPCClient({
  *
  * @returns The validation result, received with TCP
  */
-// oxlint-disable-next-line max-lines-per-function
 export async function validateCOUNTERReport(
   stream: Readable,
   options: ReportValidationOptions
