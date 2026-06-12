@@ -36,14 +36,14 @@ describe('Resolve context of Harvest Request', () => {
     createdAt: new Date(),
     id: 'my-counter-datahost',
     params: {},
-    paramsSeparator: '|',
-    periodFormat: 'yyyy-MM-dd',
     supportedReleases: [
       {
         baseUrl: 'https://my-counter.datahost.com/r51',
         createdAt: new Date(),
         dataHostId: 'my-counter-datahost',
         params: {},
+        paramsSeparator: '|',
+        periodFormat: 'yyyy-MM-dd',
         release: '5.1',
         supportedReports: [],
         updatedAt: null,

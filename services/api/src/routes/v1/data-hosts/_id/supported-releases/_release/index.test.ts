@@ -33,6 +33,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   const body: UpdateDataHostSupportedRelease = {
     baseUrl: 'https://example-counter-host.localhost',
     params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM-dd',
   };
 
   const release: DataHostSupportedRelease = {
@@ -200,12 +202,12 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
         createdAt: new Date(),
         id: ':id',
         params: {},
-        paramsSeparator: '|',
-        periodFormat: 'yyyy-MM-dd',
         updatedAt: null,
       },
       dataHostId: ':id',
       params: {},
+      paramsSeparator: '|',
+      periodFormat: 'yyyy-MM-dd',
       release: '5',
       updatedAt: null,
     });
@@ -245,12 +247,12 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
           param1: 'from host',
           param2: 'from host',
         },
-        paramsSeparator: '|',
-        periodFormat: 'yyyy-MM-dd',
         updatedAt: null,
       },
       dataHostId: ':id',
       params: { param0: 'from release', param1: 'from release' },
+      paramsSeparator: '|',
+      periodFormat: 'yyyy-MM-dd',
       release: '5',
       updatedAt: null,
     });
@@ -337,12 +339,12 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
         createdAt: new Date(),
         id: ':id',
         params: {},
-        paramsSeparator: '|',
-        periodFormat: 'yyyy-MM-dd',
         updatedAt: null,
       },
       dataHostId: ':id',
       params: {},
+      paramsSeparator: '|',
+      periodFormat: 'yyyy-MM-dd',
       release: '5',
       updatedAt: null,
     });

@@ -14,8 +14,6 @@ describe(getDataHostWithSupportedData, () => {
     createdAt: new Date(),
     id: '',
     params: {},
-    paramsSeparator: '|',
-    periodFormat: 'yyyy-MM-dd',
     updatedAt: null,
   };
   const release: DataHostSupportedRelease = {
@@ -23,6 +21,8 @@ describe(getDataHostWithSupportedData, () => {
     createdAt: new Date(),
     dataHostId: '',
     params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM-dd',
     release: '5.1',
     updatedAt: null,
   };

@@ -1,17 +1,13 @@
 /// Data Host to harvest
 model DataHost {
   /// ID of the host
-  id              String    @id @default(cuid())
-  /// Format of the period
-  periodFormat    String    @default("yyyy-MM-dd")
-  /// Separator for multi-valuated params
-  paramsSeparator String    @default("|")
+  id        String    @id @default(cuid())
   /// Additional params of the host
-  params          Json      @default("{}")
+  params    Json      @default("{}")
   /// When the data host was created
-  createdAt       DateTime  @default(now())
+  createdAt DateTime  @default(now())
   /// When the data host was updated for the last time
-  updatedAt       DateTime? @updatedAt
+  updatedAt DateTime? @updatedAt
 
   /// The jobs that harvested data host
   harvestJobs       HarvestJob[]
@@ -22,17 +18,21 @@ model DataHost {
 /// COUNTER releases supported by data host
 model DataHostSupportedRelease {
   /// ID of the data host
-  dataHostId  String
+  dataHostId      String
   /// COUNTER Release
-  release     String
+  release         String
   /// URL to access data host
-  baseUrl     String
+  baseUrl         String
+  /// Format of the period
+  periodFormat    String    @default("yyyy-MM-dd")
+  /// Separator for multi-valuated params
+  paramsSeparator String    @default("|")
   /// Additional params of the host for this release
-  params      Json      @default("{}")
+  params          Json      @default("{}")
   /// When the info was created
-  createdAt   DateTime  @default(now())
+  createdAt       DateTime  @default(now())
   /// When the info was updated for the last time
-  updatedAt   DateTime? @updatedAt
+  updatedAt       DateTime? @updatedAt
 
   /// Data Host
   dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
@@ -46,23 +46,23 @@ model DataHostSupportedRelease {
 /// Report (un)supported by data host - Overrides endpoint information
 model DataHostSupportedReport {
   /// ID of the data host
-  dataHostId                  String
+  dataHostId          String
   /// COUNTER Release
-  release                     String
+  release             String
   /// COUNTER report ID
-  id                          String
+  id                  String
   /// Additional params of the host for this report
-  params                      Json      @default("{}")
+  params              Json      @default("{}")
   /// Is the report supported, overrides the datahost's info - null to skip
-  supported                   Boolean?
+  supported           Boolean?
   /// First month available in report, overrides the datahost's info - empty if no date - null to skip
-  firstMonthAvailable         String?
+  firstMonthAvailable String?
   /// Last month available in report, overrides the datahost's info - empty if no date - null to skip
-  lastMonthAvailable          String?
+  lastMonthAvailable  String?
   /// When the info was created
-  createdAt                   DateTime  @default(now())
+  createdAt           DateTime  @default(now())
   /// When the info was updated for the last time
-  updatedAt                   DateTime? @updatedAt
+  updatedAt           DateTime? @updatedAt
 
   /// The release supported by data host
   supportedRelease DataHostSupportedRelease @relation(fields: [dataHostId, release], references: [dataHostId, release])

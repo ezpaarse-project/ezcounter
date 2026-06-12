@@ -18,10 +18,6 @@ export const DataHost = z.object({
     'Additional params to use when requesting data host'
   ),
 
-  paramsSeparator: HarvestDataHostOptions.shape.paramsSeparator.unwrap(),
-
-  periodFormat: HarvestDataHostOptions.shape.periodFormat.unwrap(),
-
   updatedAt: z.coerce.date().nullable().describe('Last update date'),
 });
 
@@ -43,6 +39,10 @@ export const DataHostSupportedRelease = z.object({
   params: HarvestAdditionalParams.describe(
     'Additional params to use when requesting data host using release'
   ),
+
+  paramsSeparator: HarvestDataHostOptions.shape.paramsSeparator.unwrap(),
+
+  periodFormat: HarvestDataHostOptions.shape.periodFormat.unwrap(),
 
   release: HarvestDownloadOptions.shape.release,
 

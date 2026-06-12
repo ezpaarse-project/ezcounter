@@ -7,5 +7,10 @@
     "language_server": {
       "name": "oxfmt"
     }
+  },
+  "languages": {
+    "Prisma": {
+      "formatter": "language_server"
+    }
   }
 }

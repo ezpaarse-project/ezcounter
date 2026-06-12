@@ -11,14 +11,14 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     createdAt: new Date(),
     id: '',
     params: {},
-    paramsSeparator: '|',
-    periodFormat: 'yyyy-MM-dd',
     supportedReleases: [
       {
         baseUrl: 'https://counter-datahost.com/',
         createdAt: new Date(),
         dataHostId: '',
         params: {},
+        paramsSeparator: '|',
+        periodFormat: 'yyyy-MM-dd',
         release: '5.1',
         supportedReports: [
           {

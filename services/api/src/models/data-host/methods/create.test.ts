@@ -18,8 +18,6 @@ describe(upsertDataHost, () => {
     createdAt: new Date(),
     id: '',
     params: {},
-    paramsSeparator: '|',
-    periodFormat: 'yyyy-MM',
     updatedAt: null,
   };
 
@@ -46,6 +44,8 @@ describe(upsertReleaseSupportedByDataHost, () => {
     createdAt: new Date(),
     dataHostId: 'id',
     params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM',
     release: '5.1',
     updatedAt: null,
   };

@@ -19,8 +19,6 @@ const server = await createTestServer(async (fastify) => {
 describe('PUT /data-hosts/:id', () => {
   const body: UpdateDataHost = {
     params: {},
-    paramsSeparator: '|',
-    periodFormat: 'yyyy-MM-dd',
   };
 
   const host: DataHost = {

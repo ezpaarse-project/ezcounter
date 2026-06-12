@@ -78,7 +78,7 @@ function prepareHarvestJobsFromHarvestRequestContent(
   content: HarvestRequestContent,
   dataHost: DataHostWithSupportedData
 ): HarvestJobData[] {
-  const [{ baseUrl, params, supportedReports }] = dataHost.supportedReleases;
+  const [{ supportedReports, ...release }] = dataHost.supportedReleases;
 
   return content.download.reports
     .flatMap(({ splitPeriodBy, ...reportOpts }) => {
@@ -97,14 +97,14 @@ function prepareHarvestJobsFromHarvestRequestContent(
           content,
           { ...report, period },
           {
-            baseUrl: baseUrl || '',
+            baseUrl: release.baseUrl || '',
             params: {
               ...dataHost.params,
-              ...params,
+              ...release.params,
               ...supported?.params,
             },
-            paramsSeparator: dataHost.paramsSeparator,
-            periodFormat: dataHost.periodFormat,
+            paramsSeparator: release?.paramsSeparator,
+            periodFormat: release?.periodFormat,
           }
         )
       );

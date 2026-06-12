@@ -176,7 +176,7 @@ export async function fetchSupportedReportsOfDataHost(
       ...dataHost.params,
       ...supportedRelease.params,
     },
-    paramsSeparator: dataHost.paramsSeparator,
+    paramsSeparator: supportedRelease.paramsSeparator,
     userAgent: `Mozilla/5.0 (compatible; ezCOUNTER/api:${appVersion})`,
   });
 
