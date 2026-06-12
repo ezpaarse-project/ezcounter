@@ -4,8 +4,8 @@ import { mockDeep } from 'vitest-mock-extended';
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
 import { enrichItemUsingEzUnpaywall } from '.';
-import { getDOIOfItem } from '../../__mocks__/identifiers';
-import { getDocumentByDOI } from './client/__mocks__';
+import { getDOIOfItem } from '../../identifiers';
+import { getDocumentByDOI } from './client';
 
 vi.mock(import('../../identifiers'));
 vi.mock(import('./client'));
@@ -42,8 +42,8 @@ describe('Enrich with Unpaywall', () => {
   test('should mark item as missed if remote sent no response', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
-    getDocumentByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getDocumentByDOI).mockImplementationOnce((_doi, next) => {
       next(null, 'remote');
       return Promise.resolve(true);
     });
@@ -56,8 +56,8 @@ describe('Enrich with Unpaywall', () => {
   test('should transform response to item', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
-    getDocumentByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getDocumentByDOI).mockImplementationOnce((_doi, next) => {
       next({ doi: '10.9999/xxxxxx1' }, 'store');
       return Promise.resolve(true);
     });
@@ -83,9 +83,9 @@ describe('Enrich with Unpaywall', () => {
   test('should resolves independent from next step', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
     // Delay next step
-    getDocumentByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getDocumentByDOI).mockImplementationOnce((_doi, next) => {
       setTimeout(() => {
         next(null, 'remote');
       }, 50);

@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import {
   deleteDataHost,
@@ -10,7 +10,7 @@ import {
 
 describe(deleteDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHost.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(1);
 
     await deleteDataHost('id');
 
@@ -18,7 +18,7 @@ describe(deleteDataHost, () => {
   });
 
   test('should return if deleted', async () => {
-    dbClient.dataHost.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(0);
 
     const promise = deleteDataHost('id');
 
@@ -28,7 +28,7 @@ describe(deleteDataHost, () => {
 
 describe(deleteReleaseSupportedByDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
 
     await deleteReleaseSupportedByDataHost('id', '5.1');
 
@@ -36,7 +36,7 @@ describe(deleteReleaseSupportedByDataHost, () => {
   });
 
   test('should return if deleted', async () => {
-    dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(0);
 
     const promise = deleteReleaseSupportedByDataHost('id', '5.1');
 
@@ -46,7 +46,7 @@ describe(deleteReleaseSupportedByDataHost, () => {
 
 describe(deleteReportSupportedByDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
 
     await deleteReportSupportedByDataHost('id', '5.1', 'tr');
 
@@ -54,7 +54,7 @@ describe(deleteReportSupportedByDataHost, () => {
   });
 
   test('should return if deleted', async () => {
-    dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(0);
 
     const promise = deleteReportSupportedByDataHost('id', '5.1', 'tr');
 

@@ -11,7 +11,7 @@ import { CounterCodes, asHarvestError } from '~/models/report/exceptions';
 
 import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
-import { archiveReport } from './steps/__mocks__/archive';
+import { archiveReport } from './steps/archive';
 import { type CacheResult, cacheReport } from './steps/download';
 import {
   getReportExceptions,

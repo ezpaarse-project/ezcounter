@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { updateOneHarvestJobThrottled } from '~/models/harvest/__mocks__';
+import { updateOneHarvestJobThrottled } from '~/models/harvest';
 
 import { onHarvestJobStatus } from './status';
 

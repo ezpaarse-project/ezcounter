@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { appConfig } from '~/lib/__mocks__/config';
-import { createStore } from '~/lib/store/__mocks__';
+import { appConfig } from '~/lib/config';
+import { createStore } from '~/lib/store';
 
-import { CNRSGatewayRemote } from './cnrs-gateway/__mocks__';
+import { CNRSGatewayRemote } from './cnrs-gateway';
 import { createOpenAlexRemote, createOpenAlexStore } from './index';
-import { OpenAlexRemote } from './openalex/__mocks__';
+import { OpenAlexRemote } from './openalex';
 
 vi.mock(import('./cnrs-gateway'));
 vi.mock(import('./openalex'));
@@ -28,7 +28,7 @@ describe('Create store (createOpenAlexStore)', () => {
 describe('Create remote (createOpenAlexRemote)', () => {
   test('should create OpenAlex remote', () => {
     // Spoof config
-    appConfig.enrich.sources.openalex.isCNRSGateway = false;
+    vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = false;
 
     createOpenAlexRemote();
 
@@ -44,7 +44,7 @@ describe('Create remote (createOpenAlexRemote)', () => {
 
   test('should create CNRS OpenAlex remote', () => {
     // Spoof config
-    appConfig.enrich.sources.openalex.isCNRSGateway = true;
+    vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = true;
 
     createOpenAlexRemote();
 

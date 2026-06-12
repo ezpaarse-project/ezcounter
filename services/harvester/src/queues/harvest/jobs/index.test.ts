@@ -2,13 +2,14 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { appConfig } from '~/lib/__mocks__/config';
-import { mockedChannel, type rabbitmq } from '~/lib/__mocks__/rabbitmq';
+import type { rabbitmq } from '~/lib/rabbitmq';
+import { mockedChannel } from '~/lib/__mocks__/rabbitmq';
+import { appConfig } from '~/lib/config';
 
-import { harvestReport } from '~/models/report/harvest/__mocks__';
+import { harvestReport } from '~/models/report/harvest';
 
 import { processHarvestQueue } from '.';
-import { sendHarvestJobStatusEvent } from './__mocks__/status';
+import { sendHarvestJobStatusEvent } from './status';
 
 vi.mock(import('node:timers/promises'));
 vi.mock(import('~/models/report/harvest'));
@@ -61,8 +62,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
     expect(harvestReport).toHaveBeenCalled();
@@ -74,8 +77,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue('foobar');
 
     const msg = getMessage(job);
-    mockedChannel.basicGet.mockResolvedValueOnce(msg);
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(msg);
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
     expect(mockedChannel.basicAck).toHaveBeenCalledWith({
@@ -87,7 +92,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     const process = processHarvestQueue('foobar');
 
     const msg = getMessage('');
-    mockedChannel.basicGet.mockResolvedValueOnce(msg);
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(msg);
     await process.next();
 
     expect(mockedChannel.basicNack).toHaveBeenCalledWith({
@@ -101,8 +106,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      processing: true,
+      success: false,
+    });
     await process.next();
 
     const newJob = { ...job, try: 1 };
@@ -125,8 +133,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: false,
+      unavailable: true,
+    });
     await process.next();
 
     const newJob = { ...job, try: 1 };
@@ -147,8 +158,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      processing: true,
+      success: false,
+    });
     await process.next();
 
     expect(mockedChannel.basicPublish).not.toHaveBeenCalled();
@@ -159,9 +173,14 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
-    mockedChannel.basicPublish.mockRejectedValueOnce(new Error('Send error'));
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: false,
+      unavailable: true,
+    });
+    vi.mocked(mockedChannel).basicPublish.mockRejectedValueOnce(
+      new Error('Send error')
+    );
     const promise = process.next();
 
     await expect(promise).resolves.toHaveProperty('done', false);
@@ -172,8 +191,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
     // No messages left in queue
@@ -187,8 +208,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: false, unavailable: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: false,
+      unavailable: true,
+    });
     await process.next();
 
     // No messages left in queue - The first one was delayed
@@ -202,12 +226,14 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
     // No messages left in queue
-    mockedChannel.queueDelete.mockRejectedValueOnce(
+    vi.mocked(mockedChannel).queueDelete.mockRejectedValueOnce(
       new Error('Failed to delete queue')
     );
     const promise = process.next();
@@ -220,8 +246,10 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
     // No messages left in queue
@@ -235,11 +263,13 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValue(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ success: true });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValue(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      success: true,
+    });
     await process.next();
 
-    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
+    expect(vi.mocked(sendHarvestJobStatusEvent)).toHaveBeenCalledWith({
       id: job.id,
       startedAt: new Date(),
       status: 'processing',
@@ -251,11 +281,14 @@ describe('Harvest Process (processHarvestQueue)', () => {
 
     const process = processHarvestQueue('foobar');
 
-    mockedChannel.basicGet.mockResolvedValueOnce(getMessage(job));
-    harvestReport.mockResolvedValueOnce({ processing: true, success: false });
+    vi.mocked(mockedChannel).basicGet.mockResolvedValueOnce(getMessage(job));
+    vi.mocked(harvestReport).mockResolvedValueOnce({
+      processing: true,
+      success: false,
+    });
     await process.next();
 
-    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
+    expect(vi.mocked(sendHarvestJobStatusEvent)).toHaveBeenCalledWith({
       id: job.id,
       status: 'delayed',
     });

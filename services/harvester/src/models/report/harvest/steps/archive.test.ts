@@ -1,17 +1,12 @@
+import { createGzip } from 'node:zlib';
+
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
-import {
-  createReadStream,
-  createWriteStream,
-  exists,
-  unlink,
-} from '~/lib/__mocks__/fs';
+import { createReadStream, createWriteStream, exists, unlink } from '~/lib/fs';
 
 import { IdleTimeoutController } from '~/models/idle-timeout';
-
-import { createGzip } from '~/../__mocks__/zlib';
 
 import { archiveReport } from './archive';
 

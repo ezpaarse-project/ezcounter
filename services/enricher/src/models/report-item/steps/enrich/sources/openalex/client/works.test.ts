@@ -6,15 +6,33 @@ import { bufferedFetchOneWorkByDOI } from './works';
 
 describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
   test('should fetch remote using debounce', async () => {
-    mockedRemote.fetchManyWorkByDOI.mockResolvedValueOnce([]);
+    vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([]);
 
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx1', vi.fn());
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx2', vi.fn());
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx3', vi.fn());
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx4', vi.fn());
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx1',
+      vi.fn()
+    );
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx2',
+      vi.fn()
+    );
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx3',
+      vi.fn()
+    );
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx4',
+      vi.fn()
+    );
 
     await vi.runAllTimersAsync();
-    expect(mockedRemote.fetchManyWorkByDOI).toHaveBeenCalledExactlyOnceWith([
+    expect(
+      vi.mocked(mockedRemote).fetchManyWorkByDOI
+    ).toHaveBeenCalledExactlyOnceWith([
       '10.9999/xxxxxx1',
       '10.9999/xxxxxx2',
       '10.9999/xxxxxx3',
@@ -23,9 +41,9 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
   });
 
   test('should pause if buffer is full', async () => {
-    mockedRemote.fetchManyWorkByDOI.mockResolvedValueOnce([]);
+    vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([]);
     const addToBuffer = vi.fn(() =>
-      bufferedFetchOneWorkByDOI(mockedRemote, '', vi.fn())
+      bufferedFetchOneWorkByDOI(vi.mocked(mockedRemote), '', vi.fn())
     );
 
     for (let index = 0; index < MAX_BUFFER_SIZE; index += 1) {
@@ -47,7 +65,7 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
 
   test('should trigger every callback', async () => {
     // Deduplicate 10.9999/xxxxxx1 + missing 10.9999/xxxxxx4
-    mockedRemote.fetchManyWorkByDOI.mockResolvedValueOnce([
+    vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([
       {
         authorships: [],
         ids: { doi: '10.9999/xxxxxx1', openalex: '' },
@@ -61,13 +79,29 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
     ]);
 
     const spy1 = vi.fn();
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx1', spy1);
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx1',
+      spy1
+    );
     const spy2 = vi.fn();
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx1', spy2);
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx1',
+      spy2
+    );
     const spy3 = vi.fn();
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx3', spy3);
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx3',
+      spy3
+    );
     const spy4 = vi.fn();
-    await bufferedFetchOneWorkByDOI(mockedRemote, '10.9999/xxxxxx4', spy4);
+    await bufferedFetchOneWorkByDOI(
+      vi.mocked(mockedRemote),
+      '10.9999/xxxxxx4',
+      spy4
+    );
 
     await vi.runAllTimersAsync();
     expect(spy1).toHaveBeenCalledExactlyOnceWith({

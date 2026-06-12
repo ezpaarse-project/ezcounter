@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { DataHost } from '~/models/data-host/dto';
-import { findAllDataHost } from '~/models/data-host/__mocks__';
+import { findAllDataHost } from '~/models/data-host';
 
 import type { SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -16,7 +16,7 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /data-hosts', () => {
   test('should return array of registered data hosts', async () => {
-    findAllDataHost.mockResolvedValueOnce([]);
+    vi.mocked(findAllDataHost).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',

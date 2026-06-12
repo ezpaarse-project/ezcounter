@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { EzUnpaywallDocument } from '../dto';
 import { getDocumentByDOI } from '.';
-import { bufferedFetchOneDocumentByDOI } from './__mocks__/documents';
+import { bufferedFetchOneDocumentByDOI } from './documents';
 import { mockedStore } from './remotes/__mocks__';
 
 vi.mock(import('./documents'));
@@ -20,7 +20,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should return stored document', async () => {
-    mockedStore.get.mockResolvedValueOnce({
+    vi.mocked(mockedStore.get).mockResolvedValueOnce({
       doi: '10.9999/xxxxxx1',
       // oxlint-disable-next-line typescript/no-explicit-any - have many overloads
     } satisfies EzUnpaywallDocument as any);
@@ -36,12 +36,12 @@ describe('Get Document by DOI', () => {
   });
 
   test('should ignore invalid stored document', async () => {
-    mockedStore.get.mockResolvedValueOnce({
+    vi.mocked(mockedStore.get).mockResolvedValueOnce({
       foobar: true,
       // oxlint-disable-next-line typescript/no-explicit-any - have many overloads
     } as any);
 
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -54,9 +54,9 @@ describe('Get Document by DOI', () => {
   });
 
   test('should ignore store failures', async () => {
-    mockedStore.get.mockRejectedValueOnce(new Error('Store error'));
+    vi.mocked(mockedStore.get).mockRejectedValueOnce(new Error('Store error'));
 
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -75,7 +75,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should store fetch results', async () => {
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched({ doi: '10.9999/xxxxxx1' });
         return Promise.resolve(true);
@@ -91,7 +91,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should NOT store fetch results if no results', async () => {
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -104,9 +104,9 @@ describe('Get Document by DOI', () => {
   });
 
   test('should NOT throw if store failure', async () => {
-    mockedStore.set.mockRejectedValueOnce(new Error('Store error'));
+    vi.mocked(mockedStore.set).mockRejectedValueOnce(new Error('Store error'));
 
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched({ doi: '10.9999/xxxxxx1' });
         return Promise.resolve(true);
@@ -119,7 +119,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should resolves independent from onDocument', async () => {
-    bufferedFetchOneDocumentByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         setTimeout(() => {
           onFetched({ doi: '10.9999/xxxxxx1' });

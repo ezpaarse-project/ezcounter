@@ -5,7 +5,7 @@ import { mockDeep } from 'vitest-mock-extended';
 
 import type { MessageMeta } from '@ezcounter/rabbitmq';
 
-import { receiveThroughTCP } from '~/lib/tcp/__mocks__/server';
+import { receiveThroughTCP } from '~/lib/tcp/server';
 
 import { validateReport } from '~/models/report/validation';
 
@@ -16,7 +16,7 @@ vi.mock(import('~/models/report/validation'));
 
 describe('Handle Validation Request (onValidationRequest)', () => {
   test('should setup TCP server before sending address', async () => {
-    receiveThroughTCP.mockResolvedValueOnce({
+    vi.mocked(receiveThroughTCP).mockResolvedValueOnce({
       addr: { address: '1.2.3.4', family: 'IPv4', port: 4567 },
       stream: new PassThrough(),
     });
@@ -35,7 +35,7 @@ describe('Handle Validation Request (onValidationRequest)', () => {
   });
 
   test('should validate once before socket is closed', async () => {
-    receiveThroughTCP.mockImplementationOnce((reply) => {
+    vi.mocked(receiveThroughTCP).mockImplementationOnce((reply) => {
       setTimeout(() => reply?.(), 10);
 
       return Promise.resolve({
@@ -54,7 +54,7 @@ describe('Handle Validation Request (onValidationRequest)', () => {
   });
 
   test('should use expiration of message as timeout to setup TCP server', async () => {
-    receiveThroughTCP.mockResolvedValueOnce({
+    vi.mocked(receiveThroughTCP).mockResolvedValueOnce({
       addr: { address: '1.2.3.4', family: 'IPv4', port: 4567 },
       stream: new PassThrough(),
     });

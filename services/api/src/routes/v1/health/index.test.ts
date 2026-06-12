@@ -4,7 +4,7 @@ import {
   appService,
   getAllServices,
   getMissingMandatoryServices,
-} from '~/lib/__mocks__/heartbeat';
+} from '~/lib/heartbeat';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -118,7 +118,9 @@ describe('GET /health/probes/readiness', () => {
   });
 
   test('should return SERVICE_UNAVAILABLE if some mandatory services are missing', async () => {
-    getMissingMandatoryServices.mockReturnValueOnce(['missing-service']);
+    vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([
+      'missing-service',
+    ]);
 
     const response = await server.inject({
       method: 'GET',

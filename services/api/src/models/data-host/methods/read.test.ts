@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import type { DataHostSupportedReport } from '../dto';
 import {
@@ -16,7 +16,7 @@ import {
 
 describe(doesDataHostExists, () => {
   test('should query DB', async () => {
-    dbClient.dataHost.count.mockResolvedValueOnce(5);
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(5);
 
     await doesDataHostExists('id');
 
@@ -24,7 +24,7 @@ describe(doesDataHostExists, () => {
   });
 
   test('should return true if found', async () => {
-    dbClient.dataHost.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(1);
 
     const promise = doesDataHostExists('id');
 
@@ -32,7 +32,7 @@ describe(doesDataHostExists, () => {
   });
 
   test('should return false if not found', async () => {
-    dbClient.dataHost.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(0);
 
     const promise = doesDataHostExists('id');
 
@@ -42,7 +42,7 @@ describe(doesDataHostExists, () => {
 
 describe(findAllDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHost.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHost.findMany).mockResolvedValueOnce([]);
 
     await findAllDataHost();
 
@@ -50,7 +50,7 @@ describe(findAllDataHost, () => {
   });
 
   test('should return array', async () => {
-    dbClient.dataHost.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHost.findMany).mockResolvedValueOnce([]);
 
     const promise = findAllDataHost();
 
@@ -60,15 +60,17 @@ describe(findAllDataHost, () => {
 
 describe(doesDataHostSupportsRelease, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
 
     await doesDataHostSupportsRelease('id', '5');
 
-    expect(dbClient.dataHostSupportedRelease.count).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedRelease.count)
+    ).toHaveBeenCalled();
   });
 
   test('should return true if found', async () => {
-    dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
 
     const promise = doesDataHostSupportsRelease('id', '5.1');
 
@@ -76,7 +78,7 @@ describe(doesDataHostSupportsRelease, () => {
   });
 
   test('should return false if not found', async () => {
-    dbClient.dataHostSupportedRelease.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(0);
 
     const promise = doesDataHostSupportsRelease('id', '5.1');
 
@@ -86,15 +88,21 @@ describe(doesDataHostSupportsRelease, () => {
 
 describe(findAllReleasesSupportedByDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedRelease.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHostSupportedRelease.findMany).mockResolvedValueOnce(
+      []
+    );
 
     await findAllReleasesSupportedByDataHost('id');
 
-    expect(dbClient.dataHostSupportedRelease.findMany).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedRelease.findMany)
+    ).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
-    dbClient.dataHostSupportedRelease.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHostSupportedRelease.findMany).mockResolvedValueOnce(
+      []
+    );
 
     const promise = findAllReleasesSupportedByDataHost('id');
 
@@ -104,15 +112,17 @@ describe(findAllReleasesSupportedByDataHost, () => {
 
 describe(doesDataHostSupportsReport, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
 
     await doesDataHostSupportsReport('id', '5', 'tr');
 
-    expect(dbClient.dataHostSupportedReport.count).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedReport.count)
+    ).toHaveBeenCalled();
   });
 
   test('should return true if found', async () => {
-    dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(1);
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
 
     const promise = doesDataHostSupportsReport('id', '5.1', 'tr');
 
@@ -120,7 +130,7 @@ describe(doesDataHostSupportsReport, () => {
   });
 
   test('should return false if not found', async () => {
-    dbClient.dataHostSupportedReport.count.mockResolvedValueOnce(0);
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(0);
 
     const promise = doesDataHostSupportsReport('id', '5.1', 'tr');
 
@@ -130,15 +140,21 @@ describe(doesDataHostSupportsReport, () => {
 
 describe(findAllReportsSupportedByDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedReport.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHostSupportedReport.findMany).mockResolvedValueOnce(
+      []
+    );
 
     await findAllReportsSupportedByDataHost('id', '5.1');
 
-    expect(dbClient.dataHostSupportedReport.findMany).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedReport.findMany)
+    ).toHaveBeenCalled();
   });
 
   test('should return array', async () => {
-    dbClient.dataHostSupportedReport.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.dataHostSupportedReport.findMany).mockResolvedValueOnce(
+      []
+    );
 
     const promise = findAllReportsSupportedByDataHost('id', '5.1');
 
@@ -148,7 +164,9 @@ describe(findAllReportsSupportedByDataHost, () => {
 
 describe(findOneReleaseSupportedByDataHost, () => {
   test('should query DB', async () => {
-    dbClient.dataHostSupportedRelease.findUniqueOrThrow.mockResolvedValueOnce({
+    vi.mocked(
+      dbClient.dataHostSupportedRelease.findUniqueOrThrow
+    ).mockResolvedValueOnce({
       baseUrl: 'https://counter.localhost/r51',
       createdAt: new Date(),
       // @ts-expect-error - Should include DataHost
@@ -188,15 +206,21 @@ describe(findOneReportSupportedByDataHost, () => {
   };
 
   test('should query DB', async () => {
-    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(null);
+    vi.mocked(
+      dbClient.dataHostSupportedReport.findUnique
+    ).mockResolvedValueOnce(null);
 
     await findOneReportSupportedByDataHost('id', '5.1', 'tr');
 
-    expect(dbClient.dataHostSupportedReport.findUnique).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedReport.findUnique)
+    ).toHaveBeenCalled();
   });
 
   test('should return report', async () => {
-    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(report);
+    vi.mocked(
+      dbClient.dataHostSupportedReport.findUnique
+    ).mockResolvedValueOnce(report);
 
     const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
 
@@ -204,7 +228,9 @@ describe(findOneReportSupportedByDataHost, () => {
   });
 
   test('should return null if not found', async () => {
-    dbClient.dataHostSupportedReport.findUnique.mockResolvedValueOnce(null);
+    vi.mocked(
+      dbClient.dataHostSupportedReport.findUnique
+    ).mockResolvedValueOnce(null);
 
     const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
 

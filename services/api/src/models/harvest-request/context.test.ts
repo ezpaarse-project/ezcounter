@@ -4,7 +4,7 @@ import type { HarvestRequestContent } from '@ezcounter/dto/queues';
 
 import type { DataHostWithSupportedData } from '~/models/data-host/dto';
 
-import { getDataHostWithSupportedData } from '../data-host/__mocks__';
+import { getDataHostWithSupportedData } from '../data-host';
 import { resolveRequestContextPerHostname } from './context';
 
 vi.mock(import('~/models/data-host'));
@@ -63,7 +63,7 @@ describe('Resolve context of Harvest Request', () => {
   test('should skip if host in unknown', async () => {
     const request = getRequest();
 
-    getDataHostWithSupportedData.mockResolvedValueOnce(null);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(null);
 
     const result = await resolveRequestContextPerHostname([request]);
 
@@ -73,7 +73,9 @@ describe('Resolve context of Harvest Request', () => {
   test('should skip if cannot get host with supported data', async () => {
     const request = getRequest();
 
-    getDataHostWithSupportedData.mockRejectedValueOnce(new Error('DB error'));
+    vi.mocked(getDataHostWithSupportedData).mockRejectedValueOnce(
+      new Error('DB error')
+    );
 
     const result = await resolveRequestContextPerHostname([request]);
 
@@ -85,7 +87,7 @@ describe('Resolve context of Harvest Request', () => {
     const dataHost = getDataHost();
     dataHost.supportedReleases[0].baseUrl = 'foobar';
 
-    getDataHostWithSupportedData.mockResolvedValueOnce(dataHost);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost);
 
     const result = await resolveRequestContextPerHostname([request]);
 
@@ -98,7 +100,7 @@ describe('Resolve context of Harvest Request', () => {
     request.download.release = '5';
     const dataHost = getDataHost();
 
-    getDataHostWithSupportedData.mockResolvedValueOnce(dataHost);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost);
 
     const result = await resolveRequestContextPerHostname([request]);
 
@@ -122,9 +124,9 @@ describe('Resolve context of Harvest Request', () => {
     dataHost3.supportedReleases[0].baseUrl =
       'https://my-other.datahost.com/r51';
 
-    getDataHostWithSupportedData.mockResolvedValueOnce(dataHost1);
-    getDataHostWithSupportedData.mockResolvedValueOnce(dataHost2);
-    getDataHostWithSupportedData.mockResolvedValueOnce(dataHost3);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost1);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost2);
+    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost3);
 
     const result = await resolveRequestContextPerHostname([
       request1,

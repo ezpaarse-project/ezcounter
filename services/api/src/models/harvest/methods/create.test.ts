@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import { createManyHarvestJob } from './create';
 

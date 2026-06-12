@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import type {
   DataHost,
@@ -39,7 +39,7 @@ describe(getDataHostWithSupportedData, () => {
   };
 
   test('should query DB', async () => {
-    dbClient.dataHost.findUnique.mockResolvedValueOnce({
+    vi.mocked(dbClient.dataHost.findUnique).mockResolvedValueOnce({
       ...dataHost,
       // @ts-expect-error - Supported release will be included
       supportedReleases: [
@@ -56,7 +56,7 @@ describe(getDataHostWithSupportedData, () => {
   });
 
   test('should return data', async () => {
-    dbClient.dataHost.findUnique.mockResolvedValueOnce({
+    vi.mocked(dbClient.dataHost.findUnique).mockResolvedValueOnce({
       ...dataHost,
       // @ts-expect-error - Supported release will be included
       supportedReleases: [
@@ -78,7 +78,7 @@ describe(getDataHostWithSupportedData, () => {
   });
 
   test('should return null if not found', async () => {
-    dbClient.dataHost.findUnique.mockResolvedValueOnce(null);
+    vi.mocked(dbClient.dataHost.findUnique).mockResolvedValueOnce(null);
 
     const promise = getDataHostWithSupportedData('');
 

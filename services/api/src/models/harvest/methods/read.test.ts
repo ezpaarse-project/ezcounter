@@ -1,12 +1,12 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import { findAllHarvestJob, findManyHarvestJobById } from './read';
 
 describe(findAllHarvestJob, () => {
   test('should query DB', async () => {
-    dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.harvestJob.findMany).mockResolvedValueOnce([]);
 
     await findAllHarvestJob();
 
@@ -14,7 +14,7 @@ describe(findAllHarvestJob, () => {
   });
 
   test('should return array', async () => {
-    dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.harvestJob.findMany).mockResolvedValueOnce([]);
 
     const promise = findAllHarvestJob();
 
@@ -24,7 +24,7 @@ describe(findAllHarvestJob, () => {
 
 describe(findManyHarvestJobById, () => {
   test('should query DB', async () => {
-    dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.harvestJob.findMany).mockResolvedValueOnce([]);
 
     await findManyHarvestJobById([]);
 
@@ -32,7 +32,7 @@ describe(findManyHarvestJobById, () => {
   });
 
   test('should return array', async () => {
-    dbClient.harvestJob.findMany.mockResolvedValueOnce([]);
+    vi.mocked(dbClient.harvestJob.findMany).mockResolvedValueOnce([]);
 
     const promise = findManyHarvestJobById([]);
 

@@ -4,7 +4,7 @@ import type { ReportValidationResult } from '@ezcounter/dto/report';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
-import { validateCOUNTERReport } from '~/rpc/report/__mocks__/validate';
+import { validateCOUNTERReport } from '~/rpc/report/validate';
 
 import router from '.';
 
@@ -19,7 +19,7 @@ const server = await createTestServer(async (fastify) => {
 describe('POST /reports/_validate', () => {
   describe('application/json', () => {
     test('should return validation result', async () => {
-      validateCOUNTERReport.mockResolvedValue({
+      vi.mocked(validateCOUNTERReport).mockResolvedValue({
         header: { errors: [], valid: true },
         items: { errors: [], valid: true },
       });
@@ -65,7 +65,7 @@ describe('POST /reports/_validate', () => {
       data.set('report', new Blob(["{ Report_ID: 'IR' }"]));
       data.set('reportId', 'ir');
 
-      validateCOUNTERReport.mockResolvedValue({
+      vi.mocked(validateCOUNTERReport).mockResolvedValue({
         header: { errors: [], valid: true },
         items: { errors: [], valid: true },
       });

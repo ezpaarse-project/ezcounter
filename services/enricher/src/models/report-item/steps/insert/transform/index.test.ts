@@ -5,8 +5,8 @@ import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
 import { transformReportItemToDocuments } from '.';
-import { transformR5ItemToDocuments } from './__mocks__/r5';
-import { transformR51ItemToDocuments } from './__mocks__/r51';
+import { transformR5ItemToDocuments } from './r5';
+import { transformR51ItemToDocuments } from './r51';
 
 vi.mock(import('./r5'));
 vi.mock(import('./r51'));

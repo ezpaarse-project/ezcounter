@@ -4,7 +4,7 @@ import type { DataHostSupportedRelease } from '~/models/data-host/dto';
 import {
   doesDataHostExists,
   findAllReleasesSupportedByDataHost,
-} from '~/models/data-host/__mocks__';
+} from '~/models/data-host';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -19,8 +19,8 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /data-hosts/:id/supported-releases', () => {
   test('should return array of releases supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    findAllReleasesSupportedByDataHost.mockResolvedValueOnce([]);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',
@@ -37,7 +37,7 @@ describe('GET /data-hosts/:id/supported-releases', () => {
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       method: 'GET',

@@ -3,14 +3,11 @@ import { mockDeep } from 'vitest-mock-extended';
 
 import type { EnrichJobContent, EnrichJobData } from '@ezcounter/dto/queues';
 
-import { sendEnrichJobStatusEvent } from '~/queues/enrich/__mocks__/status';
-import { queueEnrichJob } from '~/queues/enrich/jobs/__mocks__/pub';
+import { queueEnrichJob } from '~/queues/enrich/jobs/pub';
+import { sendEnrichJobStatusEvent } from '~/queues/enrich/status';
 
 import { enrichReportItem } from '.';
-import {
-  enrichItemUsingEzUnpaywall,
-  enrichItemUsingOpenAlex,
-} from './sources/__mocks__';
+import { enrichItemUsingEzUnpaywall, enrichItemUsingOpenAlex } from './sources';
 
 vi.mock(import('~/queues/enrich/jobs/pub'));
 vi.mock(import('~/queues/enrich/status'));
@@ -38,11 +35,13 @@ describe('Enrich report item (enrichReportItem)', () => {
   });
 
   test('should queue next step', async () => {
-    enrichItemUsingOpenAlex.mockImplementationOnce((_data, _opts, next) => {
-      // oxlint-disable-next-line typescript/no-explicit-any
-      next({ X_Current: true } as any, 'remote');
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
+      (_data, _opts, next) => {
+        // oxlint-disable-next-line typescript/no-explicit-any
+        next({ X_Current: true } as any, 'remote');
+        return Promise.resolve(true);
+      }
+    );
 
     await enrichReportItem('openalex', job);
 
@@ -72,26 +71,30 @@ describe('Enrich report item (enrichReportItem)', () => {
 
   test('should resolves independent from next step', async () => {
     // Delay next step
-    enrichItemUsingEzUnpaywall.mockImplementationOnce((_data, _opts, next) => {
-      setTimeout(() => {
-        next(null, 'miss');
-      }, 50);
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
+      (_data, _opts, next) => {
+        setTimeout(() => {
+          next(null, 'miss');
+        }, 50);
+        return Promise.resolve(true);
+      }
+    );
 
     const resolveSpy = vi.fn();
     await enrichReportItem('ezunpaywall', job).then(() => resolveSpy());
 
     await vi.runAllTimersAsync();
-    expect(resolveSpy).toHaveBeenCalledBefore(queueEnrichJob);
+    expect(resolveSpy).toHaveBeenCalledBefore(vi.mocked(queueEnrichJob));
   });
 
   test('should notify status', async () => {
-    enrichItemUsingEzUnpaywall.mockImplementationOnce((_data, _opts, next) => {
-      // oxlint-disable-next-line typescript/no-explicit-any
-      next({} as any, 'remote');
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
+      (_data, _opts, next) => {
+        // oxlint-disable-next-line typescript/no-explicit-any
+        next({} as any, 'remote');
+        return Promise.resolve(true);
+      }
+    );
 
     await enrichReportItem('ezunpaywall', job);
 
@@ -114,11 +117,13 @@ describe('Enrich report item (enrichReportItem)', () => {
   });
 
   test('should notify status if enrich is from store', async () => {
-    enrichItemUsingEzUnpaywall.mockImplementationOnce((_data, _opts, next) => {
-      // oxlint-disable-next-line typescript/no-explicit-any
-      next({} as any, 'store');
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
+      (_data, _opts, next) => {
+        // oxlint-disable-next-line typescript/no-explicit-any
+        next({} as any, 'store');
+        return Promise.resolve(true);
+      }
+    );
 
     await enrichReportItem('ezunpaywall', job);
 
@@ -141,10 +146,12 @@ describe('Enrich report item (enrichReportItem)', () => {
   });
 
   test('should notify if enrich fails', async () => {
-    enrichItemUsingOpenAlex.mockImplementationOnce((_data, _opts, next) => {
-      next(null, 'miss');
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
+      (_data, _opts, next) => {
+        next(null, 'miss');
+        return Promise.resolve(true);
+      }
+    );
 
     await enrichReportItem('openalex', job);
 
@@ -167,10 +174,12 @@ describe('Enrich report item (enrichReportItem)', () => {
   });
 
   test('should notify if enrich cannot be done (no suitable identifiers)', async () => {
-    enrichItemUsingOpenAlex.mockImplementationOnce((_data, _opts, next) => {
-      next(null, 'skipped');
-      return Promise.resolve(true);
-    });
+    vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
+      (_data, _opts, next) => {
+        next(null, 'skipped');
+        return Promise.resolve(true);
+      }
+    );
 
     await enrichReportItem('openalex', job);
 
@@ -193,7 +202,9 @@ describe('Enrich report item (enrichReportItem)', () => {
   });
 
   test('should notify if error occurs', async () => {
-    enrichItemUsingOpenAlex.mockRejectedValueOnce(new Error('Enrich error'));
+    vi.mocked(enrichItemUsingOpenAlex).mockRejectedValueOnce(
+      new Error('Enrich error')
+    );
 
     await enrichReportItem('openalex', job);
 

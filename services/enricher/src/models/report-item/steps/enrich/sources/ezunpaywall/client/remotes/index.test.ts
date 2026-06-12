@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { createStore } from '~/lib/store/__mocks__';
+import { createStore } from '~/lib/store';
 
-import { EzUnpaywallRemote } from './ezunpaywall/__mocks__';
+import { EzUnpaywallRemote } from './ezunpaywall';
 import { createEzUnpaywallRemote, createEzUnpaywallStore } from './index';
 
 vi.mock(import('./ezunpaywall'));

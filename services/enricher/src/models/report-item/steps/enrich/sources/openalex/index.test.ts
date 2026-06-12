@@ -4,8 +4,8 @@ import { mockDeep } from 'vitest-mock-extended';
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
 import { enrichItemUsingOpenAlex } from '.';
-import { getDOIOfItem } from '../../__mocks__/identifiers';
-import { getWorkByDOI } from './client/__mocks__';
+import { getDOIOfItem } from '../../identifiers';
+import { getWorkByDOI } from './client';
 
 vi.mock(import('../../identifiers'));
 vi.mock(import('./client'));
@@ -42,8 +42,8 @@ describe('Enrich with OpenAlex', () => {
   test('should mark item as missed if remote sent no response', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
-    getWorkByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getWorkByDOI).mockImplementationOnce((_doi, next) => {
       next(null, 'remote');
       return Promise.resolve(true);
     });
@@ -56,8 +56,8 @@ describe('Enrich with OpenAlex', () => {
   test('should transform response to item', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
-    getWorkByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getWorkByDOI).mockImplementationOnce((_doi, next) => {
       next(
         {
           authorships: [
@@ -109,9 +109,9 @@ describe('Enrich with OpenAlex', () => {
   test('should resolves independent from next step', async () => {
     const data = mockDeep<EnrichJobContent>();
 
-    getDOIOfItem.mockReturnValueOnce('10.9999/xxxxxx1');
+    vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
     // Delay next step
-    getWorkByDOI.mockImplementationOnce((_doi, next) => {
+    vi.mocked(getWorkByDOI).mockImplementationOnce((_doi, next) => {
       setTimeout(() => {
         next?.(null, 'remote');
       }, 50);

@@ -7,10 +7,10 @@ import type {
   DataHostSupportedReport,
   DataHostWithSupportedData,
 } from '~/models/data-host/dto';
-import { fetchSupportedReportsOfDataHost } from '~/models/data-host/__mocks__/supported-reports';
+import { fetchSupportedReportsOfDataHost } from '~/models/data-host/supported-reports';
 
-import { limitReportOptionsWithSupported } from '../harvest/__mocks__/limits';
-import { resolveRequestContextPerHostname } from './__mocks__/context';
+import { limitReportOptionsWithSupported } from '../harvest/limits';
+import { resolveRequestContextPerHostname } from './context';
 import { prepareHarvestJobsFromHarvestRequest } from './index';
 
 vi.mock(import('~/models/data-host/supported-reports'));
@@ -78,7 +78,10 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
   test('should return array of jobs', async () => {
     const context = getContext();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
 
@@ -90,7 +93,10 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
   test('should fetch supported reports', async () => {
     const context = getContext();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
 
@@ -125,10 +131,13 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
       param3: 'from host',
     };
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([report]);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([report]);
 
     const result = await prepareHarvestJobsFromHarvestRequest([
       context.content,
@@ -158,10 +167,13 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     const context = getContext();
     const report = getSupportedReport();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([report]);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([report]);
 
     const promise = prepareHarvestJobsFromHarvestRequest([context.content]);
 
@@ -171,7 +183,7 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
   test('should skip invalid hosts', async () => {
     const context = getContext();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([[undefined, [context]]])
     );
 
@@ -185,10 +197,13 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     context.content.download.reports[0].splitPeriodBy = 6;
     const report = getSupportedReport();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([report]);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([report]);
 
     const promise = prepareHarvestJobsFromHarvestRequest([context.content]);
 
@@ -200,10 +215,13 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     context.content.download.reports[0].splitPeriodBy = 6;
     const report = getSupportedReport();
 
-    resolveRequestContextPerHostname.mockResolvedValueOnce(
+    vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
+      (input) => input
+    );
+    vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
       new Map([['my-counter-datahost', [context]]])
     );
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([report]);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([report]);
 
     await prepareHarvestJobsFromHarvestRequest([context.content]);
 

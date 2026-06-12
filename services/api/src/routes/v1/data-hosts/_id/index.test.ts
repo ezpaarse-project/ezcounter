@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { DataHost, UpdateDataHost } from '~/models/data-host/dto';
-import { deleteDataHost, upsertDataHost } from '~/models/data-host/__mocks__';
+import { deleteDataHost, upsertDataHost } from '~/models/data-host';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -29,7 +29,7 @@ describe('PUT /data-hosts/:id', () => {
   };
 
   test('should return data host', async () => {
-    upsertDataHost.mockResolvedValueOnce(host);
+    vi.mocked(upsertDataHost).mockResolvedValueOnce(host);
 
     const response = await server.inject({
       body,
@@ -47,7 +47,7 @@ describe('PUT /data-hosts/:id', () => {
   });
 
   test('should update data host', async () => {
-    upsertDataHost.mockResolvedValueOnce(host);
+    vi.mocked(upsertDataHost).mockResolvedValueOnce(host);
 
     await server.inject({
       body,
@@ -78,7 +78,7 @@ describe('PUT /data-hosts/:id', () => {
 
 describe('DELETE /data-hosts/:id', () => {
   test('should return NO_CONTENT', async () => {
-    deleteDataHost.mockResolvedValueOnce(true);
+    vi.mocked(deleteDataHost).mockResolvedValueOnce(true);
 
     const response = await server.inject({
       method: 'DELETE',
@@ -89,7 +89,7 @@ describe('DELETE /data-hosts/:id', () => {
   });
 
   test('should delete data host', async () => {
-    deleteDataHost.mockResolvedValueOnce(true);
+    vi.mocked(deleteDataHost).mockResolvedValueOnce(true);
 
     await server.inject({
       method: 'DELETE',

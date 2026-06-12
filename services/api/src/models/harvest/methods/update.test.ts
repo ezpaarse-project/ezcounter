@@ -1,8 +1,8 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJob } from '@ezcounter/database';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import { failManyHarvestJob, updateOneHarvestJob } from './update';
 
@@ -34,8 +34,8 @@ describe(updateOneHarvestJob, () => {
   test('should query DB', async () => {
     const job = getJob();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({ id: 'foobar' });
 
@@ -49,8 +49,8 @@ describe(updateOneHarvestJob, () => {
   test('should return job', async () => {
     const job = getJob();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     const promise = updateOneHarvestJob({ id: '' });
 
@@ -62,8 +62,8 @@ describe(updateOneHarvestJob, () => {
     job.status = 'processing';
     job.startedAt = new Date();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { status: 'done' },
@@ -88,8 +88,8 @@ describe(updateOneHarvestJob, () => {
     job.status = 'processing';
     job.startedAt = new Date();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     const error = {
       code: '',
@@ -128,8 +128,8 @@ describe(updateOneHarvestJob, () => {
       status: 'processing',
     };
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       enrich: {
@@ -191,8 +191,8 @@ describe(updateOneHarvestJob, () => {
       updated: 2,
     };
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       id: '',
@@ -226,8 +226,8 @@ describe(updateOneHarvestJob, () => {
     job.status = 'processing';
     job.startedAt = new Date();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { status: 'done' },
@@ -253,8 +253,8 @@ describe(updateOneHarvestJob, () => {
   test('should NOT update status if not started', async () => {
     const job = getJob();
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
-    dbClient.harvestJob.update.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
     await updateOneHarvestJob({
       download: { status: 'done' },
@@ -281,7 +281,7 @@ describe(updateOneHarvestJob, () => {
     const job = getJob();
     job.status = 'done';
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
 
     const promise = updateOneHarvestJob({ id: '' });
 
@@ -294,7 +294,7 @@ describe(updateOneHarvestJob, () => {
     const job = getJob();
     job.status = 'error';
 
-    dbClient.harvestJob.findUniqueOrThrow.mockResolvedValueOnce(job);
+    vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
 
     const promise = updateOneHarvestJob({ id: '' });
 

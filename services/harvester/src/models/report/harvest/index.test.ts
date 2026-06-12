@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import { handleExceptions, reharvestOrMarkAsError } from '.';
 

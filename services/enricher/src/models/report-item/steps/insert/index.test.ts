@@ -4,12 +4,12 @@ import { mockDeep } from 'vitest-mock-extended';
 import type { EnrichJobContent, EnrichJobData } from '@ezcounter/dto/queues';
 
 import type { CreateCOUNTERDocument } from '~/models/counter-document/dto';
-import { bufferedCreateOneCOUNTERDocument } from '~/models/counter-document/__mocks__';
+import { bufferedCreateOneCOUNTERDocument } from '~/models/counter-document';
 
-import { sendEnrichJobStatusEvent } from '~/queues/enrich/__mocks__/status';
+import { sendEnrichJobStatusEvent } from '~/queues/enrich/status';
 
 import { insertReportItem } from '.';
-import { transformReportItemToDocuments } from './transform/__mocks__';
+import { transformReportItemToDocuments } from './transform';
 
 vi.mock(import('~/queues/enrich/status'));
 vi.mock(import('~/models/counter-document'));
@@ -48,9 +48,11 @@ describe('Insert report item (insertReportItem)', () => {
 
   test('should add to COUNTER document buffer with additional data', async () => {
     // Generate some mocked documents
-    transformReportItemToDocuments.mockImplementationOnce(function* generate() {
-      yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };
-    });
+    vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
+      function* generate() {
+        yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };
+      }
+    );
 
     await insertReportItem(job);
 
@@ -68,33 +70,41 @@ describe('Insert report item (insertReportItem)', () => {
 
   test('should notify about progress once per item', async () => {
     // Generate some mocked documents
-    transformReportItemToDocuments.mockImplementationOnce(function* generate() {
-      const document1 = mockDeep<CreateCOUNTERDocument>();
-      document1.X_Date_Month = '2025-01';
-      yield { document: document1, id: 'doc-1' };
+    vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
+      function* generate() {
+        const document1 = mockDeep<CreateCOUNTERDocument>();
+        document1.X_Date_Month = '2025-01';
+        yield { document: document1, id: 'doc-1' };
 
-      const document2 = mockDeep<CreateCOUNTERDocument>();
-      document2.X_Date_Month = '2025-02';
-      yield { document: document2, id: 'doc-2' };
+        const document2 = mockDeep<CreateCOUNTERDocument>();
+        document2.X_Date_Month = '2025-02';
+        yield { document: document2, id: 'doc-2' };
 
-      const document3 = mockDeep<CreateCOUNTERDocument>();
-      document3.X_Date_Month = '2025-01';
-      yield { document: document3, id: 'doc-3' };
-    });
+        const document3 = mockDeep<CreateCOUNTERDocument>();
+        document3.X_Date_Month = '2025-01';
+        yield { document: document3, id: 'doc-3' };
+      }
+    );
 
     // Mock some insertion
-    bufferedCreateOneCOUNTERDocument.mockImplementationOnce((payload) => {
-      payload.onCreated?.('created');
-      return Promise.resolve();
-    });
-    bufferedCreateOneCOUNTERDocument.mockImplementationOnce((payload) => {
-      payload.onCreated?.('updated');
-      return Promise.resolve();
-    });
-    bufferedCreateOneCOUNTERDocument.mockImplementationOnce((payload) => {
-      payload.onCreated?.('created');
-      return Promise.resolve();
-    });
+    vi.mocked(bufferedCreateOneCOUNTERDocument).mockImplementationOnce(
+      (payload) => {
+        payload.onCreated?.('created');
+        return Promise.resolve();
+      }
+    );
+    vi.mocked(bufferedCreateOneCOUNTERDocument).mockImplementationOnce(
+      (payload) => {
+        payload.onCreated?.('updated');
+        return Promise.resolve();
+      }
+    );
+    vi.mocked(bufferedCreateOneCOUNTERDocument).mockImplementationOnce(
+      (payload) => {
+        payload.onCreated?.('created');
+        return Promise.resolve();
+      }
+    );
 
     await insertReportItem(job);
 
@@ -116,15 +126,19 @@ describe('Insert report item (insertReportItem)', () => {
 
   test('should NOT notify about progress if document is not inserted', async () => {
     // Generate some mocked documents
-    transformReportItemToDocuments.mockImplementationOnce(function* generate() {
-      yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-1' };
-    });
+    vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
+      function* generate() {
+        yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-1' };
+      }
+    );
 
     // Mock some insertion
-    bufferedCreateOneCOUNTERDocument.mockImplementationOnce((payload) => {
-      payload.onCreated?.(null);
-      return Promise.resolve();
-    });
+    vi.mocked(bufferedCreateOneCOUNTERDocument).mockImplementationOnce(
+      (payload) => {
+        payload.onCreated?.(null);
+        return Promise.resolve();
+      }
+    );
 
     await insertReportItem(job);
 
@@ -136,11 +150,13 @@ describe('Insert report item (insertReportItem)', () => {
 
   test('should notify about error', async () => {
     // Generate some mocked documents
-    transformReportItemToDocuments.mockImplementationOnce(function* generate() {
-      yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };
-    });
+    vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
+      function* generate() {
+        yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };
+      }
+    );
 
-    bufferedCreateOneCOUNTERDocument.mockRejectedValueOnce(
+    vi.mocked(bufferedCreateOneCOUNTERDocument).mockRejectedValueOnce(
       new Error('Insert error')
     );
 

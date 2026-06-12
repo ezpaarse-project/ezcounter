@@ -5,11 +5,11 @@ import type {
   HarvestRequestData,
 } from '@ezcounter/dto/queues';
 
-import { findAllHarvestJob } from '~/models/harvest/__mocks__';
+import { findAllHarvestJob } from '~/models/harvest';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
-import { queueHarvestRequest } from '~/queues/harvest/__mocks__/request';
+import { queueHarvestRequest } from '~/queues/harvest/request';
 
 import router from '.';
 
@@ -22,7 +22,7 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /harvests', () => {
   test('should return array of statuses', async () => {
-    findAllHarvestJob.mockResolvedValueOnce([]);
+    vi.mocked(findAllHarvestJob).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',

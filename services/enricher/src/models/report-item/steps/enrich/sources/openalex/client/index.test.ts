@@ -2,8 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 
 import type { OpenAlexWork } from '../dto';
 import { getWorkByDOI } from '.';
-import { bufferedFetchOneWorkByDOI } from './__mocks__/works';
 import { mockedStore } from './remotes/__mocks__';
+import { bufferedFetchOneWorkByDOI } from './works';
 
 vi.mock(import('./works'));
 vi.mock(import('./remotes'));
@@ -20,7 +20,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should return stored document', async () => {
-    mockedStore.get.mockResolvedValueOnce({
+    vi.mocked(mockedStore).get.mockResolvedValueOnce({
       authorships: [],
       ids: {
         doi: '10.9999/xxxxxx1',
@@ -47,12 +47,12 @@ describe('Get Document by DOI', () => {
   });
 
   test('should ignore invalid stored document', async () => {
-    mockedStore.get.mockResolvedValueOnce({
+    vi.mocked(mockedStore).get.mockResolvedValueOnce({
       foobar: true,
       // oxlint-disable-next-line typescript/no-explicit-any - have many overloads
     } as any);
 
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -65,9 +65,9 @@ describe('Get Document by DOI', () => {
   });
 
   test('should ignore store failures', async () => {
-    mockedStore.get.mockRejectedValueOnce(new Error('Store error'));
+    vi.mocked(mockedStore).get.mockRejectedValueOnce(new Error('Store error'));
 
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -86,7 +86,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should store fetch results', async () => {
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched({
           authorships: [],
@@ -114,7 +114,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should NOT store fetch results if no results', async () => {
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
         return Promise.resolve(true);
@@ -127,9 +127,9 @@ describe('Get Document by DOI', () => {
   });
 
   test('should NOT throw if store failure', async () => {
-    mockedStore.set.mockRejectedValueOnce(new Error('Store error'));
+    vi.mocked(mockedStore).set.mockRejectedValueOnce(new Error('Store error'));
 
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched({
           authorships: [],
@@ -152,7 +152,7 @@ describe('Get Document by DOI', () => {
   });
 
   test('should resolves independent from onDocument', async () => {
-    bufferedFetchOneWorkByDOI.mockImplementationOnce(
+    vi.mocked(bufferedFetchOneWorkByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         setTimeout(() => {
           onFetched({

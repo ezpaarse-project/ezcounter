@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestJob } from '~/models/harvest/dto';
-import { findManyHarvestJobById } from '~/models/harvest/__mocks__';
+import { findManyHarvestJobById } from '~/models/harvest';
 
 import type { ErrorResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -17,7 +17,7 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /harvests/:id', () => {
   test('should return status', async () => {
-    findManyHarvestJobById.mockResolvedValueOnce([{} as HarvestJob]);
+    vi.mocked(findManyHarvestJobById).mockResolvedValueOnce([{} as HarvestJob]);
 
     await server.inject({
       method: 'GET',
@@ -28,7 +28,7 @@ describe('GET /harvests/:id', () => {
   });
 
   test('should return NOT_FOUND if id is not found', async () => {
-    findManyHarvestJobById.mockResolvedValueOnce([]);
+    vi.mocked(findManyHarvestJobById).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',

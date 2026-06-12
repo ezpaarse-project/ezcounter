@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { fetchReportList } from '@ezcounter/counter/__mocks__';
+import { fetchReportList } from '@ezcounter/counter';
 
 import type { DataHostWithSupportedData } from './dto';
 import { fetchSupportedReportsOfDataHost } from './supported-reports';
@@ -60,7 +60,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should mark missing standard reports as unsupported', async () => {
-      fetchReportList.mockResolvedValueOnce([]);
+      vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
 
@@ -71,7 +71,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should mark missing existing reports as unsupported (if not override)', async () => {
-      fetchReportList.mockResolvedValueOnce([]);
+      vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
 
@@ -82,7 +82,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should mark present reports as supported', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2025-01',
           Last_Month_Available: '2025-12',
@@ -102,7 +102,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should update months available', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2024-01',
           Last_Month_Available: '2025-12',
@@ -127,7 +127,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should update months available with non standard format', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2025-01-01',
           Last_Month_Available: '2025-12-31',
@@ -148,7 +148,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should NOT update months available with unusable format', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: 'foo',
           Last_Month_Available: 'bar',
@@ -169,7 +169,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should mark custom reports as supported', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           Release: '5.1',
           Report_Description: '',
@@ -187,7 +187,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should skip reports with wrong Release', async () => {
-      fetchReportList.mockResolvedValueOnce([
+      vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           Release: '5',
           Report_Description: '',
@@ -205,7 +205,7 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should NOT update user values', async () => {
-      fetchReportList.mockResolvedValueOnce([]);
+      vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
 
@@ -226,7 +226,9 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     });
 
     test('should throw if fetch failed', async () => {
-      fetchReportList.mockRejectedValueOnce(new Error('fetch failed'));
+      vi.mocked(fetchReportList).mockRejectedValueOnce(
+        new Error('fetch failed')
+      );
 
       const dataHost = getDataHost();
 

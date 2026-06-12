@@ -3,11 +3,11 @@ import { describe, expect, test, vi } from 'vitest';
 import type { HarvestRequestData } from '@ezcounter/dto/queues';
 
 import type { DataHostSupportedRelease } from '~/models/data-host/dto';
-import { findAllReleasesSupportedByDataHost } from '~/models/data-host/__mocks__';
-import { prepareHarvestJobsFromHarvestRequest } from '~/models/harvest-request/__mocks__';
-import { createManyHarvestJob } from '~/models/harvest/__mocks__';
+import { findAllReleasesSupportedByDataHost } from '~/models/data-host';
+import { createManyHarvestJob } from '~/models/harvest';
+import { prepareHarvestJobsFromHarvestRequest } from '~/models/harvest-request';
 
-import { queueHarvestJobs } from './__mocks__/dispatch';
+import { queueHarvestJobs } from './dispatch';
 import { onHarvestRequest } from './request';
 
 vi.mock(import('~/models/data-host'));
@@ -95,15 +95,27 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
 
   describe('harvest jobs', () => {
     test('should transform request into jobs', async () => {
-      findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
+      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
+        releases
+      );
+      vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
+        Promise.resolve(jobs.map(({ id }) => ({ id })))
+      );
 
       await onHarvestRequest(request);
 
-      expect(prepareHarvestJobsFromHarvestRequest).toHaveBeenCalled();
+      expect(
+        vi.mocked(prepareHarvestJobsFromHarvestRequest)
+      ).toHaveBeenCalled();
     });
 
     test('should create jobs in DB', async () => {
-      findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
+      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
+        releases
+      );
+      vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
+        Promise.resolve(jobs.map(({ id }) => ({ id })))
+      );
 
       await onHarvestRequest(request);
 
@@ -111,7 +123,12 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
     });
 
     test('should queue jobs', async () => {
-      findAllReleasesSupportedByDataHost.mockResolvedValueOnce(releases);
+      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
+        releases
+      );
+      vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
+        Promise.resolve(jobs.map(({ id }) => ({ id })))
+      );
 
       await onHarvestRequest(request);
 

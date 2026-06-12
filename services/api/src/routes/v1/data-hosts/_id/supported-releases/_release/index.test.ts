@@ -12,7 +12,7 @@ import {
   doesDataHostSupportsRelease,
   findOneReleaseSupportedByDataHost,
   upsertReleaseSupportedByDataHost,
-} from '~/models/data-host/__mocks__';
+} from '~/models/data-host';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -46,8 +46,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   };
 
   test('should return release supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    upsertReleaseSupportedByDataHost.mockResolvedValueOnce(release);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(upsertReleaseSupportedByDataHost).mockResolvedValueOnce(release);
 
     const response = await server.inject({
       body,
@@ -66,8 +66,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   });
 
   test('should update release supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    upsertReleaseSupportedByDataHost.mockResolvedValueOnce(release);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(upsertReleaseSupportedByDataHost).mockResolvedValueOnce(release);
 
     await server.inject({
       body,
@@ -79,7 +79,7 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body,
@@ -133,8 +133,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release', () => {
 
 describe('DELETE /data-hosts/:id/supported-releases/:release', () => {
   test('should return NO_CONTENT', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    deleteReleaseSupportedByDataHost.mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(deleteReleaseSupportedByDataHost).mockResolvedValueOnce(true);
 
     const response = await server.inject({
       method: 'DELETE',
@@ -145,8 +145,8 @@ describe('DELETE /data-hosts/:id/supported-releases/:release', () => {
   });
 
   test('should delete release supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    deleteReleaseSupportedByDataHost.mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(deleteReleaseSupportedByDataHost).mockResolvedValueOnce(true);
 
     await server.inject({
       method: 'DELETE',
@@ -157,7 +157,7 @@ describe('DELETE /data-hosts/:id/supported-releases/:release', () => {
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       method: 'DELETE',
@@ -192,10 +192,10 @@ describe('DELETE /data-hosts/:id/supported-releases/:release', () => {
 
 describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
   test('should return check result', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
 
-    findOneReleaseSupportedByDataHost.mockResolvedValueOnce({
+    vi.mocked(findOneReleaseSupportedByDataHost).mockResolvedValueOnce({
       baseUrl: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHost: {
@@ -233,10 +233,10 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
   });
 
   test('should check credentials', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
 
-    findOneReleaseSupportedByDataHost.mockResolvedValueOnce({
+    vi.mocked(findOneReleaseSupportedByDataHost).mockResolvedValueOnce({
       baseUrl: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHost: {
@@ -286,7 +286,7 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body: {
@@ -307,8 +307,8 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
   });
 
   test('should return NOT_FOUND if release is not supported', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body: {
@@ -329,10 +329,10 @@ describe('POST /data-hosts/:id/supported-release/:release/_check-auth', () => {
   });
 
   test('should return BAD_REQUEST if body is invalid', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
 
-    findOneReleaseSupportedByDataHost.mockResolvedValueOnce({
+    vi.mocked(findOneReleaseSupportedByDataHost).mockResolvedValueOnce({
       baseUrl: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHost: {

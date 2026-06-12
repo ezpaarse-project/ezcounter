@@ -1,12 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+// oxlint-disable-next-line import/default
+import isbn from 'isbn3';
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
-
-// oxlint-disable-next-line import/default
-import isbn from '~/../__mocks__/isbn3';
 
 import { type R51ReportData, transformR51ItemToDocuments } from './r51';
 
@@ -95,7 +94,7 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
 
     iterator.next();
 
-    expect(isbn.asIsbn13).toHaveBeenCalled();
+    expect(vi.mocked(isbn).asIsbn13).toHaveBeenCalled();
   });
 
   test('should resolve on each count on each Performance on each Attribute_Performance', () => {

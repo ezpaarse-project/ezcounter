@@ -5,8 +5,8 @@ import {
   doesDataHostExists,
   doesDataHostSupportsRelease,
   findAllReportsSupportedByDataHost,
-} from '~/models/data-host/__mocks__';
-import { fetchSupportedReportsOfDataHost } from '~/models/data-host/__mocks__/supported-reports';
+} from '~/models/data-host';
+import { fetchSupportedReportsOfDataHost } from '~/models/data-host/supported-reports';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -24,9 +24,9 @@ const server = await createTestServer(async (fastify) => {
 
 describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', () => {
   test('should return array of reports supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    findAllReportsSupportedByDataHost.mockResolvedValueOnce([]);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
+    vi.mocked(findAllReportsSupportedByDataHost).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',
@@ -46,7 +46,7 @@ describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', ()
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       method: 'GET',
@@ -79,8 +79,8 @@ describe('GET /data-hosts/:id/supported-releases/:release/supported-reports', ()
   });
 
   test("should return NOT_FOUND if data host doesn't supports release", async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       method: 'GET',
@@ -103,9 +103,9 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
   };
 
   test('should return array of releases supported by data host', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       body,
@@ -121,9 +121,9 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
   });
 
   test('should refresh supported data for the release', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([]);
 
     await server.inject({
       body,
@@ -135,9 +135,9 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
   });
 
   test('should pass options to refresh', async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(true);
-    fetchSupportedReportsOfDataHost.mockResolvedValueOnce([]);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
+    vi.mocked(fetchSupportedReportsOfDataHost).mockResolvedValueOnce([]);
 
     await server.inject({
       body,
@@ -153,7 +153,7 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
   });
 
   test("should return NOT_FOUND if data host doesn't exists", async () => {
-    doesDataHostExists.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body,
@@ -188,8 +188,8 @@ describe('POST /data-hosts/:id/supported-releases/:release/supported-reports/_fe
   });
 
   test("should return NOT_FOUND if data host doesn't supports release", async () => {
-    doesDataHostExists.mockResolvedValueOnce(true);
-    doesDataHostSupportsRelease.mockResolvedValueOnce(false);
+    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
+    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body,

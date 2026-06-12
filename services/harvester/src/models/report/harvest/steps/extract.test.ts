@@ -15,7 +15,7 @@ import {
 } from '~/models/report/extraction/header';
 import { extractReportItems } from '~/models/report/extraction/items';
 
-import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/__mocks__/status';
+import { sendHarvestJobStatusEvent } from '~/queues/harvest/jobs/status';
 
 import {
   getReportExceptions,

@@ -1,6 +1,6 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
-import { dbClient } from '~/lib/__mocks__/prisma';
+import { dbClient } from '~/lib/prisma';
 
 import type {
   DataHost,
@@ -22,7 +22,7 @@ describe(upsertDataHost, () => {
   };
 
   test('should query DB', async () => {
-    dbClient.dataHost.upsert.mockResolvedValueOnce(dataHost);
+    vi.mocked(dbClient.dataHost.upsert).mockResolvedValueOnce(dataHost);
 
     await upsertDataHost(dataHost);
 
@@ -30,7 +30,7 @@ describe(upsertDataHost, () => {
   });
 
   test('should return updated job', async () => {
-    dbClient.dataHost.upsert.mockResolvedValueOnce(dataHost);
+    vi.mocked(dbClient.dataHost.upsert).mockResolvedValueOnce(dataHost);
 
     const promise = upsertDataHost(dataHost);
 
@@ -51,15 +51,21 @@ describe(upsertReleaseSupportedByDataHost, () => {
   };
 
   test('should query DB', async () => {
-    dbClient.dataHostSupportedRelease.upsert.mockResolvedValueOnce(release);
+    vi.mocked(dbClient.dataHostSupportedRelease.upsert).mockResolvedValueOnce(
+      release
+    );
 
     await upsertReleaseSupportedByDataHost(release);
 
-    expect(dbClient.dataHostSupportedRelease.upsert).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedRelease.upsert)
+    ).toHaveBeenCalled();
   });
 
   test('should return updated job', async () => {
-    dbClient.dataHostSupportedRelease.upsert.mockResolvedValueOnce(release);
+    vi.mocked(dbClient.dataHostSupportedRelease.upsert).mockResolvedValueOnce(
+      release
+    );
 
     const promise = upsertReleaseSupportedByDataHost(release);
 
@@ -81,15 +87,21 @@ describe(upsertReportSupportedByDataHost, () => {
   };
 
   test('should query DB', async () => {
-    dbClient.dataHostSupportedReport.upsert.mockResolvedValueOnce(report);
+    vi.mocked(dbClient.dataHostSupportedReport.upsert).mockResolvedValueOnce(
+      report
+    );
 
     await upsertReportSupportedByDataHost(report);
 
-    expect(dbClient.dataHostSupportedReport.upsert).toHaveBeenCalled();
+    expect(
+      vi.mocked(dbClient.dataHostSupportedReport.upsert)
+    ).toHaveBeenCalled();
   });
 
   test('should return updated job', async () => {
-    dbClient.dataHostSupportedReport.upsert.mockResolvedValueOnce(report);
+    vi.mocked(dbClient.dataHostSupportedReport.upsert).mockResolvedValueOnce(
+      report
+    );
 
     const promise = upsertReportSupportedByDataHost(report);
 

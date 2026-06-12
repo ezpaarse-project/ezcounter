@@ -1,13 +1,13 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { mergeUpdateData, updateOneHarvestJob } from './__mocks__/update';
+import { mergeUpdateData, updateOneHarvestJob } from './update';
 import { updateOneHarvestJobThrottled } from './update-throttled';
 
 vi.mock(import('./update'));
 
 describe(updateOneHarvestJobThrottled, () => {
   test('should merge updates', async () => {
-    updateOneHarvestJob.mockRejectedValueOnce({ status: 'done' });
+    vi.mocked(updateOneHarvestJob).mockRejectedValueOnce({ status: 'done' });
 
     // Send events of 2 jobs to check if updates are correctly merged by job id
     updateOneHarvestJobThrottled({
@@ -49,7 +49,7 @@ describe(updateOneHarvestJobThrottled, () => {
   });
 
   test('should throttle updates', async () => {
-    updateOneHarvestJob.mockRejectedValueOnce({ status: 'done' });
+    vi.mocked(updateOneHarvestJob).mockRejectedValueOnce({ status: 'done' });
 
     // Send events of 2 jobs to check if updates are correctly throttled by job id
     updateOneHarvestJobThrottled({
