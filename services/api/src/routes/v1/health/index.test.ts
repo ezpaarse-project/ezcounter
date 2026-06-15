@@ -6,6 +6,8 @@ import {
   getMissingMandatoryServices,
 } from '~/lib/heartbeat';
 
+import type { Heartbeat } from '~/models/heartbeat/dto';
+
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
 
@@ -17,8 +19,18 @@ const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/health' });
 });
 
+const MOCKED_SERVICE: Heartbeat = {
+  createdAt: new Date(),
+  hostname: 'foobar',
+  nextAt: new Date(),
+  service: 'dummy',
+  updatedAt: new Date(),
+};
+
 describe('GET /health', () => {
   test('should return information about self', async () => {
+    vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
+
     const promise = server.inject({
       method: 'GET',
       url: '/health/',
@@ -37,6 +49,8 @@ describe('GET /health', () => {
 
 describe('GET /health/services', () => {
   test('should return OK', async () => {
+    vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
+
     const promise = server.inject({
       method: 'GET',
       url: '/health/services',
@@ -57,6 +71,8 @@ describe('GET /health/services', () => {
 
 describe('GET /health/services/:name', () => {
   test('should return OK', async () => {
+    vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
+
     const promise = server.inject({
       method: 'GET',
       url: '/health/services/dummy',
@@ -65,16 +81,9 @@ describe('GET /health/services/:name', () => {
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
   });
 
-  test('should return information about others', async () => {
-    await server.inject({
-      method: 'GET',
-      url: '/health/services/dummy',
-    });
-
-    expect(getAllServices).toHaveBeenCalled();
-  });
-
   test("should return NOT_FOUND if service doesn't exists", async () => {
+    vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
+
     const response = await server.inject({
       method: 'GET',
       url: '/health/services/foobar',
@@ -100,6 +109,8 @@ describe('GET /health/probes/liveness', () => {
 
 describe('GET /health/probes/readiness', () => {
   test('should return OK (204)', async () => {
+    vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([]);
+
     const promise = server.inject({
       method: 'GET',
       url: '/health/probes/readiness',
@@ -109,6 +120,8 @@ describe('GET /health/probes/readiness', () => {
   });
 
   test('should check if services are missing', async () => {
+    vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([]);
+
     await server.inject({
       method: 'GET',
       url: '/health/probes/readiness',
