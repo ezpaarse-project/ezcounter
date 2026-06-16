@@ -33,19 +33,34 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
 
   fastify.route({
     handler: async (request, reply) => {
-      void queueHarvestRequest(request.body);
+      const { requestId } = request.query;
 
       reply.statusCode = StatusCodes.CREATED;
+      return buildResponse(reply, {
+        requestId: await queueHarvestRequest(request.body, requestId),
+      });
     },
     method: 'POST',
     schema: {
       body: HarvestRequestData,
+      querystring: z.object({
+        requestId: z
+          .string()
+          .optional()
+          .describe('ID of the request, is generated if not present'),
+      }),
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,
           StatusCodes.INTERNAL_SERVER_ERROR,
         ]),
-        [StatusCodes.CREATED]: EmptyResponse,
+        [StatusCodes.CREATED]: describeSuccess(
+          z.object({
+            requestId: z
+              .string()
+              .describe('ID of the request, can be used to get jobs created'),
+          })
+        ),
       },
       summary: 'Queue an harvest request',
       tags: ['harvest'],

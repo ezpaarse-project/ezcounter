@@ -86,27 +86,36 @@ describe('POST /harvests/_bulk', () => {
     },
   ];
 
-  test('should return CREATED', async () => {
-    const promise = server.inject({
+  test('should return CREATED with requestId', async () => {
+    vi.mocked(queueHarvestRequest).mockResolvedValueOnce('test-request');
+
+    const response = await server.inject({
       body,
       method: 'POST',
       url: '/harvests/_bulk',
     });
 
-    await expect(promise).resolves.toHaveProperty('statusCode', 201);
+    const { content } = response.json<SuccessResponse<{ requestId: string }>>();
+
+    expect(response).toHaveProperty('statusCode', 201);
+    expect(content).toHaveProperty('requestId', 'test-request');
   });
 
   test('should queue request', async () => {
+    vi.mocked(queueHarvestRequest).mockResolvedValueOnce('foobar');
+
     await server.inject({
       body,
       method: 'POST',
-      url: '/harvests/_bulk',
+      url: '/harvests/_bulk?requestId=foobar',
     });
 
-    expect(queueHarvestRequest).toHaveBeenCalledOnce();
+    expect(queueHarvestRequest).toHaveBeenCalledExactlyOnceWith(body, 'foobar');
   });
 
   test('should return BAD_REQUEST if body is invalid', async () => {
+    vi.mocked(queueHarvestRequest).mockResolvedValueOnce('test-request');
+
     const response = await server.inject({
       body: [],
       method: 'POST',

@@ -11,9 +11,11 @@ const logger = appLogger.child({ model: 'harvest', scope: 'models' });
  * Create many Harvest Jobs from data that will be passed in queues
  *
  * @param items - The harvest jobs to create
+ * @param requestId - The ID of the request
  */
 export async function createManyHarvestJob(
-  items: HarvestJobData[]
+  items: HarvestJobData[],
+  requestId: string
 ): Promise<void> {
   await dbClient.harvestJob.createMany({
     data: items.map((item): Prisma.HarvestJobCreateManyInput => {
@@ -30,6 +32,7 @@ export async function createManyHarvestJob(
         period: item.download.report.period,
         release: item.download.release,
         reportId: item.download.report.id,
+        requestId,
         status: 'pending',
       };
     }),

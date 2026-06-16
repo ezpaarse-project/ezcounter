@@ -47,6 +47,8 @@ export const HarvestJob = z.object({
 
   reportId: z.string().describe('ID of the report harvested'),
 
+  requestId: z.string().describe('ID of request that created the job'),
+
   startedAt: HarvestJobStatusEvent.shape.startedAt.nullish(),
 
   status: z.enum(HarvestJobStatus).describe('Current status of job'),

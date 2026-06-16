@@ -11,6 +11,8 @@ enum HarvestJobStatus {
 model HarvestJob {
   /// ID of the job
   id            String           @id
+  /// ID of the request that created the job
+  requestId     String
   /// ID of the report harvested
   reportId      String
   /// Period of the report

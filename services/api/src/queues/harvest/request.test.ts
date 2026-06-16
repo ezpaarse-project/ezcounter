@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { HarvestRequestData } from '@ezcounter/dto/queues';
+import type { MessageMeta } from '@ezcounter/rabbitmq';
 
 import type { DataHostSupportedRelease } from '~/models/data-host/dto';
 import { findAllReleasesSupportedByDataHost } from '~/models/data-host';
@@ -102,11 +103,11 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
 
-      await onHarvestRequest(request);
+      await onHarvestRequest(request, {
+        messageId: 'test-request',
+      } as MessageMeta);
 
-      expect(
-        vi.mocked(prepareHarvestJobsFromHarvestRequest)
-      ).toHaveBeenCalled();
+      expect(prepareHarvestJobsFromHarvestRequest).toHaveBeenCalled();
     });
 
     test('should create jobs in DB', async () => {
@@ -117,7 +118,9 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
 
-      await onHarvestRequest(request);
+      await onHarvestRequest(request, {
+        messageId: 'test-request',
+      } as MessageMeta);
 
       expect(createManyHarvestJob).toHaveBeenCalled();
     });
@@ -130,7 +133,9 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
 
-      await onHarvestRequest(request);
+      await onHarvestRequest(request, {
+        messageId: 'test-request',
+      } as MessageMeta);
 
       expect(queueHarvestJobs).toHaveBeenCalled();
     });

@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+
+import type { MessageMeta } from '@ezcounter/rabbitmq';
 import { HarvestRequestData } from '@ezcounter/dto/queues';
 
 import { appConfig } from '~/lib/config';
@@ -25,9 +28,11 @@ const pub = createPublisher({
  * Process Harvest request
  *
  * @param data - The harvest request to process
+ * @param meta - Message meta
  */
 export async function onHarvestRequest(
-  data: HarvestRequestData
+  data: HarvestRequestData,
+  meta: MessageMeta
 ): Promise<void> {
   try {
     // Create harvest jobs from request
@@ -35,7 +40,7 @@ export async function onHarvestRequest(
       data,
       supportedConfig.fetchDelay
     );
-    await createManyHarvestJob(jobs);
+    await createManyHarvestJob(jobs, meta.messageId || '');
     const queued = await queueHarvestJobs(jobs);
 
     // Mark as failed jobs that weren't queued
@@ -57,12 +62,18 @@ export async function onHarvestRequest(
  * Queue request to harvest
  *
  * @param data - The request to queue
+ * @param requestId - The ID of the request, defaults to an random UUID
+ *
+ * @returns The ID of the request
  */
 export async function queueHarvestRequest(
-  data: HarvestRequestData
-): Promise<void> {
+  data: HarvestRequestData,
+  requestId?: string
+): Promise<string> {
+  const messageId = requestId || randomUUID();
+
   try {
-    await pub.send({ routingKey: QUEUE_NAME }, data);
+    await pub.send({ messageId, routingKey: QUEUE_NAME }, data);
     logger.trace('Harvest request queued');
   } catch (error) {
     logger.error({
@@ -70,6 +81,8 @@ export async function queueHarvestRequest(
       msg: 'Failed to queue harvest request',
     });
   }
+
+  return messageId;
 }
 
 /**

@@ -24,6 +24,7 @@ describe(updateOneHarvestJob, () => {
     period: { end: '2025-12', start: '2025-01' },
     release: '5.1',
     reportId: '',
+    requestId: '',
     startedAt: null,
     status: 'pending',
     timeout: 60_000,
