@@ -27,7 +27,7 @@
     "fmt": "oxfmt",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "type-check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "ajv": "^8.20.0",

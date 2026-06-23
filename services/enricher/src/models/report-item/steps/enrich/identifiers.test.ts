@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { R51ReportItem, R5ReportItem } from '@ezcounter/counter/dto';
 
@@ -13,47 +13,51 @@ import {
 
 const EXAMPLES_DIR = join(process.cwd(), '__tests__/examples/items/');
 
-describe('COUNTER unknown', () => {
+describe('counter unknown', () => {
   const readExampleFile = (file: string): R5ReportItem =>
     JSON.parse(readFileSync(join(EXAMPLES_DIR, '5', file), 'utf8')).item;
 
-  describe('Extract DOI (getDOIOfItem)', () => {
-    test('should return undefined if release is unknown', () => {
+  describe('extract DOI', () => {
+    it('should return undefined if release is unknown', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getDOIOfItem(item, 'foobar');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Print ISSN (getPrintISSNOfItem)', () => {
-    test('should return undefined if release is unknown', () => {
+  describe('extract Print ISSN', () => {
+    it('should return undefined if release is unknown', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getPrintISSNOfItem(item, 'foobar');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Online ISSN (getOnlineISSNOfItem)', () => {
-    test('should return undefined if release is unknown', () => {
+  describe('extract Online ISSN', () => {
+    it('should return undefined if release is unknown', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getOnlineISSNOfItem(item, 'foobar');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 });
 
-describe('COUNTER 5', () => {
+describe('counter 5', () => {
   const readExampleFile = (file: string): R51ReportItem =>
     JSON.parse(readFileSync(join(EXAMPLES_DIR, '5', file), 'utf8')).item;
 
-  describe('Extract DOI (getDOIOfItem)', () => {
-    test('should return DOI', () => {
+  describe('extract DOI', () => {
+    it('should return DOI', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getDOIOfItem(item, '5');
@@ -61,25 +65,28 @@ describe('COUNTER 5', () => {
       expect(result).toBe('10.9999/xxxxi05');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getDOIOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getDOIOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Print ISSN (getPrintISSNOfItem)', () => {
-    test('should return Print ISSN', () => {
+  describe('extract Print ISSN', () => {
+    it('should return Print ISSN', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getPrintISSNOfItem(item, '5');
@@ -87,25 +94,28 @@ describe('COUNTER 5', () => {
       expect(result).toBe('0931-865');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getPrintISSNOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getPrintISSNOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Online ISSN (getOnlineISSNOfItem)', () => {
-    test('should return Online ISSN', () => {
+  describe('extract Online ISSN', () => {
+    it('should return Online ISSN', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getOnlineISSNOfItem(item, '5');
@@ -113,30 +123,33 @@ describe('COUNTER 5', () => {
       expect(result).toBe('0931-86x');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getOnlineISSNOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getOnlineISSNOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 });
 
-describe('COUNTER 5.1', () => {
+describe('counter 5.1', () => {
   const readExampleFile = (file: string): R51ReportItem =>
     JSON.parse(readFileSync(join(EXAMPLES_DIR, '5.1', file), 'utf8')).item;
 
-  describe('Extract DOI (getDOIOfItem)', () => {
-    test('should return DOI', () => {
+  describe('extract DOI', () => {
+    it('should return DOI', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getDOIOfItem(item, '5.1');
@@ -144,25 +157,28 @@ describe('COUNTER 5.1', () => {
       expect(result).toBe('10.9999/xxxxi05');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getDOIOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getDOIOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Print ISSN (getPrintISSNOfItem)', () => {
-    test('should return Print ISSN', () => {
+  describe('extract Print ISSN', () => {
+    it('should return Print ISSN', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getPrintISSNOfItem(item, '5.1');
@@ -170,25 +186,28 @@ describe('COUNTER 5.1', () => {
       expect(result).toBe('0931-865');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getPrintISSNOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getPrintISSNOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 
-  describe('Extract Online ISSN (getOnlineISSNOfItem)', () => {
-    test('should return Online ISSN', () => {
+  describe('extract Online ISSN', () => {
+    it('should return Online ISSN', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getOnlineISSNOfItem(item, '5.1');
@@ -196,20 +215,22 @@ describe('COUNTER 5.1', () => {
       expect(result).toBe('0931-86x');
     });
 
-    test('should return undefined if not available', () => {
+    it('should return undefined if not available', () => {
+      expect.hasAssertions();
       const item = readExampleFile('pr.json');
 
       const result = getOnlineISSNOfItem(item, '5.1');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
 
-    test('should return undefined if wrong COUNTER version', () => {
+    it('should return undefined if wrong COUNTER version', () => {
+      expect.hasAssertions();
       const item = readExampleFile('ir.json');
 
       const result = getOnlineISSNOfItem(item, '5');
 
-      expect(result).toBe(undefined);
+      expect(result).toBeUndefined();
     });
   });
 });

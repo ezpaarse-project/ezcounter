@@ -100,7 +100,7 @@ export async function pingDB(
   `;
 
   const [{ hostname, version, usage, db }] = response;
-  const versionMatch = /^PostgreSQL (\S+) /.exec(version);
+  const versionMatch = /^PostgreSQL (?<version>\S+) /v.exec(version);
 
   return {
     filesystems: [
@@ -113,6 +113,6 @@ export async function pingDB(
     ],
     hostname,
     service: 'database',
-    version: versionMatch?.[1],
+    version: versionMatch?.groups?.version,
   };
 }

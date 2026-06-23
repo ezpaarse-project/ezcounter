@@ -1,17 +1,19 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { EzUnpaywallDocument } from '../dto';
 import { getDocumentByDOI } from '.';
 import { bufferedFetchOneDocumentByDOI } from './documents';
+// oxlint-disable-next-line vitest/no-mocks-import - We need to get mockedStore as store is not exported
 import { mockedStore } from './remotes/__mocks__';
 
 vi.mock(import('./documents'));
 vi.mock(import('./remotes'));
 
-describe('Get Document by DOI', () => {
-  const spy = vi.fn();
+describe('get Document by DOI', () => {
+  const spy = vi.fn<(...args: unknown[]) => Promise<void>>();
 
-  test('should try to get document from store', async () => {
+  it('should try to get document from store', async () => {
+    expect.hasAssertions();
     await getDocumentByDOI('10.9999/xxxxxx1', spy);
 
     expect(mockedStore.get).toHaveBeenCalledExactlyOnceWith(
@@ -19,7 +21,8 @@ describe('Get Document by DOI', () => {
     );
   });
 
-  test('should return stored document', async () => {
+  it('should return stored document', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedStore.get).mockResolvedValueOnce({
       doi: '10.9999/xxxxxx1',
       // oxlint-disable-next-line typescript/no-explicit-any - have many overloads
@@ -35,7 +38,8 @@ describe('Get Document by DOI', () => {
     );
   });
 
-  test('should ignore invalid stored document', async () => {
+  it('should ignore invalid stored document', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedStore.get).mockResolvedValueOnce({
       foobar: true,
       // oxlint-disable-next-line typescript/no-explicit-any - have many overloads
@@ -53,7 +57,8 @@ describe('Get Document by DOI', () => {
     expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
   });
 
-  test('should ignore store failures', async () => {
+  it('should ignore store failures', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedStore.get).mockRejectedValueOnce(new Error('Store error'));
 
     vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
@@ -68,13 +73,15 @@ describe('Get Document by DOI', () => {
     expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
   });
 
-  test('should buffer fetch if store is unavailable', async () => {
+  it('should buffer fetch if store is unavailable', async () => {
+    expect.hasAssertions();
     await getDocumentByDOI('10.9999/xxxxxx1', spy);
 
     expect(bufferedFetchOneDocumentByDOI).toHaveBeenCalledOnce();
   });
 
-  test('should store fetch results', async () => {
+  it('should store fetch results', async () => {
+    expect.hasAssertions();
     vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched({ doi: '10.9999/xxxxxx1' });
@@ -90,7 +97,8 @@ describe('Get Document by DOI', () => {
     );
   });
 
-  test('should NOT store fetch results if no results', async () => {
+  it('should NOT store fetch results if no results', async () => {
+    expect.hasAssertions();
     vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         onFetched(null);
@@ -103,7 +111,8 @@ describe('Get Document by DOI', () => {
     expect(mockedStore.set).not.toHaveBeenCalled();
   });
 
-  test('should NOT throw if store failure', async () => {
+  it('should NOT throw if store failure', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedStore.set).mockRejectedValueOnce(new Error('Store error'));
 
     vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
@@ -118,7 +127,8 @@ describe('Get Document by DOI', () => {
     await expect(promise).resolves.not.toThrow();
   });
 
-  test('should resolves independent from onDocument', async () => {
+  it('should resolves independent from onDocument', async () => {
+    expect.hasAssertions();
     vi.mocked(bufferedFetchOneDocumentByDOI).mockImplementationOnce(
       (_remote, _doi, onFetched) => {
         setTimeout(() => {
@@ -129,7 +139,7 @@ describe('Get Document by DOI', () => {
       }
     );
 
-    const resolveSpy = vi.fn();
+    const resolveSpy = vi.fn<() => void>();
     await getDocumentByDOI('10.9999/xxxxxx1', spy).then(() => resolveSpy());
 
     await vi.runAllTimersAsync();

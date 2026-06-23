@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   createDebouncedFunction,
@@ -6,21 +6,27 @@ import {
   waitForGenerator,
 } from './utils';
 
-describe('Throttled Function', () => {
-  const spy = vi.fn().mockResolvedValue('foobar');
+type ExampleFunction = (param?: string) => Promise<string>;
 
-  test('should call original function', async () => {
+describe('create a throttled function', () => {
+  const spy = vi.fn<ExampleFunction>().mockResolvedValue('foobar');
+
+  it('should call original function', async () => {
+    expect.hasAssertions();
     const throttled = createThrottledFunction(spy, 500);
 
     throttled();
 
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should bubble async error', async () => {
-    const errSpy = vi.fn().mockRejectedValue(new Error('Not Implemented'));
+  it('should bubble async error', async () => {
+    expect.hasAssertions();
+    const errSpy = vi
+      .fn<ExampleFunction>()
+      .mockRejectedValue(new Error('Not Implemented'));
 
     const throttled = createThrottledFunction(errSpy, 500);
 
@@ -30,8 +36,9 @@ describe('Throttled Function', () => {
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
-  test('should bubble sync error', async () => {
-    const errSpy = vi.fn(() => {
+  it('should bubble sync error', async () => {
+    expect.hasAssertions();
+    const errSpy = vi.fn<ExampleFunction>(() => {
       throw new Error('Not Implemented');
     });
 
@@ -43,7 +50,8 @@ describe('Throttled Function', () => {
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
-  test('should call at most 1 times in interval', async () => {
+  it('should call at most 1 times in interval', async () => {
+    expect.hasAssertions();
     const throttled = createThrottledFunction(spy, 500);
 
     throttled();
@@ -56,7 +64,8 @@ describe('Throttled Function', () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should call every interval', async () => {
+  it('should call every interval', async () => {
+    expect.hasAssertions();
     const throttled = createThrottledFunction(spy, 500);
 
     // Should call - First should always call
@@ -81,7 +90,8 @@ describe('Throttled Function', () => {
     expect(spy).toHaveBeenCalledTimes(4);
   });
 
-  test('should call with last argument', async () => {
+  it('should call with last argument', async () => {
+    expect.hasAssertions();
     const throttled = createThrottledFunction(spy, 500);
 
     throttled();
@@ -94,7 +104,8 @@ describe('Throttled Function', () => {
     expect(spy).toHaveBeenCalledWith('foobar');
   });
 
-  test('should return same promise if no delay', async () => {
+  it('should return same promise if no delay', async () => {
+    expect.hasAssertions();
     const throttled = createThrottledFunction(spy, 500);
 
     const promise1 = throttled();
@@ -106,22 +117,24 @@ describe('Throttled Function', () => {
   });
 });
 
-describe('Debounced Function', () => {
-  const spy = vi.fn().mockResolvedValue('foobar');
+describe('create a debounced', () => {
+  const spy = vi.fn<ExampleFunction>().mockResolvedValue('foobar');
 
-  test('should call original function', async () => {
+  it('should call original function', async () => {
+    expect.hasAssertions();
     const debounced = createDebouncedFunction(spy, 500);
 
     debounced();
 
     // Waiting for last call to resolve
     await vi.runAllTimersAsync();
-    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should bubble async error', async () => {
+  it('should bubble async error', async () => {
+    expect.hasAssertions();
     const errSpy = vi
-      .fn()
+      .fn<ExampleFunction>()
       .mockRejectedValue(new Error('Async Not Implemented'));
 
     const debounced = createDebouncedFunction(errSpy, 500);
@@ -133,8 +146,9 @@ describe('Debounced Function', () => {
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
-  test('should bubble sync error', async () => {
-    const errSpy = vi.fn(() => {
+  it('should bubble sync error', async () => {
+    expect.hasAssertions();
+    const errSpy = vi.fn<ExampleFunction>(() => {
       throw new Error('Not Implemented');
     });
 
@@ -147,7 +161,8 @@ describe('Debounced Function', () => {
     await expect(promise).rejects.toThrow('Not Implemented');
   });
 
-  test('should call after final call', async () => {
+  it('should call after final call', async () => {
+    expect.hasAssertions();
     const debounced = createDebouncedFunction(spy, 500);
 
     debounced();
@@ -160,7 +175,8 @@ describe('Debounced Function', () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should NOT call every interval', async () => {
+  it('should NOT call every interval', async () => {
+    expect.hasAssertions();
     const debounced = createDebouncedFunction(spy, 500);
 
     // Should not call
@@ -182,7 +198,8 @@ describe('Debounced Function', () => {
     expect(spy).toHaveBeenCalledOnce();
   });
 
-  test('should call with last argument', async () => {
+  it('should call with last argument', async () => {
+    expect.hasAssertions();
     const debounced = createDebouncedFunction(spy, 500);
 
     debounced();
@@ -195,7 +212,8 @@ describe('Debounced Function', () => {
     expect(spy).toHaveBeenCalledWith('foobar');
   });
 
-  test('should NOT return same promise if no delay', async () => {
+  it('should NOT return same promise if no delay', async () => {
+    expect.hasAssertions();
     const throttled = createDebouncedFunction(spy, 500);
 
     const promise1 = throttled();
@@ -207,7 +225,7 @@ describe('Debounced Function', () => {
   });
 });
 
-describe('Wait for generator', () => {
+describe('wait for generator function', () => {
   // oxlint-disable-next-line consistent-function-scoping
   function* gen(): Generator {
     for (let index = 0; index < 10; index += 1) {
@@ -215,16 +233,18 @@ describe('Wait for generator', () => {
     }
   }
 
-  test('should iterate generator', async () => {
+  it('should iterate generator', async () => {
+    expect.hasAssertions();
     const process = gen();
     const spy = vi.spyOn(process, 'next');
 
     await waitForGenerator(process);
 
-    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledTimes(11);
   });
 
-  test('should NOT wait between two iterations if no delay', async () => {
+  it('should NOT wait between two iterations if no delay', async () => {
+    expect.hasAssertions();
     const process = gen();
     const spy = vi.spyOn(process, 'next');
 
@@ -235,7 +255,8 @@ describe('Wait for generator', () => {
     await promise;
   });
 
-  test('should wait between two iterations', async () => {
+  it('should wait between two iterations', async () => {
+    expect.hasAssertions();
     const process = gen();
     const spy = vi.spyOn(process, 'next');
 
@@ -248,7 +269,8 @@ describe('Wait for generator', () => {
     await promise;
   });
 
-  test('should bubble error', async () => {
+  it('should bubble error', async () => {
+    expect.hasAssertions();
     const process = gen();
     const spy = vi.spyOn(process, 'next');
     spy.mockImplementationOnce(() => {

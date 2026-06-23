@@ -7,7 +7,7 @@ import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 import { createConsumer, createPublisher } from '~/lib/rabbitmq';
 
-import { createManyHarvestJob, failManyHarvestJob } from '~/models/harvest';
+import { HarvestJobModel } from '~/models/harvest';
 import { prepareHarvestJobsFromHarvestRequest } from '~/models/harvest-request';
 
 import { queueHarvestJobs } from './dispatch';
@@ -40,16 +40,20 @@ export async function onHarvestRequest(
       data,
       supportedConfig.fetchDelay
     );
-    await createManyHarvestJob(jobs, meta.messageId || '');
-    const queued = await queueHarvestJobs(jobs);
 
-    // Mark as failed jobs that weren't queued
-    await failManyHarvestJob(
-      queued
-        .map(({ id, error }) => (error ? { error, id } : null))
-        // oxlint-disable-next-line no-implicit-coercion - Type guard fails with Boolean
-        .filter((job) => !!job)
-    );
+    await HarvestJobModel.$transaction(async (harvestJobs) => {
+      await harvestJobs.createMany(jobs, meta.messageId || '');
+
+      const queued = await queueHarvestJobs(jobs);
+
+      // Mark as failed jobs that weren't queued
+      await harvestJobs.failMany(
+        queued
+          .map(({ id, error }) => (error ? { error, id } : null))
+          // oxlint-disable-next-line no-implicit-coercion - Type guard fails with Boolean
+          .filter((job) => !!job)
+      );
+    });
   } catch (error) {
     logger.error({
       err: error,

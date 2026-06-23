@@ -1,9 +1,10 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { ExtractionLock } from '.';
 
-describe('Harvest Lock', () => {
-  test('should update status', () => {
+describe('harvest Lock', () => {
+  it('should update status', () => {
+    expect.hasAssertions();
     const lock = new ExtractionLock();
 
     lock.lock();
@@ -13,24 +14,27 @@ describe('Harvest Lock', () => {
     expect(lock.isLocked).toBe(false);
   });
 
-  test('should be free by default', () => {
+  it('should be free by default', () => {
+    expect.hasAssertions();
     const lock = new ExtractionLock();
 
     expect(lock.isLocked).toBe(false);
   });
 
-  test('should be able to change default', () => {
+  it('should be able to change default', () => {
+    expect.hasAssertions();
     const lock = new ExtractionLock(true);
 
     expect(lock.isLocked).toBe(true);
   });
 
-  test('should be able to wait release', async () => {
+  it('should be able to wait release', async () => {
+    expect.hasAssertions();
     const lock = new ExtractionLock(true);
 
     const promise = lock.waitForRelease();
     lock.release();
 
-    await expect(promise).resolves.toBe(undefined);
+    await expect(promise).resolves.toBeUndefined();
   });
 });

@@ -1,16 +1,22 @@
 import { setTimeout } from 'node:timers/promises';
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { HeartbeatConnectedServicePing } from './dto';
-import { doPingWithTimeout } from './index';
+import { doPingWithTimeout } from '.';
 
-describe('Ping with timeout (doPingWithTimeout)', () => {
+describe('execute ping with timeout', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
 
-  test('should execute ping', async () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('should execute ping', async () => {
+    expect.assertions(1);
+
     const ping = vi.fn<HeartbeatConnectedServicePing>().mockResolvedValueOnce({
       hostname: 'foo',
       service: 'bar',
@@ -18,10 +24,12 @@ describe('Ping with timeout (doPingWithTimeout)', () => {
 
     await doPingWithTimeout(ping, 100);
 
-    expect(ping).toHaveBeenCalled();
+    expect(ping).toHaveBeenCalledOnce();
   });
 
-  test('should throw TimeoutError if timeout is reached', async () => {
+  it('should throw TimeoutError if timeout is reached', async () => {
+    expect.assertions(1);
+
     const ping = vi.fn<HeartbeatConnectedServicePing>(async () => {
       await setTimeout(1000);
       return {
@@ -37,7 +45,9 @@ describe('Ping with timeout (doPingWithTimeout)', () => {
     await expect(promise).rejects.toThrow('TimeoutError');
   });
 
-  test('should throw if ping fails', async () => {
+  it('should throw if ping fails', async () => {
+    expect.assertions(1);
+
     const ping = vi
       .fn<HeartbeatConnectedServicePing>()
       .mockRejectedValue(new Error('Failed'));
@@ -45,9 +55,5 @@ describe('Ping with timeout (doPingWithTimeout)', () => {
     const promise = doPingWithTimeout(ping, 100);
 
     await expect(promise).rejects.toThrow('Failed');
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 });

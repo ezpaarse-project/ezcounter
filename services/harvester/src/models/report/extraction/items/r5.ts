@@ -30,7 +30,7 @@ export function createR5ReportStream(
     [
       createReadStream(report.path),
       jsonParser(),
-      jsonPick({ filter: /^Report_Items$/ }),
+      jsonPick({ filter: /^Report_Items$/v }),
       jsonStreamArray(),
       (data: JSONStreamItem): R5StreamItem => ({
         item: data,

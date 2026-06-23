@@ -7,11 +7,7 @@ import {
   DataHostAuthCheckResult,
 } from '@ezcounter/dto/data-host';
 
-import {
-  deleteReleaseSupportedByDataHost,
-  findOneReleaseSupportedByDataHost,
-  upsertReleaseSupportedByDataHost,
-} from '~/models/data-host';
+import { DataHostModel } from '~/models/data-host';
 import {
   DataHostSupportedRelease,
   UpdateDataHostSupportedRelease,
@@ -43,9 +39,11 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id, release } = request.params;
 
+      const dataHosts = new DataHostModel();
+
       return buildResponse(
         reply,
-        await upsertReleaseSupportedByDataHost({
+        await dataHosts.upsertReleaseSupported({
           ...request.body,
           dataHostId: id,
           release,
@@ -77,7 +75,9 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id, release } = request.params;
 
-      await deleteReleaseSupportedByDataHost(id, release);
+      const dataHosts = new DataHostModel();
+
+      await dataHosts.deleteReleaseSupported({ dataHostId: id, release });
 
       reply.statusCode = StatusCodes.NO_CONTENT;
     },
@@ -109,8 +109,13 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ...options
       } = request.body;
 
-      const { dataHost, ...supportedRelease } =
-        await findOneReleaseSupportedByDataHost(id, release);
+      const [dataHost, supportedRelease] = await DataHostModel.$transaction(
+        (dataHosts) =>
+          Promise.all([
+            dataHosts.findOne(id),
+            dataHosts.findOneReleaseSupported({ dataHostId: id, release }),
+          ])
+      );
 
       return buildResponse(
         reply,
@@ -136,9 +141,11 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     },
     method: 'POST',
     preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
       (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
+        assertReleaseSupported({
+          dataHostId: request.params.id,
+          release: request.params.release,
+        }),
     ],
     schema: {
       body: z.object({

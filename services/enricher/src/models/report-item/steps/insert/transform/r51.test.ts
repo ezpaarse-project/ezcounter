@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 // oxlint-disable-next-line import/default
 import isbn from 'isbn3';
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
 
@@ -16,14 +16,15 @@ const EXAMPLES_DIR = join(process.cwd(), '__tests__/examples/items/5.1');
 const readExampleFile = (file: string): R51ReportData =>
   JSON.parse(readFileSync(join(EXAMPLES_DIR, file), 'utf8'));
 
-describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
+describe('transform COUNTER 5.1 Item', () => {
   const OPTIONS: HarvestInsertOptions = {
     additionalData: {},
     additionalIdParts: ['foobar'],
     index: '',
   };
 
-  test('should return iterator', () => {
+  it('should return iterator', () => {
+    expect.hasAssertions();
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -33,7 +34,8 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(iteration).toHaveProperty('value');
   });
 
-  test('should transform item', () => {
+  it('should transform item', () => {
+    expect.hasAssertions();
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -63,11 +65,14 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     // Should generate id
     expect(value).toHaveProperty(
       'id',
-      expect.stringMatching(/[0-9]{4}-[0-9]{2}:[a-z]{2}(:[a-z_]+){2}:[0-9a-f]+/)
+      expect.stringMatching(
+        /[0-9]{4}-[0-9]{2}:[a-z]{2}(?<part>:[a-z_]+){2}:[0-9a-f]+/v
+      )
     );
   });
 
-  test('should transform parent', () => {
+  it('should transform parent', () => {
+    expect.hasAssertions();
     const data = readExampleFile('ir.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -77,7 +82,8 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(value).toHaveProperty('document.Item_Parent.Item_Name', 'Title 2');
   });
 
-  test('should generate id with additionalIdParts', () => {
+  it('should generate id with additionalIdParts', () => {
+    expect.hasAssertions();
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -87,17 +93,19 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     expect(value).toHaveProperty('id', expect.stringContaining('foobar'));
   });
 
-  test('should format ISBN', () => {
+  it('should format ISBN', () => {
+    expect.hasAssertions();
     const data = readExampleFile('ir.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
 
     iterator.next();
 
-    expect(vi.mocked(isbn).asIsbn13).toHaveBeenCalled();
+    expect(isbn.asIsbn13).toHaveBeenCalledOnce();
   });
 
-  test('should resolve on each count on each Performance on each Attribute_Performance', () => {
+  it('should resolve on each count on each Performance on each Attribute_Performance', () => {
+    expect.hasAssertions();
     const data = readExampleFile('pr.json');
 
     const iterator = transformR51ItemToDocuments(data, OPTIONS);
@@ -106,10 +114,12 @@ describe('Transform COUNTER 5.1 Item (transformR51ItemToDocuments)', () => {
     let done = false;
     while (!done) {
       const item = iterator.next();
+      // oxlint-disable vitest/no-conditional-in-test
       done = item.done ?? true;
       if (item.value) {
         iterations += 1;
       }
+      // oxlint-enable vitest/no-conditional-in-test
     }
 
     expect(iterations).toBe(24);

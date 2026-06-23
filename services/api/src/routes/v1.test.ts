@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { z } from '@ezcounter/dto';
 
@@ -57,85 +57,93 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
-test("should return NOT_FOUND if route doesn't exists", async () => {
-  const response = await server.inject({
-    method: 'GET',
-    url: '/not-found',
+describe('http server', () => {
+  it("should return NOT_FOUND if route doesn't exists", async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'GET',
+      url: '/not-found',
+    });
+
+    const { error } = response.json<ErrorResponse>();
+
+    expect(response).toHaveProperty('statusCode', 404);
+    expect(error).toHaveProperty('message', 'Route not found');
   });
 
-  const { error } = response.json<ErrorResponse>();
+  it('should return BAD_REQUEST if request is invalid', async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'POST',
+      url: '/',
+    });
 
-  expect(response).toHaveProperty('statusCode', 404);
-  expect(error).toHaveProperty('message', 'Route not found');
-});
+    const { error } = response.json<ErrorResponse>();
 
-test('should return BAD_REQUEST if request is invalid', async () => {
-  const response = await server.inject({
-    method: 'POST',
-    url: '/',
+    expect(response).toHaveProperty('statusCode', 400);
+    expect(error).toHaveProperty('message', "Request doesn't match the schema");
+    expect(error).toHaveProperty(
+      'cause.issues.0.message',
+      'Invalid input: expected object, received null'
+    );
   });
 
-  const { error } = response.json<ErrorResponse>();
+  it('should return INTERNAL_SERVER_ERROR if response is invalid', async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'GET',
+      url: '/invalid-response',
+    });
 
-  expect(response).toHaveProperty('statusCode', 400);
-  expect(error).toHaveProperty('message', "Request doesn't match the schema");
-  expect(error).toHaveProperty(
-    'cause.issues.0.message',
-    'Invalid input: expected object, received null'
-  );
-});
+    const { error } = response.json<ErrorResponse>();
 
-test('should return INTERNAL_SERVER_ERROR if response is invalid', async () => {
-  const response = await server.inject({
-    method: 'GET',
-    url: '/invalid-response',
+    expect(response).toHaveProperty('statusCode', 500);
+    expect(error).toHaveProperty(
+      'message',
+      "Response doesn't match the schema. Please contact the administrators"
+    );
+    expect(error).toHaveProperty(
+      'cause.issues.0.message',
+      'Invalid input: expected string, received undefined'
+    );
   });
 
-  const { error } = response.json<ErrorResponse>();
+  it('should return UNAUTHORIZED if error with UNAUTHORIZED is thrown', async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'GET',
+      url: '/private',
+    });
 
-  expect(response).toHaveProperty('statusCode', 500);
-  expect(error).toHaveProperty(
-    'message',
-    "Response doesn't match the schema. Please contact the administrators"
-  );
-  expect(error).toHaveProperty(
-    'cause.issues.0.message',
-    'Invalid input: expected string, received undefined'
-  );
-});
+    const { error } = response.json<ErrorResponse>();
 
-test('should return UNAUTHORIZED if error with UNAUTHORIZED is thrown', async () => {
-  const response = await server.inject({
-    method: 'GET',
-    url: '/private',
+    expect(response).toHaveProperty('statusCode', 401);
+    expect(error).toHaveProperty('message', 'Need to auth');
   });
 
-  const { error } = response.json<ErrorResponse>();
+  it('should return INTERNAL_SERVER_ERROR if error is thrown', async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'GET',
+      url: '/not-implemented',
+    });
 
-  expect(response).toHaveProperty('statusCode', 401);
-  expect(error).toHaveProperty('message', 'Need to auth');
-});
+    const { error } = response.json<ErrorResponse>();
 
-test('should return INTERNAL_SERVER_ERROR if error is thrown', async () => {
-  const response = await server.inject({
-    method: 'GET',
-    url: '/not-implemented',
+    expect(response).toHaveProperty('statusCode', 500);
+    expect(error).toHaveProperty('message', 'Not implemented');
   });
 
-  const { error } = response.json<ErrorResponse>();
+  it('should return INTERNAL_SERVER_ERROR if literal error is thrown', async () => {
+    expect.hasAssertions();
+    const response = await server.inject({
+      method: 'GET',
+      url: '/literal-error',
+    });
 
-  expect(response).toHaveProperty('statusCode', 500);
-  expect(error).toHaveProperty('message', 'Not implemented');
-});
+    const { error } = response.json<ErrorResponse>();
 
-test('should return INTERNAL_SERVER_ERROR if literal error is thrown', async () => {
-  const response = await server.inject({
-    method: 'GET',
-    url: '/literal-error',
+    expect(response).toHaveProperty('statusCode', 500);
+    expect(error).toHaveProperty('message', 'Not an error object');
   });
-
-  const { error } = response.json<ErrorResponse>();
-
-  expect(response).toHaveProperty('statusCode', 500);
-  expect(error).toHaveProperty('message', 'Not an error object');
 });

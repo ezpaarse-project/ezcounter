@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { dbClient } from '~/lib/prisma';
 
@@ -13,7 +13,7 @@ import {
   upsertReportSupportedByDataHost,
 } from './create';
 
-describe(upsertDataHost, () => {
+describe('upsert Data Host', () => {
   const dataHost: DataHost = {
     createdAt: new Date(),
     id: '',
@@ -21,24 +21,26 @@ describe(upsertDataHost, () => {
     updatedAt: null,
   };
 
-  test('should query DB', async () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHost.upsert).mockResolvedValueOnce(dataHost);
 
-    await upsertDataHost(dataHost);
+    await upsertDataHost(dataHost, dbClient);
 
-    expect(dbClient.dataHost.upsert).toHaveBeenCalled();
+    expect(dbClient.dataHost.upsert).toHaveBeenCalledOnce();
   });
 
-  test('should return updated job', async () => {
+  it('should return updated job', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHost.upsert).mockResolvedValueOnce(dataHost);
 
-    const promise = upsertDataHost(dataHost);
+    const promise = upsertDataHost(dataHost, dbClient);
 
     await expect(promise).resolves.toMatchObject(dataHost);
   });
 });
 
-describe(upsertReleaseSupportedByDataHost, () => {
+describe('upsert release supported by Data Host', () => {
   const release: DataHostSupportedRelease = {
     baseUrl: 'https://counter-datahost.example',
     createdAt: new Date(),
@@ -50,30 +52,30 @@ describe(upsertReleaseSupportedByDataHost, () => {
     updatedAt: null,
   };
 
-  test('should query DB', async () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedRelease.upsert).mockResolvedValueOnce(
       release
     );
 
-    await upsertReleaseSupportedByDataHost(release);
+    await upsertReleaseSupportedByDataHost(release, dbClient);
 
-    expect(
-      vi.mocked(dbClient.dataHostSupportedRelease.upsert)
-    ).toHaveBeenCalled();
+    expect(dbClient.dataHostSupportedRelease.upsert).toHaveBeenCalledOnce();
   });
 
-  test('should return updated job', async () => {
+  it('should return updated job', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedRelease.upsert).mockResolvedValueOnce(
       release
     );
 
-    const promise = upsertReleaseSupportedByDataHost(release);
+    const promise = upsertReleaseSupportedByDataHost(release, dbClient);
 
     await expect(promise).resolves.toMatchObject(release);
   });
 });
 
-describe(upsertReportSupportedByDataHost, () => {
+describe('upsert report supported by Data Host', () => {
   const report: DataHostSupportedReport = {
     createdAt: new Date(),
     dataHostId: 'id',
@@ -86,24 +88,24 @@ describe(upsertReportSupportedByDataHost, () => {
     updatedAt: null,
   };
 
-  test('should query DB', async () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.upsert).mockResolvedValueOnce(
       report
     );
 
-    await upsertReportSupportedByDataHost(report);
+    await upsertReportSupportedByDataHost(report, dbClient);
 
-    expect(
-      vi.mocked(dbClient.dataHostSupportedReport.upsert)
-    ).toHaveBeenCalled();
+    expect(dbClient.dataHostSupportedReport.upsert).toHaveBeenCalledOnce();
   });
 
-  test('should return updated job', async () => {
+  it('should return updated job', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.upsert).mockResolvedValueOnce(
       report
     );
 
-    const promise = upsertReportSupportedByDataHost(report);
+    const promise = upsertReportSupportedByDataHost(report, dbClient);
 
     await expect(promise).resolves.toMatchObject(report);
   });

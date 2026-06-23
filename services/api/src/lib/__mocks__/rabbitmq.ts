@@ -3,24 +3,29 @@ import { mockDeep } from 'vitest-mock-extended';
 
 import type { rabbitmq } from '@ezcounter/rabbitmq';
 
+import type * as original from '../rabbitmq';
+
 const mockedChannel = mockDeep<rabbitmq.Channel>();
 const mockedConsumer = mockDeep<rabbitmq.Consumer>();
 const mockedPublisher = mockDeep<rabbitmq.Publisher>();
 const mockedRPC = mockDeep<rabbitmq.RPCClient>();
 
 const rabbitClient = mockDeep<rabbitmq.Connection>();
+// oxlint-disable-next-line vitest/require-hook
 rabbitClient.acquire.mockResolvedValue(mockedChannel);
 
-export const createConsumer = vi.fn().mockReturnValue(mockedConsumer);
+export { type rabbitmq } from '@ezcounter/rabbitmq';
 
-export const createPublisher = vi.fn().mockReturnValue(mockedPublisher);
+export const createConsumer = vi
+  .fn<typeof original.createConsumer>()
+  .mockReturnValue(mockedConsumer);
 
-export const createRPCClient = vi.fn().mockReturnValue(mockedRPC);
+export const createPublisher = vi
+  .fn<typeof original.createPublisher>()
+  .mockReturnValue(mockedPublisher);
 
-export {
-  rabbitClient,
-  mockedChannel,
-  mockedConsumer,
-  mockedPublisher,
-  type rabbitmq,
-};
+export const createRPCClient = vi
+  .fn<typeof original.createRPCClient>()
+  .mockReturnValue(mockedRPC);
+
+export { rabbitClient, mockedChannel, mockedConsumer, mockedPublisher };

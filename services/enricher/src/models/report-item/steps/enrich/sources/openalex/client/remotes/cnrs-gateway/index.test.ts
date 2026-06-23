@@ -1,11 +1,11 @@
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { CNRSGatewayRemote } from '.';
 
-describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
-  describe('Fetch documents by DOI (fetchManyWorkByDOI)', () => {
+describe('remote for CNRS OpenAlex', () => {
+  describe('fetch documents by DOI', () => {
     const server = setupServer(
       http.post<Record<string, string>, string[]>(
         'https://mocked-openalex.localhost/openalex/works',
@@ -63,12 +63,14 @@ describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
     afterEach(() => {
       server.resetHandlers();
     });
+
     // Close server after all tests
     afterAll(() => {
       server.close();
     });
 
-    test('should dedupe DOIs', async () => {
+    it('should dedupe DOIs', async () => {
+      expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
         baseUrl: 'https://mocked-openalex.localhost/',
@@ -86,7 +88,8 @@ describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
       expect(results).toHaveLength(1);
     });
 
-    test('should remote URLs from IDs', async () => {
+    it('should remote URLs from IDs', async () => {
+      expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
         baseUrl: 'https://mocked-openalex.localhost/',
@@ -101,7 +104,8 @@ describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
       expect(results).toHaveProperty('0.ids.openalex', 'XXXXXXXXXXX');
     });
 
-    test('should skip invalid responses', async () => {
+    it('should skip invalid responses', async () => {
+      expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
         baseUrl: 'https://invalid-openalex.localhost/',
@@ -115,7 +119,8 @@ describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from remote', async () => {
+    it('should skip errors from remote', async () => {
+      expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
         baseUrl: 'https://error-openalex.localhost/',
@@ -129,7 +134,8 @@ describe('CNRS OpenAlex remote (CNRSGatewayRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from client', async () => {
+    it('should skip errors from client', async () => {
+      expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
         baseUrl: 'https://network-openalex.localhost/',

@@ -4,12 +4,13 @@ import { StatusCodes } from 'http-status-codes';
 import { z } from '@ezcounter/dto';
 import { HarvestRequestData } from '@ezcounter/dto/queues';
 
-import { findAllHarvestJob } from '~/models/harvest';
-import { HarvestJob } from '~/models/harvest/dto';
+import { HarvestJobModel } from '~/models/harvest';
+import { HarvestJob, HarvestJobFilters } from '~/models/harvest/dto';
 
 import { queueHarvestRequest } from '~/queues/harvest/request';
+import { PaginationQuery } from '~/routes/v1/query';
 import {
-  EmptyResponse,
+  PaginationMeta,
   buildResponse,
   describeErrors,
   describeSuccess,
@@ -17,13 +18,32 @@ import {
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
-    handler: async (request, reply) =>
-      buildResponse(reply, await findAllHarvestJob()),
+    handler: async (request, reply) => {
+      const { count, order, page, sort, ...filters } = request.query;
+
+      const [jobs, total] = await HarvestJobModel.$transaction((harvestJobs) =>
+        Promise.all([
+          harvestJobs.findAll({
+            ...filters,
+            orderBy: { [sort || 'createdAt']: order },
+            skip: count * (page - 1),
+            take: count > 0 ? count : undefined,
+          }),
+          harvestJobs.countAll(filters),
+        ])
+      );
+
+      return buildResponse(reply, jobs, { count: jobs.length, page, total });
+    },
     method: 'GET',
     schema: {
+      querystring: z.object({
+        ...PaginationQuery.shape,
+        ...HarvestJobFilters.shape,
+      }),
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),
-        [StatusCodes.OK]: describeSuccess(z.array(HarvestJob)),
+        [StatusCodes.OK]: describeSuccess(z.array(HarvestJob), PaginationMeta),
       },
       summary: 'Get harvest jobs',
       tags: ['harvest'],

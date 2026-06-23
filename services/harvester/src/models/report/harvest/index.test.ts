@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
@@ -9,14 +9,16 @@ import { handleExceptions, reharvestOrMarkAsError } from '.';
 vi.mock(import('~/queues/harvest/jobs/status'));
 vi.mock(import('./steps/extract'));
 
-describe('Report Exceptions (handleExceptions)', () => {
-  test('should return null if no exceptions', () => {
+describe('handle report exceptions', () => {
+  it('should return null if no exceptions', () => {
+    expect.hasAssertions();
     const result = handleExceptions([]);
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 
-  test('should return null if no error exceptions', () => {
+  it('should return null if no error exceptions', () => {
+    expect.hasAssertions();
     const result = handleExceptions([
       {
         code: 'foobar',
@@ -30,10 +32,11 @@ describe('Report Exceptions (handleExceptions)', () => {
       },
     ]);
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 
-  test('should return processing if report is processing', () => {
+  it('should return processing if report is processing', () => {
+    expect.hasAssertions();
     const result = handleExceptions([
       {
         code: 'counter:1011',
@@ -50,7 +53,8 @@ describe('Report Exceptions (handleExceptions)', () => {
     expect(result).toHaveProperty('processing', true);
   });
 
-  test('should return unavailable if data host is unavailable', () => {
+  it('should return unavailable if data host is unavailable', () => {
+    expect.hasAssertions();
     const result = handleExceptions([
       {
         code: 'counter:1000',
@@ -67,7 +71,8 @@ describe('Report Exceptions (handleExceptions)', () => {
     expect(result).toHaveProperty('unavailable', true);
   });
 
-  test('should throw last HarvestError if error exception', () => {
+  it('should throw last HarvestError if error exception', () => {
+    expect.hasAssertions();
     let err: unknown = null;
     try {
       handleExceptions([
@@ -94,7 +99,7 @@ describe('Report Exceptions (handleExceptions)', () => {
   });
 });
 
-describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
+describe('re-harvest or return error', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getOptions = (): HarvestJobData => ({
     download: {
@@ -115,7 +120,8 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     },
   });
 
-  test('should return null if file is not from remote', () => {
+  it('should return null if file is not from remote', () => {
+    expect.hasAssertions();
     const options = getOptions();
 
     const result = reharvestOrMarkAsError(
@@ -124,10 +130,11 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
       new Error('Error')
     );
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 
-  test('should set forceDownload if file is not from remote', () => {
+  it('should set forceDownload if file is not from remote', () => {
+    expect.hasAssertions();
     const options = getOptions();
 
     reharvestOrMarkAsError(
@@ -139,19 +146,8 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     expect(options).toHaveProperty('download.forceDownload', true);
   });
 
-  test('should set forceDownload if file is not from remote', () => {
-    const options = getOptions();
-
-    reharvestOrMarkAsError(
-      { cache: { source: 'archive' }, path: '' },
-      options,
-      new Error('Error')
-    );
-
-    expect(options).toHaveProperty('download.forceDownload', true);
-  });
-
-  test('should return that harvest failed if from remote', () => {
+  it('should return that harvest failed if from remote', () => {
+    expect.hasAssertions();
     const options = getOptions();
 
     const result = reharvestOrMarkAsError(
@@ -163,7 +159,8 @@ describe('Re-harvest or return error (reharvestOrMarkAsError)', () => {
     expect(result).toHaveProperty('success', false);
   });
 
-  test('should notify that harvest failed if from remote', () => {
+  it('should notify that harvest failed if from remote', () => {
+    expect.hasAssertions();
     const options = getOptions();
 
     reharvestOrMarkAsError(

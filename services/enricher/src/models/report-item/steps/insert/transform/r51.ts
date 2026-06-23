@@ -243,7 +243,7 @@ export function* transformR51ItemToDocuments(
             ...attribute,
             Count: count,
             Item_Parent: parent,
-            Metric_Type: Metric_Type,
+            Metric_Type,
             Report_Header: header,
             X_Date_Month: date,
             X_Harvested_At: data.harvestDate,

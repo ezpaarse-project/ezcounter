@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestInsertOptions } from '@ezcounter/dto/harvest';
@@ -11,14 +11,15 @@ import { transformR51ItemToDocuments } from './r51';
 vi.mock(import('./r5'));
 vi.mock(import('./r51'));
 
-describe('Transform COUNTER Item (transformReportItemToDocuments)', () => {
+describe('transform COUNTER Item', () => {
   const OPTIONS: HarvestInsertOptions = {
     additionalData: {},
     additionalIdParts: [],
     index: '',
   };
 
-  test('should supports COUNTER 5', () => {
+  it('should supports COUNTER 5', () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
     data.header.Release = '5';
 
@@ -30,7 +31,8 @@ describe('Transform COUNTER Item (transformReportItemToDocuments)', () => {
     );
   });
 
-  test('should supports COUNTER 5.1', () => {
+  it('should supports COUNTER 5.1', () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
     data.header.Release = '5.1';
 
@@ -42,7 +44,8 @@ describe('Transform COUNTER Item (transformReportItemToDocuments)', () => {
     );
   });
 
-  test('should throw if COUNTER Release is not supported', () => {
+  it('should throw if COUNTER Release is not supported', () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
     data.header.Release = '0';
 

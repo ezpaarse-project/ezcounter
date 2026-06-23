@@ -3,7 +3,7 @@ import { HarvestJobStatusEvent } from '@ezcounter/dto/queues';
 import { appLogger } from '~/lib/logger';
 import { createConsumer } from '~/lib/rabbitmq';
 
-import { updateOneHarvestJobThrottled } from '~/models/harvest';
+import { HarvestJobModel } from '~/models/harvest';
 
 const EXCHANGE_NAME = 'ezcounter:harvest.jobs.status';
 
@@ -17,8 +17,9 @@ const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
  * @param data - The event
  */
 export function onHarvestJobStatus(data: HarvestJobStatusEvent): void {
+  const harvestJobs = new HarvestJobModel();
   try {
-    updateOneHarvestJobThrottled(data);
+    harvestJobs.updateOneThrottled(data);
   } catch (error) {
     logger.error({
       err: error,

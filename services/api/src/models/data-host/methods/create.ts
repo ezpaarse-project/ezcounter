@@ -1,23 +1,29 @@
-import { dbClient } from '~/lib/prisma';
-
-import {
-  type CreateDataHost,
-  type CreateDataHostSupportedRelease,
-  type CreateDataHostSupportedReport,
+import type {
   DataHost,
   DataHostSupportedRelease,
   DataHostSupportedReport,
+  Prisma,
+} from '@ezcounter/database';
+
+import type {
+  CreateDataHost,
+  CreateDataHostSupportedRelease,
+  CreateDataHostSupportedReport,
 } from '../dto';
 
 /**
  * Create or Update data host
  *
  * @param input - The data host
+ * @param tx - The DB client (can be a transaction)
  *
  * @returns The supported release
  */
-export async function upsertDataHost(input: CreateDataHost): Promise<DataHost> {
-  const release = await dbClient.dataHost.upsert({
+export const upsertDataHost = (
+  input: CreateDataHost,
+  tx: Prisma.TransactionClient
+): Promise<DataHost> =>
+  tx.dataHost.upsert({
     create: input,
     update: input,
     where: {
@@ -25,20 +31,19 @@ export async function upsertDataHost(input: CreateDataHost): Promise<DataHost> {
     },
   });
 
-  return DataHost.parse(release);
-}
-
 /**
  * Create or Update supported release of a data host
  *
  * @param input - The release with data host id
+ * @param tx - The DB client (can be a transaction)
  *
  * @returns The supported release
  */
-export async function upsertReleaseSupportedByDataHost(
-  input: CreateDataHostSupportedRelease
-): Promise<DataHostSupportedRelease> {
-  const release = await dbClient.dataHostSupportedRelease.upsert({
+export const upsertReleaseSupportedByDataHost = (
+  input: CreateDataHostSupportedRelease,
+  tx: Prisma.TransactionClient
+): Promise<DataHostSupportedRelease> =>
+  tx.dataHostSupportedRelease.upsert({
     create: input,
     update: input,
     where: {
@@ -49,20 +54,19 @@ export async function upsertReleaseSupportedByDataHost(
     },
   });
 
-  return DataHostSupportedRelease.parse(release);
-}
-
 /**
  * Create or Update supported report of a data host
  *
  * @param input - The report with data host id
+ * @param tx - The DB client (can be a transaction)
  *
  * @returns The supported report
  */
-export async function upsertReportSupportedByDataHost(
-  input: CreateDataHostSupportedReport
-): Promise<DataHostSupportedReport> {
-  const report = await dbClient.dataHostSupportedReport.upsert({
+export const upsertReportSupportedByDataHost = (
+  input: CreateDataHostSupportedReport,
+  tx: Prisma.TransactionClient
+): Promise<DataHostSupportedReport> =>
+  tx.dataHostSupportedReport.upsert({
     create: input,
     update: input,
     where: {
@@ -73,6 +77,3 @@ export async function upsertReportSupportedByDataHost(
       },
     },
   });
-
-  return DataHostSupportedReport.parse(report);
-}

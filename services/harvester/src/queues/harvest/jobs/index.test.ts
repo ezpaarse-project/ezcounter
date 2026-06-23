@@ -1,8 +1,9 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
 import type { rabbitmq } from '~/lib/rabbitmq';
+// oxlint-disable-next-line vitest/no-mocks-import - We need to get mockedChannel as chan is not exported
 import { mockedChannel } from '~/lib/__mocks__/rabbitmq';
 import { appConfig } from '~/lib/config';
 
@@ -15,7 +16,7 @@ vi.mock(import('node:timers/promises'));
 vi.mock(import('~/models/report/harvest'));
 vi.mock(import('./status'));
 
-describe('Harvest Process (processHarvestQueue)', () => {
+describe('harvest Process', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJobData => ({
     download: {
@@ -46,7 +47,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     routingKey: '',
   });
 
-  test('should ensure temporary queue', async () => {
+  it('should ensure temporary queue', async () => {
+    expect.hasAssertions();
     const process = processHarvestQueue('foobar');
 
     await process.next();
@@ -57,7 +59,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
   });
 
-  test('should harvest report if message is present', async () => {
+  it('should harvest report if message is present', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -68,10 +71,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
     await process.next();
 
-    expect(harvestReport).toHaveBeenCalled();
+    expect(harvestReport).toHaveBeenCalledOnce();
   });
 
-  test('should ack message once harvest is complete', async () => {
+  it('should ack message once harvest is complete', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -88,7 +92,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
   });
 
-  test('should nack message if input is invalid', async () => {
+  it('should nack message if input is invalid', async () => {
+    expect.hasAssertions();
     const process = processHarvestQueue('foobar');
 
     const msg = getMessage('');
@@ -101,7 +106,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
   });
 
-  test('should requeue job if endpoint is processing', async () => {
+  it('should requeue job if endpoint is processing', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -128,7 +134,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     );
   });
 
-  test('should requeue job if endpoint is unavailable', async () => {
+  it('should requeue job if endpoint is unavailable', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -152,7 +159,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     );
   });
 
-  test('should NOT requeue job if try limit is reached', async () => {
+  it('should NOT requeue job if try limit is reached', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.try = appConfig.download.maxTries;
 
@@ -168,7 +176,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     expect(mockedChannel.basicPublish).not.toHaveBeenCalled();
   });
 
-  test('should NOT throw if requeued failed', async () => {
+  it('should NOT throw if requeued failed', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -186,7 +195,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     await expect(promise).resolves.toHaveProperty('done', false);
   });
 
-  test('should delete queue if no more messages are in queue', async () => {
+  it('should delete queue if no more messages are in queue', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -200,10 +210,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
     // No messages left in queue
     await process.next();
 
-    expect(mockedChannel.queueDelete).toHaveBeenCalled();
+    expect(mockedChannel.queueDelete).toHaveBeenCalledOnce();
   });
 
-  test('should NOT delete queue if some messages are delayed', async () => {
+  it('should NOT delete queue if some messages are delayed', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -221,7 +232,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     expect(mockedChannel.queueDelete).not.toHaveBeenCalled();
   });
 
-  test("should throw if queue couldn't be deleted", async () => {
+  it("should throw if queue couldn't be deleted", async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -241,7 +253,8 @@ describe('Harvest Process (processHarvestQueue)', () => {
     await expect(promise).rejects.toThrow('Failed to delete queue');
   });
 
-  test('should close channel if no more messages are in queue', async () => {
+  it('should close channel if no more messages are in queue', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -255,10 +268,11 @@ describe('Harvest Process (processHarvestQueue)', () => {
     // No messages left in queue
     await process.next();
 
-    expect(mockedChannel.close).toHaveBeenCalled();
+    expect(mockedChannel.close).toHaveBeenCalledOnce();
   });
 
-  test('should notify that job is processing', async () => {
+  it('should notify that job is processing', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -269,14 +283,15 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
     await process.next();
 
-    expect(vi.mocked(sendHarvestJobStatusEvent)).toHaveBeenCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       id: job.id,
       startedAt: new Date(),
       status: 'processing',
     });
   });
 
-  test('should notify that job is delayed', async () => {
+  it('should notify that job is delayed', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     const process = processHarvestQueue('foobar');
@@ -288,7 +303,7 @@ describe('Harvest Process (processHarvestQueue)', () => {
     });
     await process.next();
 
-    expect(vi.mocked(sendHarvestJobStatusEvent)).toHaveBeenCalledWith({
+    expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
       id: job.id,
       status: 'delayed',
     });

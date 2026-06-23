@@ -1,9 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import {
-  doesDataHostExists,
-  doesDataHostSupportsRelease,
-} from '~/models/data-host';
+import { DataHostModel } from '~/models/data-host';
 
 import { HTTPError } from '~/routes/v1/errors';
 
@@ -11,11 +8,17 @@ import { HTTPError } from '~/routes/v1/errors';
  * Shorthand to assert if data host is registered
  *
  * @param id - ID of data host
+ * @param model - Previous instance of DataHostModel
  *
- * @throws If data host is not registered
+ * @throws {HTTPError} If data host is not registered
  */
-export async function assertDataHostRegistered(id: string): Promise<void> {
-  if (await doesDataHostExists(id)) {
+export async function assertDataHostRegistered(
+  id: string,
+  model?: DataHostModel
+): Promise<void> {
+  const dataHosts = model ?? new DataHostModel();
+
+  if (await dataHosts.doesExists(id)) {
     return;
   }
 
@@ -28,21 +31,26 @@ export async function assertDataHostRegistered(id: string): Promise<void> {
 /**
  * Shorthand to assert if release is supported
  *
- * @param dataHostId - ID of data host
- * @param release - The release
+ * @param id - ID of release
+ * @param model - Previous instance of DataHostModel
  *
- * @throws If release is not supported by data host
+ * @throws {HTTPError} If data host is not registered
+ * @throws {HTTPError} If release is not supported by data host
  */
 export async function assertReleaseSupported(
-  dataHostId: string,
-  release: '5' | '5.1'
+  id: { dataHostId: string; release: '5' | '5.1' },
+  model?: DataHostModel
 ): Promise<void> {
-  if (await doesDataHostSupportsRelease(dataHostId, release)) {
+  const dataHosts = model ?? new DataHostModel();
+
+  await assertDataHostRegistered(id.dataHostId, model);
+
+  if (await dataHosts.doesSupportsRelease(id)) {
     return;
   }
 
   throw new HTTPError(
     StatusCodes.NOT_FOUND,
-    `Data host "${dataHostId}" does not supports "${release}"`
+    `Data host "${id.dataHostId}" does not supports "${id.release}"`
   );
 }

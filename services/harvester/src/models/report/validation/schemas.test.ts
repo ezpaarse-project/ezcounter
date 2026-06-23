@@ -1,153 +1,176 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { getCounterValidation } from './schemas';
 
-describe('COUNTER unknown', () => {
-  test('should throws if release is unknown', () => {
-    const fnc = (): unknown => getCounterValidation('foo', 'bar');
-
-    expect(fnc).toThrow('COUNTER Release foo is unknown');
+describe('counter unknown', () => {
+  it('should throws if release is unknown', () => {
+    expect.hasAssertions();
+    expect((): unknown => getCounterValidation('foo', 'bar')).toThrow(
+      'COUNTER Release foo is unknown'
+    );
   });
 });
 
-describe('COUNTER 5', () => {
-  describe('Report Validation (getCounterValidation)', () => {
-    test('should have validation for PR', () => {
+describe('counter 5', () => {
+  describe('report Validation', () => {
+    it('should have validation for PR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5', 'PR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for DR', () => {
+    it('should have validation for DR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5', 'DR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR', () => {
+    it('should have validation for TR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5', 'TR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for IR', () => {
+    it('should have validation for IR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5', 'IR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for unknown', () => {
+    it('should have validation for unknown', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5', '');
-      expect(validation.header).toBe(undefined);
-      expect(validation.item).toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeUndefined();
+      expect(validation.item).toBeUndefined();
+      expect(validation.exception).toBeDefined();
     });
   });
 });
 
-describe('COUNTER 5.1', () => {
-  describe('Report Validation (getCounterValidation)', () => {
-    test('should have validation for PR', () => {
+describe('counter 5.1', () => {
+  describe('report Validation', () => {
+    it('should have validation for PR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'PR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for PR_P1', () => {
+    it('should have validation for PR_P1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'PR_P1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for DR', () => {
+    it('should have validation for DR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for DR_D1', () => {
+    it('should have validation for DR_D1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR_D1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for DR_D2', () => {
+    it('should have validation for DR_D2', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR_D2');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR', () => {
+    it('should have validation for TR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_B1', () => {
+    it('should have validation for TR_B1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_B2', () => {
+    it('should have validation for TR_B2', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B2');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_B3', () => {
+    it('should have validation for TR_B3', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B3');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_J1', () => {
+    it('should have validation for TR_J1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_J2', () => {
+    it('should have validation for TR_J2', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J2');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_J3', () => {
+    it('should have validation for TR_J3', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J3');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for TR_J4', () => {
+    it('should have validation for TR_J4', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J4');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for IR', () => {
+    it('should have validation for IR', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for IR_A1', () => {
+    it('should have validation for IR_A1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR_A1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for IR_M1', () => {
+    it('should have validation for IR_M1', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR_M1');
-      expect(validation.header).not.toBe(undefined);
-      expect(validation.item).not.toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeDefined();
+      expect(validation.item).toBeDefined();
+      expect(validation.exception).toBeDefined();
     });
-    test('should have validation for unknown', () => {
+    it('should have validation for unknown', () => {
+      expect.hasAssertions();
       const validation = getCounterValidation('5.1', '');
-      expect(validation.header).toBe(undefined);
-      expect(validation.item).toBe(undefined);
-      expect(validation.exception).not.toBe(undefined);
+      expect(validation.header).toBeUndefined();
+      expect(validation.item).toBeUndefined();
+      expect(validation.exception).toBeDefined();
     });
   });
 });

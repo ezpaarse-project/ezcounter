@@ -1,3 +1,4 @@
+import type { Prisma } from '@ezcounter/database';
 import { createThrottledFunction } from '@ezcounter/toolbox/utils';
 
 import { appLogger } from '~/lib/logger';
@@ -18,13 +19,17 @@ const updaters = new Map<string, typeof handleUpdate>();
  * Update status of harvest job in DB and clear state when job is ended
  *
  * @param id - The id of harvest job to update
+ * @param tx - The DB client (can be a transaction)
  */
-async function handleUpdate(id: string): Promise<void> {
+async function handleUpdate(
+  id: string,
+  tx: Prisma.TransactionClient
+): Promise<void> {
   const data = patchs.get(id);
   patchs.delete(id);
 
   try {
-    const { status } = await updateOneHarvestJob({ id, ...data });
+    const { status } = await updateOneHarvestJob({ id, ...data }, tx);
 
     if (status === 'done' || status === 'error') {
       updaters.delete(id);
@@ -48,8 +53,12 @@ async function handleUpdate(id: string): Promise<void> {
  * Update one Harvest Job but throttled to avoid concurrency issues
  *
  * @param data - The data to update in harvest job
+ * @param tx - The DB client (can be a transaction)
  */
-export function updateOneHarvestJobThrottled(data: UpdateHarvestJob): void {
+export function updateOneHarvestJobThrottled(
+  data: UpdateHarvestJob,
+  tx: Prisma.TransactionClient
+): void {
   // Merge new status with previous updates
   let event = data;
   const previous = patchs.get(data.id);
@@ -65,5 +74,5 @@ export function updateOneHarvestJobThrottled(data: UpdateHarvestJob): void {
     updaters.set(data.id, update);
   }
 
-  void update(data.id);
+  void update(data.id, tx);
 }

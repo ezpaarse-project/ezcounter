@@ -35,7 +35,7 @@ function createR51IRParentStream(
     createReadStream(reportPath),
     jsonParser(),
     // Picking whole parent
-    jsonPick({ filter: /^Report_Items\.\d+$/ }),
+    jsonPick({ filter: /^Report_Items\.\d+$/v }),
     // Check if have the "Items" property
     (token: JSONToken): JSONToken => {
       hadItems ||= token.name === 'keyValue' && token.value === 'Items';
@@ -86,7 +86,7 @@ function createR51IRItemStream(
     createReadStream(reportPath),
     jsonParser(),
     // Picking items
-    jsonPick({ filter: /^Report_Items\.\d+\.Items$/ }),
+    jsonPick({ filter: /^Report_Items\.\d+\.Items$/v }),
     async (token: JSONToken): Promise<JSONToken> => {
       if (arrayLevel === 0) {
         // All items of current parent are resolved
@@ -203,7 +203,7 @@ export function createR51ReportStream(
         [
           createReadStream(report.path),
           jsonParser(),
-          jsonPick({ filter: /^Report_Items$/ }),
+          jsonPick({ filter: /^Report_Items$/v }),
           jsonStreamArray(),
           (item: JSONStreamItem): R51StreamItem => ({
             item,

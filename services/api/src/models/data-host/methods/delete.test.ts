@@ -1,4 +1,5 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
 import { dbClient } from '~/lib/prisma';
 
@@ -8,55 +9,132 @@ import {
   deleteReportSupportedByDataHost,
 } from './delete';
 
-describe(deleteDataHost, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(1);
+describe('delete Data Host', () => {
+  it('should query DB', async () => {
+    expect.assertions(2);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    await deleteDataHost('id');
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(mockedTx.dataHost.count).mockResolvedValueOnce({ id: 1 });
 
-    expect(dbClient.dataHost.delete).toHaveBeenCalled();
+    await deleteDataHost('id', dbClient);
+
+    expect(dbClient.$transaction).toHaveBeenCalledOnce();
+    expect(mockedTx.dataHost.delete).toHaveBeenCalledExactlyOnceWith({
+      where: { id: 'id' },
+    });
   });
 
-  test('should return if deleted', async () => {
-    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(0);
+  it('should return if deleted', async () => {
+    expect.assertions(1);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    const promise = deleteDataHost('id');
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(mockedTx.dataHost.count).mockResolvedValueOnce({ id: 0 });
+
+    const promise = deleteDataHost('id', dbClient);
 
     await expect(promise).resolves.toBe(false);
   });
 });
 
-describe(deleteReleaseSupportedByDataHost, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
+describe('delete release supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.assertions(2);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    await deleteReleaseSupportedByDataHost('id', '5.1');
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(mockedTx.dataHostSupportedRelease.count).mockResolvedValueOnce({
+      release: 1,
+    });
 
-    expect(dbClient.dataHostSupportedRelease.delete).toHaveBeenCalled();
+    await deleteReleaseSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1' },
+      dbClient
+    );
+
+    expect(dbClient.$transaction).toHaveBeenCalledOnce();
+    expect(
+      mockedTx.dataHostSupportedRelease.delete
+    ).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        dataHostId_release: {
+          dataHostId: 'id',
+          release: '5.1',
+        },
+      },
+    });
   });
 
-  test('should return if deleted', async () => {
-    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(0);
+  it('should return if deleted', async () => {
+    expect.assertions(1);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    const promise = deleteReleaseSupportedByDataHost('id', '5.1');
+    vi.mocked(mockedTx.dataHostSupportedRelease.count).mockResolvedValueOnce(0);
+
+    const promise = deleteReleaseSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(false);
   });
 });
 
-describe(deleteReportSupportedByDataHost, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
+describe('delete report supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.assertions(2);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    await deleteReportSupportedByDataHost('id', '5.1', 'tr');
+    vi.mocked(mockedTx.dataHostSupportedReport.count).mockResolvedValueOnce(1);
 
-    expect(dbClient.dataHostSupportedReport.delete).toHaveBeenCalled();
+    await deleteReportSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
+
+    expect(dbClient.$transaction).toHaveBeenCalledOnce();
+    expect(
+      mockedTx.dataHostSupportedReport.delete
+    ).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        dataHostId_release_id: {
+          dataHostId: 'id',
+          id: 'tr',
+          release: '5.1',
+        },
+      },
+    });
   });
 
-  test('should return if deleted', async () => {
-    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(0);
+  it('should return if deleted', async () => {
+    expect.assertions(1);
+    const mockedTx = mockDeep<typeof dbClient>();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((exec) =>
+      exec(mockedTx)
+    );
 
-    const promise = deleteReportSupportedByDataHost('id', '5.1', 'tr');
+    vi.mocked(mockedTx.dataHostSupportedReport.count).mockResolvedValueOnce(0);
+
+    const promise = deleteReportSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(false);
   });

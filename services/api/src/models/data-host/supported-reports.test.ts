@@ -1,11 +1,11 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { fetchReportList } from '@ezcounter/counter';
 
 import type { DataHostWithSupportedData } from './dto';
 import { fetchSupportedReportsOfDataHost } from './supported-reports';
 
-describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => {
+describe('refresh supported reports', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getDataHost = (): DataHostWithSupportedData => ({
     createdAt: new Date(),
@@ -50,16 +50,18 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
     updatedAt: null,
   });
 
-  describe('No options', () => {
-    test('should request data host', async () => {
+  describe('no options', () => {
+    it('should request data host', async () => {
+      expect.hasAssertions();
       const dataHost = getDataHost();
 
       await fetchSupportedReportsOfDataHost(dataHost, {}, '5.1');
 
-      expect(fetchReportList).toHaveBeenCalled();
+      expect(fetchReportList).toHaveBeenCalledOnce();
     });
 
-    test('should mark missing standard reports as unsupported', async () => {
+    it('should mark missing standard reports as unsupported', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
@@ -70,7 +72,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', false);
     });
 
-    test('should mark missing existing reports as unsupported (if not override)', async () => {
+    it('should mark missing existing reports as unsupported (if not override)', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
@@ -81,7 +84,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', false);
     });
 
-    test('should mark present reports as supported', async () => {
+    it('should mark present reports as supported', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2025-01',
@@ -101,7 +105,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', true);
     });
 
-    test('should update months available', async () => {
+    it('should update months available', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2024-01',
@@ -126,7 +131,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('lastMonthAvailable', '2025-12');
     });
 
-    test('should update months available with non standard format', async () => {
+    it('should update months available with non standard format', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: '2025-01-01',
@@ -147,7 +153,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('lastMonthAvailable', '2025-12');
     });
 
-    test('should NOT update months available with unusable format', async () => {
+    it('should NOT update months available with unusable format', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           First_Month_Available: 'foo',
@@ -168,7 +175,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('lastMonthAvailable', '');
     });
 
-    test('should mark custom reports as supported', async () => {
+    it('should mark custom reports as supported', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           Release: '5.1',
@@ -186,7 +194,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', true);
     });
 
-    test('should skip reports with wrong Release', async () => {
+    it('should skip reports with wrong Release', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([
         {
           Release: '5',
@@ -204,7 +213,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', false);
     });
 
-    test('should NOT update user values', async () => {
+    it('should NOT update user values', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockResolvedValueOnce([]);
 
       const dataHost = getDataHost();
@@ -215,7 +225,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       expect(report).toHaveProperty('supported', true);
     });
 
-    test('should throw if unsupported release', async () => {
+    it('should throw if unsupported release', async () => {
+      expect.hasAssertions();
       const dataHost = getDataHost();
 
       const promise = fetchSupportedReportsOfDataHost(dataHost, {}, '5');
@@ -225,7 +236,8 @@ describe('Refresh supported reports (refreshSupportedReportsOfDataHost)', () => 
       );
     });
 
-    test('should throw if fetch failed', async () => {
+    it('should throw if fetch failed', async () => {
+      expect.hasAssertions();
       vi.mocked(fetchReportList).mockRejectedValueOnce(
         new Error('fetch failed')
       );

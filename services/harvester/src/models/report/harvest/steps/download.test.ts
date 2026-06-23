@@ -1,6 +1,6 @@
 import { createGunzip } from 'node:zlib';
 
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { fetchReportAsStream } from '@ezcounter/counter';
@@ -28,36 +28,41 @@ const OPTIONS: HarvestDownloadOptions = {
   },
 };
 
-describe('Cache report (cacheReport)', () => {
+describe('cache report', () => {
   describe('file exists', () => {
     const REPORT = { jobId: '', path: '/examples/reports/5.1/ir/valid.json' };
 
-    test('should have source "file"', async () => {
+    it('should have source "file"', async () => {
+      expect.hasAssertions();
       const result = await cacheReport(REPORT, OPTIONS);
 
       expect(result.source).toBe('file');
-      expect(result.httpCode).toBe(undefined);
+      expect(result.httpCode).toBeUndefined();
     });
 
-    test("shouldn't read archive", async () => {
+    it("shouldn't read archive", async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, OPTIONS);
 
       expect(createGunzip).not.toHaveBeenCalled();
     });
 
-    test("shouldn't download", async () => {
+    it("shouldn't download", async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, OPTIONS);
 
       expect(fetchReportAsStream).not.toHaveBeenCalled();
     });
 
-    test("shouldn't write file", async () => {
+    it("shouldn't write file", async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, OPTIONS);
 
       expect(createWriteStream).not.toHaveBeenCalledWith(REPORT.path);
     });
 
-    test('should notify progress', async () => {
+    it('should notify progress', async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, OPTIONS);
 
       expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
@@ -70,7 +75,8 @@ describe('Cache report (cacheReport)', () => {
       });
     });
 
-    test("shouldn't be able to be aborted", async () => {
+    it("shouldn't be able to be aborted", async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(REPORT, OPTIONS, timeout);
@@ -88,35 +94,40 @@ describe('Cache report (cacheReport)', () => {
       path: '/examples/reports/5.1/ir/valid_archived.json',
     };
 
-    test('should have source "archive"', async () => {
+    it('should have source "archive"', async () => {
+      expect.hasAssertions();
       const result = await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
       expect(result.source).toBe('archive');
-      expect(result.httpCode).toBe(undefined);
+      expect(result.httpCode).toBeUndefined();
     });
 
-    test('should read archive', async () => {
+    it('should read archive', async () => {
+      expect.hasAssertions();
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
       expect(createReadStream).toHaveBeenCalledWith(
         `${ARCHIVED_REPORT.path}.gz`
       );
-      expect(createGunzip).toHaveBeenCalled();
+      expect(createGunzip).toHaveBeenCalledOnce();
     });
 
-    test("shouldn't download", async () => {
+    it("shouldn't download", async () => {
+      expect.hasAssertions();
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
       expect(fetchReportAsStream).not.toHaveBeenCalled();
     });
 
-    test('should write file', async () => {
+    it('should write file', async () => {
+      expect.hasAssertions();
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
       await expect(exists(ARCHIVED_REPORT.path)).resolves.toBe(true);
     });
 
-    test('should notify progress', async () => {
+    it('should notify progress', async () => {
+      expect.hasAssertions();
       await cacheReport(ARCHIVED_REPORT, OPTIONS);
 
       expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
@@ -129,7 +140,8 @@ describe('Cache report (cacheReport)', () => {
       });
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
@@ -139,13 +151,14 @@ describe('Cache report (cacheReport)', () => {
       await expect(promise).rejects.toThrow('The operation was aborted');
     });
 
-    test('should tick timeout', async () => {
+    it('should tick timeout', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(ARCHIVED_REPORT, OPTIONS, timeout);
 
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledOnce();
     });
   });
 
@@ -155,32 +168,37 @@ describe('Cache report (cacheReport)', () => {
       path: '/examples/reports/5.1/ir/does-not-exists.json',
     };
 
-    test('should have source "remote"', async () => {
+    it('should have source "remote"', async () => {
+      expect.hasAssertions();
       const result = await cacheReport(NO_REPORT, OPTIONS);
 
       expect(result.source).toBe('remote');
-      expect(result.httpCode).not.toBe(undefined);
+      expect(result.httpCode).toBeDefined();
     });
 
-    test("shouldn't read archive", async () => {
+    it("shouldn't read archive", async () => {
+      expect.hasAssertions();
       await cacheReport(NO_REPORT, OPTIONS);
 
       expect(createGunzip).not.toHaveBeenCalled();
     });
 
-    test('should download', async () => {
+    it('should download', async () => {
+      expect.hasAssertions();
       await cacheReport(NO_REPORT, OPTIONS);
 
-      expect(fetchReportAsStream).toHaveBeenCalled();
+      expect(fetchReportAsStream).toHaveBeenCalledOnce();
     });
 
-    test('should write file', async () => {
+    it('should write file', async () => {
+      expect.hasAssertions();
       await cacheReport(NO_REPORT, OPTIONS);
 
       await expect(exists(NO_REPORT.path)).resolves.toBe(true);
     });
 
-    test('should notify progress', async () => {
+    it('should notify progress', async () => {
+      expect.hasAssertions();
       await cacheReport(NO_REPORT, OPTIONS);
 
       expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
@@ -193,7 +211,8 @@ describe('Cache report (cacheReport)', () => {
       });
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(NO_REPORT, OPTIONS, timeout);
@@ -203,13 +222,14 @@ describe('Cache report (cacheReport)', () => {
       await expect(promise).rejects.toThrow('The operation was aborted');
     });
 
-    test('should tick timeout', async () => {
+    it('should tick timeout', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(NO_REPORT, OPTIONS, timeout);
 
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledOnce();
     });
   });
 
@@ -220,32 +240,37 @@ describe('Cache report (cacheReport)', () => {
     };
     const REPORT = { jobId: '', path: '/examples/reports/5.1/ir/valid.json' };
 
-    test('should have source "remote"', async () => {
+    it('should have source "remote"', async () => {
+      expect.hasAssertions();
       const result = await cacheReport(REPORT, FORCE_OPTIONS);
 
       expect(result.source).toBe('remote');
-      expect(result.httpCode).not.toBe(undefined);
+      expect(result.httpCode).toBeDefined();
     });
 
-    test("shouldn't read archive", async () => {
+    it("shouldn't read archive", async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, FORCE_OPTIONS);
 
       expect(createGunzip).not.toHaveBeenCalled();
     });
 
-    test('should download', async () => {
+    it('should download', async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, FORCE_OPTIONS);
 
-      expect(fetchReportAsStream).toHaveBeenCalled();
+      expect(fetchReportAsStream).toHaveBeenCalledOnce();
     });
 
-    test('should write file', async () => {
+    it('should write file', async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, FORCE_OPTIONS);
 
       await expect(exists(REPORT.path)).resolves.toBe(true);
     });
 
-    test('should notify progress', async () => {
+    it('should notify progress', async () => {
+      expect.hasAssertions();
       await cacheReport(REPORT, FORCE_OPTIONS);
 
       expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
@@ -258,7 +283,8 @@ describe('Cache report (cacheReport)', () => {
       });
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = cacheReport(REPORT, FORCE_OPTIONS, timeout);
@@ -268,13 +294,14 @@ describe('Cache report (cacheReport)', () => {
       await expect(promise).rejects.toThrow('The operation was aborted');
     });
 
-    test('should tick timeout', async () => {
+    it('should tick timeout', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
       const spy = vi.spyOn(timeout, 'tick');
 
       await cacheReport(REPORT, FORCE_OPTIONS, timeout);
 
-      expect(spy).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledOnce();
     });
   });
 });

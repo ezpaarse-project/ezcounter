@@ -7,7 +7,7 @@ import type {
   DataHostSupportedRelease,
   DataHostWithSupportedData,
 } from '~/models/data-host/dto';
-import { getDataHostWithSupportedData } from '~/models/data-host';
+import { DataHostModel } from '~/models/data-host';
 
 /**
  * Type for the context of a harvest request
@@ -22,24 +22,27 @@ type HarvestRequestContext = {
  * Get the data hosts with supported data of a request
  *
  * @param request - The request to get the data hosts of
+ * @param tx - The DB transaction
  *
  * @returns The data hosts with supported data of the request
  */
 async function getDataHostsOfRequest(
   request: HarvestRequestData
 ): Promise<Map<string, DataHostWithSupportedData>> {
-  const results = await Promise.all(
-    request.map(async (content) => {
-      try {
-        const dataHost = await getDataHostWithSupportedData(
-          content.download.dataHost.id
-        );
-        return dataHost;
-      } catch {
-        // TODO: Do something
-        return null;
-      }
-    })
+  const results = await DataHostModel.$transaction((dataHosts) =>
+    Promise.all(
+      request.map(async (content) => {
+        try {
+          const dataHost = await dataHosts.findOneWithSupportedData(
+            content.download.dataHost.id
+          );
+          return dataHost;
+        } catch {
+          // TODO: Do something
+          return null;
+        }
+      })
+    )
   );
 
   return new Map(
@@ -56,6 +59,7 @@ async function getDataHostsOfRequest(
  * Allows to run multiple requests in parallel but only one per hostname
  *
  * @param request - The request to resolve
+ * @param tx - The DB transaction
  *
  * @returns The resolved request contexts per hostname
  */

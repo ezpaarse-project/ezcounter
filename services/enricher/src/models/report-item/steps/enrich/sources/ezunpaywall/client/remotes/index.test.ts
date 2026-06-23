@@ -1,14 +1,15 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { createStore } from '~/lib/store';
 
+import { createEzUnpaywallRemote, createEzUnpaywallStore } from '.';
 import { EzUnpaywallRemote } from './ezunpaywall';
-import { createEzUnpaywallRemote, createEzUnpaywallStore } from './index';
 
 vi.mock(import('./ezunpaywall'));
 
-describe('Create store (createEzUnpaywallStore)', () => {
-  test('should create store', () => {
+describe('create store', () => {
+  it('should create store', () => {
+    expect.hasAssertions();
     createEzUnpaywallStore();
 
     expect(createStore).toHaveBeenCalledExactlyOnceWith(
@@ -22,8 +23,9 @@ describe('Create store (createEzUnpaywallStore)', () => {
   });
 });
 
-describe('Create remote (createEzUnpaywallRemote)', () => {
-  test('should create remote', () => {
+describe('create remote', () => {
+  it('should create remote', () => {
+    expect.hasAssertions();
     createEzUnpaywallRemote();
 
     expect(EzUnpaywallRemote).toHaveBeenCalledExactlyOnceWith(

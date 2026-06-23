@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { DataHostAuthCheckOptions } from '@ezcounter/dto/data-host';
 import type { MessageMeta } from '@ezcounter/rabbitmq';
@@ -10,8 +10,9 @@ import { onCredentialsCheckRequest } from './check';
 
 vi.mock(import('~/models/data-host/auth/check'));
 
-describe('Handle Credentials check Request (onCredentialsCheckRequest)', () => {
-  test('should call checkCredentials with provided options', async () => {
+describe('handle Credentials check Request', () => {
+  it('should call checkCredentials with provided options', async () => {
+    expect.hasAssertions();
     vi.mocked(checkCredentials).mockResolvedValueOnce({
       errors: [],
       success: true,
@@ -27,7 +28,7 @@ describe('Handle Credentials check Request (onCredentialsCheckRequest)', () => {
     };
 
     const meta = {} as MessageMeta;
-    const reply = vi.fn();
+    const reply = vi.fn<(...args: unknown[]) => Promise<void>>();
 
     await onCredentialsCheckRequest(options, meta, reply);
 
@@ -43,7 +44,8 @@ describe('Handle Credentials check Request (onCredentialsCheckRequest)', () => {
     });
   });
 
-  test('should use expiration of message as timeout', async () => {
+  it('should use expiration of message as timeout', async () => {
+    expect.hasAssertions();
     vi.mocked(checkCredentials).mockResolvedValueOnce({
       errors: [],
       success: true,
@@ -59,7 +61,7 @@ describe('Handle Credentials check Request (onCredentialsCheckRequest)', () => {
     };
 
     const meta = { expiration: '30000' } as MessageMeta;
-    const reply = vi.fn();
+    const reply = vi.fn<(...args: unknown[]) => Promise<void>>();
 
     await onCredentialsCheckRequest(options, meta, reply);
 

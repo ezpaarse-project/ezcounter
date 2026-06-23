@@ -1,7 +1,8 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { DataHost, UpdateDataHost } from '~/models/data-host/dto';
-import { deleteDataHost, upsertDataHost } from '~/models/data-host';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedDataHostModel } from '~/models/data-host/__mocks__';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -16,7 +17,7 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
-describe('PUT /data-hosts/:id', () => {
+describe('put /data-hosts/:id', () => {
   const body: UpdateDataHost = {
     params: {},
   };
@@ -28,8 +29,9 @@ describe('PUT /data-hosts/:id', () => {
     ...body,
   };
 
-  test('should return data host', async () => {
-    vi.mocked(upsertDataHost).mockResolvedValueOnce(host);
+  it('should return data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.upsert).mockResolvedValueOnce(host);
 
     const response = await server.inject({
       body,
@@ -46,8 +48,9 @@ describe('PUT /data-hosts/:id', () => {
     });
   });
 
-  test('should update data host', async () => {
-    vi.mocked(upsertDataHost).mockResolvedValueOnce(host);
+  it('should update data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.upsert).mockResolvedValueOnce(host);
 
     await server.inject({
       body,
@@ -55,10 +58,11 @@ describe('PUT /data-hosts/:id', () => {
       url: '/data-hosts/:id',
     });
 
-    expect(upsertDataHost).toHaveBeenCalledOnce();
+    expect(mockedDataHostModel.upsert).toHaveBeenCalledOnce();
   });
 
-  test('should return BAD_REQUEST if body is invalid', async () => {
+  it('should return BAD_REQUEST if body is invalid', async () => {
+    expect.hasAssertions();
     const response = await server.inject({
       body: [],
       method: 'PUT',
@@ -76,9 +80,10 @@ describe('PUT /data-hosts/:id', () => {
   });
 });
 
-describe('DELETE /data-hosts/:id', () => {
-  test('should return NO_CONTENT', async () => {
-    vi.mocked(deleteDataHost).mockResolvedValueOnce(true);
+describe('delete /data-hosts/:id', () => {
+  it('should return NO_CONTENT', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.delete).mockResolvedValueOnce(true);
 
     const response = await server.inject({
       method: 'DELETE',
@@ -88,14 +93,15 @@ describe('DELETE /data-hosts/:id', () => {
     expect(response).toHaveProperty('statusCode', 204);
   });
 
-  test('should delete data host', async () => {
-    vi.mocked(deleteDataHost).mockResolvedValueOnce(true);
+  it('should delete data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.delete).mockResolvedValueOnce(true);
 
     await server.inject({
       method: 'DELETE',
       url: '/data-hosts/:id',
     });
 
-    expect(deleteDataHost).toHaveBeenCalledOnce();
+    expect(mockedDataHostModel.delete).toHaveBeenCalledOnce();
   });
 });

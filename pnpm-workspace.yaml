@@ -25,6 +25,6 @@ allowBuilds:
 
 injectWorkspacePackages: true
 
-minimumReleaseAge: 1440
+minimumReleaseAge: 60
 minimumReleaseAgeExclude:
   - '@ezpaarse-project/oxlint-config'

@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
@@ -48,16 +48,18 @@ const OPTIONS: HarvestJobData = {
   },
 };
 
-describe('Report Exceptions (getReportExceptions)', () => {
-  test('should extract exceptions from report', async () => {
+describe('get report exceptions', () => {
+  it('should extract exceptions from report', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     await getReportExceptions({ path: '' }, OPTIONS);
 
-    expect(extractReportExceptions).toHaveBeenCalled();
+    expect(extractReportExceptions).toHaveBeenCalledOnce();
   });
 
-  test('should treat HTTP status as exception', async () => {
+  it('should treat HTTP status as exception', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const result = await getReportExceptions(
@@ -68,7 +70,8 @@ describe('Report Exceptions (getReportExceptions)', () => {
     expect(result).toHaveProperty('0.code', 'http:418');
   });
 
-  test('should not throw on error', async () => {
+  it('should not throw on error', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockRejectedValueOnce(
       new Error('Something happened')
     );
@@ -78,7 +81,8 @@ describe('Report Exceptions (getReportExceptions)', () => {
     await expect(promise).resolves.not.toThrow();
   });
 
-  test('should throw on abort', async () => {
+  it('should throw on abort', async () => {
+    expect.hasAssertions();
     const timeout = new IdleTimeoutController();
     timeout.abort();
 
@@ -92,7 +96,8 @@ describe('Report Exceptions (getReportExceptions)', () => {
     await expect(promise).rejects.toThrow('This operation was aborted');
   });
 
-  test('should tick timeout', async () => {
+  it('should tick timeout', async () => {
+    expect.hasAssertions();
     const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
@@ -100,10 +105,11 @@ describe('Report Exceptions (getReportExceptions)', () => {
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toHaveBeenCalled();
+    expect(timeout.tick).toHaveBeenCalledOnce();
   });
 
-  test('should notify progress', async () => {
+  it('should notify progress', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const res = await getReportExceptions({ path: '' }, OPTIONS);
@@ -119,20 +125,23 @@ describe('Report Exceptions (getReportExceptions)', () => {
   });
 });
 
-describe('Report Header (getReportHeader)', () => {
-  test('should extract header', async () => {
+describe('get report header', () => {
+  it('should extract header', async () => {
+    expect.hasAssertions();
     await getReportHeader('', OPTIONS);
 
-    expect(extractReportHeader).toHaveBeenCalled();
+    expect(extractReportHeader).toHaveBeenCalledOnce();
   });
 
-  test('should extract registryId', async () => {
+  it('should extract registryId', async () => {
+    expect.hasAssertions();
     await getReportHeader('', OPTIONS);
 
-    expect(extractRegistryId).toHaveBeenCalled();
+    expect(extractRegistryId).toHaveBeenCalledOnce();
   });
 
-  test('should throw on error', async () => {
+  it('should throw on error', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportHeader).mockRejectedValueOnce(
       new Error('Something happened')
     );
@@ -142,16 +151,18 @@ describe('Report Header (getReportHeader)', () => {
     await expect(promise).rejects.toThrow('Something happened');
   });
 
-  test('should tick timeout', async () => {
+  it('should tick timeout', async () => {
+    expect.hasAssertions();
     const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     await getReportExceptions({ path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toHaveBeenCalled();
+    expect(timeout.tick).toHaveBeenCalledOnce();
   });
 
-  test('should notify progress', async () => {
+  it('should notify progress', async () => {
+    expect.hasAssertions();
     vi.mocked(extractRegistryId).mockReturnValueOnce(null);
 
     await getReportHeader('', OPTIONS);
@@ -168,16 +179,18 @@ describe('Report Header (getReportHeader)', () => {
   });
 });
 
-describe('Report Items (queueReportItems)', () => {
+describe('get report items', () => {
   const header = mockDeep<COUNTERReportHeader>();
 
-  test('should extract items', async () => {
+  it('should extract items', async () => {
+    expect.hasAssertions();
     await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
-    expect(extractReportItems).toHaveBeenCalled();
+    expect(extractReportItems).toHaveBeenCalledOnce();
   });
 
-  test('should throw on error', async () => {
+  it('should throw on error', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportItems).mockImplementationOnce(() => {
       throw new Error('Something happened');
     });
@@ -187,16 +200,18 @@ describe('Report Items (queueReportItems)', () => {
     await expect(promise).rejects.toThrow('Something happened');
   });
 
-  test('should tick timeout', async () => {
+  it('should tick timeout', async () => {
+    expect.hasAssertions();
     const timeout = new IdleTimeoutController();
     timeout.tick = vi.spyOn(timeout, 'tick');
 
     await queueReportItems({ date: '', header, path: '' }, OPTIONS, timeout);
 
-    expect(timeout.tick).toHaveBeenCalled();
+    expect(timeout.tick).toHaveBeenCalledOnce();
   });
 
-  test('should tick timeout after every item', async () => {
+  it('should tick timeout after every item', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportItems).mockImplementationOnce(
       async function* dummy() {
         for (let index = 0; index < 5000; index += 1) {
@@ -214,7 +229,8 @@ describe('Report Items (queueReportItems)', () => {
     expect(timeout.tick).toHaveBeenCalledTimes(5000 + 1);
   });
 
-  test('should notify progress', async () => {
+  it('should notify progress', async () => {
+    expect.hasAssertions();
     await queueReportItems({ date: '', header, path: '' }, OPTIONS);
 
     expect(sendHarvestJobStatusEvent).toHaveBeenCalledWith({
@@ -227,7 +243,8 @@ describe('Report Items (queueReportItems)', () => {
     });
   });
 
-  test('should notify progress after time', async () => {
+  it('should notify progress after time', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportItems).mockImplementationOnce(
       async function* dummy() {
         for (let index = 0; index < 5000; index += 1) {

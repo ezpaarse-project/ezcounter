@@ -1,7 +1,8 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { DataHost } from '~/models/data-host/dto';
-import { findAllDataHost } from '~/models/data-host';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedDataHostModel } from '~/models/data-host/__mocks__';
 
 import type { SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -14,19 +15,35 @@ const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/data-hosts' });
 });
 
-describe('GET /data-hosts', () => {
-  test('should return array of registered data hosts', async () => {
-    vi.mocked(findAllDataHost).mockResolvedValueOnce([]);
+describe('get /data-hosts', () => {
+  it('should return array of registered data hosts', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.findAll).mockResolvedValueOnce([]);
+    vi.mocked(mockedDataHostModel.countAll).mockResolvedValueOnce(0);
 
     const response = await server.inject({
       method: 'GET',
+      query: {
+        count: '25',
+        page: '3',
+        sort: 'id',
+        'updatedAt.to': '2025-01-01',
+      },
       url: '/data-hosts',
     });
 
     const { content } = response.json<SuccessResponse<DataHost[]>>();
 
     expect(response).toHaveProperty('statusCode', 200);
-    expect(findAllDataHost).toHaveBeenCalledOnce();
+    expect(mockedDataHostModel.findAll).toHaveBeenCalledExactlyOnceWith({
+      orderBy: { id: 'asc' },
+      skip: 50,
+      take: 25,
+      'updatedAt.to': new Date('2025-01-01T00:00:00.000Z'),
+    });
+    expect(mockedDataHostModel.countAll).toHaveBeenCalledExactlyOnceWith({
+      'updatedAt.to': new Date('2025-01-01T00:00:00.000Z'),
+    });
     expect(content).toBeInstanceOf(Array);
   });
 });

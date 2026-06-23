@@ -1,51 +1,100 @@
 {
+  /**
+   * Port that HTTP server will listen
+   */
   "port": 8080,
+  /** Heartbeat configuration */
   "heartbeat": {
+    /**
+     * Frequency for self reporting
+     */
     "self": 5000,
+    /**
+     * Frequency for reporting connected services
+     *
+     * Will use a dynamic frequency, defaulting to default when connection is lost
+     */
     "connected": {
       "min": 5000,
       "max": 300000
     }
   },
+  /** Log configuration */
   "log": {
+    /**
+     * Minimum level to write
+     *
+     * Available levels: trace, debug, info, warn, fatal
+     */
     "level": "debug",
+    /**
+     * Directory to output logs, won't write logs to disk if left empty
+     *
+     * Will still output logs to stdout
+     */
     "dir": "",
+    /**
+     * Keys to ignore in logs
+     */
     "ignore": ["hostname"]
   },
+  /** RabbitMQ configuration */
   "rabbitmq": {
     "url": "amqp://rabbitmq:5672/",
     "username": "guest",
     "password": "guest"
   },
+  /** Report downloading options */
   "download": {
+    /**
+     * How many time we should wait before attempting to fetch a data host marked as "processing" (async generation, etc.)
+     */
     "processingBackoff": {
       "hours": 0,
       "minutes": 10,
       "seconds": 0,
       "milliseconds": 0
     },
+    /**
+     * How many time we should wait before attempting to fetch a data host marked as "unavaiable" (rate limits, etc.)
+     */
     "unavailableBackoff": {
       "hours": 0,
       "minutes": 10,
       "seconds": 0,
       "milliseconds": 0
     },
+    /**
+     * How many time we should wait before detaching harvester from a Harvest Queue
+     */
     "detachDelay": {
       "hours": 0,
       "minutes": 0,
       "seconds": 5,
       "milliseconds": 0
     },
+    /**
+     * How many time we should wait before processing another Harvest Job
+     */
     "jobDelay": {
       "hours": 0,
       "minutes": 0,
       "seconds": 0,
       "milliseconds": 500
     },
+    /**
+     * Number of tries before aborting a Harvest Job
+     */
     "maxTries": 5,
+    /**
+     * Location to store downloaded reports
+     */
     "dir": "/var/lib/ezcounter-harvester/downloads"
   },
   "temp": {
+    /**
+     * Location to store temporary reports (used for validation or auth check)
+     */
     "dir": "/var/lib/ezcounter-harvester/temp"
   }
 }

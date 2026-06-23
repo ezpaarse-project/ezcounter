@@ -14,6 +14,35 @@ const MIN_TIMEOUT = 100;
 export * from '@ezcounter/dto/harvest';
 
 /**
+ * Validation for filtering harvest jobs
+ */
+export const HarvestJobFilters = z
+  .object({
+    'createdAt.from': z.coerce.date().describe('Filter harvests queued after'),
+    'createdAt.to': z.coerce.date().describe('Filter harvests queued before'),
+
+    dataHostId: z.string().describe('Filter harvests by ID of the data host'),
+
+    release: z.string().describe('Filter harvests by COUNTER release'),
+
+    requestId: z.string().describe('Filter harvests by request ID'),
+
+    'startedAt.from': z.coerce.date().describe('Filter harvests started after'),
+    'startedAt.to': z.coerce.date().describe('Filter harvests started before'),
+
+    status: z.enum(HarvestJobStatus).describe('Filter harvests by status'),
+
+    'updatedAt.from': z.coerce.date().describe('Filter harvests updated after'),
+    'updatedAt.to': z.coerce.date().describe('Filter harvests updated before'),
+  })
+  .partial();
+
+/**
+ * Type for filtering harvest jobs
+ */
+export type HarvestJobFilters = z.infer<typeof HarvestJobFilters>;
+
+/**
  * Validation for a harvest job from DB
  */
 export const HarvestJob = z.object({

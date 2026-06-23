@@ -22,7 +22,7 @@
     "lint": "oxlint",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "type-check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/dto": "workspace:*"

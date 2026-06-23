@@ -83,6 +83,7 @@ export async function enrichItemUsingOpenAlex(
   // Resolve identifiers
   const doi = getDOIOfItem(data.item, release);
   if (!doi) {
+    // oxlint-disable-next-line node/callback-return - callback and return have 2 different meaning
     await next(null, 'skipped');
     return true;
   }

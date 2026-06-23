@@ -3,20 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
 
-import {
-  deleteReportSupportedByDataHost,
-  findOneReportSupportedByDataHost,
-  upsertReportSupportedByDataHost,
-} from '~/models/data-host';
+import { DataHostModel } from '~/models/data-host';
 import {
   DataHostSupportedReport,
   UpdateDataHostSupportedReport,
 } from '~/models/data-host/dto';
 
-import {
-  assertDataHostRegistered,
-  assertReleaseSupported,
-} from '~/routes/v1/data-hosts/utils';
+import { assertReleaseSupported } from '~/routes/v1/data-hosts/utils';
 import {
   EmptyResponse,
   buildResponse,
@@ -38,32 +31,42 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id, release, report } = request.params;
 
-      const previous = (await findOneReportSupportedByDataHost(
-        id,
+      const reportIdentifier = {
+        dataHostId: id,
         release,
-        report
-      )) ?? {
-        firstMonthAvailable: '',
-        lastMonthAvailable: '',
-        supported: false,
+        report,
       };
 
-      return buildResponse(
-        reply,
-        await upsertReportSupportedByDataHost({
+      const dataHost = await DataHostModel.$transaction(async (dataHosts) => {
+        let previous: UpdateDataHostSupportedReport = {
+          firstMonthAvailable: '',
+          lastMonthAvailable: '',
+          params: {},
+          supported: false,
+        };
+
+        if (await dataHosts.doesSupportsReport(reportIdentifier)) {
+          previous = await dataHosts.findOneReportSupported(reportIdentifier);
+        }
+
+        return dataHosts.upsertReportSupported({
           ...previous,
           ...request.body,
           dataHostId: id,
           id: report,
           release,
-        })
-      );
+        });
+      });
+
+      return buildResponse(reply, dataHost);
     },
     method: 'PUT',
     preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
       (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
+        assertReleaseSupported({
+          dataHostId: request.params.id,
+          release: request.params.release,
+        }),
     ],
     schema: {
       body: UpdateDataHostSupportedReport,
@@ -87,15 +90,23 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id, release, report } = request.params;
 
-      await deleteReportSupportedByDataHost(id, release, report);
+      const dataHosts = new DataHostModel();
+
+      await dataHosts.deleteReportSupported({
+        dataHostId: id,
+        release,
+        report,
+      });
 
       reply.statusCode = StatusCodes.NO_CONTENT;
     },
     method: 'DELETE',
     preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
       (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
+        assertReleaseSupported({
+          dataHostId: request.params.id,
+          release: request.params.release,
+        }),
     ],
     schema: {
       params: RouterParams,

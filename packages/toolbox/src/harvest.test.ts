@@ -1,11 +1,13 @@
 import { readFileSync } from 'node:fs';
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { asHarvestError } from './harvest';
 
-describe('Error as HarvestError (asHarvestError)', () => {
-  test('should extract informations from custom error', () => {
+describe('transform Error as HarvestError', () => {
+  it('should extract informations from custom error', () => {
+    expect.assertions(1);
+
     const err = new Error('This is an example error', {
       cause: 'The cause of the error, mainly validation errors',
     });
@@ -19,7 +21,9 @@ describe('Error as HarvestError (asHarvestError)', () => {
     });
   });
 
-  test('should extract informations from system error', () => {
+  it('should extract informations from system error', () => {
+    expect.assertions(1);
+
     let err = null;
     try {
       readFileSync('file-that-will-not-exist');
@@ -36,7 +40,9 @@ describe('Error as HarvestError (asHarvestError)', () => {
     });
   });
 
-  test('should return generic Error if not an Error', () => {
+  it('should return generic Error if not an Error', () => {
+    expect.assertions(1);
+
     const err = 'This error is weird';
 
     const result = asHarvestError(err);

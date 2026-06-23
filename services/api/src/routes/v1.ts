@@ -98,7 +98,7 @@ export const v1: FastifyPluginAsync = async (fastify) => {
   // Register routes
   fastify.register(autoLoad, {
     dir: join(import.meta.dirname, 'v1'),
-    ignorePattern: /^.*test.ts$/,
+    ignorePattern: /^.*test.ts$/v,
     maxDepth: 6,
     routeParams: true,
   });

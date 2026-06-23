@@ -1,22 +1,50 @@
 {
+  /**
+   * Port that HTTP server will listen
+   */
   "port": 8080,
+  /** Heartbeat configuration */
   "heartbeat": {
+    /**
+     * Frequency for self reporting
+     */
     "self": 5000,
+    /**
+     * Frequency for reporting connected services
+     *
+     * Will use a dynamic frequency, defaulting to default when connection is lost
+     */
     "connected": {
       "min": 5000,
       "max": 300000
     }
   },
+  /** Log configuration */
   "log": {
+    /**
+     * Minimum level to write
+     *
+     * Available levels: trace, debug, info, warn, fatal
+     */
     "level": "debug",
+    /**
+     * Directory to output logs, won't write logs to disk if left empty
+     *
+     * Will still output logs to stdout
+     */
     "dir": "",
+    /**
+     * Keys to ignore in logs
+     */
     "ignore": ["hostname"]
   },
+  /** RabbitMQ configuration */
   "rabbitmq": {
     "url": "amqp://rabbitmq:5672/",
     "username": "guest",
     "password": "guest"
   },
+  /** ElasticSearch configuration */
   "elasticsearch": {
     "username": "elastic",
     "password": "changeme",
@@ -30,27 +58,40 @@
       }
     ]
   },
+  /** Redis configuration */
   "redis": {
     "url": "redis://redis:6379/",
     "username": "",
     "password": ""
   },
+  /** Enrich items options */
   "enrich": {
+    /** Enrich sources configuration */
     "sources": {
+      /** EzUnpaywall configuration */
       "ezunpaywall": {
         "baseUrl": "https://unpaywall.inist.fr/api/graphql/",
         "apiKey": "",
+        /**
+         * Retry configuration
+         */
         "retry": 3,
         "retryDelay": {
           "minutes": 0,
           "seconds": 0,
           "milliseconds": 500
         },
+        /**
+         * Timeout of the request
+         */
         "timeout": {
           "minutes": 0,
           "seconds": 20,
           "milliseconds": 0
         },
+        /**
+         * How long the data fetched will be stored in Redis
+         */
         "storeTtl": {
           "months": 0,
           "weeks": 1,
@@ -59,21 +100,34 @@
           "minutes": 0
         }
       },
+      /** OpenAlex configuration */
       "openalex": {
         "baseUrl": "https://api.openalex.org/",
         "apiKey": "",
+        /**
+         * Is `baseUrl` leading to the CNRS Gateway around OpenAlex
+         */
         "isCNRSGateway": false,
+        /**
+         * Retry configuration
+         */
         "retry": 3,
         "retryDelay": {
           "minutes": 0,
           "seconds": 0,
           "milliseconds": 500
         },
+        /**
+         * Timeout of the request
+         */
         "timeout": {
           "minutes": 0,
           "seconds": 20,
           "milliseconds": 0
         },
+        /**
+         * How long the data fetched will be stored in Redis
+         */
         "storeTtl": {
           "months": 0,
           "weeks": 1,

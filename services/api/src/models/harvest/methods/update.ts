@@ -1,9 +1,8 @@
-import { Prisma } from '@ezcounter/database';
+import { type HarvestJob, Prisma } from '@ezcounter/database';
 
 import { appLogger } from '~/lib/logger';
-import { dbClient } from '~/lib/prisma';
 
-import { type FailHarvestJob, HarvestJob, type UpdateHarvestJob } from '../dto';
+import { type FailHarvestJob, UpdateHarvestJob } from '../dto';
 
 const JOB_STEPS = ['download', 'enrich', 'extract', 'insert'] as const;
 
@@ -219,15 +218,17 @@ export function mergeUpdateData(
  * Update one Harvest Job
  *
  * @param target - The data to update in harvest job
+ * @param tx - The DB client (can be a transaction)
  *
  * @returns The full harvest job
  */
 export async function updateOneHarvestJob(
-  target: UpdateHarvestJob
+  target: UpdateHarvestJob,
+  tx: Prisma.TransactionClient
 ): Promise<HarvestJob> {
-  // Get job
-  const source = HarvestJob.parse(
-    await dbClient.harvestJob.findUniqueOrThrow({
+  // Get current status
+  const source = UpdateHarvestJob.parse(
+    await tx.harvestJob.findUniqueOrThrow({
       where: { id: target.id },
     })
   );
@@ -239,7 +240,7 @@ export async function updateOneHarvestJob(
   const input = updateHarvestJobStatuses(mergeUpdateData(source, target));
 
   // Update status
-  const job = await dbClient.harvestJob.update({
+  const job = await tx.harvestJob.update({
     data: {
       ...input,
       error: input.error ?? Prisma.DbNull,
@@ -253,20 +254,22 @@ export async function updateOneHarvestJob(
     msg: 'Updated harvest',
   });
 
-  return HarvestJob.parse(job);
+  return job;
 }
 
 /**
  * Mark many Harvest Jobs as failed with provided errors
  *
  * @param items - The harvest jobs IDs with error
+ * @param client - The DB client (can be a transaction)
  */
 export async function failManyHarvestJob(
-  items: FailHarvestJob[]
+  items: FailHarvestJob[],
+  client: Prisma.TransactionClient
 ): Promise<void> {
-  await dbClient.$transaction(
+  await client.$transaction(
     items.map((item) =>
-      dbClient.harvestJob.update({
+      client.harvestJob.update({
         data: { error: item.error, status: 'error' },
         where: { id: item.id },
       })

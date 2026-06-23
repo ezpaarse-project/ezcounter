@@ -229,11 +229,7 @@ export async function harvestReport(
 
     return markHarvestAsSuccess(options);
   } catch (error) {
-    const result = reharvestOrMarkAsError(
-      { cache, path: path },
-      options,
-      error
-    );
+    const result = reharvestOrMarkAsError({ cache, path }, options, error);
 
     return result ?? harvestReport(options);
   } finally {

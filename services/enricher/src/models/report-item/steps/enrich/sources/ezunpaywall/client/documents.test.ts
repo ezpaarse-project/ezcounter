@@ -1,11 +1,13 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { MAX_BUFFER_SIZE } from './constants';
 import { bufferedFetchOneDocumentByDOI } from './documents';
+// oxlint-disable-next-line vitest/no-mocks-import - Remote should be create by parent
 import { mockedRemote } from './remotes/__mocks__';
 
-describe('Fetch Documents by DOI (bufferedFetchOneDocumentByDOI)', () => {
-  test('should fetch remote using debounce', async () => {
+describe('fetch Documents by DOI', () => {
+  it('should fetch remote using debounce', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedRemote).fetchManyDocumentByDOI.mockResolvedValueOnce([]);
 
     await bufferedFetchOneDocumentByDOI(
@@ -30,19 +32,20 @@ describe('Fetch Documents by DOI (bufferedFetchOneDocumentByDOI)', () => {
     );
 
     await vi.runAllTimersAsync();
-    expect(
-      vi.mocked(mockedRemote).fetchManyDocumentByDOI
-    ).toHaveBeenCalledExactlyOnceWith([
-      '10.9999/xxxxxx1',
-      '10.9999/xxxxxx2',
-      '10.9999/xxxxxx3',
-      '10.9999/xxxxxx3',
-    ]);
+    expect(mockedRemote.fetchManyDocumentByDOI).toHaveBeenCalledExactlyOnceWith(
+      [
+        '10.9999/xxxxxx1',
+        '10.9999/xxxxxx2',
+        '10.9999/xxxxxx3',
+        '10.9999/xxxxxx3',
+      ]
+    );
   });
 
-  test('should pause if buffer is full', async () => {
+  it('should pause if buffer is full', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedRemote).fetchManyDocumentByDOI.mockResolvedValueOnce([]);
-    const addToBuffer = vi.fn(() =>
+    const addToBuffer = vi.fn<() => Promise<boolean>>(() =>
       bufferedFetchOneDocumentByDOI(vi.mocked(mockedRemote), '', vi.fn())
     );
 
@@ -63,32 +66,33 @@ describe('Fetch Documents by DOI (bufferedFetchOneDocumentByDOI)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should trigger every callback', async () => {
+  it('should trigger every callback', async () => {
+    expect.hasAssertions();
     // Deduplicate 10.9999/xxxxxx1 + missing 10.9999/xxxxxx4
     vi.mocked(mockedRemote).fetchManyDocumentByDOI.mockResolvedValueOnce([
       { doi: '10.9999/xxxxxx1' },
       { doi: '10.9999/xxxxxx3' },
     ]);
 
-    const spy1 = vi.fn();
+    const spy1 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneDocumentByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx1',
       spy1
     );
-    const spy2 = vi.fn();
+    const spy2 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneDocumentByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx1',
       spy2
     );
-    const spy3 = vi.fn();
+    const spy3 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneDocumentByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx3',
       spy3
     );
-    const spy4 = vi.fn();
+    const spy4 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneDocumentByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx4',

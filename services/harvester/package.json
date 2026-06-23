@@ -22,7 +22,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "type-check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/config": "workspace:*",
@@ -45,6 +45,7 @@
     "@types/node": "catalog:",
     "@types/stream-json": "^1.7.8",
     "@vitest/coverage-v8": "catalog:",
+    "json5": "^2.2.3",
     "memfs": "^4.57.2",
     "pino-pretty": "catalog:",
     "vitest": "catalog:",

@@ -77,7 +77,7 @@ const sendItemsStatus = (id: string, count: number): Promise<void> =>
       items: count,
       status: 'processing',
     },
-    id: id,
+    id,
     status: 'processing',
   });
 

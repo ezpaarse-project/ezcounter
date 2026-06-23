@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { ReportValidationResult } from '@ezcounter/dto/report';
 
@@ -16,9 +16,10 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
-describe('POST /reports/_validate', () => {
+describe('post /reports/_validate', () => {
   describe('application/json', () => {
-    test('should return validation result', async () => {
+    it('should return validation result', async () => {
+      expect.hasAssertions();
       vi.mocked(validateCOUNTERReport).mockResolvedValue({
         header: { errors: [], valid: true },
         items: { errors: [], valid: true },
@@ -40,7 +41,8 @@ describe('POST /reports/_validate', () => {
       });
     });
 
-    test('should return BAD_REQUEST if body is invalid', async () => {
+    it('should return BAD_REQUEST if body is invalid', async () => {
+      expect.hasAssertions();
       const response = await server.inject({
         body: { release: '5', reportId: 'pr' },
         method: 'POST',
@@ -59,7 +61,8 @@ describe('POST /reports/_validate', () => {
   });
 
   describe('multipart/form-data', () => {
-    test('should return validation result', async () => {
+    it('should return validation result', async () => {
+      expect.hasAssertions();
       const data = new FormData();
       data.set('release', '5.1');
       data.set('report', new Blob(["{ Report_ID: 'IR' }"]));
@@ -86,7 +89,8 @@ describe('POST /reports/_validate', () => {
       });
     });
 
-    test('should return BAD_REQUEST if body is invalid', async () => {
+    it('should return BAD_REQUEST if body is invalid', async () => {
+      expect.hasAssertions();
       const data = new FormData();
       data.set('release', '5');
       data.set('reportId', 'pr');

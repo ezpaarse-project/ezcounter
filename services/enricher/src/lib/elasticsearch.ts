@@ -65,7 +65,7 @@ function setupElasticSearch(): Client {
  */
 const esClient = setupElasticSearch();
 
-export type { elastic };
+export { type estypes as elastic } from '@elastic/elasticsearch';
 
 /**
  * Execute a dummy query to check if the ES connection is working

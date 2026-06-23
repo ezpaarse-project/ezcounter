@@ -61,7 +61,7 @@ export class ExtractionLock {
       return Promise.resolve();
     }
 
-    // oxlint-disable-next-line avoid-new-promises
+    // oxlint-disable-next-line promise/avoid-new
     return new Promise<void>((resolve) => {
       const handler = (): void => {
         this.events.off('release', handler);

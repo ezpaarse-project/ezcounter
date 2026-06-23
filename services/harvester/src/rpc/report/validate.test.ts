@@ -1,6 +1,6 @@
 import { PassThrough } from 'node:stream';
 
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { MessageMeta } from '@ezcounter/rabbitmq';
@@ -14,15 +14,16 @@ import { onValidationRequest } from './validate';
 vi.mock(import('~/lib/tcp/server'));
 vi.mock(import('~/models/report/validation'));
 
-describe('Handle Validation Request (onValidationRequest)', () => {
-  test('should setup TCP server before sending address', async () => {
+describe('handle Validation Request', () => {
+  it('should setup TCP server before sending address', async () => {
+    expect.hasAssertions();
     vi.mocked(receiveThroughTCP).mockResolvedValueOnce({
       addr: { address: '1.2.3.4', family: 'IPv4', port: 4567 },
       stream: new PassThrough(),
     });
 
     const meta = mockDeep<MessageMeta>();
-    const reply = vi.fn();
+    const reply = vi.fn<(...args: unknown[]) => Promise<void>>();
 
     await onValidationRequest({ release: '5', reportId: 'ir' }, meta, reply);
 
@@ -34,7 +35,8 @@ describe('Handle Validation Request (onValidationRequest)', () => {
     });
   });
 
-  test('should validate once before socket is closed', async () => {
+  it('should validate once before socket is closed', async () => {
+    expect.hasAssertions();
     vi.mocked(receiveThroughTCP).mockImplementationOnce((reply) => {
       setTimeout(() => reply?.(), 10);
 
@@ -45,7 +47,7 @@ describe('Handle Validation Request (onValidationRequest)', () => {
     });
 
     const meta = mockDeep<MessageMeta>();
-    const reply = vi.fn();
+    const reply = vi.fn<(...args: unknown[]) => Promise<void>>();
 
     await onValidationRequest({ release: '5', reportId: 'ir' }, meta, reply);
 
@@ -53,7 +55,8 @@ describe('Handle Validation Request (onValidationRequest)', () => {
     expect(validateReport).toHaveBeenCalledBefore(reply);
   });
 
-  test('should use expiration of message as timeout to setup TCP server', async () => {
+  it('should use expiration of message as timeout to setup TCP server', async () => {
+    expect.hasAssertions();
     vi.mocked(receiveThroughTCP).mockResolvedValueOnce({
       addr: { address: '1.2.3.4', family: 'IPv4', port: 4567 },
       stream: new PassThrough(),
@@ -61,7 +64,7 @@ describe('Handle Validation Request (onValidationRequest)', () => {
 
     const meta = mockDeep<MessageMeta>();
     meta.expiration = '30000';
-    const reply = vi.fn();
+    const reply = vi.fn<(...args: unknown[]) => Promise<void>>();
 
     await onValidationRequest({ release: '5', reportId: 'ir' }, meta, reply);
 

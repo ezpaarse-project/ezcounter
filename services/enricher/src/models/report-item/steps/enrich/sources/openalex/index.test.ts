@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
@@ -10,10 +10,11 @@ import { getWorkByDOI } from './client';
 vi.mock(import('../../identifiers'));
 vi.mock(import('./client'));
 
-describe('Enrich with OpenAlex', () => {
-  const spy = vi.fn();
+describe('enrich with OpenAlex', () => {
+  const spy = vi.fn<(...args: unknown[]) => Promise<void>>();
 
-  test('should look for DOI in item', async () => {
+  it('should look for DOI in item', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
     data.header.Release = '5.1';
 
@@ -22,7 +23,8 @@ describe('Enrich with OpenAlex', () => {
     expect(getDOIOfItem).toHaveBeenCalledExactlyOnceWith(data.item, '5.1');
   });
 
-  test('should fallback to COUNTER 5', async () => {
+  it('should fallback to COUNTER 5', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
     data.header.Release = null;
 
@@ -31,7 +33,8 @@ describe('Enrich with OpenAlex', () => {
     expect(getDOIOfItem).toHaveBeenCalledExactlyOnceWith(data.item, '5');
   });
 
-  test('should mark item as skipped if no DOI is found', async () => {
+  it('should mark item as skipped if no DOI is found', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
 
     await enrichItemUsingOpenAlex(data, {}, spy);
@@ -39,7 +42,8 @@ describe('Enrich with OpenAlex', () => {
     expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'skipped');
   });
 
-  test('should mark item as missed if remote sent no response', async () => {
+  it('should mark item as missed if remote sent no response', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
 
     vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
@@ -53,7 +57,8 @@ describe('Enrich with OpenAlex', () => {
     expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'miss');
   });
 
-  test('should transform response to item', async () => {
+  it('should transform response to item', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
 
     vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
@@ -106,7 +111,8 @@ describe('Enrich with OpenAlex', () => {
     );
   });
 
-  test('should resolves independent from next step', async () => {
+  it('should resolves independent from next step', async () => {
+    expect.hasAssertions();
     const data = mockDeep<EnrichJobContent>();
 
     vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
@@ -118,7 +124,7 @@ describe('Enrich with OpenAlex', () => {
       return Promise.resolve(true);
     });
 
-    const resolveSpy = vi.fn();
+    const resolveSpy = vi.fn<() => void>();
     await enrichItemUsingOpenAlex(data, {}, spy).then(() => resolveSpy());
 
     await vi.runAllTimersAsync();

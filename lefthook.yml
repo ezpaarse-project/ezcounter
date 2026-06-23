@@ -15,7 +15,7 @@ pre-commit:
       stage_fixed: true
 
     - name: type checking
-      run: pnpm turbo {turbo_flags} type-check
+      run: pnpm turbo {turbo_flags} check
 
 commit-msg:
   jobs:

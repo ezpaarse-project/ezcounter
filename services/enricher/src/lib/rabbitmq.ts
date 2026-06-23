@@ -22,6 +22,8 @@ const logger = appLogger.child(
   }
 );
 
+export { type rabbitmq } from '@ezcounter/rabbitmq';
+
 /**
  * The RabbitMQ client
  */
@@ -48,5 +50,3 @@ export const createConsumer = <DataType>(
 export const createPublisher = (
   props: CreatePublisherProps
 ): rabbitmq.Publisher => createRabbitPublisher(rabbitClient, props);
-
-export type { rabbitmq };

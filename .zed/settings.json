@@ -1,16 +1,31 @@
 {
   "format_on_save": "on",
+
   "prettier": {
     "allowed": false
   },
+
   "formatter": {
     "language_server": {
       "name": "oxfmt"
     }
   },
+
+  "file_types": {
+    "JSONC": ["**/services/*/config/*.json"]
+  },
+
   "languages": {
     "Prisma": {
       "formatter": "language_server"
+    },
+    "TypeScript": {
+      "language_servers": [
+        "tsgo",
+        "vtsls",
+        "!typescript-language-server",
+        "..."
+      ]
     }
   }
 }

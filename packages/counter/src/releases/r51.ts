@@ -102,6 +102,7 @@ export async function fetchR51ReportAsStream(
     responseType: 'stream',
   });
 
+  // oxlint-disable-next-line no-underscore-dangle
   if (!response._data) {
     throw new Error("Response doesn't have any data");
   }
@@ -112,6 +113,7 @@ export async function fetchR51ReportAsStream(
   );
 
   return {
+    // oxlint-disable-next-line no-underscore-dangle
     data: Readable.fromWeb(response._data),
     expectedSize: size,
     httpCode: response.status,

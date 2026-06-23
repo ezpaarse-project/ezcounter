@@ -6,10 +6,10 @@ import type {
 import { doPingWithTimeout } from '../common';
 
 export class HeartbeatConnectedService {
-  private _frequency: { last: number; next: number };
+  #frequency: { last: number; next: number };
 
   get frequency(): { last: number; next: number } {
-    return this._frequency;
+    return this.#frequency;
   }
 
   private timeoutId: NodeJS.Timeout | undefined;
@@ -18,7 +18,7 @@ export class HeartbeatConnectedService {
     private readonly ping: HeartbeatConnectedServicePing,
     private readonly frequencyConfig: HeartbeatFrequency['connected']
   ) {
-    this._frequency = { last: 0, next: frequencyConfig.min };
+    this.#frequency = { last: 0, next: frequencyConfig.min };
   }
 
   /**
@@ -28,17 +28,17 @@ export class HeartbeatConnectedService {
    */
   public async getHeartbeat(): Promise<Heartbeat> {
     const { min, max } = this.frequencyConfig;
-    const last = Math.min(this._frequency.next ?? min, max);
+    const last = Math.min(this.#frequency.next ?? min, max);
     const next = Math.min(last * 2, max);
 
     try {
       const service = await doPingWithTimeout(this.ping, last);
 
-      this._frequency = { last, next };
+      this.#frequency = { last, next };
 
       return service;
     } catch (error) {
-      this._frequency = { last, next: min };
+      this.#frequency = { last, next: min };
       throw error;
     }
   }
@@ -49,6 +49,6 @@ export class HeartbeatConnectedService {
    * @param handler - The handler to schedule
    */
   public scheduleNext(handler: () => void): void {
-    this.timeoutId = setTimeout(handler, this._frequency.next);
+    this.timeoutId = setTimeout(handler, this.#frequency.next);
   }
 }

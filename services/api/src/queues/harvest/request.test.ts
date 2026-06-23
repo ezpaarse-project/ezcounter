@@ -1,12 +1,14 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestRequestData } from '@ezcounter/dto/queues';
 import type { MessageMeta } from '@ezcounter/rabbitmq';
 
 import type { DataHostSupportedRelease } from '~/models/data-host/dto';
-import { findAllReleasesSupportedByDataHost } from '~/models/data-host';
-import { createManyHarvestJob } from '~/models/harvest';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedDataHostModel } from '~/models/data-host/__mocks__';
 import { prepareHarvestJobsFromHarvestRequest } from '~/models/harvest-request';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedHarvestJobModel } from '~/models/harvest/__mocks__';
 
 import { queueHarvestJobs } from './dispatch';
 import { onHarvestRequest } from './request';
@@ -16,7 +18,7 @@ vi.mock(import('~/models/harvest'));
 vi.mock(import('~/models/harvest-request'));
 vi.mock(import('./dispatch'));
 
-describe('Process Harvest Request (onHarvestRequest)', () => {
+describe('process Harvest Request', () => {
   const request: HarvestRequestData = [
     {
       download: {
@@ -95,10 +97,11 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
   ];
 
   describe('harvest jobs', () => {
-    test('should transform request into jobs', async () => {
-      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
-        releases
-      );
+    it('should transform request into jobs', async () => {
+      expect.hasAssertions();
+      vi.mocked(
+        mockedDataHostModel.findAllReleasesSupported
+      ).mockResolvedValueOnce(releases);
       vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
@@ -107,13 +110,14 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         messageId: 'test-request',
       } as MessageMeta);
 
-      expect(prepareHarvestJobsFromHarvestRequest).toHaveBeenCalled();
+      expect(prepareHarvestJobsFromHarvestRequest).toHaveBeenCalledOnce();
     });
 
-    test('should create jobs in DB', async () => {
-      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
-        releases
-      );
+    it('should create jobs in DB', async () => {
+      expect.hasAssertions();
+      vi.mocked(
+        mockedDataHostModel.findAllReleasesSupported
+      ).mockResolvedValueOnce(releases);
       vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
@@ -122,13 +126,14 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         messageId: 'test-request',
       } as MessageMeta);
 
-      expect(createManyHarvestJob).toHaveBeenCalled();
+      expect(mockedHarvestJobModel.createMany).toHaveBeenCalledOnce();
     });
 
-    test('should queue jobs', async () => {
-      vi.mocked(findAllReleasesSupportedByDataHost).mockResolvedValueOnce(
-        releases
-      );
+    it('should queue jobs', async () => {
+      expect.hasAssertions();
+      vi.mocked(
+        mockedDataHostModel.findAllReleasesSupported
+      ).mockResolvedValueOnce(releases);
       vi.mocked(queueHarvestJobs).mockImplementationOnce((jobs) =>
         Promise.resolve(jobs.map(({ id }) => ({ id })))
       );
@@ -137,7 +142,7 @@ describe('Process Harvest Request (onHarvestRequest)', () => {
         messageId: 'test-request',
       } as MessageMeta);
 
-      expect(queueHarvestJobs).toHaveBeenCalled();
+      expect(queueHarvestJobs).toHaveBeenCalledOnce();
     });
   });
 });

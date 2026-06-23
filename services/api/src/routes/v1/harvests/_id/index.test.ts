@@ -1,7 +1,8 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestJob } from '~/models/harvest/dto';
-import { findManyHarvestJobById } from '~/models/harvest';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked HarvestJobModel binds to a mockDeep instance
+import { mockedHarvestJobModel } from '~/models/harvest/__mocks__';
 
 import type { ErrorResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -15,20 +16,26 @@ const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/harvests/:id' });
 });
 
-describe('GET /harvests/:id', () => {
-  test('should return status', async () => {
-    vi.mocked(findManyHarvestJobById).mockResolvedValueOnce([{} as HarvestJob]);
+describe('get /harvests/:id', () => {
+  it('should return status', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedHarvestJobModel.findManyById).mockResolvedValueOnce([
+      {} as HarvestJob,
+    ]);
 
     await server.inject({
       method: 'GET',
       url: '/harvests/:id',
     });
 
-    expect(findManyHarvestJobById).toHaveBeenCalledExactlyOnceWith([':id']);
+    expect(mockedHarvestJobModel.findManyById).toHaveBeenCalledExactlyOnceWith([
+      ':id',
+    ]);
   });
 
-  test('should return NOT_FOUND if id is not found', async () => {
-    vi.mocked(findManyHarvestJobById).mockResolvedValueOnce([]);
+  it('should return NOT_FOUND if id is not found', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedHarvestJobModel.findManyById).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',

@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
 
-import { deleteDataHost, upsertDataHost } from '~/models/data-host';
+import { DataHostModel } from '~/models/data-host';
 import { DataHost, UpdateDataHost } from '~/models/data-host/dto';
 
 import {
@@ -25,9 +25,11 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id } = request.params;
 
+      const dataHosts = new DataHostModel();
+
       return buildResponse(
         reply,
-        await upsertDataHost({
+        await dataHosts.upsert({
           ...request.body,
           id,
         })
@@ -55,7 +57,9 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id } = request.params;
 
-      await deleteDataHost(id);
+      const dataHosts = new DataHostModel();
+
+      await dataHosts.delete(id);
 
       reply.statusCode = StatusCodes.NO_CONTENT;
     },

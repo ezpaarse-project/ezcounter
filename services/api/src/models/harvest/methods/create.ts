@@ -12,12 +12,14 @@ const logger = appLogger.child({ model: 'harvest', scope: 'models' });
  *
  * @param items - The harvest jobs to create
  * @param requestId - The ID of the request
+ * @param tx - The DB client (can be a transaction)
  */
 export async function createManyHarvestJob(
   items: HarvestJobData[],
-  requestId: string
+  requestId: string,
+  tx: Prisma.TransactionClient = dbClient
 ): Promise<void> {
-  await dbClient.harvestJob.createMany({
+  await tx.harvestJob.createMany({
     data: items.map((item): Prisma.HarvestJobCreateManyInput => {
       const enrichSources =
         item.enrich?.sources ?? Object.values(EnrichSource.enum);

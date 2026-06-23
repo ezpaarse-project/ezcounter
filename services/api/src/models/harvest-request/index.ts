@@ -117,6 +117,7 @@ function prepareHarvestJobsFromHarvestRequestContent(
  *
  * @param request - The harvest request
  * @param fetchDelay - The delay between each fetch of the report list
+ * @param tx - The DB transaction
  *
  * @returns The jobs matching requests
  */

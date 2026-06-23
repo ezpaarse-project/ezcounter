@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestJob } from '@ezcounter/database';
 
@@ -6,7 +6,7 @@ import { dbClient } from '~/lib/prisma';
 
 import { failManyHarvestJob, updateOneHarvestJob } from './update';
 
-describe(updateOneHarvestJob, () => {
+describe('update one harvest job', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getJob = (): HarvestJob => ({
     createdAt: new Date(),
@@ -32,13 +32,14 @@ describe(updateOneHarvestJob, () => {
     updatedAt: null,
   });
 
-  test('should query DB', async () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({ id: 'foobar' });
+    await updateOneHarvestJob({ id: 'foobar' }, dbClient);
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -47,18 +48,20 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should return job', async () => {
+  it('should return job', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    const promise = updateOneHarvestJob({ id: '' });
+    const promise = updateOneHarvestJob({ id: '' }, dbClient);
 
     await expect(promise).resolves.toMatchObject(job);
   });
 
-  test('should update status and took if completed', async () => {
+  it('should update status and took if completed', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.status = 'processing';
     job.startedAt = new Date();
@@ -66,13 +69,16 @@ describe(updateOneHarvestJob, () => {
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({
-      download: { status: 'done' },
-      enrich: { status: 'done' },
-      extract: { status: 'done' },
-      id: '',
-      insert: { status: 'done' },
-    });
+    await updateOneHarvestJob(
+      {
+        download: { status: 'done' },
+        enrich: { status: 'done' },
+        extract: { status: 'done' },
+        id: '',
+        insert: { status: 'done' },
+      },
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -84,7 +90,8 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should update status and took if started and error occurred', async () => {
+  it('should update status and took if started and error occurred', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.status = 'processing';
     job.startedAt = new Date();
@@ -97,10 +104,13 @@ describe(updateOneHarvestJob, () => {
       message: '',
     };
 
-    await updateOneHarvestJob({
-      error,
-      id: '',
-    });
+    await updateOneHarvestJob(
+      {
+        error,
+        id: '',
+      },
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -113,7 +123,8 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should update enrich step', async () => {
+  it('should update enrich step', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.enrichSources = ['ezunpaywall', 'openalex'];
     job.extract = { items: 10, status: 'done' };
@@ -132,26 +143,29 @@ describe(updateOneHarvestJob, () => {
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({
-      enrich: {
-        sources: {
-          ezunpaywall: {
-            items: 5,
-            miss: 1,
-            remote: 5,
-            store: 3,
+    await updateOneHarvestJob(
+      {
+        enrich: {
+          sources: {
+            ezunpaywall: {
+              items: 5,
+              miss: 1,
+              remote: 5,
+              store: 3,
+            },
+            openalex: {
+              items: 10,
+              miss: 0,
+              remote: 3,
+              store: 0,
+            },
           },
-          openalex: {
-            items: 10,
-            miss: 0,
-            remote: 3,
-            store: 0,
-          },
+          status: 'processing',
         },
-        status: 'processing',
+        id: '',
       },
-      id: '',
-    });
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -181,7 +195,8 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should update insert step', async () => {
+  it('should update insert step', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.extract = { items: 10, status: 'done' };
     job.insert = {
@@ -195,16 +210,19 @@ describe(updateOneHarvestJob, () => {
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({
-      id: '',
-      insert: {
-        coveredMonths: ['2025-01', '2025-06'],
-        created: 2,
-        items: 3,
-        status: 'processing',
-        updated: 8,
+    await updateOneHarvestJob(
+      {
+        id: '',
+        insert: {
+          coveredMonths: ['2025-01', '2025-06'],
+          created: 2,
+          items: 3,
+          status: 'processing',
+          updated: 8,
+        },
       },
-    });
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -222,7 +240,8 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should NOT update status if processing', async () => {
+  it('should NOT update status if processing', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.status = 'processing';
     job.startedAt = new Date();
@@ -230,11 +249,14 @@ describe(updateOneHarvestJob, () => {
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({
-      download: { status: 'done' },
-      extract: { status: 'processing' },
-      id: '',
-    });
+    await updateOneHarvestJob(
+      {
+        download: { status: 'done' },
+        extract: { status: 'processing' },
+        id: '',
+      },
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -251,17 +273,21 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should NOT update status if not started', async () => {
+  it('should NOT update status if not started', async () => {
+    expect.hasAssertions();
     const job = getJob();
 
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
     vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
 
-    await updateOneHarvestJob({
-      download: { status: 'done' },
-      extract: { status: 'processing' },
-      id: '',
-    });
+    await updateOneHarvestJob(
+      {
+        download: { status: 'done' },
+        extract: { status: 'processing' },
+        id: '',
+      },
+      dbClient
+    );
 
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -278,26 +304,28 @@ describe(updateOneHarvestJob, () => {
     );
   });
 
-  test('should throw if trying to update a done job', async () => {
+  it('should throw if trying to update a done job', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.status = 'done';
 
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
 
-    const promise = updateOneHarvestJob({ id: '' });
+    const promise = updateOneHarvestJob({ id: '' }, dbClient);
 
     await expect(promise).rejects.toThrow(
       'Unable to update a job with status: done'
     );
   });
 
-  test('should throw if trying to update a error job', async () => {
+  it('should throw if trying to update a error job', async () => {
+    expect.hasAssertions();
     const job = getJob();
     job.status = 'error';
 
     vi.mocked(dbClient.harvestJob.findUniqueOrThrow).mockResolvedValueOnce(job);
 
-    const promise = updateOneHarvestJob({ id: '' });
+    const promise = updateOneHarvestJob({ id: '' }, dbClient);
 
     await expect(promise).rejects.toThrow(
       'Unable to update a job with status: error'
@@ -305,32 +333,40 @@ describe(updateOneHarvestJob, () => {
   });
 });
 
-describe(failManyHarvestJob, () => {
-  test('should query DB', async () => {
-    await failManyHarvestJob([
-      {
-        error: {
-          code: 'app:ERROR',
-          message: 'Creation error',
+describe('fail many harvest jobs', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    await failManyHarvestJob(
+      [
+        {
+          error: {
+            code: 'app:ERROR',
+            message: 'Creation error',
+          },
+          id: '',
         },
-        id: '',
-      },
-    ]);
+      ],
+      dbClient
+    );
 
-    expect(dbClient.harvestJob.update).toHaveBeenCalled();
+    expect(dbClient.harvestJob.update).toHaveBeenCalledOnce();
   });
 
-  test('should use transaction', async () => {
-    await failManyHarvestJob([
-      {
-        error: {
-          code: 'app:ERROR',
-          message: 'Creation error',
+  it('should use transaction', async () => {
+    expect.hasAssertions();
+    await failManyHarvestJob(
+      [
+        {
+          error: {
+            code: 'app:ERROR',
+            message: 'Creation error',
+          },
+          id: '',
         },
-        id: '',
-      },
-    ]);
+      ],
+      dbClient
+    );
 
-    expect(dbClient.$transaction).toHaveBeenCalled();
+    expect(dbClient.$transaction).toHaveBeenCalledOnce();
   });
 });

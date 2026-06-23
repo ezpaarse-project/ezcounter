@@ -1,15 +1,11 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type {
   DataHostSupportedReport,
   UpdateDataHostSupportedReport,
 } from '~/models/data-host/dto';
-import {
-  deleteReportSupportedByDataHost,
-  doesDataHostExists,
-  doesDataHostSupportsRelease,
-  upsertReportSupportedByDataHost,
-} from '~/models/data-host';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedDataHostModel } from '~/models/data-host/__mocks__';
 
 import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
@@ -25,7 +21,7 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
-describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
+describe('put /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
   const body: UpdateDataHostSupportedReport = {
     firstMonthAvailable: null,
     lastMonthAvailable: null,
@@ -42,10 +38,15 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     ...body,
   };
 
-  test('should return report supported by data host', async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
-    vi.mocked(upsertReportSupportedByDataHost).mockResolvedValueOnce(report);
+  it('should return report supported by data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      true
+    );
+    vi.mocked(mockedDataHostModel.upsertReportSupported).mockResolvedValueOnce(
+      report
+    );
 
     const response = await server.inject({
       body,
@@ -63,10 +64,15 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     });
   });
 
-  test('should update report supported by data host', async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
-    vi.mocked(upsertReportSupportedByDataHost).mockResolvedValueOnce(report);
+  it('should update report supported by data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      true
+    );
+    vi.mocked(mockedDataHostModel.upsertReportSupported).mockResolvedValueOnce(
+      report
+    );
 
     await server.inject({
       body,
@@ -74,11 +80,12 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
       url: '/data-hosts/:id/supported-releases/5.1/supported-reports/:report',
     });
 
-    expect(upsertReportSupportedByDataHost).toHaveBeenCalledOnce();
+    expect(mockedDataHostModel.upsertReportSupported).toHaveBeenCalledOnce();
   });
 
-  test("should return NOT_FOUND if data host doesn't exists", async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
+  it("should return NOT_FOUND if data host doesn't exists", async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(false);
 
     const response = await server.inject({
       body,
@@ -95,9 +102,12 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     );
   });
 
-  test("should return NOT_FOUND if data host doesn't supports release", async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
+  it("should return NOT_FOUND if data host doesn't supports release", async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      false
+    );
 
     const response = await server.inject({
       body,
@@ -114,7 +124,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     );
   });
 
-  test('should return BAD_REQUEST if release is invalid', async () => {
+  it('should return BAD_REQUEST if release is invalid', async () => {
+    expect.hasAssertions();
     const response = await server.inject({
       body,
       method: 'PUT',
@@ -131,7 +142,8 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
     );
   });
 
-  test('should return BAD_REQUEST if body is invalid', async () => {
+  it('should return BAD_REQUEST if body is invalid', async () => {
+    expect.hasAssertions();
     const response = await server.inject({
       body: [],
       method: 'PUT',
@@ -149,11 +161,16 @@ describe('PUT /data-hosts/:id/supported-releases/:release/supported-reports/:rep
   });
 });
 
-describe('DELETE /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
-  test('should return NO_CONTENT', async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
-    vi.mocked(deleteReportSupportedByDataHost).mockResolvedValueOnce(true);
+describe('delete /data-hosts/:id/supported-releases/:release/supported-reports/:report', () => {
+  it('should return NO_CONTENT', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      true
+    );
+    vi.mocked(mockedDataHostModel.deleteReportSupported).mockResolvedValueOnce(
+      true
+    );
 
     const response = await server.inject({
       method: 'DELETE',
@@ -163,22 +180,30 @@ describe('DELETE /data-hosts/:id/supported-releases/:release/supported-reports/:
     expect(response).toHaveProperty('statusCode', 204);
   });
 
-  test('should delete release supported by data host', async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(true);
-    vi.mocked(deleteReportSupportedByDataHost).mockResolvedValueOnce(true);
+  it('should delete release supported by data host', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      true
+    );
+    vi.mocked(mockedDataHostModel.deleteReportSupported).mockResolvedValueOnce(
+      true
+    );
 
     await server.inject({
       method: 'DELETE',
       url: '/data-hosts/:id/supported-releases/5/supported-reports/:report',
     });
 
-    expect(deleteReportSupportedByDataHost).toHaveBeenCalledOnce();
+    expect(mockedDataHostModel.deleteReportSupported).toHaveBeenCalledOnce();
   });
 
-  test("should return NOT_FOUND if data host doesn't exists", async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(false);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
+  it("should return NOT_FOUND if data host doesn't exists", async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(false);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      false
+    );
 
     const response = await server.inject({
       method: 'DELETE',
@@ -194,9 +219,12 @@ describe('DELETE /data-hosts/:id/supported-releases/:release/supported-reports/:
     );
   });
 
-  test("should return NOT_FOUND if data host doesn't supports release", async () => {
-    vi.mocked(doesDataHostExists).mockResolvedValueOnce(true);
-    vi.mocked(doesDataHostSupportsRelease).mockResolvedValueOnce(false);
+  it("should return NOT_FOUND if data host doesn't supports release", async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(mockedDataHostModel.doesSupportsRelease).mockResolvedValueOnce(
+      false
+    );
 
     const response = await server.inject({
       method: 'DELETE',
@@ -212,7 +240,8 @@ describe('DELETE /data-hosts/:id/supported-releases/:release/supported-reports/:
     );
   });
 
-  test('should return BAD_REQUEST if release is invalid', async () => {
+  it('should return BAD_REQUEST if release is invalid', async () => {
+    expect.hasAssertions();
     const response = await server.inject({
       method: 'DELETE',
       url: '/data-hosts/:id/supported-releases/barfoo/supported-reports/:report',

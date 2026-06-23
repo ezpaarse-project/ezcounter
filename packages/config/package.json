@@ -21,7 +21,7 @@
   "scripts": {
     "lint": "oxlint",
     "fmt": "oxfmt",
-    "type-check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "config": "^4.4.1"

@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { EnrichJobContent, EnrichJobData } from '@ezcounter/dto/queues';
@@ -13,7 +13,7 @@ vi.mock(import('~/queues/enrich/jobs/pub'));
 vi.mock(import('~/queues/enrich/status'));
 vi.mock(import('./sources'));
 
-describe('Enrich report item (enrichReportItem)', () => {
+describe('enrich report item', () => {
   const job: EnrichJobData = {
     data: mockDeep<EnrichJobContent>(),
     enrich: {
@@ -25,7 +25,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     },
   };
 
-  test('should mark job as processing', async () => {
+  it('should mark job as processing', async () => {
+    expect.hasAssertions();
     await enrichReportItem('ezunpaywall', job);
 
     expect(sendEnrichJobStatusEvent).toHaveBeenCalledExactlyOnceWith({
@@ -34,7 +35,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     });
   });
 
-  test('should queue next step', async () => {
+  it('should queue next step', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
       (_data, _opts, next) => {
         // oxlint-disable-next-line typescript/no-explicit-any
@@ -57,19 +59,22 @@ describe('Enrich report item (enrichReportItem)', () => {
     });
   });
 
-  test('should allow enrich using unpaywall', async () => {
+  it('should allow enrich using unpaywall', async () => {
+    expect.hasAssertions();
     await enrichReportItem('ezunpaywall', job);
 
     expect(enrichItemUsingEzUnpaywall).toHaveBeenCalledOnce();
   });
 
-  test('should allow enrich using openalex', async () => {
+  it('should allow enrich using openalex', async () => {
+    expect.hasAssertions();
     await enrichReportItem('openalex', job);
 
     expect(enrichItemUsingOpenAlex).toHaveBeenCalledOnce();
   });
 
-  test('should resolves independent from next step', async () => {
+  it('should resolves independent from next step', async () => {
+    expect.hasAssertions();
     // Delay next step
     vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
       (_data, _opts, next) => {
@@ -80,14 +85,15 @@ describe('Enrich report item (enrichReportItem)', () => {
       }
     );
 
-    const resolveSpy = vi.fn();
+    const resolveSpy = vi.fn<() => void>();
     await enrichReportItem('ezunpaywall', job).then(() => resolveSpy());
 
     await vi.runAllTimersAsync();
     expect(resolveSpy).toHaveBeenCalledBefore(vi.mocked(queueEnrichJob));
   });
 
-  test('should notify status', async () => {
+  it('should notify status', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
       (_data, _opts, next) => {
         // oxlint-disable-next-line typescript/no-explicit-any
@@ -116,7 +122,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     );
   });
 
-  test('should notify status if enrich is from store', async () => {
+  it('should notify status if enrich is from store', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingEzUnpaywall).mockImplementationOnce(
       (_data, _opts, next) => {
         // oxlint-disable-next-line typescript/no-explicit-any
@@ -145,7 +152,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     );
   });
 
-  test('should notify if enrich fails', async () => {
+  it('should notify if enrich fails', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
       (_data, _opts, next) => {
         next(null, 'miss');
@@ -173,7 +181,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     );
   });
 
-  test('should notify if enrich cannot be done (no suitable identifiers)', async () => {
+  it('should notify if enrich cannot be done (no suitable identifiers)', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingOpenAlex).mockImplementationOnce(
       (_data, _opts, next) => {
         next(null, 'skipped');
@@ -201,7 +210,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     );
   });
 
-  test('should notify if error occurs', async () => {
+  it('should notify if error occurs', async () => {
+    expect.hasAssertions();
     vi.mocked(enrichItemUsingOpenAlex).mockRejectedValueOnce(
       new Error('Enrich error')
     );
@@ -217,7 +227,8 @@ describe('Enrich report item (enrichReportItem)', () => {
     });
   });
 
-  test('should notify if source is unknown', async () => {
+  it('should notify if source is unknown', async () => {
+    expect.hasAssertions();
     await enrichReportItem('foobar' as 'ezunpaywall', job);
 
     expect(sendEnrichJobStatusEvent).toHaveBeenLastCalledWith({

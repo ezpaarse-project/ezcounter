@@ -1,17 +1,18 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { appConfig } from '~/lib/config';
 import { createStore } from '~/lib/store';
 
+import { createOpenAlexRemote, createOpenAlexStore } from '.';
 import { CNRSGatewayRemote } from './cnrs-gateway';
-import { createOpenAlexRemote, createOpenAlexStore } from './index';
 import { OpenAlexRemote } from './openalex';
 
 vi.mock(import('./cnrs-gateway'));
 vi.mock(import('./openalex'));
 
-describe('Create store (createOpenAlexStore)', () => {
-  test('should create store', () => {
+describe('create store', () => {
+  it('should create store', () => {
+    expect.hasAssertions();
     createOpenAlexStore();
 
     expect(createStore).toHaveBeenCalledExactlyOnceWith(
@@ -25,8 +26,9 @@ describe('Create store (createOpenAlexStore)', () => {
   });
 });
 
-describe('Create remote (createOpenAlexRemote)', () => {
-  test('should create OpenAlex remote', () => {
+describe('create remote', () => {
+  it('should create OpenAlex remote', () => {
+    expect.hasAssertions();
     // Spoof config
     vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = false;
 
@@ -42,7 +44,8 @@ describe('Create remote (createOpenAlexRemote)', () => {
     );
   });
 
-  test('should create CNRS OpenAlex remote', () => {
+  it('should create CNRS OpenAlex remote', () => {
+    expect.hasAssertions();
     // Spoof config
     vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = true;
 

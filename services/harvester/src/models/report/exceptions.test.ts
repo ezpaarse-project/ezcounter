@@ -1,9 +1,10 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { asHarvestException } from './exceptions';
 
-describe('HTTP code as HarvestException (asHarvestException)', () => {
-  test('should return pre-registered exception', () => {
+describe('http code as HarvestException', () => {
+  it('should return pre-registered exception', () => {
+    expect.hasAssertions();
     const exception = asHarvestException(202);
 
     expect(exception).toMatchObject({
@@ -13,13 +14,15 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
     });
   });
 
-  test('should return undefined if not an error and not registered', () => {
+  it('should return undefined if not an error and not registered', () => {
+    expect.hasAssertions();
     const exception = asHarvestException(200);
 
-    expect(exception).toBe(undefined);
+    expect(exception).toBeUndefined();
   });
 
-  test('should return HTTP exception if error and not registered', () => {
+  it('should return HTTP exception if error and not registered', () => {
+    expect.hasAssertions();
     const exception = asHarvestException(418);
 
     expect(exception).toMatchObject({
@@ -29,7 +32,8 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
     });
   });
 
-  test('should return generic error if HTTP code is unknown', () => {
+  it('should return generic error if HTTP code is unknown', () => {
+    expect.hasAssertions();
     const exception = asHarvestException(999);
 
     expect(exception).toMatchObject({
@@ -40,8 +44,9 @@ describe('HTTP code as HarvestException (asHarvestException)', () => {
   });
 });
 
-describe('Exception as HarvestException (asHarvestException)', () => {
-  test('should return warn for codes between 1 and 999', () => {
+describe('exception as HarvestException', () => {
+  it('should return warn for codes between 1 and 999', () => {
+    expect.hasAssertions();
     const exception = asHarvestException({
       Code: 512,
       Message: '512 is a custom warning',
@@ -51,7 +56,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
   });
 
   describe('should sanitise severity if provided', () => {
-    test('debug', () => {
+    it('debug', () => {
+      expect.hasAssertions();
       const exception = asHarvestException({
         Code: 9999,
         Message: '9999 is not standard, but should be considered as info',
@@ -61,7 +67,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
       expect(exception.severity).toBe('info');
     });
 
-    test('fatal', () => {
+    it('fatal', () => {
+      expect.hasAssertions();
       const exception = asHarvestException({
         Code: 9999,
         Message: '9999 is not standard, but should be considered as error',
@@ -72,7 +79,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
     });
   });
 
-  test('should error if unknown', () => {
+  it('should error if unknown', () => {
+    expect.hasAssertions();
     const exception = asHarvestException({
       Code: 9999,
       Message: '9999 is not standard, but should be considered as error',
@@ -81,7 +89,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
     expect(exception.severity).toBe('error');
   });
 
-  test('should return code with prefix', () => {
+  it('should return code with prefix', () => {
+    expect.hasAssertions();
     const exception = asHarvestException({
       Code: 2000,
       Message: 'Requestor Not Authorized to Access Service',
@@ -90,7 +99,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
     expect(exception.code).toBe('counter:2000');
   });
 
-  test('should return data instead of message', () => {
+  it('should return data instead of message', () => {
+    expect.hasAssertions();
     const exception = asHarvestException({
       Code: 2000,
       Data: 'API key is invalid',
@@ -100,7 +110,8 @@ describe('Exception as HarvestException (asHarvestException)', () => {
     expect(exception.message).toBe('API key is invalid');
   });
 
-  test('should return help url if provided', () => {
+  it('should return help url if provided', () => {
+    expect.hasAssertions();
     const exception = asHarvestException({
       Code: 2000,
       Data: 'API key is invalid',

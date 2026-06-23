@@ -1,15 +1,16 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestRequestContent } from '@ezcounter/dto/queues';
 
 import type { DataHostWithSupportedData } from '~/models/data-host/dto';
 
-import { getDataHostWithSupportedData } from '../data-host';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked DataHostModel binds to a mockDeep instance
+import { mockedDataHostModel } from '../data-host/__mocks__';
 import { resolveRequestContextPerHostname } from './context';
 
 vi.mock(import('~/models/data-host'));
 
-describe('Resolve context of Harvest Request', () => {
+describe('resolve context of Harvest Request', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getRequest = (): HarvestRequestContent => ({
     download: {
@@ -52,42 +53,52 @@ describe('Resolve context of Harvest Request', () => {
     updatedAt: null,
   });
 
-  test('should get data host with supported data', async () => {
+  it('should get data host with supported data', async () => {
+    expect.hasAssertions();
     const request = getRequest();
 
     await resolveRequestContextPerHostname([request]);
 
-    expect(getDataHostWithSupportedData).toHaveBeenCalled();
+    expect(
+      mockedDataHostModel.findOneWithSupportedData
+    ).toHaveBeenCalledExactlyOnceWith('my-counter-datahost');
   });
 
-  test('should skip if host in unknown', async () => {
+  it('should skip if host in unknown', async () => {
+    expect.hasAssertions();
     const request = getRequest();
 
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(null);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockRejectedValueOnce(new Error('Data host not found'));
 
     const result = await resolveRequestContextPerHostname([request]);
 
     expect(result.size).toBe(0);
   });
 
-  test('should skip if cannot get host with supported data', async () => {
+  it('should skip if cannot get host with supported data', async () => {
+    expect.hasAssertions();
     const request = getRequest();
 
-    vi.mocked(getDataHostWithSupportedData).mockRejectedValueOnce(
-      new Error('DB error')
-    );
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockRejectedValueOnce(new Error('DB error'));
 
     const result = await resolveRequestContextPerHostname([request]);
 
     expect(result.size).toBe(0);
   });
 
-  test('should skip if base URL is invalid', async () => {
+  it('should skip if base URL is invalid', async () => {
+    expect.hasAssertions();
     const request = getRequest();
     const dataHost = getDataHost();
     dataHost.supportedReleases[0].baseUrl = 'foobar';
 
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockResolvedValueOnce(dataHost);
 
     const result = await resolveRequestContextPerHostname([request]);
 
@@ -95,19 +106,23 @@ describe('Resolve context of Harvest Request', () => {
     expect(result.get(undefined)).toHaveLength(1);
   });
 
-  test('should skip if release is unsupported', async () => {
+  it('should skip if release is unsupported', async () => {
+    expect.hasAssertions();
     const request = getRequest();
     request.download.release = '5';
     const dataHost = getDataHost();
 
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockResolvedValueOnce(dataHost);
 
     const result = await resolveRequestContextPerHostname([request]);
 
     expect(result.size).toBe(0);
   });
 
-  test('should group requests by hostname', async () => {
+  it('should group requests by hostname', async () => {
+    expect.hasAssertions();
     const request1 = getRequest();
     request1.download.dataHost.id = 'my-counter-datahost1';
     const request2 = getRequest();
@@ -124,9 +139,15 @@ describe('Resolve context of Harvest Request', () => {
     dataHost3.supportedReleases[0].baseUrl =
       'https://my-other.datahost.com/r51';
 
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost1);
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost2);
-    vi.mocked(getDataHostWithSupportedData).mockResolvedValueOnce(dataHost3);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockResolvedValueOnce(dataHost1);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockResolvedValueOnce(dataHost2);
+    vi.mocked(
+      mockedDataHostModel.findOneWithSupportedData
+    ).mockResolvedValueOnce(dataHost3);
 
     const result = await resolveRequestContextPerHostname([
       request1,

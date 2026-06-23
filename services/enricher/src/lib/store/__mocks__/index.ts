@@ -1,7 +1,11 @@
-import type { Keyv } from 'keyv';
+import type { Cacheable } from 'cacheable';
 import { vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
-export const mockedStore = mockDeep<Keyv>();
+import type * as original from '..';
 
-export const createStore = vi.fn().mockReturnValue(mockedStore);
+export const mockedStore = mockDeep<Cacheable>();
+
+export const createStore = vi
+  .fn<typeof original.createStore>()
+  .mockReturnValue(mockedStore);

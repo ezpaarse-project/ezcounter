@@ -1,13 +1,18 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type {
   HarvestJobStatusEvent,
   HarvestRequestData,
 } from '@ezcounter/dto/queues';
 
-import { findAllHarvestJob } from '~/models/harvest';
+// oxlint-disable-next-line vitest/no-mocks-import - mocked HarvestJobModel binds to a mockDeep instance
+import { mockedHarvestJobModel } from '~/models/harvest/__mocks__';
 
-import type { ErrorResponse, SuccessResponse } from '~/routes/v1/responses';
+import type {
+  ErrorResponse,
+  PaginationMeta,
+  SuccessResponse,
+} from '~/routes/v1/responses';
 import { createTestServer } from '~/../__tests__/fastify/v1';
 import { queueHarvestRequest } from '~/queues/harvest/request';
 
@@ -20,24 +25,41 @@ const server = await createTestServer(async (fastify) => {
   fastify.register(router, { prefix: '/harvests' });
 });
 
-describe('GET /harvests', () => {
-  test('should return array of statuses', async () => {
-    vi.mocked(findAllHarvestJob).mockResolvedValueOnce([]);
+describe('get /harvests', () => {
+  it('should return array of harvest jobs', async () => {
+    expect.hasAssertions();
+    vi.mocked(mockedHarvestJobModel.countAll).mockResolvedValueOnce(0);
+    vi.mocked(mockedHarvestJobModel.findAll).mockResolvedValueOnce([]);
 
     const response = await server.inject({
       method: 'GET',
-      url: '/harvests/',
+      query: {
+        count: '25',
+        page: '3',
+        release: '5.1',
+        sort: 'id',
+      },
+      url: '/harvests',
     });
 
     const { content } =
-      response.json<SuccessResponse<HarvestJobStatusEvent[]>>();
+      response.json<SuccessResponse<HarvestJobStatusEvent[], PaginationMeta>>();
 
-    expect(findAllHarvestJob).toHaveBeenCalledOnce();
+    expect(response).toHaveProperty('statusCode', 200);
+    expect(mockedHarvestJobModel.findAll).toHaveBeenCalledExactlyOnceWith({
+      orderBy: { id: 'asc' },
+      release: '5.1',
+      skip: 50,
+      take: 25,
+    });
+    expect(mockedHarvestJobModel.countAll).toHaveBeenCalledExactlyOnceWith({
+      release: '5.1',
+    });
     expect(content).toBeInstanceOf(Array);
   });
 });
 
-describe('POST /harvests/_bulk', () => {
+describe('post /harvests/_bulk', () => {
   const body: HarvestRequestData = [
     {
       download: {
@@ -86,7 +108,8 @@ describe('POST /harvests/_bulk', () => {
     },
   ];
 
-  test('should return CREATED with requestId', async () => {
+  it('should return CREATED with requestId', async () => {
+    expect.hasAssertions();
     vi.mocked(queueHarvestRequest).mockResolvedValueOnce('test-request');
 
     const response = await server.inject({
@@ -101,7 +124,8 @@ describe('POST /harvests/_bulk', () => {
     expect(content).toHaveProperty('requestId', 'test-request');
   });
 
-  test('should queue request', async () => {
+  it('should queue request', async () => {
+    expect.hasAssertions();
     vi.mocked(queueHarvestRequest).mockResolvedValueOnce('foobar');
 
     await server.inject({
@@ -113,7 +137,8 @@ describe('POST /harvests/_bulk', () => {
     expect(queueHarvestRequest).toHaveBeenCalledExactlyOnceWith(body, 'foobar');
   });
 
-  test('should return BAD_REQUEST if body is invalid', async () => {
+  it('should return BAD_REQUEST if body is invalid', async () => {
+    expect.hasAssertions();
     vi.mocked(queueHarvestRequest).mockResolvedValueOnce('test-request');
 
     const response = await server.inject({

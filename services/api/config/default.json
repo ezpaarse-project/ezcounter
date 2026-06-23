@@ -1,22 +1,50 @@
 {
+  /**
+   * Port that HTTP server will listen
+   */
   "port": 8080,
+  /** Heartbeat configuration */
   "heartbeat": {
+    /**
+     * Frequency for self reporting
+     */
     "self": 5000,
+    /**
+     * Frequency for reporting connected services
+     *
+     * Will use a dynamic frequency, defaulting to default when connection is lost
+     */
     "connected": {
       "min": 5000,
       "max": 300000
     }
   },
+  /** Log configuration */
   "log": {
+    /**
+     * Minimum level to write
+     *
+     * Available levels: trace, debug, info, warn, fatal
+     */
     "level": "debug",
+    /**
+     * Directory to output logs, won't write logs to disk if left empty
+     *
+     * Will still output logs to stdout
+     */
     "dir": "",
+    /**
+     * Keys to ignore in logs
+     */
     "ignore": ["hostname"]
   },
+  /** RabbitMQ configuration */
   "rabbitmq": {
     "url": "amqp://rabbitmq:5672/",
     "username": "guest",
     "password": "guest"
   },
+  /** PostgreSQL configuration */
   "postgres": {
     "user": "",
     "database": "ezcounter",
@@ -25,10 +53,21 @@
     "host": "database",
     "schema": "default"
   },
+  /**
+   * Origins allowed for CORS
+   */
   "allowedOrigins": "*",
+  /**
+   * Proxies allowed for CORS
+   */
   "allowedProxies": "*",
+  /** Remote data hosts configuration */
   "dataHost": {
+    /** Supported data configuration */
     "supported": {
+      /**
+       * Delay to add between two fetchs of the same data host
+       */
       "fetchDelay": 500
     }
   }

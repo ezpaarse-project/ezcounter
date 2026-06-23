@@ -1,6 +1,6 @@
 import { createGzip } from 'node:zlib';
 
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
@@ -13,7 +13,7 @@ import { archiveReport } from './archive';
 // Mocking unzip
 vi.mock(import('node:zlib'));
 
-describe('Archive report (archiveReport)', () => {
+describe('archive report', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
@@ -31,31 +31,36 @@ describe('Archive report (archiveReport)', () => {
       path: '/examples/reports/5.1/ir/invalid_item.json',
     };
 
-    test('should archive', async () => {
+    it('should archive', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createGzip).toHaveBeenCalled();
+      expect(createGzip).toHaveBeenCalledOnce();
     });
 
-    test('should read file', async () => {
+    it('should read file', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(createReadStream).toHaveBeenCalledWith(REPORT.path);
     });
 
-    test('should write archive', async () => {
+    it('should write archive', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       await expect(exists(`${REPORT.path}.gz`)).resolves.toBe(true);
     });
 
-    test('should delete file', async () => {
+    it('should delete file', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(unlink).toHaveBeenCalledWith(REPORT.path);
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
@@ -74,31 +79,36 @@ describe('Archive report (archiveReport)', () => {
       path: '/examples/reports/5.1/ir/valid.json',
     };
 
-    test('should archive', async () => {
+    it('should archive', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
-      expect(createGzip).toHaveBeenCalled();
+      expect(createGzip).toHaveBeenCalledOnce();
     });
 
-    test('should read file', async () => {
+    it('should read file', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(createReadStream).toHaveBeenCalledWith(REPORT.path);
     });
 
-    test('should write archive', async () => {
+    it('should write archive', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       await expect(exists(`${REPORT.path}.gz`)).resolves.toBe(true);
     });
 
-    test('should delete file', async () => {
+    it('should delete file', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       await expect(exists(REPORT.path)).resolves.toBe(false);
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
@@ -117,31 +127,36 @@ describe('Archive report (archiveReport)', () => {
       path: '/examples/reports/5.1/ir/valid.json',
     };
 
-    test("shouldn't archive", async () => {
+    it("shouldn't archive", async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(createGzip).not.toHaveBeenCalled();
     });
 
-    test("shouldn't read file", async () => {
+    it("shouldn't read file", async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(createReadStream).not.toHaveBeenCalledWith(REPORT.path);
     });
 
-    test("shouldn't write archive", async () => {
+    it("shouldn't write archive", async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       expect(createWriteStream).not.toHaveBeenCalledWith(`${REPORT.path}.gz`);
     });
 
-    test('should delete file', async () => {
+    it('should delete file', async () => {
+      expect.hasAssertions();
       await archiveReport(REPORT, OPTIONS);
 
       await expect(exists(REPORT.path)).resolves.toBe(false);
     });
 
-    test("shouldn't be able to be aborted", async () => {
+    it("shouldn't be able to be aborted", async () => {
+      expect.hasAssertions();
       const timeout = new IdleTimeoutController();
 
       const promise = archiveReport(REPORT, OPTIONS, timeout);
@@ -152,7 +167,8 @@ describe('Archive report (archiveReport)', () => {
     });
   });
 
-  test("should NOT throw if file doesn't exists", async () => {
+  it("should NOT throw if file doesn't exists", async () => {
+    expect.hasAssertions();
     const promise = archiveReport(
       {
         cache: { source: 'remote' as const },
@@ -165,7 +181,8 @@ describe('Archive report (archiveReport)', () => {
     await expect(promise).resolves.not.toThrow();
   });
 
-  test('should tick timeout', async () => {
+  it('should tick timeout', async () => {
+    expect.hasAssertions();
     const timeout = new IdleTimeoutController();
     const spy = vi.spyOn(timeout, 'tick');
 
@@ -179,6 +196,6 @@ describe('Archive report (archiveReport)', () => {
       timeout
     );
 
-    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

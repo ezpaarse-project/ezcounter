@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { IRReportHeader as validate } from '@ezcounter/counter/schemas/r51';
 
@@ -14,8 +14,9 @@ import { validateReport } from '.';
 vi.mock(import('~/models/report/extraction/header'));
 vi.mock(import('~/models/report/extraction/items'));
 
-describe('Validate report from stream (validateReport)', () => {
-  test('should write file into temp dir', async () => {
+describe('validate report from stream', () => {
+  it('should write file into temp dir', async () => {
+    expect.hasAssertions();
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
     await validateReport(stream, { release: '5.1', reportId: 'ir' });
@@ -26,7 +27,8 @@ describe('Validate report from stream (validateReport)', () => {
     );
   });
 
-  test('should validate header', async () => {
+  it('should validate header', async () => {
+    expect.hasAssertions();
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
     await validateReport(stream, { release: '5.1', reportId: 'ir' });
@@ -34,7 +36,8 @@ describe('Validate report from stream (validateReport)', () => {
     expect(extractReportHeader).toHaveBeenCalledOnce();
   });
 
-  test('should validate items', async () => {
+  it('should validate items', async () => {
+    expect.hasAssertions();
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
     await validateReport(stream, { release: '5.1', reportId: 'ir' });
@@ -42,7 +45,8 @@ describe('Validate report from stream (validateReport)', () => {
     expect(extractReportItems).toHaveBeenCalledOnce();
   });
 
-  test('should delete temporary report', async () => {
+  it('should delete temporary report', async () => {
+    expect.hasAssertions();
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
 
     await validateReport(stream, { release: '5.1', reportId: 'ir' });
@@ -50,7 +54,8 @@ describe('Validate report from stream (validateReport)', () => {
     expect(unlink).toHaveBeenCalledOnce();
   });
 
-  test('should return validation errors', async () => {
+  it('should return validation errors', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportHeader).mockImplementationOnce(() => {
       validate({});
       throw new Error('Validation error', {
@@ -72,7 +77,8 @@ describe('Validate report from stream (validateReport)', () => {
     );
   });
 
-  test('should return basic errors', async () => {
+  it('should return basic errors', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportHeader).mockRejectedValueOnce('Unknown error');
 
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
@@ -86,7 +92,8 @@ describe('Validate report from stream (validateReport)', () => {
     expect(result).toHaveProperty('header.errors[0].message', 'Unknown error');
   });
 
-  test('should return generic errors', async () => {
+  it('should return generic errors', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportItems).mockImplementationOnce(
       async function* dummy() {
         yield { item: {} as COUNTERReportItem };
@@ -105,7 +112,8 @@ describe('Validate report from stream (validateReport)', () => {
     expect(result).toHaveProperty('items.errors[0].message', 'Unknown error');
   });
 
-  test('should throw if unable to cache report', async () => {
+  it('should throw if unable to cache report', async () => {
+    expect.hasAssertions();
     vi.mocked(mkdir).mockRejectedValueOnce(new Error('Folder error'));
 
     const stream = createReadStream('/examples/reports/5.1/ir/valid.json');
@@ -116,7 +124,7 @@ describe('Validate report from stream (validateReport)', () => {
     });
 
     await expect(promise).rejects.toThrow('Folder error');
-    expect(unlink).toHaveBeenCalled();
+    expect(unlink).toHaveBeenCalledOnce();
     stream.destroy();
   });
 });

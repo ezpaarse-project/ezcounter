@@ -24,7 +24,7 @@ export type HarvestAuthOptions = z.infer<typeof HarvestAuthOptions>;
  */
 export const HarvestReportPeriodDate = z.stringFormat(
   'date-month',
-  /^[0-9]{4}-[0-9]{2}$/
+  /^[0-9]{4}-[0-9]{2}$/v
 );
 
 /**

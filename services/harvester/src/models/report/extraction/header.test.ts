@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { SUSHIReportHeader } from '@ezcounter/counter/schemas/r5';
 import type { IRReportHeader } from '@ezcounter/counter/schemas/r51';
@@ -6,7 +6,7 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import { extractRegistryId, extractReportHeader } from './header';
 
-describe('COUNTER 5', () => {
+describe('counter 5', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
@@ -17,8 +17,9 @@ describe('COUNTER 5', () => {
     },
   };
 
-  describe('Report Header (extractReportHeader)', () => {
-    test('should return header', async () => {
+  describe('extract report header', () => {
+    it('should return header', async () => {
+      expect.hasAssertions();
       const header = await extractReportHeader(
         '/examples/reports/5/ir/valid.json',
         OPTIONS
@@ -30,7 +31,8 @@ describe('COUNTER 5', () => {
       });
     });
 
-    test("should throw if release doesn't match", async () => {
+    it("should throw if release doesn't match", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/ir/empty.json',
         OPTIONS
@@ -39,7 +41,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toThrow('Expected Release 5, got 5.1');
     });
 
-    test("should throw if id doesn't match", async () => {
+    it("should throw if id doesn't match", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/pr/valid.json',
         OPTIONS
@@ -48,7 +51,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toThrow('Expected Report_ID IR, got PR');
     });
 
-    test('should throw if no header is found', async () => {
+    it('should throw if no header is found', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/ir/missing_header.json',
         OPTIONS
@@ -59,7 +63,8 @@ describe('COUNTER 5', () => {
       );
     });
 
-    test('should throw if header is invalid', async () => {
+    it('should throw if header is invalid', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/ir/invalid_header.json',
         OPTIONS
@@ -69,7 +74,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toHaveProperty('cause.validation');
     });
 
-    test("shouldn't throw if header is invalid and validation doesn't exists", async () => {
+    it("shouldn't throw if header is invalid and validation doesn't exists", async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -86,7 +92,8 @@ describe('COUNTER 5', () => {
       await expect(promise).resolves.not.toThrow();
     });
 
-    test('should throw if not JSON', async () => {
+    it('should throw if not JSON', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/ir/invalid.json.txt',
         OPTIONS
@@ -97,7 +104,8 @@ describe('COUNTER 5', () => {
       );
     });
 
-    test("should throw if doesn't exists", async () => {
+    it("should throw if doesn't exists", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/ir/does-not-exists.json.txt',
         OPTIONS
@@ -107,7 +115,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const promise = extractReportHeader(
@@ -122,7 +131,7 @@ describe('COUNTER 5', () => {
     });
   });
 
-  describe('Registry ID (extractRegistryId)', () => {
+  describe('extract Registry ID', () => {
     const HEADER: SUSHIReportHeader = {
       Created: '2016-09-08T22:47:31Z',
       Created_By: 'EBSCO Informtion Services',
@@ -160,19 +169,20 @@ describe('COUNTER 5', () => {
       Report_Name: 'Journal Requests (Excluding "OA_Gold")',
     };
 
-    test('should return null if unable to parse', () => {
+    it('should return null if unable to parse', () => {
+      expect.hasAssertions();
       const id = extractRegistryId({
         ...HEADER,
         // @ts-expect-error - Registry_Record shouldn't be present in R5
         Registry_Record: undefined,
       });
 
-      expect(id).toBe(null);
+      expect(id).toBeNull();
     });
   });
 });
 
-describe('COUNTER 5.1', () => {
+describe('counter 5.1', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
@@ -183,8 +193,9 @@ describe('COUNTER 5.1', () => {
     },
   };
 
-  describe('Report Header (extractReportHeader)', () => {
-    test('should return header', async () => {
+  describe('extract report header', () => {
+    it('should return header', async () => {
+      expect.hasAssertions();
       const header = await extractReportHeader(
         '/examples/reports/5.1/ir/valid.json',
         OPTIONS
@@ -196,7 +207,8 @@ describe('COUNTER 5.1', () => {
       });
     });
 
-    test("should throw if release doesn't match", async () => {
+    it("should throw if release doesn't match", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5/ir/empty.json',
         OPTIONS
@@ -205,7 +217,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toThrow('Expected Release 5.1, got 5');
     });
 
-    test("should throw if id doesn't match", async () => {
+    it("should throw if id doesn't match", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/pr/valid.json',
         OPTIONS
@@ -214,7 +227,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toThrow('Expected Report_ID IR, got PR');
     });
 
-    test('should throw if no header is found', async () => {
+    it('should throw if no header is found', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/ir/missing_header.json',
         OPTIONS
@@ -225,7 +239,8 @@ describe('COUNTER 5.1', () => {
       );
     });
 
-    test('should throw if header is invalid', async () => {
+    it('should throw if header is invalid', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/ir/invalid_header.json',
         OPTIONS
@@ -235,7 +250,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('cause.validation');
     });
 
-    test("shouldn't throw if header is invalid and validation doesn't exists", async () => {
+    it("shouldn't throw if header is invalid and validation doesn't exists", async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -252,7 +268,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).resolves.not.toThrow();
     });
 
-    test('should throw if not JSON', async () => {
+    it('should throw if not JSON', async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/ir/invalid.json.txt',
         OPTIONS
@@ -263,7 +280,8 @@ describe('COUNTER 5.1', () => {
       );
     });
 
-    test("should throw if doesn't exists", async () => {
+    it("should throw if doesn't exists", async () => {
+      expect.hasAssertions();
       const promise = extractReportHeader(
         '/examples/reports/5.1/ir/does-not-exists.json.txt',
         OPTIONS
@@ -273,7 +291,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 
-    test('should be able to be aborted', async () => {
+    it('should be able to be aborted', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const promise = extractReportHeader(
@@ -288,7 +307,7 @@ describe('COUNTER 5.1', () => {
     });
   });
 
-  describe('Registry ID (extractRegistryId)', () => {
+  describe('extract Registry ID', () => {
     const ID = '99999999-9999-9999-9999-999999999999';
     const HEADER: IRReportHeader = {
       Created: '2023-02-15T09:11:12Z',
@@ -307,19 +326,21 @@ describe('COUNTER 5.1', () => {
       Report_Name: 'Item Report',
     };
 
-    test('should return ID from Registry_Record', () => {
+    it('should return ID from Registry_Record', () => {
+      expect.hasAssertions();
       const id = extractRegistryId(HEADER);
 
       expect(id).toBe(ID);
     });
 
-    test('should return null if unable to parse', () => {
+    it('should return null if unable to parse', () => {
+      expect.hasAssertions();
       const id = extractRegistryId({
         ...HEADER,
         Registry_Record: undefined,
       });
 
-      expect(id).toBe(null);
+      expect(id).toBeNull();
     });
   });
 });

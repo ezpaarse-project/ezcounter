@@ -3,19 +3,18 @@ import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
 
+import { DataHostModel } from '~/models/data-host';
 import {
-  findAllReportsSupportedByDataHost,
-  getDataHostWithSupportedData,
-} from '~/models/data-host';
-import { DataHostSupportedReport } from '~/models/data-host/dto';
+  DataHostSupportedReport,
+  DataHostSupportedReportFilters,
+} from '~/models/data-host/dto';
 import { fetchSupportedReportsOfDataHost } from '~/models/data-host/supported-reports';
 import { HarvestAuthOptions } from '~/models/harvest/dto';
 
+import { assertReleaseSupported } from '~/routes/v1/data-hosts/utils';
+import { PaginationQuery } from '~/routes/v1/query';
 import {
-  assertDataHostRegistered,
-  assertReleaseSupported,
-} from '~/routes/v1/data-hosts/utils';
-import {
+  PaginationMeta,
   buildResponse,
   describeErrors,
   describeSuccess,
@@ -33,27 +32,56 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
     handler: async (request, reply) => {
       const { id, release } = request.params;
+      const { count, order, page, sort, ...filters } = request.query;
 
-      return buildResponse(
-        reply,
-        await findAllReportsSupportedByDataHost(id, release)
+      const [reports, total] = await DataHostModel.$transaction((dataHosts) =>
+        Promise.all([
+          dataHosts.findAllReportsSupported(
+            { dataHostId: id, release },
+            {
+              ...filters,
+              orderBy: { [sort || 'createdAt']: order },
+              skip: count * (page - 1),
+              take: count > 0 ? count : undefined,
+            }
+          ),
+          dataHosts.countAllReportsSupported(
+            { dataHostId: id, release },
+            filters
+          ),
+        ])
       );
+
+      return buildResponse(reply, reports, {
+        count: reports.length,
+        page,
+        total,
+      });
     },
     method: 'GET',
     preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
       (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
+        assertReleaseSupported({
+          dataHostId: request.params.id,
+          release: request.params.release,
+        }),
     ],
     schema: {
       params: RouterParams,
+      querystring: z.object({
+        ...PaginationQuery.shape,
+        ...DataHostSupportedReportFilters.shape,
+      }),
       response: {
         ...describeErrors([
           StatusCodes.BAD_REQUEST,
           StatusCodes.NOT_FOUND,
           StatusCodes.INTERNAL_SERVER_ERROR,
         ]),
-        [StatusCodes.OK]: describeSuccess(z.array(DataHostSupportedReport)),
+        [StatusCodes.OK]: describeSuccess(
+          z.array(DataHostSupportedReport),
+          PaginationMeta
+        ),
       },
       summary: 'Get supported reports of a data host for a release',
       tags: ['data-host'],
@@ -66,18 +94,21 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       const { id, release } = request.params;
       const { auth } = request.body;
 
-      const dataHost = await getDataHostWithSupportedData(id);
+      const dataHosts = new DataHostModel();
+      const host = await dataHosts.findOneWithSupportedData(id);
 
       return buildResponse(
         reply,
-        await fetchSupportedReportsOfDataHost(dataHost!, auth, release)
+        await fetchSupportedReportsOfDataHost(host, auth, release)
       );
     },
     method: 'POST',
     preHandler: [
-      (request): Promise<void> => assertDataHostRegistered(request.params.id),
       (request): Promise<void> =>
-        assertReleaseSupported(request.params.id, request.params.release),
+        assertReleaseSupported({
+          dataHostId: request.params.id,
+          release: request.params.release,
+        }),
     ],
     schema: {
       body: z.object({

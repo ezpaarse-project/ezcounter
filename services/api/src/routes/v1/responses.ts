@@ -80,6 +80,51 @@ export const ErrorResponse = z.object({
  */
 export type ErrorResponse = z.infer<typeof ErrorResponse>;
 
+export const PaginationMeta = z.object({
+  count: z.int().min(0).describe('Count of items requested'),
+
+  page: z.int().min(1).describe('The page requested'),
+
+  total: z.int().min(0).describe('The total count of items present'),
+});
+
+export type PaginationMeta = z.infer<typeof PaginationMeta>;
+
+/**
+ * Build validation for a successful response with or without metadata from the API
+ *
+ * @param content - The validation for the content of the response
+ * @param meta - The validation for the metadata of the response
+ *
+ * @returns The validation
+ */
+export function describeSuccess<Content, Meta = undefined>(
+  content: z.ZodType<Content>,
+  meta?: z.ZodType<Meta>
+):
+  | z.ZodType<SuccessResponse<Content>>
+  | z.ZodType<SuccessResponse<Content, Meta>> {
+  if (meta) {
+    return z.object({ ...BaseResponse.shape, content, meta });
+  }
+  return z.object({ ...BaseResponse.shape, content });
+}
+
+/**
+ * Describe errors responses that the route can send
+ *
+ * @param errors - List of error codes that route can send
+ *
+ * @returns Validation
+ */
+export const describeErrors = (
+  errors: StatusCodes[]
+): Record<StatusCodes, typeof ErrorResponse> =>
+  // oxlint-disable-next-line no-unsafe-type-assertion
+  Object.fromEntries(
+    errors.map((code) => [code, ErrorResponse.describe(getReasonPhrase(code))])
+  ) as Record<StatusCodes, typeof ErrorResponse>;
+
 /**
  * Build a successful response from with or without metadata the API
  *
@@ -134,41 +179,6 @@ export function buildResponse<Content, Meta = undefined>(
     meta,
   } as SuccessResponse<Content, Meta>;
 }
-
-/**
- * Build validation for a successful response with or without metadata from the API
- *
- * @param content - The validation for the content of the response
- * @param meta - The validation for the metadata of the response
- *
- * @returns The validation
- */
-export function describeSuccess<Content, Meta = undefined>(
-  content: z.ZodType<Content>,
-  meta?: z.ZodType<Meta>
-):
-  | z.ZodType<SuccessResponse<Content>>
-  | z.ZodType<SuccessResponse<Content, Meta>> {
-  if (meta) {
-    return z.object({ ...BaseResponse.shape, content, meta });
-  }
-  return z.object({ ...BaseResponse.shape, content });
-}
-
-/**
- * Describe errors responses that the route can send
- *
- * @param errors - List of error codes that route can send
- *
- * @returns Validation
- */
-export const describeErrors = (
-  errors: StatusCodes[]
-): Record<StatusCodes, typeof ErrorResponse> =>
-  // oxlint-disable-next-line no-unsafe-type-assertion
-  Object.fromEntries(
-    errors.map((code) => [code, ErrorResponse.describe(getReasonPhrase(code))])
-  ) as Record<StatusCodes, typeof ErrorResponse>;
 
 /**
  * Validation for an empty response

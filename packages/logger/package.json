@@ -18,7 +18,7 @@
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "type-check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsgo --noEmit --skipLibCheck"
   },
   "dependencies": {
     "pino": "^10.3.1"

@@ -1,11 +1,13 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { MAX_BUFFER_SIZE } from '../constants';
+// oxlint-disable-next-line vitest/no-mocks-import - Remote should be create by parent
 import { mockedRemote } from './remotes/__mocks__';
 import { bufferedFetchOneWorkByDOI } from './works';
 
-describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
-  test('should fetch remote using debounce', async () => {
+describe('fetch Documents by DOI', () => {
+  it('should fetch remote using debounce', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([]);
 
     await bufferedFetchOneWorkByDOI(
@@ -30,9 +32,7 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
     );
 
     await vi.runAllTimersAsync();
-    expect(
-      vi.mocked(mockedRemote).fetchManyWorkByDOI
-    ).toHaveBeenCalledExactlyOnceWith([
+    expect(mockedRemote.fetchManyWorkByDOI).toHaveBeenCalledExactlyOnceWith([
       '10.9999/xxxxxx1',
       '10.9999/xxxxxx2',
       '10.9999/xxxxxx3',
@@ -40,9 +40,10 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
     ]);
   });
 
-  test('should pause if buffer is full', async () => {
+  it('should pause if buffer is full', async () => {
+    expect.hasAssertions();
     vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([]);
-    const addToBuffer = vi.fn(() =>
+    const addToBuffer = vi.fn<() => Promise<boolean>>(() =>
       bufferedFetchOneWorkByDOI(vi.mocked(mockedRemote), '', vi.fn())
     );
 
@@ -63,7 +64,8 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should trigger every callback', async () => {
+  it('should trigger every callback', async () => {
+    expect.hasAssertions();
     // Deduplicate 10.9999/xxxxxx1 + missing 10.9999/xxxxxx4
     vi.mocked(mockedRemote).fetchManyWorkByDOI.mockResolvedValueOnce([
       {
@@ -78,25 +80,25 @@ describe('Fetch Documents by DOI (bufferedFetchOneWorkByDOI)', () => {
       },
     ]);
 
-    const spy1 = vi.fn();
+    const spy1 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneWorkByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx1',
       spy1
     );
-    const spy2 = vi.fn();
+    const spy2 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneWorkByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx1',
       spy2
     );
-    const spy3 = vi.fn();
+    const spy3 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneWorkByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx3',
       spy3
     );
-    const spy4 = vi.fn();
+    const spy4 = vi.fn<(...args: unknown[]) => Promise<void>>();
     await bufferedFetchOneWorkByDOI(
       vi.mocked(mockedRemote),
       '10.9999/xxxxxx4',

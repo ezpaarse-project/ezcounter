@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { EnrichJobContent, EnrichJobData } from '@ezcounter/dto/queues';
@@ -15,7 +15,7 @@ vi.mock(import('~/queues/enrich/status'));
 vi.mock(import('~/models/counter-document'));
 vi.mock(import('./transform'));
 
-describe('Insert report item (insertReportItem)', () => {
+describe('insert report item', () => {
   const job: EnrichJobData = {
     data: mockDeep<EnrichJobContent>(),
     enrich: {
@@ -28,7 +28,8 @@ describe('Insert report item (insertReportItem)', () => {
     },
   };
 
-  test('should mark job as processing', async () => {
+  it('should mark job as processing', async () => {
+    expect.hasAssertions();
     await insertReportItem(job);
 
     expect(sendEnrichJobStatusEvent).toHaveBeenCalledExactlyOnceWith({
@@ -37,7 +38,8 @@ describe('Insert report item (insertReportItem)', () => {
     });
   });
 
-  test('should transform item with provided options', async () => {
+  it('should transform item with provided options', async () => {
+    expect.hasAssertions();
     await insertReportItem(job);
 
     expect(transformReportItemToDocuments).toHaveBeenCalledWith(
@@ -46,8 +48,10 @@ describe('Insert report item (insertReportItem)', () => {
     );
   });
 
-  test('should add to COUNTER document buffer with additional data', async () => {
+  it('should add to COUNTER document buffer with additional data', async () => {
+    expect.hasAssertions();
     // Generate some mocked documents
+    // oxlint-disable-next-line vitest/prefer-mock-return-shorthand - Need to have generator function
     vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
       function* generate() {
         yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };
@@ -68,7 +72,8 @@ describe('Insert report item (insertReportItem)', () => {
     );
   });
 
-  test('should notify about progress once per item', async () => {
+  it('should notify about progress once per item', async () => {
+    expect.hasAssertions();
     // Generate some mocked documents
     vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
       function* generate() {
@@ -124,8 +129,10 @@ describe('Insert report item (insertReportItem)', () => {
     );
   });
 
-  test('should NOT notify about progress if document is not inserted', async () => {
+  it('should NOT notify about progress if document is not inserted', async () => {
+    expect.hasAssertions();
     // Generate some mocked documents
+    // oxlint-disable-next-line vitest/prefer-mock-return-shorthand - Need to have generator function
     vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
       function* generate() {
         yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-1' };
@@ -148,8 +155,10 @@ describe('Insert report item (insertReportItem)', () => {
     expect(sendEnrichJobStatusEvent).toHaveBeenCalledOnce();
   });
 
-  test('should notify about error', async () => {
+  it('should notify about error', async () => {
+    expect.hasAssertions();
     // Generate some mocked documents
+    // oxlint-disable-next-line vitest/prefer-mock-return-shorthand - Need to have generator function
     vi.mocked(transformReportItemToDocuments).mockImplementationOnce(
       function* generate() {
         yield { document: mockDeep<CreateCOUNTERDocument>(), id: 'doc-id' };

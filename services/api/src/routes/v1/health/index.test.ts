@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   appService,
@@ -27,8 +27,9 @@ const MOCKED_SERVICE: Heartbeat = {
   updatedAt: new Date(),
 };
 
-describe('GET /health', () => {
-  test('should return information about self', async () => {
+describe('get /health', () => {
+  it('should return information about self', async () => {
+    expect.hasAssertions();
     vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
 
     const promise = server.inject({
@@ -47,8 +48,9 @@ describe('GET /health', () => {
   });
 });
 
-describe('GET /health/services', () => {
-  test('should return OK', async () => {
+describe('get /health/services', () => {
+  it('should return OK', async () => {
+    expect.hasAssertions();
     vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
 
     const promise = server.inject({
@@ -59,18 +61,20 @@ describe('GET /health/services', () => {
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
   });
 
-  test('should return information about others', async () => {
+  it('should return information about others', async () => {
+    expect.hasAssertions();
     await server.inject({
       method: 'GET',
       url: '/health/services',
     });
 
-    expect(getAllServices).toHaveBeenCalled();
+    expect(getAllServices).toHaveBeenCalledOnce();
   });
 });
 
-describe('GET /health/services/:name', () => {
-  test('should return OK', async () => {
+describe('get /health/services/:name', () => {
+  it('should return OK', async () => {
+    expect.hasAssertions();
     vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
 
     const promise = server.inject({
@@ -81,7 +85,8 @@ describe('GET /health/services/:name', () => {
     await expect(promise).resolves.toHaveProperty('statusCode', 200);
   });
 
-  test("should return NOT_FOUND if service doesn't exists", async () => {
+  it("should return NOT_FOUND if service doesn't exists", async () => {
+    expect.hasAssertions();
     vi.mocked(getAllServices).mockReturnValueOnce([MOCKED_SERVICE]);
 
     const response = await server.inject({
@@ -96,8 +101,9 @@ describe('GET /health/services/:name', () => {
   });
 });
 
-describe('GET /health/probes/liveness', () => {
-  test('should return OK (204)', async () => {
+describe('get /health/probes/liveness', () => {
+  it('should return OK (204)', async () => {
+    expect.hasAssertions();
     const promise = server.inject({
       method: 'GET',
       url: '/health/probes/liveness',
@@ -107,8 +113,9 @@ describe('GET /health/probes/liveness', () => {
   });
 });
 
-describe('GET /health/probes/readiness', () => {
-  test('should return OK (204)', async () => {
+describe('get /health/probes/readiness', () => {
+  it('should return OK (204)', async () => {
+    expect.hasAssertions();
     vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([]);
 
     const promise = server.inject({
@@ -119,7 +126,8 @@ describe('GET /health/probes/readiness', () => {
     await expect(promise).resolves.toHaveProperty('statusCode', 204);
   });
 
-  test('should check if services are missing', async () => {
+  it('should check if services are missing', async () => {
+    expect.hasAssertions();
     vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([]);
 
     await server.inject({
@@ -127,10 +135,11 @@ describe('GET /health/probes/readiness', () => {
       url: '/health/probes/readiness',
     });
 
-    expect(getMissingMandatoryServices).toHaveBeenCalled();
+    expect(getMissingMandatoryServices).toHaveBeenCalledOnce();
   });
 
-  test('should return SERVICE_UNAVAILABLE if some mandatory services are missing', async () => {
+  it('should return SERVICE_UNAVAILABLE if some mandatory services are missing', async () => {
+    expect.hasAssertions();
     vi.mocked(getMissingMandatoryServices).mockReturnValueOnce([
       'missing-service',
     ]);

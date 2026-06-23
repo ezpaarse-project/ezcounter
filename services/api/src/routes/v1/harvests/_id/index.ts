@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 
 import { z } from '@ezcounter/dto';
 
-import { findManyHarvestJobById } from '~/models/harvest';
+import { HarvestJobModel } from '~/models/harvest';
 import { HarvestJob } from '~/models/harvest/dto';
 
 import {
@@ -26,7 +26,9 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
     handler: async (request, reply) => {
       const { id } = request.params;
 
-      const [job] = await findManyHarvestJobById([id]);
+      const harvestJobs = new HarvestJobModel();
+
+      const [job] = await harvestJobs.findManyById([id]);
       if (!job) {
         throw new HTTPError(
           StatusCodes.NOT_FOUND,

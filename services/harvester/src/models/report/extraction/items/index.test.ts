@@ -1,10 +1,10 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import { extractReportItems } from '.';
 
-describe('COUNTER 5', () => {
+describe('counter 5', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
@@ -15,8 +15,9 @@ describe('COUNTER 5', () => {
     },
   };
 
-  describe('Report Items (extractReportItems)', () => {
-    test('should return iterator', async () => {
+  describe('extract report items', () => {
+    it('should return iterator', async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -35,7 +36,8 @@ describe('COUNTER 5', () => {
       await expect(promise).resolves.toHaveProperty('value');
     });
 
-    test('should return iterator for IR', async () => {
+    it('should return iterator for IR', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5/ir/valid.json',
         OPTIONS
@@ -46,7 +48,8 @@ describe('COUNTER 5', () => {
       await expect(promise).resolves.toHaveProperty('value');
     });
 
-    test('should throw if an item is invalid', async () => {
+    it('should throw if an item is invalid', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5/ir/invalid_item.json',
         OPTIONS
@@ -58,7 +61,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toHaveProperty('cause.parentKey');
     });
 
-    test("should throw if doesn't have items", async () => {
+    it("should throw if doesn't have items", async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5/ir/empty.json',
         OPTIONS
@@ -68,7 +72,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toThrow("Report doesn't have any Items");
     });
 
-    test("shouldn't throw if header is invalid from an unknown report", async () => {
+    it("shouldn't throw if header is invalid from an unknown report", async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -86,7 +91,8 @@ describe('COUNTER 5', () => {
       await expect(promise).resolves.not.toThrow('Exception is invalid');
     });
 
-    test('should throw if not JSON', async () => {
+    it('should throw if not JSON', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5/ir/invalid.json.txt',
         OPTIONS
@@ -98,7 +104,8 @@ describe('COUNTER 5', () => {
       );
     });
 
-    test("should throw if doesn't exists", async () => {
+    it("should throw if doesn't exists", async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5/ir/does-not-exists.json.txt',
         OPTIONS
@@ -109,7 +116,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 
-    test('should be able to be aborted before first item', async () => {
+    it('should be able to be aborted before first item', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const iterator = extractReportItems(
@@ -124,7 +132,8 @@ describe('COUNTER 5', () => {
       await expect(promise).rejects.toThrow('The operation was aborted');
     });
 
-    test('should be able to be aborted after first item', async () => {
+    it('should be able to be aborted after first item', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const iterator = extractReportItems(
@@ -142,7 +151,7 @@ describe('COUNTER 5', () => {
   });
 });
 
-describe('COUNTER 5.1', () => {
+describe('counter 5.1', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
     dataHost: { auth: {}, baseUrl: '' },
@@ -152,8 +161,9 @@ describe('COUNTER 5.1', () => {
       period: { end: '', start: '' },
     },
   };
-  describe('Report Items (extractReportItems)', () => {
-    test('should return iterator', async () => {
+  describe('extract report items', () => {
+    it('should return iterator', async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -172,7 +182,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).resolves.toHaveProperty('value');
     });
 
-    test('should return iterator for IR', async () => {
+    it('should return iterator for IR', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/valid.json',
         OPTIONS
@@ -183,7 +194,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).resolves.toHaveProperty('value');
     });
 
-    test('should throw if an item is invalid', async () => {
+    it('should throw if an item is invalid', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/invalid_item.json',
         OPTIONS
@@ -195,7 +207,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('cause.parentKey');
     });
 
-    test('should throw if an item parent is invalid', async () => {
+    it('should throw if an item parent is invalid', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/invalid_parent.json',
         OPTIONS
@@ -206,7 +219,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('cause.parentKey');
     });
 
-    test("should throw if doesn't have items", async () => {
+    it("should throw if doesn't have items", async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/empty.json',
         OPTIONS
@@ -216,7 +230,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toThrow("Report doesn't have any Items");
     });
 
-    test("should throw if an item parent doesn't have items", async () => {
+    it("should throw if an item parent doesn't have items", async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/missing_items.json',
         OPTIONS
@@ -227,18 +242,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('cause.parentKey');
     });
 
-    test("should throw if an item parent doesn't have items", async () => {
-      const iterator = extractReportItems(
-        '/examples/reports/5.1/ir/missing_items.json',
-        OPTIONS
-      );
-      const promise = iterator.next();
-
-      await expect(promise).rejects.toThrow("Parent doesn't have Items");
-      await expect(promise).rejects.toHaveProperty('cause.parentKey');
-    });
-
-    test('should throw if an item parent have empty items', async () => {
+    it('should throw if an item parent have empty items', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/empty_items.json',
         OPTIONS
@@ -251,7 +256,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('cause.parentKey');
     });
 
-    test("shouldn't throw if header is invalid from an unknown report", async () => {
+    it("shouldn't throw if header is invalid from an unknown report", async () => {
+      expect.hasAssertions();
       const options = {
         ...OPTIONS,
         report: {
@@ -269,7 +275,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).resolves.not.toThrow('Exception is invalid');
     });
 
-    test('should throw if not JSON', async () => {
+    it('should throw if not JSON', async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/invalid.json.txt',
         OPTIONS
@@ -281,7 +288,8 @@ describe('COUNTER 5.1', () => {
       );
     });
 
-    test("should throw if doesn't exists", async () => {
+    it("should throw if doesn't exists", async () => {
+      expect.hasAssertions();
       const iterator = extractReportItems(
         '/examples/reports/5.1/ir/does-not-exists.json.txt',
         OPTIONS
@@ -292,7 +300,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toHaveProperty('code', 'ENOENT');
     });
 
-    test('should be able to be aborted before first item', async () => {
+    it('should be able to be aborted before first item', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const iterator = extractReportItems(
@@ -307,7 +316,8 @@ describe('COUNTER 5.1', () => {
       await expect(promise).rejects.toThrow('The operation was aborted');
     });
 
-    test('should be able to be aborted after first item', async () => {
+    it('should be able to be aborted after first item', async () => {
+      expect.hasAssertions();
       const controller = new AbortController();
 
       const iterator = extractReportItems(

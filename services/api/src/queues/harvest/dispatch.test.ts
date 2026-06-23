@@ -1,7 +1,8 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
+// oxlint-disable-next-line vitest/no-mocks-import - We need to get mockedPublisher as pub is not exported
 import { mockedChannel, mockedPublisher } from '~/lib/__mocks__/rabbitmq';
 
 import {
@@ -10,10 +11,11 @@ import {
   sendHarvestJobsInQueue,
 } from './dispatch';
 
-describe('Create queues (ensureDataHostQueues)', () => {
+describe('create queues', () => {
   const hosts = ['dummy-counter-datahost.com', 'google.fr'];
 
-  test('should create one queue per host', async () => {
+  it('should create one queue per host', async () => {
+    expect.hasAssertions();
     mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
@@ -25,7 +27,8 @@ describe('Create queues (ensureDataHostQueues)', () => {
     expect(mockedChannel.queueDeclare).toHaveBeenCalledTimes(2);
   });
 
-  test('should return Map', async () => {
+  it('should return Map', async () => {
+    expect.hasAssertions();
     mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
@@ -37,7 +40,8 @@ describe('Create queues (ensureDataHostQueues)', () => {
     await expect(promise).resolves.toBeInstanceOf(Map);
   });
 
-  test('should track queue creation status', async () => {
+  it('should track queue creation status', async () => {
+    expect.hasAssertions();
     // First queue doesn't exists
     mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
@@ -57,7 +61,8 @@ describe('Create queues (ensureDataHostQueues)', () => {
     expect(result.get(hosts[1])).toHaveProperty('created', false);
   });
 
-  test('should correctly name queues', async () => {
+  it('should correctly name queues', async () => {
+    expect.hasAssertions();
     mockedChannel.queueDeclare.mockResolvedValueOnce({
       consumerCount: 0,
       messageCount: 0,
@@ -67,11 +72,12 @@ describe('Create queues (ensureDataHostQueues)', () => {
     const result = await ensureDataHostQueues(mockedChannel, hosts);
 
     expect(result.get(hosts[0])?.name).toMatch(
-      /^ezcounter:harvest\.job:[a-z0-9]{16}$/
+      /^ezcounter:harvest\.job:[a-z0-9]{16}$/v
     );
   });
 
-  test('should not throw but report error', async () => {
+  it('should not throw but report error', async () => {
+    expect.hasAssertions();
     mockedChannel.queueDeclare.mockRejectedValueOnce(
       new Error('Creation error')
     );
@@ -87,10 +93,11 @@ describe('Create queues (ensureDataHostQueues)', () => {
   });
 });
 
-describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
+describe('queue harvest jobs', () => {
   const jobs = [{ id: 'abcde' } as HarvestJobData];
 
-  test('should send jobs', () => {
+  it('should send jobs', () => {
+    expect.hasAssertions();
     sendHarvestJobsInQueue({ created: true, name: 'foobar' }, jobs);
 
     expect(mockedPublisher.send).toHaveBeenCalledWith(
@@ -99,7 +106,8 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     );
   });
 
-  test('should return id of jobs', async () => {
+  it('should return id of jobs', async () => {
+    expect.hasAssertions();
     const result = await sendHarvestJobsInQueue(
       { created: true, name: 'foobar' },
       jobs
@@ -108,7 +116,8 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     expect(result).toHaveProperty('0.id', 'abcde');
   });
 
-  test('should not throw but bubble error', async () => {
+  it('should not throw but bubble error', async () => {
+    expect.hasAssertions();
     const error = {
       code: 'app:ERROR',
       message: 'Creation error',
@@ -122,7 +131,8 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
     expect(result).toHaveProperty('0.error', error);
   });
 
-  test('should not throw but report error', async () => {
+  it('should not throw but report error', async () => {
+    expect.hasAssertions();
     mockedPublisher.send.mockRejectedValueOnce(new Error('Send error'));
 
     const result = await sendHarvestJobsInQueue(
@@ -137,20 +147,23 @@ describe('Queue harvest jobs (sendHarvestJobsInQueue)', () => {
   });
 });
 
-describe('Queue dispatch (sendDispatchEvent)', () => {
-  test('should send dispatch', async () => {
+describe('queue dispatch', () => {
+  it('should send dispatch', async () => {
+    expect.hasAssertions();
     await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });
 
-    expect(mockedPublisher.send).toHaveBeenCalled();
+    expect(mockedPublisher.send).toHaveBeenCalledOnce();
   });
 
-  test('should NOT send dispatch if queue existed', async () => {
+  it('should NOT send dispatch if queue existed', async () => {
+    expect.hasAssertions();
     await sendDispatchEvent(mockedChannel, { created: false, name: 'foobar' });
 
     expect(mockedPublisher.send).not.toHaveBeenCalled();
   });
 
-  test('should not throw but bubble error', async () => {
+  it('should not throw but bubble error', async () => {
+    expect.hasAssertions();
     const error = {
       code: 'app:ERROR',
       message: 'Creation error',
@@ -165,7 +178,8 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
     await expect(promise).resolves.toHaveProperty('error', error);
   });
 
-  test('should not throw but report error', async () => {
+  it('should not throw but report error', async () => {
+    expect.hasAssertions();
     mockedPublisher.send.mockRejectedValueOnce(new Error('Dispatch error'));
 
     const promise = sendDispatchEvent(mockedChannel, {
@@ -179,7 +193,8 @@ describe('Queue dispatch (sendDispatchEvent)', () => {
     });
   });
 
-  test('should delete queue if dispatch failed', async () => {
+  it('should delete queue if dispatch failed', async () => {
+    expect.hasAssertions();
     mockedPublisher.send.mockRejectedValueOnce(new Error('Send error'));
 
     await sendDispatchEvent(mockedChannel, { created: true, name: 'foobar' });

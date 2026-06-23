@@ -1,181 +1,402 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { dbClient } from '~/lib/prisma';
 
-import type { DataHostSupportedReport } from '../dto';
+import type {
+  DataHostSupportedReport,
+  DataHostWithSupportedData,
+} from '../dto';
 import {
+  countAllDataHost,
+  countAllReleasesSupportedByDataHost,
+  countAllReportsSupportedByDataHost,
   doesDataHostExists,
   doesDataHostSupportsRelease,
   doesDataHostSupportsReport,
   findAllDataHost,
   findAllReleasesSupportedByDataHost,
   findAllReportsSupportedByDataHost,
+  findOneDataHost,
+  findOneDataHostWithSupportedData,
   findOneReleaseSupportedByDataHost,
   findOneReportSupportedByDataHost,
 } from './read';
 
-describe(doesDataHostExists, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(5);
+describe('does Data Host exists', () => {
+  it('should query DB', async () => {
+    expect.assertions(1);
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce({
+      id: 5,
+    });
 
-    await doesDataHostExists('id');
+    await doesDataHostExists('id', dbClient);
 
-    expect(dbClient.dataHost.count).toHaveBeenCalled();
+    expect(dbClient.dataHost.count).toHaveBeenCalledOnce();
   });
 
-  test('should return true if found', async () => {
-    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(1);
+  it('should return true if found', async () => {
+    expect.assertions(1);
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce({ id: 1 });
 
-    const promise = doesDataHostExists('id');
+    const promise = doesDataHostExists('id', dbClient);
 
     await expect(promise).resolves.toBe(true);
   });
 
-  test('should return false if not found', async () => {
-    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce(0);
+  it('should return false if not found', async () => {
+    expect.assertions(1);
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce({ id: 0 });
 
-    const promise = doesDataHostExists('id');
+    const promise = doesDataHostExists('id', dbClient);
 
     await expect(promise).resolves.toBe(false);
   });
 });
 
-describe(findAllDataHost, () => {
-  test('should query DB', async () => {
+describe('find all Data Host', () => {
+  it('should query DB', async () => {
+    expect.assertions(2);
     vi.mocked(dbClient.dataHost.findMany).mockResolvedValueOnce([]);
 
-    await findAllDataHost();
+    await findAllDataHost(
+      {
+        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        orderBy: { id: 'asc' },
+        skip: 50,
+        take: 25,
+      },
+      dbClient
+    );
 
-    expect(dbClient.dataHost.findMany).toHaveBeenCalled();
+    expect(dbClient.dataHost.findMany).toHaveBeenCalledExactlyOnceWith({
+      orderBy: { id: 'asc' },
+      skip: 50,
+      take: 25,
+      where: {
+        createdAt: {
+          gte: new Date('2025-01-01T00:00:00.000Z'),
+          lte: undefined,
+        },
+      },
+    });
+    expect(dbClient.dataHost.findMany).toHaveBeenCalledOnce();
   });
 
-  test('should return array', async () => {
+  it('should return array', async () => {
+    expect.assertions(1);
     vi.mocked(dbClient.dataHost.findMany).mockResolvedValueOnce([]);
 
-    const promise = findAllDataHost();
+    const promise = findAllDataHost({}, dbClient);
 
     await expect(promise).resolves.toBeInstanceOf(Array);
   });
 });
 
-describe(doesDataHostSupportsRelease, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
+describe('count all Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHost.count).mockResolvedValueOnce({
+      id: 0,
+    });
 
-    await doesDataHostSupportsRelease('id', '5');
+    await countAllDataHost(
+      {
+        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+      },
+      dbClient
+    );
+
+    expect(dbClient.dataHost.count).toHaveBeenCalledExactlyOnceWith({
+      select: { id: true },
+      where: {
+        createdAt: {
+          gte: undefined,
+          lte: new Date('2025-01-01T00:00:00.000Z'),
+        },
+      },
+    });
+  });
+});
+
+describe('find one Data Host', () => {
+  it('should query DB', async () => {
+    expect.assertions(1);
+    vi.mocked(dbClient.dataHost.findUniqueOrThrow).mockResolvedValueOnce({
+      createdAt: new Date(),
+      id: 'id',
+      params: {},
+      updatedAt: null,
+    });
+
+    await findOneDataHost('id', dbClient);
+
+    expect(dbClient.dataHost.findUniqueOrThrow).toHaveBeenCalledExactlyOnceWith(
+      {
+        where: { id: 'id' },
+      }
+    );
+  });
+});
+
+describe('does Data Host supports release', () => {
+  it('should query DB', async () => {
+    expect.assertions(1);
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce({
+      release: 1,
+    });
+
+    await doesDataHostSupportsRelease(
+      { dataHostId: 'id', release: '5' },
+      dbClient
+    );
 
     expect(
-      vi.mocked(dbClient.dataHostSupportedRelease.count)
-    ).toHaveBeenCalled();
+      dbClient.dataHostSupportedRelease.count
+    ).toHaveBeenCalledExactlyOnceWith({
+      select: { release: true },
+      where: { dataHostId: 'id', release: '5' },
+    });
   });
 
-  test('should return true if found', async () => {
-    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(1);
+  it('should return true if found', async () => {
+    expect.assertions(1);
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce({
+      release: 1,
+    });
 
-    const promise = doesDataHostSupportsRelease('id', '5.1');
+    const promise = doesDataHostSupportsRelease(
+      { dataHostId: 'id', release: '5.1' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(true);
   });
 
-  test('should return false if not found', async () => {
+  it('should return false if not found', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce(0);
 
-    const promise = doesDataHostSupportsRelease('id', '5.1');
+    const promise = doesDataHostSupportsRelease(
+      { dataHostId: 'id', release: '5.1' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(false);
   });
 });
 
-describe(findAllReleasesSupportedByDataHost, () => {
-  test('should query DB', async () => {
+describe('find all releases supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedRelease.findMany).mockResolvedValueOnce(
       []
     );
 
-    await findAllReleasesSupportedByDataHost('id');
+    await findAllReleasesSupportedByDataHost(
+      'id',
+      {
+        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        orderBy: { id: 'asc' },
+        skip: 50,
+        take: 25,
+      },
+      dbClient
+    );
 
     expect(
-      vi.mocked(dbClient.dataHostSupportedRelease.findMany)
-    ).toHaveBeenCalled();
+      dbClient.dataHostSupportedRelease.findMany
+    ).toHaveBeenCalledExactlyOnceWith({
+      orderBy: { id: 'asc' },
+      skip: 50,
+      take: 25,
+      where: {
+        createdAt: {
+          gte: new Date('2025-01-01T00:00:00.000Z'),
+          lte: undefined,
+        },
+        dataHostId: 'id',
+      },
+    });
   });
 
-  test('should return array', async () => {
+  it('should return array', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedRelease.findMany).mockResolvedValueOnce(
       []
     );
 
-    const promise = findAllReleasesSupportedByDataHost('id');
+    const promise = findAllReleasesSupportedByDataHost('id', {}, dbClient);
 
     await expect(promise).resolves.toBeInstanceOf(Array);
   });
 });
 
-describe(doesDataHostSupportsReport, () => {
-  test('should query DB', async () => {
-    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
+describe('count all releases supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHostSupportedRelease.count).mockResolvedValueOnce({
+      release: 0,
+    });
 
-    await doesDataHostSupportsReport('id', '5', 'tr');
+    await countAllReleasesSupportedByDataHost(
+      'id',
+      {
+        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+      },
+      dbClient
+    );
 
     expect(
-      vi.mocked(dbClient.dataHostSupportedReport.count)
-    ).toHaveBeenCalled();
+      dbClient.dataHostSupportedRelease.count
+    ).toHaveBeenCalledExactlyOnceWith({
+      select: { release: true },
+      where: {
+        createdAt: {
+          gte: undefined,
+          lte: new Date('2025-01-01T00:00:00.000Z'),
+        },
+        dataHostId: 'id',
+      },
+    });
   });
+});
 
-  test('should return true if found', async () => {
+describe('does Data Host supports report', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
 
-    const promise = doesDataHostSupportsReport('id', '5.1', 'tr');
+    await doesDataHostSupportsReport(
+      { dataHostId: 'id', release: '5', report: 'tr' },
+      dbClient
+    );
+
+    expect(dbClient.dataHostSupportedReport.count).toHaveBeenCalledOnce();
+  });
+
+  it('should return true if found', async () => {
+    expect.hasAssertions();
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(1);
+
+    const promise = doesDataHostSupportsReport(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(true);
   });
 
-  test('should return false if not found', async () => {
+  it('should return false if not found', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce(0);
 
-    const promise = doesDataHostSupportsReport('id', '5.1', 'tr');
+    const promise = doesDataHostSupportsReport(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
 
     await expect(promise).resolves.toBe(false);
   });
 });
 
-describe(findAllReportsSupportedByDataHost, () => {
-  test('should query DB', async () => {
+describe('find all reports supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.findMany).mockResolvedValueOnce(
       []
     );
 
-    await findAllReportsSupportedByDataHost('id', '5.1');
+    await findAllReportsSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1' },
+      {
+        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        orderBy: { id: 'asc' },
+        skip: 50,
+        take: 25,
+      },
+      dbClient
+    );
 
     expect(
-      vi.mocked(dbClient.dataHostSupportedReport.findMany)
-    ).toHaveBeenCalled();
+      dbClient.dataHostSupportedReport.findMany
+    ).toHaveBeenCalledExactlyOnceWith({
+      orderBy: { id: 'asc' },
+      skip: 50,
+      take: 25,
+      where: {
+        createdAt: {
+          gte: new Date('2025-01-01T00:00:00.000Z'),
+          lte: undefined,
+        },
+        dataHostId: 'id',
+        release: '5.1',
+      },
+    });
   });
 
-  test('should return array', async () => {
+  it('should return array', async () => {
+    expect.hasAssertions();
     vi.mocked(dbClient.dataHostSupportedReport.findMany).mockResolvedValueOnce(
       []
     );
 
-    const promise = findAllReportsSupportedByDataHost('id', '5.1');
+    const promise = findAllReportsSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1' },
+      {},
+      dbClient
+    );
 
     await expect(promise).resolves.toBeInstanceOf(Array);
   });
 });
 
-describe(findOneReleaseSupportedByDataHost, () => {
-  test('should query DB', async () => {
+describe('count all reports supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    // @ts-expect-error Prisma types are complex
+    vi.mocked(dbClient.dataHostSupportedReport.count).mockResolvedValueOnce({
+      id: 0,
+    });
+
+    await countAllReportsSupportedByDataHost(
+      { dataHostId: 'id', release: '5' },
+      {
+        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+      },
+      dbClient
+    );
+
+    expect(
+      dbClient.dataHostSupportedReport.count
+    ).toHaveBeenCalledExactlyOnceWith({
+      select: { id: true },
+      where: {
+        createdAt: {
+          gte: undefined,
+          lte: new Date('2025-01-01T00:00:00.000Z'),
+        },
+        dataHostId: 'id',
+        release: '5',
+      },
+    });
+  });
+});
+
+describe('find one release supported by Data Host', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(
       dbClient.dataHostSupportedRelease.findUniqueOrThrow
     ).mockResolvedValueOnce({
       baseUrl: 'https://counter.localhost/r51',
       createdAt: new Date(),
-      // @ts-expect-error - Should include DataHost
-      dataHost: {
-        createdAt: new Date(),
-        id: ':id',
-        params: {},
-        updatedAt: null,
-      },
       dataHostId: 'id',
       params: {},
       paramsSeparator: '|',
@@ -184,15 +405,18 @@ describe(findOneReleaseSupportedByDataHost, () => {
       updatedAt: null,
     });
 
-    await findOneReleaseSupportedByDataHost('id', '5.1');
+    await findOneReleaseSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1' },
+      dbClient
+    );
 
     expect(
       dbClient.dataHostSupportedRelease.findUniqueOrThrow
-    ).toHaveBeenCalled();
+    ).toHaveBeenCalledOnce();
   });
 });
 
-describe(findOneReportSupportedByDataHost, () => {
+describe('find one report supported by Data Host', () => {
   const report: DataHostSupportedReport = {
     createdAt: new Date(),
     dataHostId: 'id',
@@ -205,35 +429,94 @@ describe(findOneReportSupportedByDataHost, () => {
     updatedAt: null,
   };
 
-  test('should query DB', async () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
     vi.mocked(
-      dbClient.dataHostSupportedReport.findUnique
-    ).mockResolvedValueOnce(null);
-
-    await findOneReportSupportedByDataHost('id', '5.1', 'tr');
-
-    expect(
-      vi.mocked(dbClient.dataHostSupportedReport.findUnique)
-    ).toHaveBeenCalled();
-  });
-
-  test('should return report', async () => {
-    vi.mocked(
-      dbClient.dataHostSupportedReport.findUnique
+      dbClient.dataHostSupportedReport.findUniqueOrThrow
     ).mockResolvedValueOnce(report);
 
-    const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
+    await findOneReportSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
+
+    expect(
+      dbClient.dataHostSupportedReport.findUniqueOrThrow
+    ).toHaveBeenCalledOnce();
+  });
+
+  it('should return report', async () => {
+    expect.hasAssertions();
+    vi.mocked(
+      dbClient.dataHostSupportedReport.findUniqueOrThrow
+    ).mockResolvedValueOnce(report);
+
+    const promise = findOneReportSupportedByDataHost(
+      { dataHostId: 'id', release: '5.1', report: 'tr' },
+      dbClient
+    );
 
     await expect(promise).resolves.toMatchObject(report);
   });
+});
 
-  test('should return null if not found', async () => {
-    vi.mocked(
-      dbClient.dataHostSupportedReport.findUnique
-    ).mockResolvedValueOnce(null);
+describe('find one Data Host with supported data', () => {
+  const dataHost: DataHostWithSupportedData = {
+    createdAt: new Date(),
+    id: '',
+    params: {},
+    supportedReleases: [
+      {
+        baseUrl: 'https://counter-datahost.com/',
+        createdAt: new Date(),
+        dataHostId: '',
+        params: {},
+        paramsSeparator: '|',
+        periodFormat: 'yyyy-MM-dd',
+        release: '5.1',
+        supportedReports: [
+          {
+            createdAt: new Date(),
+            dataHostId: '',
+            firstMonthAvailable: '',
+            id: 'tr',
+            lastMonthAvailable: '',
+            params: {},
+            release: '5.1',
+            supported: false,
+            updatedAt: null,
+          },
+        ],
+        updatedAt: null,
+      },
+    ],
+    updatedAt: null,
+  };
 
-    const promise = findOneReportSupportedByDataHost('id', '5.1', 'tr');
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    vi.mocked(dbClient.dataHost.findUniqueOrThrow).mockResolvedValueOnce(
+      dataHost
+    );
 
-    await expect(promise).resolves.toBe(null);
+    await findOneDataHostWithSupportedData('', dbClient);
+
+    expect(dbClient.dataHost.findUniqueOrThrow).toHaveBeenCalledOnce();
+  });
+
+  it('should return data', async () => {
+    expect.hasAssertions();
+    vi.mocked(dbClient.dataHost.findUniqueOrThrow).mockResolvedValueOnce(
+      dataHost
+    );
+
+    const result = await findOneDataHostWithSupportedData('', dbClient);
+
+    expect(result).toHaveProperty('id', '');
+    expect(result).toHaveProperty('supportedReleases.0.release', '5.1');
+    expect(result).toHaveProperty(
+      'supportedReleases.0.supportedReports.0.id',
+      'tr'
+    );
   });
 });

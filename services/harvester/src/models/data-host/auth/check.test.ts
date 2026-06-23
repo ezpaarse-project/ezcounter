@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream';
 
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { DataHostAuthCheckOptions } from '@ezcounter/dto/data-host';
 import { fetchReportAsStream } from '@ezcounter/counter';
@@ -14,8 +14,9 @@ import { checkCredentials } from './check';
 
 vi.mock(import('~/models/report/extraction/exceptions'));
 
-describe('Credentials Check (checkCredentials)', () => {
-  test('should fetch report', async () => {
+describe('credentials check', () => {
+  it('should fetch report', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const options: DataHostAuthCheckOptions = {
@@ -41,7 +42,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should set period to 3 months prior if not provided', async () => {
+  it('should set period to 3 months prior if not provided', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
     vi.setSystemTime(new Date(2025, 5));
 
@@ -68,7 +70,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should write file into temp dir', async () => {
+  it('should write file into temp dir', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const options: DataHostAuthCheckOptions = {
@@ -92,7 +95,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should ignore non auth related exceptions', async () => {
+  it('should ignore non auth related exceptions', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([
       {
         Code: '1010',
@@ -117,7 +121,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should return HTTP errors', async () => {
+  it('should return HTTP errors', async () => {
+    expect.hasAssertions();
     vi.mocked(fetchReportAsStream).mockImplementationOnce(
       (_release, _report) => {
         // oxlint-disable-next-line no-empty-function
@@ -153,7 +158,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should return auth related exceptions', async () => {
+  it('should return auth related exceptions', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([
       {
         Code: '2000',
@@ -180,7 +186,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should return error if exception is invalid', async () => {
+  it('should return error if exception is invalid', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockRejectedValueOnce(
       new Error('Invalid exception')
     );
@@ -204,7 +211,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should delete temporary report', async () => {
+  it('should delete temporary report', async () => {
+    expect.hasAssertions();
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);
 
     const options: DataHostAuthCheckOptions = {
@@ -223,7 +231,8 @@ describe('Credentials Check (checkCredentials)', () => {
     await vi.runAllTimersAsync();
   });
 
-  test('should return error if unable to cache report', async () => {
+  it('should return error if unable to cache report', async () => {
+    expect.hasAssertions();
     vi.mocked(mkdir).mockRejectedValueOnce(new Error('Folder error'));
 
     vi.mocked(extractReportExceptions).mockResolvedValueOnce([]);

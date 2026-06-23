@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { DataHostSupportedReport } from '~/models/data-host/dto';
 
 import type { HarvestReportOptions } from './dto';
 import { limitReportOptionsWithSupported } from './limits';
 
-describe('Limit report with supported (limitReportOptionsWithSupported)', () => {
+describe('limit report with supported', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getReportOptions = (): HarvestReportOptions => ({
     id: 'ir',
@@ -25,7 +25,8 @@ describe('Limit report with supported (limitReportOptionsWithSupported)', () => 
     updatedAt: null,
   });
 
-  test('should change nothing if request is supported', () => {
+  it('should change nothing if request is supported', () => {
+    expect.hasAssertions();
     const options = getReportOptions();
     const report = getSupportedReport();
 
@@ -34,7 +35,8 @@ describe('Limit report with supported (limitReportOptionsWithSupported)', () => 
     expect(result).toMatchObject(options);
   });
 
-  test('should change nothing if report is unknown', () => {
+  it('should change nothing if report is unknown', () => {
+    expect.hasAssertions();
     const options = getReportOptions();
     options.id = 'custom:tr';
 
@@ -44,17 +46,19 @@ describe('Limit report with supported (limitReportOptionsWithSupported)', () => 
     expect(result).toMatchObject(options);
   });
 
-  test('should return null if unsupported', () => {
+  it('should return null if unsupported', () => {
+    expect.hasAssertions();
     const options = getReportOptions();
     const report = getSupportedReport();
     report.supported = false;
 
     const result = limitReportOptionsWithSupported(options, report);
 
-    expect(result).toBe(null);
+    expect(result).toBeNull();
   });
 
-  test("should change period if there's limits", () => {
+  it("should change period if there's limits", () => {
+    expect.hasAssertions();
     const options = getReportOptions();
     const report = getSupportedReport();
     report.firstMonthAvailable = '2025-03';

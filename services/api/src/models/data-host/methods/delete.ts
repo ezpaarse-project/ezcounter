@@ -1,4 +1,4 @@
-import { dbClient } from '~/lib/prisma';
+import type { Prisma } from '@ezcounter/database';
 
 import {
   doesDataHostExists,
@@ -10,78 +10,90 @@ import {
  * Delete registered data host
  *
  * @param id - The id of the host
+ * @param client - The DB client (can be a transaction)
  *
  * @returns If release supports was removed
  */
-export async function deleteDataHost(id: string): Promise<boolean> {
-  if (!(await doesDataHostExists(id))) {
-    return false;
-  }
+export const deleteDataHost = (
+  id: string,
+  client: Prisma.TransactionClient
+): Promise<boolean> =>
+  client.$transaction(async (tx) => {
+    if (!(await doesDataHostExists(id, tx))) {
+      return false;
+    }
 
-  await dbClient.dataHost.delete({
-    where: {
-      id,
-    },
+    await tx.dataHost.delete({
+      where: {
+        id,
+      },
+    });
+
+    return true;
   });
-
-  return true;
-}
 
 /**
  * Delete supported release of a data host - meaning release is NOT supported
  *
- * @param dataHostId - The id of the host
- * @param release - The release of the report
+ * @param id - The id of the release
+ * @param client - The DB client (can be a transaction)
  *
  * @returns If release supports was removed
  */
-export async function deleteReleaseSupportedByDataHost(
-  dataHostId: string,
-  release: '5' | '5.1'
-): Promise<boolean> {
-  if (!(await doesDataHostSupportsRelease(dataHostId, release))) {
-    return false;
-  }
+export const deleteReleaseSupportedByDataHost = (
+  id: {
+    dataHostId: string;
+    release: '5' | '5.1';
+  },
+  client: Prisma.TransactionClient
+): Promise<boolean> =>
+  client.$transaction(async (tx) => {
+    if (!(await doesDataHostSupportsRelease(id, tx))) {
+      return false;
+    }
 
-  await dbClient.dataHostSupportedRelease.delete({
-    where: {
-      dataHostId_release: {
-        dataHostId,
-        release,
+    await tx.dataHostSupportedRelease.delete({
+      where: {
+        dataHostId_release: {
+          dataHostId: id.dataHostId,
+          release: id.release,
+        },
       },
-    },
-  });
+    });
 
-  return true;
-}
+    return true;
+  });
 
 /**
  * Delete supported release of a data host - meaning release is NOT supported
  *
- * @param dataHostId - The id of the host
- * @param release - The release of the report
- * @param report - The ID of the report
+ * @param id - The id of the report
+ * @param client - The DB client (can be a transaction)
  *
  * @returns If release supports was removed
  */
-export async function deleteReportSupportedByDataHost(
-  dataHostId: string,
-  release: '5' | '5.1',
-  report: string
-): Promise<boolean> {
-  if (!(await doesDataHostSupportsReport(dataHostId, release, report))) {
-    return false;
-  }
+export const deleteReportSupportedByDataHost = (
+  id: {
+    dataHostId: string;
+    release: '5' | '5.1';
+    report: string;
+  },
+  client: Prisma.TransactionClient
+): Promise<boolean> =>
+  client.$transaction(async (tx) => {
+    if (!(await doesDataHostSupportsReport(id, tx))) {
+      return false;
+    }
 
-  await dbClient.dataHostSupportedReport.delete({
-    where: {
-      dataHostId_release_id: {
-        dataHostId,
-        id: report,
-        release,
+    await tx.dataHostSupportedReport.delete({
+      where: {
+        dataHostId_release_id: {
+          dataHostId: id.dataHostId,
+          id: id.report,
+          release: id.release,
+        },
       },
-    },
-  });
+    });
 
-  return true;
-}
+    return true;
+  });

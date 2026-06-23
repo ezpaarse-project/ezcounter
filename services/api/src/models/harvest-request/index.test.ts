@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { HarvestRequestContent } from '@ezcounter/dto/queues';
 
@@ -9,15 +9,15 @@ import type {
 } from '~/models/data-host/dto';
 import { fetchSupportedReportsOfDataHost } from '~/models/data-host/supported-reports';
 
+import { prepareHarvestJobsFromHarvestRequest } from '.';
 import { limitReportOptionsWithSupported } from '../harvest/limits';
 import { resolveRequestContextPerHostname } from './context';
-import { prepareHarvestJobsFromHarvestRequest } from './index';
 
 vi.mock(import('~/models/data-host/supported-reports'));
 vi.mock(import('./context'));
 vi.mock(import('~/models/harvest/limits'));
 
-describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest)', () => {
+describe('prepare harvest jobs per request', () => {
   // oxlint-disable-next-line consistent-function-scoping
   const getContext = (): {
     content: HarvestRequestContent;
@@ -75,7 +75,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     updatedAt: null,
   });
 
-  test('should return array of jobs', async () => {
+  it('should return array of jobs', async () => {
+    expect.hasAssertions();
     const context = getContext();
 
     vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
@@ -90,7 +91,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     await expect(promise).resolves.toBeInstanceOf(Array);
   });
 
-  test('should fetch supported reports', async () => {
+  it('should fetch supported reports', async () => {
+    expect.hasAssertions();
     const context = getContext();
 
     vi.mocked(limitReportOptionsWithSupported).mockImplementationOnce(
@@ -102,10 +104,11 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
 
     await prepareHarvestJobsFromHarvestRequest([context.content]);
 
-    expect(fetchSupportedReportsOfDataHost).toHaveBeenCalled();
+    expect(fetchSupportedReportsOfDataHost).toHaveBeenCalledOnce();
   });
 
-  test('should merge params', async () => {
+  it('should merge params', async () => {
+    expect.hasAssertions();
     const context = getContext();
     context.content.download.reports[0].params = {
       param0: 'from request',
@@ -163,7 +166,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     );
   });
 
-  test('should give ID to jobs', async () => {
+  it('should give ID to jobs', async () => {
+    expect.hasAssertions();
     const context = getContext();
     const report = getSupportedReport();
 
@@ -180,7 +184,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     await expect(promise).resolves.toHaveProperty('0.id');
   });
 
-  test('should skip invalid hosts', async () => {
+  it('should skip invalid hosts', async () => {
+    expect.hasAssertions();
     const context = getContext();
 
     vi.mocked(resolveRequestContextPerHostname).mockResolvedValueOnce(
@@ -192,7 +197,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     await expect(promise).resolves.toHaveLength(0);
   });
 
-  test('should split periods', async () => {
+  it('should split periods', async () => {
+    expect.hasAssertions();
     const context = getContext();
     context.content.download.reports[0].splitPeriodBy = 6;
     const report = getSupportedReport();
@@ -210,7 +216,8 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
     await expect(promise).resolves.toHaveLength(2);
   });
 
-  test('should limit reports', async () => {
+  it('should limit reports', async () => {
+    expect.hasAssertions();
     const context = getContext();
     context.content.download.reports[0].splitPeriodBy = 6;
     const report = getSupportedReport();
@@ -225,6 +232,6 @@ describe('Prepare harvest jobs per request (prepareHarvestJobsFromHarvestRequest
 
     await prepareHarvestJobsFromHarvestRequest([context.content]);
 
-    expect(limitReportOptionsWithSupported).toHaveBeenCalled();
+    expect(limitReportOptionsWithSupported).toHaveBeenCalledOnce();
   });
 });

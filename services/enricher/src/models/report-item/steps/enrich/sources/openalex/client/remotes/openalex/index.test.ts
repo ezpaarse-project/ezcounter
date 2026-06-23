@@ -1,11 +1,11 @@
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { OpenAlexRemote } from '.';
 
-describe('OpenAlex remote (OpenAlexRemote)', () => {
-  describe('Fetch documents by DOI (fetchManyWorkByDOI)', () => {
+describe('openAlex remote', () => {
+  describe('fetch documents by DOI', () => {
     const server = setupServer(
       http.get('https://mocked-openalex.localhost/works', ({ request }) => {
         const url = new URL(request.url);
@@ -58,12 +58,14 @@ describe('OpenAlex remote (OpenAlexRemote)', () => {
     afterEach(() => {
       server.resetHandlers();
     });
+
     // Close server after all tests
     afterAll(() => {
       server.close();
     });
 
-    test('should dedupe DOIs', async () => {
+    it('should dedupe DOIs', async () => {
+      expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
         baseUrl: 'https://mocked-openalex.localhost/',
@@ -81,7 +83,8 @@ describe('OpenAlex remote (OpenAlexRemote)', () => {
       expect(results).toHaveLength(1);
     });
 
-    test('should remote URLs from IDs', async () => {
+    it('should remote URLs from IDs', async () => {
+      expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
         baseUrl: 'https://mocked-openalex.localhost/',
@@ -96,7 +99,8 @@ describe('OpenAlex remote (OpenAlexRemote)', () => {
       expect(results).toHaveProperty('0.ids.openalex', 'XXXXXXXXXXX');
     });
 
-    test('should skip invalid responses', async () => {
+    it('should skip invalid responses', async () => {
+      expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
         baseUrl: 'https://invalid-openalex.localhost/',
@@ -110,7 +114,8 @@ describe('OpenAlex remote (OpenAlexRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from remote', async () => {
+    it('should skip errors from remote', async () => {
+      expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
         baseUrl: 'https://error-openalex.localhost/',
@@ -124,7 +129,8 @@ describe('OpenAlex remote (OpenAlexRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from client', async () => {
+    it('should skip errors from client', async () => {
+      expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
         baseUrl: 'https://network-openalex.localhost/',

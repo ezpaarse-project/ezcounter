@@ -7,9 +7,9 @@ import { compile } from 'json-schema-to-typescript';
 const generateTypeName = (from: string): string =>
   from
     // Replace chars which are not valid for typescript identifiers
-    .replaceAll(/(^\s*[^a-zA-Z_$])|([^a-zA-Z_$\d])/g, '')
+    .replaceAll(/(?<match1>^\s*[^a-zA-Z_$])|(?<match2>[^a-zA-Z_$\d])/gv, '')
     // Uppercase leading underscores followed by lowercase
-    .replaceAll(/_[a-z]/g, (match) => match.toUpperCase())
+    .replaceAll(/_[a-z]/gv, (match) => match.toUpperCase())
     // Removes any underscore
     .replaceAll('_', '');
 

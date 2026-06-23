@@ -1,11 +1,11 @@
 import { HttpResponse, graphql } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { EzUnpaywallRemote } from '.';
 
-describe('ezUnpaywall remote (EzUnpaywallRemote)', () => {
-  describe('Fetch documents by DOI (fetchManyDocumentByDOI)', () => {
+describe('remote for ezUnpaywall', () => {
+  describe('fetch documents by DOI', () => {
     const server = setupServer(
       graphql
         .link('https://mocked-ezunpaywall.localhost/graphql')
@@ -54,12 +54,14 @@ describe('ezUnpaywall remote (EzUnpaywallRemote)', () => {
     afterEach(() => {
       server.resetHandlers();
     });
+
     // Close server after all tests
     afterAll(() => {
       server.close();
     });
 
-    test('should dedupe DOIs', async () => {
+    it('should dedupe DOIs', async () => {
+      expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
         baseUrl: 'https://mocked-ezunpaywall.localhost/graphql',
@@ -77,7 +79,8 @@ describe('ezUnpaywall remote (EzUnpaywallRemote)', () => {
       expect(results).toHaveLength(1);
     });
 
-    test('should skip invalid responses', async () => {
+    it('should skip invalid responses', async () => {
+      expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
         baseUrl: 'https://invalid-ezunpaywall.localhost/graphql',
@@ -91,7 +94,8 @@ describe('ezUnpaywall remote (EzUnpaywallRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from remote', async () => {
+    it('should skip errors from remote', async () => {
+      expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
         baseUrl: 'https://error-ezunpaywall.localhost/graphql',
@@ -105,7 +109,8 @@ describe('ezUnpaywall remote (EzUnpaywallRemote)', () => {
       expect(results).toHaveLength(0);
     });
 
-    test('should skip errors from client', async () => {
+    it('should skip errors from client', async () => {
+      expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
         baseUrl: 'https://network-ezunpaywall.localhost/graphql',

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { HarvestJobData } from '@ezcounter/dto/queues';
 
@@ -6,14 +6,16 @@ import { dbClient } from '~/lib/prisma';
 
 import { createManyHarvestJob } from './create';
 
-describe(createManyHarvestJob, () => {
-  test('should query DB', async () => {
-    await createManyHarvestJob([]);
+describe('create many Harvest Job', () => {
+  it('should query DB', async () => {
+    expect.hasAssertions();
+    await createManyHarvestJob([], '', dbClient);
 
-    expect(dbClient.harvestJob.createMany).toHaveBeenCalled();
+    expect(dbClient.harvestJob.createMany).toHaveBeenCalledOnce();
   });
 
-  test('should transform input', async () => {
+  it('should transform input', async () => {
+    expect.hasAssertions();
     const item: HarvestJobData = {
       download: {
         cacheKey: 'download.cacheKey',
@@ -44,7 +46,7 @@ describe(createManyHarvestJob, () => {
       },
     };
 
-    await createManyHarvestJob([item]);
+    await createManyHarvestJob([item], 'test-request', dbClient);
 
     expect(dbClient.harvestJob.createMany).toHaveBeenCalledWith({
       data: [
@@ -65,13 +67,15 @@ describe(createManyHarvestJob, () => {
           },
           release: '5.1',
           reportId: 'download.report.id',
+          requestId: 'test-request',
           status: 'pending',
         },
       ],
     });
   });
 
-  test('should mark enrich as skipped if no sources', async () => {
+  it('should mark enrich as skipped if no sources', async () => {
+    expect.hasAssertions();
     const item: HarvestJobData = {
       download: {
         cacheKey: 'download.cacheKey',
@@ -99,7 +103,7 @@ describe(createManyHarvestJob, () => {
       },
     };
 
-    await createManyHarvestJob([item]);
+    await createManyHarvestJob([item], '', dbClient);
 
     expect(dbClient.harvestJob.createMany).toHaveBeenCalledWith({
       data: [
@@ -115,6 +119,7 @@ describe(createManyHarvestJob, () => {
           },
           release: '5.1',
           reportId: 'download.report.id',
+          requestId: '',
           status: 'pending',
         },
       ],

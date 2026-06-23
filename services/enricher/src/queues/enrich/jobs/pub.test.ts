@@ -1,15 +1,17 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import type { EnrichJobContent } from '@ezcounter/dto/queues';
 import { EnrichSource } from '@ezcounter/dto/enrich';
 
+// oxlint-disable-next-line vitest/no-mocks-import - We need to get mockedPublisher as pub is not exported
 import { mockedPublisher } from '~/lib/__mocks__/rabbitmq';
 
 import { queueEnrichJob } from './pub';
 
-describe('Queue Enrich Job (queueEnrichJob)', () => {
-  test('should queue with next source as routingKey', async () => {
+describe('queue Enrich Job', () => {
+  it('should queue with next source as routingKey', async () => {
+    expect.hasAssertions();
     await queueEnrichJob({
       data: mockDeep<EnrichJobContent>(),
       enrich: {
@@ -32,7 +34,8 @@ describe('Queue Enrich Job (queueEnrichJob)', () => {
     );
   });
 
-  test('should queue with _insert if no sources left', async () => {
+  it('should queue with _insert if no sources left', async () => {
+    expect.hasAssertions();
     await queueEnrichJob({
       data: mockDeep<EnrichJobContent>(),
       enrich: {
@@ -52,7 +55,8 @@ describe('Queue Enrich Job (queueEnrichJob)', () => {
     );
   });
 
-  test('should queue with first key if no sources are defined', async () => {
+  it('should queue with first key if no sources are defined', async () => {
+    expect.hasAssertions();
     await queueEnrichJob({
       data: mockDeep<EnrichJobContent>(),
       enrich: {},
@@ -70,7 +74,8 @@ describe('Queue Enrich Job (queueEnrichJob)', () => {
     );
   });
 
-  test('should NOT throw if queue fails', async () => {
+  it('should NOT throw if queue fails', async () => {
+    expect.hasAssertions();
     mockedPublisher.send.mockRejectedValueOnce(new Error('Send error'));
 
     const promise = queueEnrichJob({

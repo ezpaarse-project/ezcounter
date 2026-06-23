@@ -1,9 +1,10 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { formatPeriod, parsePeriod, splitPeriodByMonths } from './period';
 
-describe('Parse period as dates (parsePeriod)', () => {
-  test('should parse standard period', () => {
+describe('parse period as dates', () => {
+  it('should parse standard period', () => {
+    expect.hasAssertions();
     const period = { end: '2025-12', start: '2025-01' };
 
     const result = parsePeriod(period);
@@ -12,7 +13,8 @@ describe('Parse period as dates (parsePeriod)', () => {
     expect(result.end.toISOString()).toBe(new Date(2025, 11).toISOString());
   });
 
-  test('should NOT parse invalid period', () => {
+  it('should NOT parse invalid period', () => {
+    expect.hasAssertions();
     const period = { end: '202512', start: '202501' };
 
     const result = parsePeriod(period);
@@ -22,8 +24,9 @@ describe('Parse period as dates (parsePeriod)', () => {
   });
 });
 
-describe('Format dates as period (formatPeriod)', () => {
-  test('should parse dates', () => {
+describe('format dates as period', () => {
+  it('should parse dates', () => {
+    expect.hasAssertions();
     const period = { end: new Date(2025, 11), start: new Date(2025, 0) };
 
     const result = formatPeriod(period);
@@ -32,7 +35,8 @@ describe('Format dates as period (formatPeriod)', () => {
     expect(result.end).toBe('2025-12');
   });
 
-  test('should NOT format invalid dates', () => {
+  it('should NOT format invalid dates', () => {
+    expect.hasAssertions();
     const period = { end: new Date('barfoo'), start: new Date('foobar') };
 
     const fnc = (): unknown => formatPeriod(period);
@@ -41,37 +45,32 @@ describe('Format dates as period (formatPeriod)', () => {
   });
 });
 
-describe('Split period by months (splitPeriodByMonths)', () => {
+describe('split period by months', () => {
   const period = { end: '2025-12', start: '2025-01' };
 
-  test('should split by equal parts if possible', () => {
+  it('should split by equal parts if possible', () => {
+    expect.hasAssertions();
     const jobs = splitPeriodByMonths(period, 6);
 
     expect(jobs).toHaveLength(2);
 
-    expect(jobs).toHaveProperty('0.start', '2025-01');
-    expect(jobs).toHaveProperty('0.end', '2025-06');
-
-    expect(jobs).toHaveProperty('1.start', '2025-07');
-    expect(jobs).toHaveProperty('1.end', '2025-12');
+    expect(jobs[0]).toMatchObject({ end: '2025-06', start: '2025-01' });
+    expect(jobs[1]).toMatchObject({ end: '2025-12', start: '2025-07' });
   });
 
-  test('should split with last part smaller if equal parts are not possible', () => {
+  it('should split with last part smaller if equal parts are not possible', () => {
+    expect.hasAssertions();
     const jobs = splitPeriodByMonths(period, 5);
 
     expect(jobs).toHaveLength(3);
 
-    expect(jobs).toHaveProperty('0.start', '2025-01');
-    expect(jobs).toHaveProperty('0.end', '2025-05');
-
-    expect(jobs).toHaveProperty('1.start', '2025-06');
-    expect(jobs).toHaveProperty('1.end', '2025-10');
-
-    expect(jobs).toHaveProperty('2.start', '2025-11');
-    expect(jobs).toHaveProperty('2.end', '2025-12');
+    expect(jobs[0]).toMatchObject({ end: '2025-05', start: '2025-01' });
+    expect(jobs[1]).toMatchObject({ end: '2025-10', start: '2025-06' });
+    expect(jobs[2]).toMatchObject({ end: '2025-12', start: '2025-11' });
   });
 
-  test('should be able to split by periods of 1 month', () => {
+  it('should be able to split by periods of 1 month', () => {
+    expect.hasAssertions();
     const jobs = splitPeriodByMonths(period, 1);
 
     expect(jobs).toHaveLength(12);
@@ -83,7 +82,8 @@ describe('Split period by months (splitPeriodByMonths)', () => {
     expect(jobs).toHaveProperty('6.end', '2025-07');
   });
 
-  test('should return the period if not split', () => {
+  it('should return the period if not split', () => {
+    expect.hasAssertions();
     const jobs = splitPeriodByMonths(period, 0);
 
     expect(jobs).toHaveLength(1);
@@ -92,7 +92,8 @@ describe('Split period by months (splitPeriodByMonths)', () => {
     expect(jobs).toHaveProperty('0.end', '2025-12');
   });
 
-  test('should throw if number of months is less than 0', () => {
+  it('should throw if number of months is less than 0', () => {
+    expect.hasAssertions();
     const fnc = (): unknown => splitPeriodByMonths(period, -1);
 
     expect(fnc).toThrow('monthsPerPart must be at least 0');

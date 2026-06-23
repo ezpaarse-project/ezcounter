@@ -5,13 +5,13 @@ import { Readable } from 'node:stream';
 
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { fetchR51ReportAsStream, fetchR51ReportList } from './r51';
 
 const EXAMPLES_DIR = join(process.cwd(), '__tests__/examples/reports/5.1');
 
-describe('GET /reports (fetchR51ReportList)', () => {
+describe('fetch COUNTER 5 report list (get /reports)', () => {
   const server = setupServer(
     http.get('https://valid-response.localhost/r51/reports', () => {
       const path = join(EXAMPLES_DIR, 'list.json');
@@ -44,12 +44,15 @@ describe('GET /reports (fetchR51ReportList)', () => {
   afterEach(() => {
     server.resetHandlers();
   });
+
   // Close server after all tests
   afterAll(() => {
     server.close();
   });
 
-  test('should return a list of reports', async () => {
+  it('should return a list of reports', async () => {
+    expect.assertions(2);
+
     const data = await fetchR51ReportList({
       auth: {},
       baseUrl: 'https://valid-response.localhost/r51',
@@ -60,7 +63,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
     expect(data.length).toBeGreaterThan(0);
   });
 
-  test('should throw if an item is invalid', async () => {
+  it('should throw if an item is invalid', async () => {
+    expect.assertions(1);
+
     const promise = fetchR51ReportList({
       auth: {},
       baseUrl: 'https://invalid-response.localhost/r51',
@@ -72,7 +77,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
     );
   });
 
-  test('should throw if not an array', async () => {
+  it('should throw if not an array', async () => {
+    expect.assertions(1);
+
     const promise = fetchR51ReportList({
       auth: {},
       baseUrl: 'https://object-response.localhost/r51',
@@ -82,7 +89,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
     await expect(promise).rejects.toThrow('Expected "array", found "object"');
   });
 
-  test('should throw if list is empty', async () => {
+  it('should throw if list is empty', async () => {
+    expect.assertions(1);
+
     const promise = fetchR51ReportList({
       auth: {},
       baseUrl: 'https://empty-response.localhost/r51',
@@ -94,7 +103,9 @@ describe('GET /reports (fetchR51ReportList)', () => {
     );
   });
 
-  test('should throw if non 200 is returned', async () => {
+  it('should throw if non 200 is returned', async () => {
+    expect.assertions(1);
+
     const promise = fetchR51ReportList({
       auth: {},
       baseUrl: 'https://nok-response.localhost/r51',
@@ -105,7 +116,7 @@ describe('GET /reports (fetchR51ReportList)', () => {
   });
 });
 
-describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
+describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
   const server = setupServer(
     http.get('https://valid-response.localhost/r51/reports/ir', async () => {
       const path = join(EXAMPLES_DIR, 'ir/valid.json');
@@ -132,12 +143,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
   afterEach(() => {
     server.resetHandlers();
   });
+
   // Close server after all tests
   afterAll(() => {
     server.close();
   });
 
-  test('should return a stream', async () => {
+  it('should return a stream', async () => {
+    expect.assertions(1);
+
     const { data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -150,13 +164,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(data).toBeInstanceOf(Readable);
+    expect.soft(data).toBeInstanceOf(Readable);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should return the URL used', async () => {
+  it('should return the URL used', async () => {
+    expect.assertions(2);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -169,14 +185,16 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(url).toBeTypeOf('string');
-    expect(URL.canParse(url)).toBe(true);
+    expect.soft(url).toBeTypeOf('string');
+    expect.soft(URL.canParse(url)).toBe(true);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should accept param with multiple values', async () => {
+  it('should accept param with multiple values', async () => {
+    expect.assertions(1);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -193,13 +211,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     );
     const result = new URL(url);
 
-    expect(result.searchParams.get('access_method')).toBe('Regular|TDM');
+    expect.soft(result.searchParams.get('access_method')).toBe('Regular|TDM');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should join params with custom separator', async () => {
+  it('should join params with custom separator', async () => {
+    expect.assertions(1);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -217,13 +237,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     );
     const result = new URL(url);
 
-    expect(result.searchParams.get('access_method')).toBe('Regular,TDM');
+    expect.soft(result.searchParams.get('access_method')).toBe('Regular,TDM');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should accept param as boolean', async () => {
+  it('should accept param as boolean', async () => {
+    expect.assertions(1);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -239,13 +261,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(url).toContain('attributed=False');
+    expect.soft(url).toContain('attributed=False');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should format the period', async () => {
+  it('should format the period', async () => {
+    expect.assertions(2);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -259,14 +283,16 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     );
     const result = new URL(url);
 
-    expect(result.searchParams.get('begin_date')).toBe('2025-01-01');
-    expect(result.searchParams.get('end_date')).toBe('2025-12-31');
+    expect.soft(result.searchParams.get('begin_date')).toBe('2025-01-01');
+    expect.soft(result.searchParams.get('end_date')).toBe('2025-12-31');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should format the period using custom format', async () => {
+  it('should format the period using custom format', async () => {
+    expect.assertions(2);
+
     const { url, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -281,14 +307,16 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
     );
     const result = new URL(url);
 
-    expect(result.searchParams.get('begin_date')).toBe('2025-01');
-    expect(result.searchParams.get('end_date')).toBe('2025-12');
+    expect.soft(result.searchParams.get('begin_date')).toBe('2025-01');
+    expect.soft(result.searchParams.get('end_date')).toBe('2025-12');
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should return the expected size', async () => {
+  it('should return the expected size', async () => {
+    expect.assertions(1);
+
     const { expectedSize, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -301,13 +329,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(expectedSize).toBeGreaterThan(0);
+    expect.soft(expectedSize).toBeGreaterThan(0);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should not throw if not found', async () => {
+  it('should not throw if not found', async () => {
+    expect.assertions(1);
+
     const { httpCode, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -320,13 +350,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(httpCode).toBe(404);
+    expect.soft(httpCode).toBe(404);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should return NaN if size not available', async () => {
+  it('should return NaN if size not available', async () => {
+    expect.assertions(1);
+
     const { expectedSize, data } = await fetchR51ReportAsStream(
       {
         id: 'ir',
@@ -339,13 +371,15 @@ describe('GET /reports/<report> (fetchR51ReportAsStream)', () => {
       }
     );
 
-    expect(expectedSize).toBe(Number.NaN);
+    expect.soft(expectedSize).toBe(Number.NaN);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();
   });
 
-  test('should be able to be aborted', async () => {
+  it('should be able to be aborted', async () => {
+    expect.assertions(1);
+
     const controller = new AbortController();
 
     const promise = fetchR51ReportAsStream(

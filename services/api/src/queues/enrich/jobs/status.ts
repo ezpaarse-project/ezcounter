@@ -3,7 +3,7 @@ import { EnrichJobStatusEvent } from '@ezcounter/dto/queues';
 import { appLogger } from '~/lib/logger';
 import { createConsumer } from '~/lib/rabbitmq';
 
-import { updateOneHarvestJobThrottled } from '~/models/harvest';
+import { HarvestJobModel } from '~/models/harvest';
 
 const EXCHANGE_NAME = 'ezcounter:enrich.jobs.status';
 
@@ -18,7 +18,8 @@ const logger = appLogger.child({ exchange: EXCHANGE_NAME, scope: 'queues' });
  */
 export function onEnrichJobStatus(data: EnrichJobStatusEvent): void {
   try {
-    updateOneHarvestJobThrottled(data);
+    const harvestJobs = new HarvestJobModel();
+    harvestJobs.updateOneThrottled(data);
   } catch (error) {
     logger.error({
       err: error,
