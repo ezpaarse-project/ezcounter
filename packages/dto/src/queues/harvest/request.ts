@@ -2,6 +2,7 @@ import { z } from '../..';
 import {
   HarvestDataHostOptions,
   HarvestDownloadOptions,
+  HarvestHooks,
   HarvestReportOptions,
 } from '../../harvest';
 import { HarvestJobData } from './jobs';
@@ -48,6 +49,8 @@ export const HarvestRequestContent = z.object({
       .min(1)
       .describe('Information about reports to harvest'),
   }),
+
+  hooks: HarvestHooks.optional().describe('Hooks of job'),
 });
 
 /**

@@ -4,7 +4,10 @@ import type { HarvestJob } from '@ezcounter/database';
 
 import { dbClient } from '~/lib/prisma';
 
+import { triggerHarvestHooks } from '../hooks';
 import { failManyHarvestJob, updateOneHarvestJob } from './update';
+
+vi.mock(import('../hooks'));
 
 describe('update one harvest job', () => {
   // oxlint-disable-next-line consistent-function-scoping
@@ -17,6 +20,7 @@ describe('update one harvest job', () => {
     error: null,
     extract: { status: 'processing' },
     forceDownload: false,
+    hooks: {},
     id: '',
     index: '',
     insert: { status: 'processing' },
@@ -334,26 +338,43 @@ describe('update one harvest job', () => {
 });
 
 describe('fail many harvest jobs', () => {
-  it('should query DB', async () => {
-    expect.hasAssertions();
-    await failManyHarvestJob(
-      [
-        {
-          error: {
-            code: 'app:ERROR',
-            message: 'Creation error',
-          },
-          id: '',
-        },
-      ],
-      dbClient
-    );
-
-    expect(dbClient.harvestJob.update).toHaveBeenCalledOnce();
+  // oxlint-disable-next-line consistent-function-scoping
+  const getJob = (): HarvestJob => ({
+    createdAt: new Date(),
+    dataHostId: '',
+    download: { status: 'pending' },
+    enrich: { status: 'pending' },
+    enrichSources: [],
+    error: {
+      code: 'app:ERROR',
+      message: 'Creation error',
+    },
+    extract: { status: 'pending' },
+    forceDownload: false,
+    hooks: {},
+    id: '',
+    index: '',
+    insert: { status: 'pending' },
+    params: {},
+    period: { end: '2025-12', start: '2025-01' },
+    release: '5.1',
+    reportId: '',
+    requestId: '',
+    startedAt: null,
+    status: 'error',
+    timeout: 60_000,
+    took: null,
+    updatedAt: null,
   });
 
-  it('should use transaction', async () => {
-    expect.hasAssertions();
+  it('should query DB', async () => {
+    expect.assertions(2);
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((ops) =>
+      // @ts-expect-error - Prisma types are complex
+      Promise.all(ops)
+    );
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(getJob());
+
     await failManyHarvestJob(
       [
         {
@@ -361,12 +382,44 @@ describe('fail many harvest jobs', () => {
             code: 'app:ERROR',
             message: 'Creation error',
           },
-          id: '',
+          id: 'id',
         },
       ],
       dbClient
     );
 
     expect(dbClient.$transaction).toHaveBeenCalledOnce();
+    expect(dbClient.harvestJob.update).toHaveBeenCalledExactlyOnceWith({
+      data: {
+        error: expect.objectContaining({ message: 'Creation error' }),
+        status: 'error',
+      },
+      where: { id: 'id' },
+    });
+  });
+
+  it('should trigger hooks', async () => {
+    expect.assertions(1);
+    const job = getJob();
+    vi.mocked(dbClient.$transaction).mockImplementationOnce((ops) =>
+      // @ts-expect-error - Prisma types are complex
+      Promise.all(ops)
+    );
+    vi.mocked(dbClient.harvestJob.update).mockResolvedValueOnce(job);
+
+    await failManyHarvestJob(
+      [
+        {
+          error: {
+            code: 'app:ERROR',
+            message: 'Creation error',
+          },
+          id: 'id',
+        },
+      ],
+      dbClient
+    );
+
+    expect(triggerHarvestHooks).toHaveBeenCalledExactlyOnceWith(job);
   });
 });

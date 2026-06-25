@@ -2,6 +2,7 @@ import { HarvestJobStatus } from '@ezcounter/database';
 import { z } from '@ezcounter/dto';
 import {
   HarvestAdditionalParams,
+  HarvestHooks,
   HarvestReportPeriod,
 } from '@ezcounter/dto/harvest';
 import {
@@ -61,6 +62,8 @@ export const HarvestJob = z.object({
   extract: HarvestJobStatusEvent.shape.extract.unwrap(),
 
   forceDownload: z.boolean().describe('Should force download the report'),
+
+  hooks: HarvestHooks.describe('Hooks of job'),
 
   id: HarvestJobStatusEvent.shape.id,
 

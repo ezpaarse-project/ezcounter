@@ -5,6 +5,8 @@ import { EnrichSource } from '@ezcounter/dto/enrich';
 import { appLogger } from '~/lib/logger';
 import { dbClient } from '~/lib/prisma';
 
+import type { HarvestHooks } from '../dto';
+
 const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
 /**
@@ -15,7 +17,7 @@ const logger = appLogger.child({ model: 'harvest', scope: 'models' });
  * @param tx - The DB client (can be a transaction)
  */
 export async function createManyHarvestJob(
-  items: HarvestJobData[],
+  items: (HarvestJobData & { hooks?: HarvestHooks })[],
   requestId: string,
   tx: Prisma.TransactionClient = dbClient
 ): Promise<void> {
@@ -28,6 +30,7 @@ export async function createManyHarvestJob(
         enrich: { status: enrichSources.length === 0 ? 'skipped' : 'pending' },
         enrichSources,
         forceDownload: item.download.forceDownload,
+        hooks: item.hooks,
         id: item.id,
         index: item.insert.index,
         params: item.download.report.params,

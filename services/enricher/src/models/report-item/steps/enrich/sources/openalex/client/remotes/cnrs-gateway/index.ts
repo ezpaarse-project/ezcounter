@@ -3,7 +3,11 @@ import { type $Fetch, ofetch } from 'ofetch';
 import { appLogger } from '~/lib/logger';
 
 // oxlint-disable-next-line import/extensions
-import { version as appVersion } from '~/../package.json';
+import {
+  dependencies as appDeps,
+  homepage as appHomepage,
+  version as appVersion,
+} from '~/../package.json' with { type: 'json' };
 
 import type { OpenAlexWork } from '../../../dto';
 import type { IOpenAlexRemote } from '../types';
@@ -49,7 +53,7 @@ export class CNRSGatewayRemote implements IOpenAlexRemote {
     this.$fetch = ofetch.create({
       baseURL: config.baseUrl,
       headers: {
-        'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion})`,
+        'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage}); ofetch/${appDeps.ofetch.slice(1)}`,
         'X-API-Key': config.apiKey,
       },
       method: 'POST',

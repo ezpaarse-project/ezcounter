@@ -234,3 +234,34 @@ export const HarvestError = z.object({
  * Type for the errors while harvesting
  */
 export type HarvestError = z.infer<typeof HarvestError>;
+
+/**
+ * Validation for hooks of a harvest job
+ */
+export const HarvestHooks = z.object({
+  additionalData: z
+    .record(z.string(), z.json())
+    .optional()
+    .describe('Data to add to hooks'),
+
+  onEnd: z
+    .object({
+      target: z
+        .url()
+        .describe('Webhook triggered when status of Harvest Job ended'),
+    })
+    .optional(),
+
+  onStepEnd: z
+    .object({
+      target: z
+        .url()
+        .describe('Webhook triggered when step of Harvest Job ended'),
+    })
+    .optional(),
+});
+
+/**
+ * Type for hooks of a harvest job
+ */
+export type HarvestHooks = z.infer<typeof HarvestHooks>;

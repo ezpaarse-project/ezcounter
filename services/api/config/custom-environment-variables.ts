@@ -80,6 +80,11 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
       fetchDelay: defineNumber('DATAHOST_SUPPORTED_REFRESH_JOB_DELAY'),
     },
   },
+  /** Hooks related configuration */
+  hooks: {
+    /** Hosts that we should never make request to. Supports RegEx */
+    bannedHosts: defineJSON('HOOKS_BANNED_HOSTS'),
+  },
 };
 
 export default envDefinition;

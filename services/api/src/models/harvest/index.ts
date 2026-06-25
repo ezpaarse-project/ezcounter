@@ -5,6 +5,7 @@ import type { PaginationParams } from '~/lib/prisma';
 import { Model, createModelTransaction } from '../model';
 import {
   type FailHarvestJob,
+  type HarvestHooks,
   HarvestJob,
   type HarvestJobFilters,
   type UpdateHarvestJob,
@@ -31,7 +32,16 @@ export class HarvestJobModel extends Model {
 
   // CREATE
 
-  async createMany(items: HarvestJobData[], requestId: string): Promise<void> {
+  /**
+   * Create many Harvest Jobs from data that will be passed in queues
+   *
+   * @param items - The harvest jobs to create
+   * @param requestId - The request ID
+   */
+  async createMany(
+    items: (HarvestJobData & { hooks?: HarvestHooks })[],
+    requestId: string
+  ): Promise<void> {
     await createManyHarvestJob(items, requestId, this.db);
   }
 

@@ -2,9 +2,8 @@ import { type HarvestJob, Prisma } from '@ezcounter/database';
 
 import { appLogger } from '~/lib/logger';
 
-import { type FailHarvestJob, UpdateHarvestJob } from '../dto';
-
-const JOB_STEPS = ['download', 'enrich', 'extract', 'insert'] as const;
+import { type FailHarvestJob, JOB_STEPS, UpdateHarvestJob } from '../dto';
+import { triggerHarvestHooks } from '../hooks';
 
 const logger = appLogger.child({ model: 'harvest', scope: 'models' });
 
@@ -227,11 +226,10 @@ export async function updateOneHarvestJob(
   tx: Prisma.TransactionClient
 ): Promise<HarvestJob> {
   // Get current status
-  const source = UpdateHarvestJob.parse(
-    await tx.harvestJob.findUniqueOrThrow({
-      where: { id: target.id },
-    })
-  );
+  const previous = await tx.harvestJob.findUniqueOrThrow({
+    where: { id: target.id },
+  });
+  const source = UpdateHarvestJob.parse(previous);
   // Prevent updates to ended jobs
   if (source.status === 'done' || source.status === 'error') {
     throw new Error(`Unable to update a job with status: ${source.status}`);
@@ -254,6 +252,8 @@ export async function updateOneHarvestJob(
     msg: 'Updated harvest',
   });
 
+  void triggerHarvestHooks(job, previous);
+
   return job;
 }
 
@@ -267,7 +267,7 @@ export async function failManyHarvestJob(
   items: FailHarvestJob[],
   client: Prisma.TransactionClient
 ): Promise<void> {
-  await client.$transaction(
+  const jobs = await client.$transaction(
     items.map((item) =>
       client.harvestJob.update({
         data: { error: item.error, status: 'error' },
@@ -281,4 +281,6 @@ export async function failManyHarvestJob(
     count: items.length,
     msg: 'Updated multiple harvests',
   });
+
+  void Promise.all(jobs.map((job) => triggerHarvestHooks(job)));
 }

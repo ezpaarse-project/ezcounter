@@ -21,6 +21,8 @@ model HarvestJob {
   release       String
   /// Additional params of the report
   params        Json             @default("{}")
+  /// Hooks related to job
+  hooks         Json             @default("{}")
   /// Data Host used to harvest
   dataHost      DataHost         @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
   /// ID of the data host

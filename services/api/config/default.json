@@ -70,5 +70,10 @@
        */
       "fetchDelay": 500
     }
+  },
+  /** Hooks related configuration */
+  "hooks": {
+    /** Hosts that we should never make request to. Supports RegEx */
+    "bannedHosts": []
   }
 }

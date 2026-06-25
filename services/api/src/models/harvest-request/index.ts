@@ -1,7 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
 
-import type { HarvestReportOptions } from '@ezcounter/dto/harvest';
+import type {
+  HarvestHooks,
+  HarvestReportOptions,
+} from '@ezcounter/dto/harvest';
 import type {
   HarvestJobData,
   HarvestRequestContent,
@@ -44,7 +47,7 @@ const createJobFromRequest = (
     paramsSeparator: string;
     periodFormat: string;
   }
-): HarvestJobData => ({
+): HarvestJobData & { hooks?: HarvestHooks } => ({
   ...request,
   download: {
     ...downloadOpts,
@@ -77,7 +80,7 @@ const createJobFromRequest = (
 function prepareHarvestJobsFromHarvestRequestContent(
   content: HarvestRequestContent,
   dataHost: DataHostWithSupportedData
-): HarvestJobData[] {
+): (HarvestJobData & { hooks?: HarvestHooks })[] {
   const [{ supportedReports, ...release }] = dataHost.supportedReleases;
 
   return content.download.reports
@@ -124,7 +127,7 @@ function prepareHarvestJobsFromHarvestRequestContent(
 export async function prepareHarvestJobsFromHarvestRequest(
   request: HarvestRequestData,
   fetchDelay = 0
-): Promise<HarvestJobData[]> {
+): Promise<(HarvestJobData & { hooks?: HarvestHooks })[]> {
   const contextsPerHostname = await resolveRequestContextPerHostname(request);
   const jobs: HarvestJobData[] = [];
   await Promise.all(
