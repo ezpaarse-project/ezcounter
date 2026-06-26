@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/extensions
+// oxlint-disable-next-line import/extensions unicorn/prefer-export-from
 import r51Schema from './schema.json' with { type: 'json' };
 
 // Patches definitions

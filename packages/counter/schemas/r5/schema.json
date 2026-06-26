@@ -1,6 +1,18 @@
 {
   "info": {
-    "version": "5.0.2"
+    "title": "COUNTER_SUSHI5_0 API",
+    "description": "The COUNTER_SUSHI5_0 API represents a RESTful implementation of SUSHI automation intended to return COUNTER Release 5 reports and snippets of COUNTER usage in JSON format. ",
+    "termsOfService": "",
+    "contact": {
+      "name": "Project COUNTER",
+      "url": "https://www.projectcounter.org/",
+      "email": "tasha.mellins-cohen@counterusage.org"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "5.0.3"
   },
   "definitions": {
     "SUSHI_error_model": {
@@ -10,6 +22,7 @@
       "properties": {
         "Code": {
           "type": "integer",
+          "format": "int32",
           "description": "Exception Code. See Table F.1 in the Code of Practice, Appendix F.",
           "example": 3031
         },
@@ -203,7 +216,7 @@
                 "type": "string",
                 "format": "date-time",
                 "description": "Date-time of the alert.",
-                "example": "2016-08-02: 12:54"
+                "example": "2016-08-02T12:54:05Z"
               },
               "Alert": {
                 "type": "string",
@@ -257,7 +270,7 @@
           "type": "string",
           "description": "Type of identifier (namespace or domain). e.g. ISNI, Proprietary, etc.",
           "example": "ISNI",
-          "enum": ["ISNI", "ISIL", "OCLC", "Proprietary"]
+          "enum": ["ISNI", "ISIL", "OCLC", "ROR", "Proprietary"]
         },
         "Value": {
           "type": "string",
@@ -308,7 +321,8 @@
             "Platform",
             "Report",
             "Repository_Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
           "example": "Platform"
         },
@@ -316,7 +330,7 @@
           "type": "string",
           "description": "Identifies if the usage activity was 'Regular' usage (a user doing research on a content site) or if the usage was for the purpose of retrieving content for Text and Data Mining (TDM)",
           "enum": ["Regular", "TDM"],
-          "example": "Journal"
+          "example": "Regular"
         },
         "Performance": {
           "type": "array",
@@ -381,18 +395,15 @@
           "type": "string",
           "description": "Nature of the item being reported.",
           "enum": [
-            "Article",
             "Book",
-            "Book_Segment",
             "Database",
-            "Dataset",
             "Journal",
             "Multimedia",
             "Newspaper_or_Newsletter",
             "Other",
             "Report",
-            "Repository Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
           "example": "Database"
         },
@@ -465,17 +476,14 @@
           "type": "string",
           "description": "Nature of the item being reported.",
           "enum": [
-            "Article",
             "Book",
-            "Book_Segment",
-            "Dataset",
+            "Database",
             "Journal",
-            "Multimedia",
             "Newspaper_or_Newsletter",
             "Other",
             "Report",
-            "Repository_Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
           "example": "Journal"
         },
@@ -606,9 +614,10 @@
             "Other",
             "Report",
             "Repository_Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
-          "example": "Journal"
+          "example": "Article"
         },
         "YOP": {
           "type": "string",
@@ -677,9 +686,7 @@
           "type": "string",
           "description": "Nature of the parent item.",
           "enum": [
-            "Article",
             "Book",
-            "Book_Segment",
             "Dataset",
             "Journal",
             "Multimedia",
@@ -687,7 +694,8 @@
             "Other",
             "Report",
             "Repository_Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
           "example": "Journal"
         }
@@ -744,9 +752,10 @@
             "Other",
             "Report",
             "Repository_Item",
-            "Thesis_or_Dissertation"
+            "Thesis_or_Dissertation",
+            "Unspecified"
           ],
-          "example": "Journal"
+          "example": "Dataset"
         },
         "Performance": {
           "type": "array",
@@ -788,7 +797,7 @@
         "Type": {
           "type": "string",
           "example": "ISNI",
-          "enum": ["ISNI", "Proprietary"]
+          "enum": ["ISNI", "ROR", "Proprietary"]
         },
         "Value": {
           "type": "string",

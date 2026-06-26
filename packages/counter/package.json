@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build:schemas": "tsx schemas/build.ts",
+    "update:schemas": "tsx schemas/update.ts && npm run fmt schemas/**/*.json",
     "lint": "oxlint",
     "fmt": "oxfmt",
     "test": "vitest run",
