@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "COUNTER API",
-    "version": "5.1.0.1",
-    "description": "This version of the COUNTER API (formerly sushi) applies to Release 5.1.0.1 of the COUNTER Code of Practice, which can be read online at https://cop5.countermetrics.org/.\n\nThis workspace provides a detailed description of the entire COUNTER API, including the JSON schema for COUNTER Reports and Standard Views of the COUNTER Reports. \n\nIt is expected that reporting services will use only the parts relevant to them, or make local tailored copies relevant to their particular circumstances, for example by removing methods detailing reports they do not support.\n\nIf you have any queries, please contact the Executive Director (code@countermetrics.org).",
-    "summary": "COUNTER API for Release 5.1.0.1",
+    "version": "5.1.1",
+    "description": "This version of the COUNTER API (formerly sushi) applies to Release 5.1.1 of the COUNTER Code of Practice, which can be read online at https://cop5.countermetrics.org/.\n\nThis workspace provides a detailed description of the entire COUNTER API, including the JSON schema for COUNTER Reports and Standard Views of the COUNTER Reports. \n\nIt is expected that reporting services will use only the parts relevant to them, or make local tailored copies relevant to their particular circumstances, for example by removing methods detailing reports they do not support.\n\nIf you have any queries, please contact the Executive Director (code@countermetrics.org).",
+    "summary": "COUNTER API for Release 5.1.1",
     "license": {
       "name": "CC BY 4.0",
       "url": "https://creativecommons.org/licenses/by/4.0/"
@@ -29,7 +29,7 @@
         "Registry_Record": {
           "type": "string",
           "pattern": "^(https://registry.countermetrics.org/(platform|usage-data-host)/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|)$",
-          "description": "The link to the platform’s COUNTER Registry record. Report providers who do not have a Registry record MUST omit this element."
+          "description": "The link to the platform’s COUNTER Registry record. Report providers who do not have a Registry record MUST leave the value blank."
         },
         "Note": {
           "type": "string",
@@ -55,7 +55,7 @@
           }
         }
       },
-      "required": ["Service_Active"],
+      "required": ["Service_Active", "Registry_Record"],
       "description": "Status of a reporting service supported by a COUNTER API server.",
       "title": "Status Information"
     },
@@ -92,6 +92,30 @@
       },
       "required": ["Institution_Name", "Customer_ID"]
     },
+    "Platform": {
+      "type": "object",
+      "title": "Platform Information",
+      "description": "Information about a platform supported by the COUNTER API server.",
+      "required": ["Platform_Parameter", "Platform_Name"],
+      "additionalProperties": false,
+      "properties": {
+        "Platform_Parameter": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Value to be used for the platform parameter on other API paths."
+        },
+        "Platform_Name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Name of the platform."
+        },
+        "Platform_Description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Additional information about the platform."
+        }
+      }
+    },
     "Report": {
       "type": "object",
       "title": "Report Information",
@@ -109,7 +133,7 @@
         },
         "Release": {
           "type": "string",
-          "minLength": 1,
+          "const": "5.1",
           "description": "Release version of the report."
         },
         "Report_Description": {
@@ -131,6 +155,9 @@
           "type": "string",
           "pattern": "^[0-9]{4}-[0-9]{2}$",
           "description": "Last month for which usage data has been processed and is available."
+        },
+        "Month_Details": {
+          "$ref": "#/definitions/Month_Details"
         }
       },
       "required": [
@@ -141,6 +168,31 @@
         "First_Month_Available",
         "Last_Month_Available"
       ]
+    },
+    "Month_Details": {
+      "title": "Month_Details",
+      "description": "Information about when (and why) data for the report has changed. This is a common extension, support is OPTIONAL (see Section 11.7 of the Code of Practice for details).",
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]{4}-(0[1-9]|1[0-2])$": {
+          "type": "object",
+          "description": "Month for which the data has changed, in yyyy-mm format.",
+          "properties": {
+            "Last_Change_Date": {
+              "type": "string",
+              "description": "Date-time when the data for the month last changed, in RFC3339 date-time format.",
+              "format": "date-time"
+            },
+            "Last_Change_Note": {
+              "type": "string",
+              "description": "Information about why the data for the month has changed."
+            }
+          },
+          "required": ["Last_Change_Date"]
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
     },
     "PR": {
       "title": "PR - Platform Report",
@@ -867,14 +919,17 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": [
-                "Searches_Platform",
-                "Total_Item_Requests",
-                "Unique_Item_Requests",
-                "Unique_Title_Requests"
-              ],
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Searches_Platform",
+                  "Total_Item_Requests",
+                  "Unique_Item_Requests",
+                  "Unique_Title_Requests"
+                ]
               }
             }
           },
@@ -1320,17 +1375,20 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": [
-                "Searches_Automated",
-                "Searches_Federated",
-                "Searches_Regular",
-                "Total_Item_Investigations",
-                "Total_Item_Requests",
-                "Unique_Item_Investigations",
-                "Unique_Item_Requests"
-              ],
+              "minItems": 7,
+              "maxItems": 7,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Searches_Automated",
+                  "Searches_Federated",
+                  "Searches_Regular",
+                  "Total_Item_Investigations",
+                  "Total_Item_Requests",
+                  "Unique_Item_Investigations",
+                  "Unique_Item_Requests"
+                ]
               }
             }
           },
@@ -1444,9 +1502,12 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Limit_Exceeded", "No_License"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Limit_Exceeded", "No_License"]
               }
             }
           },
@@ -1799,16 +1860,22 @@
             },
             "Data_Type": {
               "type": "array",
-              "const": ["Book", "Reference_Work"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Book", "Reference_Work"]
               }
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Total_Item_Requests", "Unique_Title_Requests"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Total_Item_Requests", "Unique_Title_Requests"]
               }
             }
           },
@@ -1920,16 +1987,22 @@
             },
             "Data_Type": {
               "type": "array",
-              "const": ["Book", "Reference_Work"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Book", "Reference_Work"]
               }
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Limit_Exceeded", "No_License"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Limit_Exceeded", "No_License"]
               }
             }
           },
@@ -2036,23 +2109,29 @@
             },
             "Data_Type": {
               "type": "array",
-              "const": ["Book", "Reference_Work"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Book", "Reference_Work"]
               }
             },
             "Metric_Type": {
               "type": "array",
-              "const": [
-                "Total_Item_Investigations",
-                "Total_Item_Requests",
-                "Unique_Item_Investigations",
-                "Unique_Item_Requests",
-                "Unique_Title_Investigations",
-                "Unique_Title_Requests"
-              ],
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Total_Item_Investigations",
+                  "Total_Item_Requests",
+                  "Unique_Item_Investigations",
+                  "Unique_Item_Requests",
+                  "Unique_Title_Investigations",
+                  "Unique_Title_Requests"
+                ]
               }
             }
           },
@@ -2188,9 +2267,12 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Total_Item_Requests", "Unique_Item_Requests"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Total_Item_Requests", "Unique_Item_Requests"]
               }
             }
           },
@@ -2301,9 +2383,12 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Limit_Exceeded", "No_License"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Limit_Exceeded", "No_License"]
               }
             }
           },
@@ -2409,14 +2494,17 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": [
-                "Total_Item_Investigations",
-                "Total_Item_Requests",
-                "Unique_Item_Investigations",
-                "Unique_Item_Requests"
-              ],
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Total_Item_Investigations",
+                  "Total_Item_Requests",
+                  "Unique_Item_Investigations",
+                  "Unique_Item_Requests"
+                ]
               }
             }
           },
@@ -2538,9 +2626,12 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Total_Item_Requests", "Unique_Item_Requests"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Total_Item_Requests", "Unique_Item_Requests"]
               }
             }
           },
@@ -3036,9 +3127,12 @@
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Total_Item_Requests", "Unique_Item_Requests"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Total_Item_Requests", "Unique_Item_Requests"]
               }
             }
           },
@@ -3177,22 +3271,28 @@
             },
             "Data_Type": {
               "type": "array",
-              "const": [
-                "Audiovisual",
-                "Image",
-                "Interactive_Resource",
-                "Multimedia",
-                "Sound"
-              ],
+              "minItems": 5,
+              "maxItems": 5,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Audiovisual",
+                  "Image",
+                  "Interactive_Resource",
+                  "Multimedia",
+                  "Sound"
+                ]
               }
             },
             "Metric_Type": {
               "type": "array",
-              "const": ["Total_Item_Requests", "Unique_Item_Requests"],
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
               "items": {
-                "type": "string"
+                "type": "string",
+                "enum": ["Total_Item_Requests", "Unique_Item_Requests"]
               }
             }
           },
@@ -3605,7 +3705,7 @@
           "minItems": 1,
           "items": {
             "type": "string",
-            "pattern": "^[a-zA-Z][a-zA-Z0-9_./]{1,17}:.+"
+            "pattern": "^[a-zA-Z][a-zA-Z0-9_./]{0,15}[a-zA-Z0-9]:.+"
           }
         }
       }
@@ -3624,7 +3724,7 @@
               "minItems": 1,
               "items": {
                 "type": "string",
-                "pattern": "^([A-Z]{2}|[a-zA-Z0-9]{3,4})-.{1,11}$"
+                "pattern": "^([A-Z]{2}|[a-zA-Z0-9]|[a-zA-Z0-9]{3,4})-.{1,11}$"
               }
             },
             "OCLC": {
@@ -3676,7 +3776,7 @@
         },
         "Proprietary": {
           "type": "string",
-          "pattern": "^[a-zA-Z][a-zA-Z0-9_./]{1,17}:.+"
+          "pattern": "^[a-zA-Z][a-zA-Z0-9_./]{0,15}[a-zA-Z0-9]:.+"
         },
         "URI": {
           "type": "string",

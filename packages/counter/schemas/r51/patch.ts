@@ -129,13 +129,14 @@ function fixSeverityException(
     }
   }
 }
+
 /**
  * Fix performances needing at least 2 properties in schema
  * while actually needing one given the case
  *
  * Updates by reference
  *
- * @deprecated should be fixed by R5.1.1
+ * @deprecated should be fixed by R5.2
  *
  * @param schemas to fix
  */
@@ -157,7 +158,7 @@ function fixPerfMinProperties(
  *
  * Updates by reference
  *
- * @deprecated should be partially fixed by R5.1.1
+ * @deprecated should be partially fixed by R5.2
  *
  * @param schemas to fix
  */
