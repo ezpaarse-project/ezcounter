@@ -36,7 +36,7 @@ export function initHeartbeat(): void {
 
   sender = setupHeartbeat(rabbitClient, logger, {
     frequency: appConfig.heartbeat,
-    isRabbitMQMandatory: false,
+    isRabbitMQMandatory: true,
     service,
   });
 

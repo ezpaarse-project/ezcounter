@@ -146,7 +146,14 @@ export function setupHeartbeatSender(
   setupIntervals(service, sender);
 
   if (options.isRabbitMQMandatory) {
-    mandatoryServices.set('rabbitmq', true);
+    rabbitClient.on('connection', () =>
+      mandatoryServices.set('rabbitmq', true)
+    );
+    rabbitClient.on('error', (error) => {
+      if (error.name === 'AMQPConnectionError') {
+        mandatoryServices.set('rabbitmq', false);
+      }
+    });
   }
 
   return sender;
