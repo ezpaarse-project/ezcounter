@@ -21,14 +21,13 @@
   "scripts": {
     "lint": "oxlint",
     "fmt": "oxfmt",
-    "check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "config": "^4.4.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {

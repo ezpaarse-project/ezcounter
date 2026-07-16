@@ -24,7 +24,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/dto": "workspace:*",
@@ -32,7 +32,6 @@
     "@ezcounter/rabbitmq": "workspace:*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

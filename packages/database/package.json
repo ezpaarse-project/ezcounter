@@ -25,7 +25,7 @@
     "db:reset": "dotenvx run -- prisma migrate reset",
     "lint": "oxlint",
     "fmt": "oxfmt",
-    "check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
@@ -34,7 +34,6 @@
   "devDependencies": {
     "@dotenvx/dotenvx": "^1.65.0",
     "@types/pg": "^8.20.0",
-    "@typescript/native-preview": "catalog:",
     "prisma": "^7.8.0",
     "typescript": "catalog:"
   },

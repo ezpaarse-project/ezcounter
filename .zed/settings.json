@@ -21,7 +21,7 @@
     },
     "TypeScript": {
       "language_servers": [
-        "tsgo",
+        "typescript-ls",
         "vtsls",
         "!typescript-language-server",
         "..."

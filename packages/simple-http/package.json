@@ -18,7 +18,7 @@
   "scripts": {
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "check": "tsgo --noEmit --skipLibCheck"
+    "check": "tsc --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@ezcounter/logger": "workspace:*",
@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "typescript": "catalog:"
   },
   "engines": {
