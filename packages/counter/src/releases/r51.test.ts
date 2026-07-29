@@ -356,7 +356,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
     data.destroy();
   });
 
-  it('should return NaN if size not available', async () => {
+  it('should return 0 if size not available', async () => {
     expect.assertions(1);
 
     const { expectedSize, data } = await fetchR51ReportAsStream(
@@ -371,7 +371,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       }
     );
 
-    expect.soft(expectedSize).toBe(Number.NaN);
+    expect.soft(expectedSize).toBe(0);
 
     // Destroying stream to avoid EBADF errors
     data.destroy();

@@ -21,7 +21,9 @@
         // Routes must return a `Promise`, to ease readability every route is async (even if no await is used)
         "require-await": "off",
         // Auto-load plugin expect routers to be the default export
-        "no-default-export": "off"
+        "no-default-export": "off",
+        // Routes are defined using function parameters, allows for 1 more depth
+        "max-nested-calls": ["warn", { "max": 4 }]
       }
     }
   ]

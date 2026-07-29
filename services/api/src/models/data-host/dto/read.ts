@@ -169,6 +169,7 @@ export const DataHostWithSupportedData = z.object({
     z.object({
       ...DataHostSupportedRelease.shape,
 
+      // oxlint-disable-next-line unicorn/max-nested-calls
       supportedReports: z.array(DataHostSupportedReport),
     })
   ),

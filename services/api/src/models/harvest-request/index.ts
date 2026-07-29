@@ -158,7 +158,6 @@ export async function prepareHarvestJobsFromHarvestRequest(
           );
         } catch {
           // TODO: Do something
-          continue;
         }
       }
     })

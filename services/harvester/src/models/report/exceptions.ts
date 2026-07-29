@@ -204,7 +204,7 @@ function codeAsSeverity(code: string): HarvestException['severity'] | null {
     return severity;
   }
 
-  const codeNumber = Number.parseInt(code, 10);
+  const codeNumber = Number(code);
   if (codeNumber === COUNTER_CODE_INFO) {
     severity = 'info';
   }

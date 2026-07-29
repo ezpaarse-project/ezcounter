@@ -80,26 +80,24 @@ export async function extractReportExceptions(
   options: HarvestDownloadOptions,
   signal?: AbortSignal
 ): Promise<COUNTERReportException[]> {
+  const filter = getReportExceptionsJsonPath(options.release);
   const stream = attachAbortSignal(
     chain([
       createReadStream(reportPath),
       jsonParser(),
-      jsonFilter({
-        filter: getReportExceptionsJsonPath(options.release),
-      }),
+      jsonFilter({ filter }),
       jsonStreamValues(),
     ]),
     signal
   );
 
   // Wait for parsing
-  const { value: data } =
-    (await waitForStreamData<{ value: unknown }>(stream)) ?? {};
-  if (!data) {
+  const data = await waitForStreamData<{ value: unknown }>(stream);
+  if (!data?.value) {
     return [];
   }
 
-  const exceptions = resolveExceptions(data);
+  const exceptions = resolveExceptions(data.value);
 
   // Getting JSON schema of exceptions
   const { exception: validate } = getCounterValidation(options.release, '');

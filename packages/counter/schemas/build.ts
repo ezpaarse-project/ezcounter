@@ -19,11 +19,13 @@ async function readSchema(
   const tsPatchPath = schemaPath.replace('schema.json', 'patch.ts');
   const jsPatchPath = schemaPath.replace('schema.json', 'patch.js');
 
+  // oxlint-disable-next-line node/no-sync
   if (existsSync(tsPatchPath)) {
     const { schema } = await import(tsPatchPath);
     return { patched: true, schema };
   }
 
+  // oxlint-disable-next-line node/no-sync
   if (existsSync(jsPatchPath)) {
     const { schema } = await import(jsPatchPath);
     return { patched: true, schema };

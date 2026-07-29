@@ -28,9 +28,7 @@ export async function onValidationRequest(
   reply: Reply<ReportValidationResponse>
 ): Promise<void> {
   try {
-    const expiration = meta.expiration
-      ? Number.parseInt(meta.expiration, 10)
-      : undefined;
+    const expiration = meta.expiration ? Number(meta.expiration) : undefined;
 
     let validationPromise: Promise<ReportValidationResult | null> =
       Promise.resolve(null);

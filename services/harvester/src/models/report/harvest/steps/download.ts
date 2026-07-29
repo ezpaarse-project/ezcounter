@@ -69,10 +69,7 @@ function createEventStream(
   data: EventStreamData,
   timeout?: IdleTimeoutController
 ): PassThrough {
-  const expectedSize =
-    Number.isNaN(data.expectedSize) || data.expectedSize <= 0
-      ? null
-      : data.expectedSize;
+  const expectedSize = data.expectedSize <= 0 ? null : data.expectedSize;
 
   let chunkCount = 0;
   let totalSize = 0;

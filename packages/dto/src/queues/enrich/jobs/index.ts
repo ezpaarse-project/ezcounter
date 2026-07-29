@@ -1,3 +1,4 @@
+// oxlint-disable unicorn/max-nested-calls
 import type {
   R51ReportHeader,
   R51ReportItem,

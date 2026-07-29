@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 // oxlint-disable-next-line import/default
@@ -13,8 +13,8 @@ vi.mock(import('isbn3'));
 
 const EXAMPLES_DIR = join(process.cwd(), '__tests__/examples/items/5');
 
-const readExampleFile = (file: string): R5ReportData =>
-  JSON.parse(readFileSync(join(EXAMPLES_DIR, file), 'utf8'));
+const readExampleFile = async (file: string): Promise<R5ReportData> =>
+  JSON.parse(await readFile(join(EXAMPLES_DIR, file), 'utf8'));
 
 describe('transform COUNTER 5 Item', () => {
   const OPTIONS: HarvestInsertOptions = {
@@ -23,9 +23,9 @@ describe('transform COUNTER 5 Item', () => {
     index: '',
   };
 
-  it('should return iterator', () => {
+  it('should return iterator', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('pr.json');
+    const data = await readExampleFile('pr.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
 
@@ -34,9 +34,9 @@ describe('transform COUNTER 5 Item', () => {
     expect(iteration).toHaveProperty('value');
   });
 
-  it('should transform item', () => {
+  it('should transform item', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('pr.json');
+    const data = await readExampleFile('pr.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
     const { value } = iterator.next();
@@ -71,9 +71,9 @@ describe('transform COUNTER 5 Item', () => {
     );
   });
 
-  it('should transform parent', () => {
+  it('should transform parent', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('ir.json');
+    const data = await readExampleFile('ir.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
 
@@ -85,9 +85,9 @@ describe('transform COUNTER 5 Item', () => {
     );
   });
 
-  it('should generate id with additionalIdParts', () => {
+  it('should generate id with additionalIdParts', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('pr.json');
+    const data = await readExampleFile('pr.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
 
@@ -96,9 +96,9 @@ describe('transform COUNTER 5 Item', () => {
     expect(value).toHaveProperty('id', expect.stringContaining('foobar'));
   });
 
-  it('should format ISBN', () => {
+  it('should format ISBN', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('ir.json');
+    const data = await readExampleFile('ir.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
 
@@ -107,9 +107,9 @@ describe('transform COUNTER 5 Item', () => {
     expect(isbn.asIsbn13).toHaveBeenCalledOnce();
   });
 
-  it('should resolve on each count on each Performance on each Attribute_Performance', () => {
+  it('should resolve on each count on each Performance on each Attribute_Performance', async () => {
     expect.hasAssertions();
-    const data = readExampleFile('pr.json');
+    const data = await readExampleFile('pr.json');
 
     const iterator = transformR5ItemToDocuments(data, OPTIONS);
 

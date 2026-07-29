@@ -29,7 +29,7 @@ export async function onCredentialsCheckRequest(
   try {
     let timeout: IdleTimeoutController | undefined = undefined;
     if (meta.expiration) {
-      const expiration = Number.parseInt(meta.expiration, 10);
+      const expiration = Number(meta.expiration);
       timeout = new IdleTimeoutController(expiration);
     }
 

@@ -46,6 +46,7 @@ export function createLogger(options: LoggerOptions): Logger {
 
   // If needed add logs into a file
   if (options.dir != null) {
+    // oxlint-disable-next-line node/no-sync - We want to ensure the dir before creating logger
     mkdirSync(resolve(options.dir), { recursive: true });
     targets.push({
       level: options.level,

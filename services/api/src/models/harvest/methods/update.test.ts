@@ -84,13 +84,13 @@ describe('update one harvest job', () => {
       dbClient
     );
 
+    const expectedData = expect.objectContaining({
+      status: 'done',
+      took: expect.closeTo(0, 5),
+    });
+
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          status: 'done',
-          took: expect.closeTo(0, 5),
-        }),
-      })
+      expect.objectContaining({ data: expectedData })
     );
   });
 
@@ -116,14 +116,14 @@ describe('update one harvest job', () => {
       dbClient
     );
 
+    const expectedData = expect.objectContaining({
+      error,
+      status: 'error',
+      took: expect.closeTo(0, 5),
+    });
+
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          error,
-          status: 'error',
-          took: expect.closeTo(0, 5),
-        }),
-      })
+      expect.objectContaining({ data: expectedData })
     );
   });
 
@@ -262,18 +262,18 @@ describe('update one harvest job', () => {
       dbClient
     );
 
+    const expectedData = expect.objectContaining({
+      download: expect.objectContaining({
+        status: 'done',
+      }),
+      extract: expect.objectContaining({
+        status: 'processing',
+      }),
+      status: job.status,
+    });
+
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          download: expect.objectContaining({
-            status: 'done',
-          }),
-          extract: expect.objectContaining({
-            status: 'processing',
-          }),
-          status: job.status,
-        }),
-      })
+      expect.objectContaining({ data: expectedData })
     );
   });
 
@@ -293,18 +293,18 @@ describe('update one harvest job', () => {
       dbClient
     );
 
+    const expectedData = expect.objectContaining({
+      download: expect.objectContaining({
+        status: 'done',
+      }),
+      extract: expect.objectContaining({
+        status: 'processing',
+      }),
+      status: job.status,
+    });
+
     expect(dbClient.harvestJob.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          download: expect.objectContaining({
-            status: 'done',
-          }),
-          extract: expect.objectContaining({
-            status: 'processing',
-          }),
-          status: job.status,
-        }),
-      })
+      expect.objectContaining({ data: expectedData })
     );
   });
 

@@ -107,10 +107,7 @@ export async function fetchR51ReportAsStream(
     throw new Error("Response doesn't have any data");
   }
 
-  const size = Number.parseInt(
-    response.headers.get('Content-Length') ?? '',
-    10
-  );
+  const size = Number(response.headers.get('Content-Length') ?? '');
 
   return {
     // oxlint-disable-next-line no-underscore-dangle
