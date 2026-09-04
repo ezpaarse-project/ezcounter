@@ -75,16 +75,15 @@ module.exports = {
         ...dbEnv,
 
         ALLOWED_ORIGINS: env('ALLOWED_ORIGINS', '*'),
-
         ALLOWED_PROXIES: env('ALLOWED_PROXIES', '*'),
-
         DATAHOST_SUPPORTED_REFRESH_JOB_DELAY: Number(
           env('DATAHOST_SUPPORTED_REFRESH_JOB_DELAY', 500)
         ),
-
         HOOKS_BANNED_HOSTS: env('HOOKS_BANNED_HOSTS', JSON.stringify([])),
 
         HTTP_PORT: Number(env('API_HTTP_PORT', 8080)),
+        HTTP_TLS_CERT_PATH: env('HTTP_TLS_CERT_PATH', ''),
+        HTTP_TLS_KEY_PATH: env('HTTP_TLS_KEY_PATH', ''),
       },
       increment_var: 'HTTP_PORT',
       instances: env('APIS_CONCURRENCE', 1),

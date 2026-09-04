@@ -16,8 +16,8 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
     port: defineNumber('HTTP_PORT'),
     /** TLS options */
     tls: {
-      key: defineString('HTTP_TLS_KEY'),
-      cert: defineString('HTTP_TLS_CERT'),
+      key: defineString('HTTP_TLS_KEY_PATH'),
+      cert: defineString('HTTP_TLS_CERT_PATH'),
     },
     /** CORS options */
     cors: {
