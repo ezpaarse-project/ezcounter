@@ -1,10 +1,14 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/dto';
+import { z, zToArray } from '@ezcounter/dto';
 
 import { DataHostModel } from '~/models/data-host';
-import { DataHost, DataHostFilters } from '~/models/data-host/dto';
+import {
+  DataHost,
+  DataHostFilters,
+  DataHostInclude,
+} from '~/models/data-host/dto';
 
 import {
   PaginationMeta,
@@ -18,12 +22,13 @@ import { PaginationQuery } from '../query';
 const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
     handler: async (request, reply) => {
-      const { count, order, page, sort, ...filters } = request.query;
+      const { count, order, page, sort, includes, ...filters } = request.query;
 
       const [hosts, total] = await DataHostModel.$transaction((dataHosts) =>
         Promise.all([
           dataHosts.findAll({
             ...filters,
+            includes,
             orderBy: { [sort || 'createdAt']: order },
             skip: count * (page - 1),
             take: count > 0 ? count : undefined,
@@ -39,6 +44,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
       querystring: z.object({
         ...PaginationQuery.shape,
         ...DataHostFilters.shape,
+        includes: zToArray(DataHostInclude),
       }),
       response: {
         ...describeErrors([StatusCodes.INTERNAL_SERVER_ERROR]),

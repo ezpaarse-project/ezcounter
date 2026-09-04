@@ -25,9 +25,10 @@ describe('get /data-hosts', () => {
       method: 'GET',
       query: {
         count: '25',
+        includes: ['supportedReleases.supportedReports'],
         page: '3',
         sort: 'id',
-        'updatedAt.to': '2025-01-01',
+        'updatedAt[lte]': '2025-01-01',
       },
       url: '/data-hosts',
     });
@@ -36,13 +37,14 @@ describe('get /data-hosts', () => {
 
     expect(response).toHaveProperty('statusCode', 200);
     expect(mockedDataHostModel.findAll).toHaveBeenCalledExactlyOnceWith({
+      includes: ['supportedReleases.supportedReports'],
       orderBy: { id: 'asc' },
       skip: 50,
       take: 25,
-      'updatedAt.to': new Date('2025-01-01T00:00:00.000Z'),
+      'updatedAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
     });
     expect(mockedDataHostModel.countAll).toHaveBeenCalledExactlyOnceWith({
-      'updatedAt.to': new Date('2025-01-01T00:00:00.000Z'),
+      'updatedAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
     });
     expect(content).toBeInstanceOf(Array);
   });

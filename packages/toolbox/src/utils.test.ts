@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   createDebouncedFunction,
   createThrottledFunction,
+  keysOf,
   waitForGenerator,
 } from './utils';
 
@@ -280,5 +281,18 @@ describe('wait for generator function', () => {
     const promise = waitForGenerator(process);
 
     await expect(promise).rejects.toThrow('Excepted error');
+  });
+});
+
+describe('get keys of object', () => {
+  it('should return keys of object', () => {
+    expect.assertions(1);
+    const obj = {
+      first: 1,
+      last: 3,
+      second: 2,
+    };
+
+    expect(keysOf(obj)).toStrictEqual(['first', 'last', 'second']);
   });
 });

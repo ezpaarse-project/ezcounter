@@ -30,7 +30,7 @@ describe('get /data-hosts/:id/supported-releases', () => {
       method: 'GET',
       query: {
         count: '25',
-        'createdAt.from': '2025-01-01',
+        'createdAt[gte]': '2025-01-01',
         page: '3',
         sort: 'release',
       },
@@ -44,7 +44,7 @@ describe('get /data-hosts/:id/supported-releases', () => {
     expect(
       mockedDataHostModel.findAllReleasesSupported
     ).toHaveBeenCalledExactlyOnceWith(':id', {
-      'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+      'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
       orderBy: { release: 'asc' },
       skip: 50,
       take: 25,
@@ -52,7 +52,7 @@ describe('get /data-hosts/:id/supported-releases', () => {
     expect(
       mockedDataHostModel.countAllReleasesSupported
     ).toHaveBeenCalledExactlyOnceWith(':id', {
-      'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+      'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
     });
     expect(content).toBeInstanceOf(Array);
   });

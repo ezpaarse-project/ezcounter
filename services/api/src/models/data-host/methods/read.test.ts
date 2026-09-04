@@ -63,7 +63,8 @@ describe('find all Data Host', () => {
 
     await findAllDataHost(
       {
-        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
+        includes: ['supportedReleases'],
         orderBy: { id: 'asc' },
         skip: 50,
         take: 25,
@@ -72,6 +73,7 @@ describe('find all Data Host', () => {
     );
 
     expect(dbClient.dataHost.findMany).toHaveBeenCalledExactlyOnceWith({
+      include: { supportedReleases: true },
       orderBy: { id: 'asc' },
       skip: 50,
       take: 25,
@@ -105,7 +107,7 @@ describe('count all Data Host', () => {
 
     await countAllDataHost(
       {
-        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
       },
       dbClient
     );
@@ -132,10 +134,11 @@ describe('find one Data Host', () => {
       updatedAt: null,
     });
 
-    await findOneDataHost('id', dbClient);
+    await findOneDataHost('id', dbClient, ['supportedReleases']);
 
     expect(dbClient.dataHost.findUniqueOrThrow).toHaveBeenCalledExactlyOnceWith(
       {
+        include: { supportedReleases: true },
         where: { id: 'id' },
       }
     );
@@ -201,7 +204,8 @@ describe('find all releases supported by Data Host', () => {
     await findAllReleasesSupportedByDataHost(
       'id',
       {
-        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
+        includes: ['supportedReports'],
         orderBy: { id: 'asc' },
         skip: 50,
         take: 25,
@@ -212,6 +216,7 @@ describe('find all releases supported by Data Host', () => {
     expect(
       dbClient.dataHostSupportedRelease.findMany
     ).toHaveBeenCalledExactlyOnceWith({
+      include: { supportedReports: true },
       orderBy: { id: 'asc' },
       skip: 50,
       take: 25,
@@ -248,7 +253,7 @@ describe('count all releases supported by Data Host', () => {
     await countAllReleasesSupportedByDataHost(
       'id',
       {
-        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
       },
       dbClient
     );
@@ -316,7 +321,7 @@ describe('find all reports supported by Data Host', () => {
     await findAllReportsSupportedByDataHost(
       { dataHostId: 'id', release: '5.1' },
       {
-        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
         orderBy: { id: 'asc' },
         skip: 50,
         take: 25,
@@ -368,7 +373,7 @@ describe('count all reports supported by Data Host', () => {
     await countAllReportsSupportedByDataHost(
       { dataHostId: 'id', release: '5' },
       {
-        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
       },
       dbClient
     );

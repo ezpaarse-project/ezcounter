@@ -11,6 +11,7 @@ import {
  */
 export const CreateDataHost = DataHost.omit({
   createdAt: true,
+  supportedReleases: true,
   updatedAt: true,
 });
 
@@ -24,6 +25,7 @@ export type CreateDataHost = z.infer<typeof CreateDataHost>;
  */
 export const CreateDataHostSupportedRelease = DataHostSupportedRelease.omit({
   createdAt: true,
+  supportedReports: true,
   updatedAt: true,
 });
 

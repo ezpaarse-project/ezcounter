@@ -18,17 +18,35 @@ export function buildDateFilter<
     : never,
 >(
   field: Field,
-  filters: Partial<Record<`${Field}.from` | `${Field}.to`, Date>>
+  filters: Partial<Record<`${Field}[gte]` | `${Field}[lte]`, Date>>
 ):
   | (DataType[Key] extends null | undefined
       ? Prisma.DateTimeNullableFilter
       : Prisma.DateTimeFilter)
   | undefined {
-  if (filters[`${field}.from`] || filters[`${field}.to`]) {
+  if (filters[`${field}[gte]`] || filters[`${field}[lte]`]) {
     return {
-      gte: filters[`${field}.from`],
-      lte: filters[`${field}.to`],
+      gte: filters[`${field}[gte]`],
+      lte: filters[`${field}[lte]`],
     };
   }
   return undefined;
+}
+
+/**
+ * Shorthand to extract sub-include keys from other include keys
+ *
+ * @param prefix - The prefix
+ * @param input - The include keys
+ *
+ * @returns The keys to pass to sub-include
+ */
+export function extractSubIncludes<SubInclude extends string>(
+  prefix: string,
+  input: string[]
+): SubInclude[] {
+  const dotPrefix = `${prefix}.`;
+
+  const filtered = input.filter((key) => key.startsWith(dotPrefix));
+  return filtered.map((key) => key.replace(dotPrefix, '')) as SubInclude[];
 }

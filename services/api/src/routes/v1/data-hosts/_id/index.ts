@@ -1,10 +1,14 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/dto';
+import { z, zToArray } from '@ezcounter/dto';
 
 import { DataHostModel } from '~/models/data-host';
-import { DataHost, UpdateDataHost } from '~/models/data-host/dto';
+import {
+  DataHost,
+  DataHostInclude,
+  UpdateDataHost,
+} from '~/models/data-host/dto';
 
 import {
   EmptyResponse,
@@ -21,6 +25,35 @@ const RouterParams = z.object({
 });
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.route({
+    handler: async (request, reply) => {
+      const { id } = request.params;
+      const { include } = request.query;
+
+      const dataHosts = new DataHostModel();
+
+      return buildResponse(reply, await dataHosts.findOne(id, include));
+    },
+    method: 'GET',
+    schema: {
+      params: RouterParams,
+      querystring: z.object({
+        include: zToArray(DataHostInclude).optional(),
+      }),
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(DataHost),
+      },
+      summary: 'Get a data host',
+      tags: ['data-host'],
+    },
+    url: '/',
+  });
+
   fastify.route({
     handler: async (request, reply) => {
       const { id } = request.params;
@@ -74,7 +107,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
         ]),
         [StatusCodes.NO_CONTENT]: EmptyResponse,
       },
-      summary: 'Remove a supported release for a data host',
+      summary: 'Remove a data host',
       tags: ['data-host'],
     },
     url: '/',

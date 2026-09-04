@@ -15,7 +15,7 @@ describe('find all Harvest Job', () => {
 
     await findAllHarvestJob(
       {
-        'createdAt.from': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[gte]': new Date('2025-01-01T00:00:00.000Z'),
         orderBy: { id: 'asc' },
         skip: 50,
         take: 25,
@@ -54,7 +54,7 @@ describe('count all Harvest Job', () => {
 
     await countAllHarvestJob(
       {
-        'createdAt.to': new Date('2025-01-01T00:00:00.000Z'),
+        'createdAt[lte]': new Date('2025-01-01T00:00:00.000Z'),
       },
       dbClient
     );

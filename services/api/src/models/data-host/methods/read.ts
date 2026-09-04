@@ -6,12 +6,14 @@ import type {
 } from '@ezcounter/database';
 
 import type { PaginationParams } from '~/lib/prisma';
-import { buildDateFilter } from '~/lib/prisma/utils';
+import { buildDateFilter, extractSubIncludes } from '~/lib/prisma/utils';
 
 import type {
   DataHostFilters,
+  DataHostInclude,
   DataHostSupportedReleaseFilters,
   DataHostSupportedReleaseID,
+  DataHostSupportedReleaseInclude,
   DataHostSupportedReportFilters,
   DataHostSupportedReportID,
 } from '../dto';
@@ -23,11 +25,12 @@ import type {
  *
  * @returns The WHERE clause
  */
-const buildWhereDataHostClause = (
-  filters: DataHostFilters
-): Prisma.DataHostWhereInput => ({
-  createdAt: buildDateFilter<DataHost>('createdAt', filters),
-  updatedAt: buildDateFilter<DataHost>('updatedAt', filters),
+const buildWhereReportClause = (
+  filters: DataHostSupportedReportFilters
+): Prisma.DataHostSupportedReportWhereInput => ({
+  createdAt: buildDateFilter<DataHostSupportedReport>('createdAt', filters),
+  supported: filters.supported,
+  updatedAt: buildDateFilter<DataHostSupportedReport>('updatedAt', filters),
 });
 
 /**
@@ -44,6 +47,12 @@ const buildWhereReleaseClause = (
   updatedAt: buildDateFilter<DataHostSupportedRelease>('updatedAt', filters),
 });
 
+const buildIncludeReleaseClause = (
+  input: DataHostSupportedReleaseInclude[] = []
+): Prisma.DataHostSupportedReleaseInclude => ({
+  supportedReports: input.includes('supportedReports'),
+});
+
 /**
  * Build the WHERE clause of a query using filters
  *
@@ -51,13 +60,34 @@ const buildWhereReleaseClause = (
  *
  * @returns The WHERE clause
  */
-const buildWhereReportClause = (
-  filters: DataHostSupportedReportFilters
-): Prisma.DataHostSupportedReportWhereInput => ({
-  createdAt: buildDateFilter<DataHostSupportedReport>('createdAt', filters),
-  supported: filters.supported,
-  updatedAt: buildDateFilter<DataHostSupportedReport>('updatedAt', filters),
+const buildWhereDataHostClause = (
+  filters: DataHostFilters
+): Prisma.DataHostWhereInput => ({
+  createdAt: buildDateFilter<DataHost>('createdAt', filters),
+  updatedAt: buildDateFilter<DataHost>('updatedAt', filters),
 });
+
+const buildIncludeDataHostClause = (
+  input: DataHostInclude[] = []
+): Prisma.DataHostInclude => {
+  const clause: Prisma.DataHostInclude = {};
+
+  const releasesIncludes = extractSubIncludes<DataHostSupportedReleaseInclude>(
+    'supportedReleases',
+    input
+  );
+
+  if (input.includes('supportedReleases')) {
+    clause.supportedReleases = true;
+  }
+  if (releasesIncludes.length > 0) {
+    clause.supportedReleases = {
+      include: buildIncludeReleaseClause(releasesIncludes),
+    };
+  }
+
+  return clause;
+};
 
 /**
  * Check for the existence of a data host
@@ -87,19 +117,17 @@ export async function doesDataHostExists(
  *
  * @returns The hosts
  */
-export function findAllDataHost(
-  query: PaginationParams & DataHostFilters,
+export const findAllDataHost = (
+  query: PaginationParams & DataHostFilters & { includes?: DataHostInclude[] },
   tx: Prisma.TransactionClient
-): Promise<DataHost[]> {
-  const where = buildWhereDataHostClause(query);
-
-  return tx.dataHost.findMany({
+): Promise<DataHost[]> =>
+  tx.dataHost.findMany({
+    include: buildIncludeDataHostClause(query.includes),
     orderBy: query.orderBy,
     skip: query.skip,
     take: query.take,
-    where,
+    where: buildWhereDataHostClause(query),
   });
-}
 
 /**
  * Count all data hosts available
@@ -128,14 +156,17 @@ export async function countAllDataHost(
  *
  * @param id - The id of the host
  * @param tx - The DB client (can be a transaction)
+ * @param includes - The relations to include
  *
  * @returns The host
  */
 export const findOneDataHost = (
   id: string,
-  tx: Prisma.TransactionClient
+  tx: Prisma.TransactionClient,
+  includes?: DataHostInclude[]
 ): Promise<DataHost> =>
   tx.dataHost.findUniqueOrThrow({
+    include: buildIncludeDataHostClause(includes),
     where: { id },
   });
 
@@ -170,13 +201,17 @@ export async function doesDataHostSupportsRelease(
  */
 export function findAllReleasesSupportedByDataHost(
   dataHostId: string,
-  query: PaginationParams & DataHostSupportedReleaseFilters,
+  query: PaginationParams &
+    DataHostSupportedReleaseFilters & {
+      includes?: DataHostSupportedReleaseInclude[];
+    },
   tx: Prisma.TransactionClient
 ): Promise<DataHostSupportedRelease[]> {
   const where = buildWhereReleaseClause(query);
   where.dataHostId = dataHostId;
 
   return tx.dataHostSupportedRelease.findMany({
+    include: buildIncludeReleaseClause(query.includes),
     orderBy: query.orderBy,
     skip: query.skip,
     take: query.take,
@@ -217,14 +252,17 @@ export async function countAllReleasesSupportedByDataHost(
  *
  * @param id - The id of release
  * @param tx - The DB client (can be a transaction)
+ * @param includes - The relations to include
  *
  * @returns The supported release
  */
 export const findOneReleaseSupportedByDataHost = (
   id: DataHostSupportedReleaseID,
-  tx: Prisma.TransactionClient
+  tx: Prisma.TransactionClient,
+  includes?: DataHostSupportedReleaseInclude[]
 ): Promise<DataHostSupportedRelease> =>
   tx.dataHostSupportedRelease.findUniqueOrThrow({
+    include: buildIncludeReleaseClause(includes),
     where: {
       dataHostId_release: { dataHostId: id.dataHostId, release: id.release },
     },

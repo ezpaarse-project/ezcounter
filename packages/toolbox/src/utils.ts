@@ -115,3 +115,27 @@ export async function waitForGenerator(
   }
   // oxlint-enable no-await-in-loop
 }
+
+/**
+ * `Object.keys` but with type inference
+ *
+ * @param obj The object
+ *
+ * @returns The names of the enumerable string properties and methods of an object
+ */
+export const keysOf = <Type extends Record<string, unknown>>(
+  obj: Type
+): (keyof Type)[] => Object.keys(obj) as (keyof Type)[];
+
+/**
+ * Add prefix before value but with type inference
+ *
+ * @param prefix The prefix
+ * @param value The value
+ *
+ * @returns The prefixed value
+ */
+export const addPrefix = <Prefix extends string, Value extends string>(
+  prefix: Prefix,
+  value: Value
+): `${Prefix}.${Value}` => [prefix, value].join('.') as `${Prefix}.${Value}`;

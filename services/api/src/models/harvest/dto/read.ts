@@ -19,8 +19,8 @@ export * from '@ezcounter/dto/harvest';
  */
 export const HarvestJobFilters = z
   .object({
-    'createdAt.from': z.coerce.date().describe('Filter harvests queued after'),
-    'createdAt.to': z.coerce.date().describe('Filter harvests queued before'),
+    'createdAt[gte]': z.coerce.date().describe('Filter harvests queued after'),
+    'createdAt[lte]': z.coerce.date().describe('Filter harvests queued before'),
 
     dataHostId: z.string().describe('Filter harvests by ID of the data host'),
 
@@ -28,13 +28,17 @@ export const HarvestJobFilters = z
 
     requestId: z.string().describe('Filter harvests by request ID'),
 
-    'startedAt.from': z.coerce.date().describe('Filter harvests started after'),
-    'startedAt.to': z.coerce.date().describe('Filter harvests started before'),
+    'startedAt[gte]': z.coerce.date().describe('Filter harvests started after'),
+    'startedAt[lte]': z.coerce
+      .date()
+      .describe('Filter harvests started before'),
 
     status: z.enum(HarvestJobStatus).describe('Filter harvests by status'),
 
-    'updatedAt.from': z.coerce.date().describe('Filter harvests updated after'),
-    'updatedAt.to': z.coerce.date().describe('Filter harvests updated before'),
+    'updatedAt[gte]': z.coerce.date().describe('Filter harvests updated after'),
+    'updatedAt[lte]': z.coerce
+      .date()
+      .describe('Filter harvests updated before'),
   })
   .partial();
 

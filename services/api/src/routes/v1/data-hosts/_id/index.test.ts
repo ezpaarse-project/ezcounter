@@ -17,6 +17,50 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
+describe('get /data-hosts/:id', () => {
+  const host: DataHost = {
+    createdAt: new Date(),
+    id: 'id',
+    params: {},
+    updatedAt: null,
+  };
+
+  it('should return data host', async () => {
+    expect.assertions(2);
+    vi.mocked(mockedDataHostModel.findOne).mockResolvedValueOnce(host);
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/data-hosts/:id',
+    });
+
+    const { content } = response.json<SuccessResponse<DataHost>>();
+
+    expect(response).toHaveProperty('statusCode', 200);
+    expect(content).toMatchObject({
+      ...host,
+      createdAt: host.createdAt.toISOString(),
+    });
+  });
+
+  it('should resolves includes', async () => {
+    expect.assertions(1);
+    vi.mocked(mockedDataHostModel.findOne).mockResolvedValueOnce(host);
+
+    await server.inject({
+      method: 'GET',
+      query: {
+        include: ['supportedReleases.supportedReports'],
+      },
+      url: '/data-hosts/:id',
+    });
+
+    expect(mockedDataHostModel.findOne).toHaveBeenCalledExactlyOnceWith(':id', [
+      'supportedReleases.supportedReports',
+    ]);
+  });
+});
+
 describe('put /data-hosts/:id', () => {
   const body: UpdateDataHost = {
     params: {},

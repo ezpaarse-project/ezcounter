@@ -7,9 +7,11 @@ import {
   type CreateDataHostSupportedReport,
   DataHost,
   type DataHostFilters,
+  type DataHostInclude,
   DataHostSupportedRelease,
   type DataHostSupportedReleaseFilters,
   type DataHostSupportedReleaseID,
+  type DataHostSupportedReleaseInclude,
   DataHostSupportedReport,
   type DataHostSupportedReportFilters,
   type DataHostSupportedReportID,
@@ -120,7 +122,8 @@ export class DataHostModel extends Model {
    * @returns The hosts matching filters
    */
   async findAll(
-    query: PaginationParams & DataHostFilters = {}
+    query: PaginationParams &
+      DataHostFilters & { includes?: DataHostInclude[] } = {}
   ): Promise<DataHost[]> {
     const dataHosts = await findAllDataHost(query, this.db);
 
@@ -144,11 +147,12 @@ export class DataHostModel extends Model {
    * Get one data host
    *
    * @param id - The id of the host
+   * @param includes - The relations to include
    *
    * @returns The host
    */
-  async findOne(id: string): Promise<DataHost> {
-    const dataHost = await findOneDataHost(id, this.db);
+  async findOne(id: string, includes?: DataHostInclude[]): Promise<DataHost> {
+    const dataHost = await findOneDataHost(id, this.db, includes);
 
     return DataHost.parse(dataHost);
   }
@@ -176,7 +180,10 @@ export class DataHostModel extends Model {
    */
   async findAllReleasesSupported(
     dataHostId: string,
-    query: PaginationParams & DataHostSupportedReleaseFilters = {}
+    query: PaginationParams &
+      DataHostSupportedReleaseFilters & {
+        includes?: DataHostSupportedReleaseInclude[];
+      } = {}
   ): Promise<DataHostSupportedRelease[]> {
     const releases = await findAllReleasesSupportedByDataHost(
       dataHostId,
@@ -215,13 +222,19 @@ export class DataHostModel extends Model {
    * @see `doesDataHostSupportsRelease`
    *
    * @param id - The id of release
+   * @param includes - The relations to include
    *
    * @returns The supported release with data host if found
    */
   async findOneReleaseSupported(
-    id: DataHostSupportedReleaseID
+    id: DataHostSupportedReleaseID,
+    includes?: DataHostSupportedReleaseInclude[]
   ): Promise<DataHostSupportedRelease> {
-    const release = await findOneReleaseSupportedByDataHost(id, this.db);
+    const release = await findOneReleaseSupportedByDataHost(
+      id,
+      this.db,
+      includes
+    );
 
     return DataHostSupportedRelease.parse(release);
   }
