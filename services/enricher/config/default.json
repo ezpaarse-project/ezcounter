@@ -1,8 +1,11 @@
 {
-  /**
-   * Port that HTTP server will listen
-   */
-  "port": 8080,
+  /** HTTP server configuration */
+  "http": {
+    /**
+     * Port that HTTP server will listen
+     */
+    "port": 8080
+  },
   /** Heartbeat configuration */
   "heartbeat": {
     /**

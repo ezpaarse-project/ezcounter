@@ -6,7 +6,8 @@ import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 const logger = appLogger.child({ scope: 'http' });
+const config = appConfig.http;
 
 export function initHTTPServer(routes: Record<string, Route>): Promise<Server> {
-  return setupHTTPServer(appConfig.port, logger, routes);
+  return setupHTTPServer(config.port, logger, routes);
 }

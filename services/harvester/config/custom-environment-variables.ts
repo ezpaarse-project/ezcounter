@@ -9,10 +9,13 @@ import {
 import type defaultConfig from './default.json';
 
 const envDefinition: EnvOfConfig<typeof defaultConfig> = {
-  /**
-   * Port that HTTP server will listen
-   */
-  port: defineNumber('HTTP_PORT'),
+  /** HTTP server configuration */
+  http: {
+    /**
+     * Port that HTTP server will listen
+     */
+    port: defineNumber('HTTP_PORT'),
+  },
   /** Heartbeat configuration */
   heartbeat: {
     /**
