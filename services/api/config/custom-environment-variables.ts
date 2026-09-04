@@ -8,10 +8,29 @@ import {
 import type defaultConfig from './default.json';
 
 const envDefinition: EnvOfConfig<typeof defaultConfig> = {
-  /**
-   * Port that HTTP server will listen
-   */
-  port: defineNumber('HTTP_PORT'),
+  /** HTTP server configuration */
+  http: {
+    /**
+     * Port that HTTP server will listen
+     */
+    port: defineNumber('HTTP_PORT'),
+    /** TLS options */
+    tls: {
+      key: defineString('HTTP_TLS_KEY'),
+      cert: defineString('HTTP_TLS_CERT'),
+    },
+    /** CORS options */
+    cors: {
+      /**
+       * Origins allowed
+       */
+      allowedOrigins: defineString('ALLOWED_ORIGINS'),
+      /**
+       * Proxies allowed
+       */
+      allowedProxies: defineString('ALLOWED_PROXIES'),
+    },
+  },
   /** Heartbeat configuration */
   heartbeat: {
     /**
@@ -59,14 +78,6 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
     username: defineString('POSTGRES_USERNAME'),
     password: defineString('POSTGRES_PASSWORD'),
   },
-  /**
-   * Origins allowed for CORS
-   */
-  allowedOrigins: 'ALLOWED_ORIGINS',
-  /**
-   * Proxies allowed for CORS
-   */
-  allowedProxies: 'ALLOWED_PROXIES',
   /** Remote data hosts configuration */
   dataHost: {
     /** Supported data configuration */

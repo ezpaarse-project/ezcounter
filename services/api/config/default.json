@@ -1,8 +1,27 @@
 {
-  /**
-   * Port that HTTP server will listen
-   */
-  "port": 8080,
+  /** HTTP server configuration */
+  "http": {
+    /**
+     * Port that HTTP server will listen
+     */
+    "port": 8080,
+    /** TLS options */
+    "tls": {
+      "key": "",
+      "cert": ""
+    },
+    /** CORS options */
+    "cors": {
+      /**
+       * Origins allowed
+       */
+      "allowedOrigins": "*",
+      /**
+       * Proxies allowed
+       */
+      "allowedProxies": "*"
+    }
+  },
   /** Heartbeat configuration */
   "heartbeat": {
     /**
@@ -50,14 +69,6 @@
     "username": "",
     "password": ""
   },
-  /**
-   * Origins allowed for CORS
-   */
-  "allowedOrigins": "*",
-  /**
-   * Proxies allowed for CORS
-   */
-  "allowedProxies": "*",
   /** Remote data hosts configuration */
   "dataHost": {
     /** Supported data configuration */
