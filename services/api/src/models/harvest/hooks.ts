@@ -1,4 +1,5 @@
 import type { HarvestJob as PrismaHarvestJob } from '@ezcounter/database';
+import { z } from '@ezcounter/dto';
 
 import { triggerWebhook } from '~/lib/webhooks';
 
@@ -51,8 +52,8 @@ export async function triggerHarvestHooks(
   job: PrismaHarvestJob | HarvestJob,
   previous?: PrismaHarvestJob | HarvestJob
 ): Promise<void> {
-  const { data: target } = HarvestJob.safeParse(job);
-  const { data: source } = HarvestJob.safeParse(previous);
+  const target = z.validate(HarvestJob, job) ? job : undefined;
+  const source = z.validate(HarvestJob, previous) ? previous : undefined;
   if (!target) {
     return;
   }

@@ -1,3 +1,5 @@
+// oxlint-disable-next-line import/no-unassigned-import
+import 'zod/compile';
 import { z } from 'zod';
 
 export * from 'zod';

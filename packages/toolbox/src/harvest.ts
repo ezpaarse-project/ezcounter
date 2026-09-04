@@ -13,7 +13,7 @@ export function asHarvestError(error: unknown): HarvestError {
   if (error instanceof Error) {
     const code = 'code' in error ? error.code : error.name.toUpperCase();
 
-    const { data: cause } = z.json().safeParse(error.cause);
+    const cause = z.validate(z.json(), error.cause) ? error.cause : undefined;
 
     return {
       cause,
@@ -23,9 +23,8 @@ export function asHarvestError(error: unknown): HarvestError {
   }
 
   // If HarvestError
-  const { data } = HarvestError.safeParse(error);
-  if (data) {
-    return data;
+  if (z.validate(HarvestError, error)) {
+    return error;
   }
 
   // Fallback

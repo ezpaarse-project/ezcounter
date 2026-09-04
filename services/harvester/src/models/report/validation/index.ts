@@ -53,9 +53,8 @@ async function cacheReport(
 function asValidationResultError(
   error: unknown
 ): ReportValidationResultError[] {
-  const { data: validationError } = ErrorCause.safeParse(error);
-  if (validationError) {
-    return validationError.cause.validation;
+  if (z.validate(ErrorCause, error)) {
+    return error.cause.validation;
   }
 
   if (error instanceof Error) {
