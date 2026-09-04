@@ -52,6 +52,18 @@
         // Allow namespaces to ease typing of mock functions
         "import/no-namespace": "off"
       }
+    },
+    {
+      "files": ["./services/ecosystem.config.js"],
+
+      "rules": {
+        // PM2 config have default values
+        "no-magic-numbers": "off",
+        // PM2 config is a CommonJS module
+        "import/no-commonjs": "off",
+        "unicorn/prefer-module": "off",
+        "import/unambiguous": "off"
+      }
     }
   ]
 }

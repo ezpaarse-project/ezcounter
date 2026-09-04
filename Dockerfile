@@ -167,3 +167,29 @@ HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
 CMD [ "npm", "run", "start" ]
 
 # endregion
+# ---
+# region All In One
+
+# Final image to run all services
+FROM base AS aio
+EXPOSE 8080
+ENV NODE_ENV=production
+ENV NODE_USE_ENV_PROXY=1
+WORKDIR /usr/build
+
+COPY ./services/ecosystem.config.js .
+RUN npm install -g pm2@^7.0.3 tsx@^4.23.1
+
+# Shared TS config
+COPY ./tsconfig.json /usr/tsconfig.json
+
+COPY --from=api /usr/build/api ./api
+COPY --from=enricher /usr/build/enricher ./enricher
+COPY --from=harvester /usr/build/harvester ./harvester
+
+HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
+  CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
+
+CMD ["pm2-runtime", "ecosystem.config.js"]
+
+# endregion
