@@ -46,12 +46,9 @@
   },
   /** PostgreSQL configuration */
   "postgres": {
-    "user": "",
-    "database": "ezcounter",
-    "password": "",
-    "port": 5432,
-    "host": "database",
-    "schema": "default"
+    "url": "postgres://database:5432/ezcounter?schema=default",
+    "username": "",
+    "password": ""
   },
   /**
    * Origins allowed for CORS

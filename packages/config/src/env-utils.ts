@@ -103,7 +103,7 @@ export const defineDuration = <Keys extends (typeof durationKeys)[number]>(
       key,
       {
         __format: 'number',
-        __name: `${prefix}_${key}`,
+        __name: `${prefix}_${key.toUpperCase()}`,
       },
     ])
   ) as EnvOfConfig<Record<Keys, number>>;

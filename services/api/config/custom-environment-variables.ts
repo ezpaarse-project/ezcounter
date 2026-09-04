@@ -55,12 +55,9 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
   },
   /** PostgreSQL configuration */
   postgres: {
-    user: defineString('POSTGRES_USER'),
-    database: defineString('POSTGRES_DB'),
+    url: defineString('POSTGRES_URL'),
+    username: defineString('POSTGRES_USERNAME'),
     password: defineString('POSTGRES_PASSWORD'),
-    port: defineNumber('POSTGRES_PORT'),
-    host: defineString('POSTGRES_HOST'),
-    schema: defineString('POSTGRES_SCHEMA'),
   },
   /**
    * Origins allowed for CORS

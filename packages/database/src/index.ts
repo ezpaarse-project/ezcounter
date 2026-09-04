@@ -6,12 +6,9 @@ import type { Logger } from '@ezcounter/logger';
 import { PrismaClient } from '../.prisma/client';
 
 type DatabaseConfig = {
-  user: string;
-  database: string;
+  url: string;
+  username: string;
   password: string;
-  port: number;
-  host: string;
-  schema?: string;
 };
 
 /**
@@ -44,12 +41,14 @@ export * from '../.prisma/client';
  *
  * @returns The DB client
  */
-export function setupDB(
-  logger: Logger,
-  { schema, ...config }: DatabaseConfig
-): PrismaClient {
+export function setupDB(logger: Logger, config: DatabaseConfig): PrismaClient {
+  const url = new URL(config.url);
+  url.username = config.username;
+  url.password = config.password;
+
+  const schema = url.searchParams.get('schema') ?? undefined;
   const client = new PrismaClient({
-    adapter: new PrismaPg(config, { schema }),
+    adapter: new PrismaPg({ connectionString: url.href }, { schema }),
     // Disable formatted errors in production
     errorFormat: process.env.NODE_ENV === 'production' ? 'minimal' : 'pretty',
     // Disable logger of Prisma, in order to events to our own

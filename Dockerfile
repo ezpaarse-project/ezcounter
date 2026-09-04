@@ -128,7 +128,7 @@ WORKDIR /usr/build/enricher
 # Shared TS config
 COPY ./tsconfig.json ../../tsconfig.json
 
-COPY --from=enricher-pnpm /usr/src/dist/enricher/prod .
+COPY --from=enricher-pnpm /usr/build/enricher/prod .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
@@ -159,7 +159,7 @@ WORKDIR /usr/build/harvester
 # Shared TS config
 COPY ./tsconfig.json ../../tsconfig.json
 
-COPY --from=harvester-pnpm /usr/src/dist/harvester/prod .
+COPY --from=harvester-pnpm /usr/build/harvester/prod .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1

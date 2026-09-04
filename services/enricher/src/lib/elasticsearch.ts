@@ -42,7 +42,7 @@ function setupElasticSearch(): Client {
       : { password: config.password, username: config.username },
     nodes: config.nodes.map((node) => ({
       ssl: {
-        rejectUnauthorized: node.tls.rejectUnauthorized,
+        rejectUnauthorized: node.tls?.rejectUnauthorized ?? false,
       },
       url: new URL(node.url),
     })),
