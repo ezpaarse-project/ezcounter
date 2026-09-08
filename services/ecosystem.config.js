@@ -150,7 +150,7 @@ module.exports = {
           'https://unpaywall.inist.fr/api/graphql/'
         ),
         OPENALEX_IS_CNRS_GATEWAY: Boolean(
-          env('OPENALEX_IS_CNRS_GATEWAY', true)
+          env('OPENALEX_IS_CNRS_GATEWAY', false)
         ),
         OPENALEX_RETRY: Number(env('OPENALEX_RETRY', 3)),
         OPENALEX_RETRY_DELAY_MILLISECONDS: Number(

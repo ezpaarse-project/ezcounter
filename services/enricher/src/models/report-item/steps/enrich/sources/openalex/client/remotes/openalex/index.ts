@@ -14,6 +14,7 @@ import {
 import type { OpenAlexWork } from '../../../dto';
 import type { IOpenAlexRemote } from '../types';
 import { OpenAlexResponse } from './dto';
+import { oqo } from './oqo';
 
 const logger = appLogger.child({ scope: 'enrich', source: 'openalex' });
 
@@ -92,22 +93,27 @@ export class OpenAlexRemote implements IOpenAlexRemote {
    * @returns The results
    */
   public async fetchManyWorkByDOI(dois: string[]): Promise<OpenAlexWork[]> {
-    // Dedupe DOIs and format query
-    const query = [...new Set(dois)].join('|');
     const works: OpenAlexWork[] = [];
+
+    const items = [...new Set(dois)];
+    const query = oqo
+      .works()
+      .where(oqo.or(...items.map((doi) => oqo.is('doi', doi))));
 
     let cursor: string | null = '*';
     while (cursor !== null) {
       try {
         // oxlint-disable-next-line no-await-in-loop
-        const response = await this.$fetch('/works', {
-          query: {
+        const response = await this.$fetch('/', {
+          body: {
             cursor,
-            filter: `doi:${query}`,
-            per_page: 100,
+            oqo: query,
+            // Maximum allowed by OpenAlex
+            per_page: 200,
             select: FIELDS,
             sort: 'doi',
           },
+          method: 'POST',
         });
 
         const { meta, results } = OpenAlexResponse.parse(response);

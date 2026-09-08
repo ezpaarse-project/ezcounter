@@ -3,7 +3,7 @@
 /**
  * The size of the buffer to send to OpenAlex
  */
-export const MAX_BUFFER_SIZE = 100;
+export const MAX_BUFFER_SIZE = 1000;
 
 /**
  * The number of items to store in Layer 1

@@ -7,45 +7,57 @@ import { OpenAlexRemote } from '.';
 describe('openAlex remote', () => {
   describe('fetch documents by DOI', () => {
     const server = setupServer(
-      http.get('https://mocked-openalex.localhost/works', ({ request }) => {
-        const url = new URL(request.url);
-        const dois =
-          url.searchParams.get('filter')?.replace('doi:', '').split('|') ?? [];
+      // oxlint-disable-next-line typescript/no-explicit-any
+      http.post<Record<string, string>, Record<string, any>>(
+        'https://mocked-openalex.localhost',
+        async ({ request }) => {
+          const url = new URL(request.url);
 
-        if (url.searchParams.get('api_key') === null) {
-          return HttpResponse.json(
-            { message: 'API key not found' },
-            { status: 401 }
-          );
-        }
+          if (url.searchParams.get('api_key') === null) {
+            return HttpResponse.json(
+              { message: 'API key not found' },
+              { status: 401 }
+            );
+          }
 
-        return HttpResponse.json({
-          meta: {
-            next_cursor: null,
-          },
-          results: dois.map((doi) => ({
-            authorships: [],
-            ids: {
-              doi: `https://doi.org/${doi}`,
-              openalex: 'https://openalex.org/XXXXXXXXXXX',
+          const { oqo } = await request.clone().json();
+          const query = oqo.filter_rows[0].filters;
+          // oxlint-disable-next-line typescript/no-explicit-any
+          const dois = query.map((item: any) => item.value);
+
+          return HttpResponse.json({
+            meta: {
+              next_cursor: null,
             },
-            open_access: { is_oa: false, oa_status: 'closed' },
-          })),
-        });
-      }),
-      http.get('https://invalid-openalex.localhost/works', ({ request }) => {
-        const url = new URL(request.url);
-        const dois =
-          url.searchParams.get('filter')?.replace('doi:', '').split('|') ?? [];
+            results: dois.map((doi: string) => ({
+              authorships: [],
+              ids: {
+                doi: `https://doi.org/${doi}`,
+                openalex: 'https://openalex.org/XXXXXXXXXXX',
+              },
+              open_access: { is_oa: false, oa_status: 'closed' },
+            })),
+          });
+        }
+      ),
+      // oxlint-disable-next-line typescript/no-explicit-any
+      http.post<Record<string, string>, Record<string, any>>(
+        'https://invalid-openalex.localhost',
+        async ({ request }) => {
+          const { oqo } = await request.clone().json();
+          const query = oqo.filter_rows[0].filters;
+          // oxlint-disable-next-line typescript/no-explicit-any
+          const dois = query.map((item: any) => item.value);
 
-        return HttpResponse.json({
-          data: dois.map((doi) => ({ foobar: doi })),
-        });
-      }),
-      http.get('https://error-openalex.localhost/works', () =>
+          return HttpResponse.json({
+            data: dois.map((doi: string) => ({ foobar: doi })),
+          });
+        }
+      ),
+      http.post('https://error-openalex.localhost', () =>
         HttpResponse.json({ message: 'Something went wrong' }, { status: 500 })
       ),
-      http.get('https://network-openalex.localhost/works', () =>
+      http.post('https://network-openalex.localhost', () =>
         HttpResponse.error()
       )
     );
