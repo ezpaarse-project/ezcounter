@@ -4,29 +4,29 @@
   "tasks": {
     "db:generate": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "db:diff": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "db:migrate": {
       "cache": false,
       "interactive": true,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "db:reset": {
       "cache": false,
       "interactive": true,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "db:push": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "db:gui": {
       "cache": false,
-      "env": ["DATABASE_URL"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
     },
     "check": {
       "dependsOn": ["db:generate"]
