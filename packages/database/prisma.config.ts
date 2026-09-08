@@ -1,14 +1,17 @@
 import { join } from 'node:path';
+import { env } from 'node:process';
 
-import { defineConfig, env } from 'prisma/config';
+import { defineConfig } from 'prisma/config';
 
-const url = new URL(env('POSTGRES_URL'));
-url.username = env('POSTGRES_USERNAME');
-url.password = env('POSTGRES_PASSWORD');
+const url = URL.parse(env.POSTGRES_URL || '');
+if (url) {
+  url.username = env.POSTGRES_USERNAME || '';
+  url.password = env.POSTGRES_PASSWORD || '';
+}
 
 export default defineConfig({
   datasource: {
-    url: url.href,
+    url: url?.href,
   },
 
   schema: join('prisma'),
