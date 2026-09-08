@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { StatusCodes } from 'http-status-codes';
 
-import { z } from '@ezcounter/dto';
+import { z, zToArray } from '@ezcounter/dto';
 import {
   DataHostAuthCheckOptions,
   DataHostAuthCheckResult,
@@ -10,6 +10,7 @@ import {
 import { DataHostModel } from '~/models/data-host';
 import {
   DataHostSupportedRelease,
+  DataHostSupportedReleaseInclude,
   UpdateDataHostSupportedRelease,
 } from '~/models/data-host/dto';
 import { HarvestAuthOptions } from '~/models/harvest/dto';
@@ -35,6 +36,44 @@ const RouterParams = z.object({
 });
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.route({
+    handler: async (request, reply) => {
+      const { id, release } = request.params;
+      const { includes } = request.query;
+
+      const dataHosts = new DataHostModel();
+
+      return buildResponse(
+        reply,
+        await dataHosts.findOneReleaseSupported(
+          { dataHostId: id, release },
+          includes
+        )
+      );
+    },
+    method: 'GET',
+    preHandler: [
+      (request): Promise<void> => assertDataHostRegistered(request.params.id),
+    ],
+    schema: {
+      params: RouterParams,
+      querystring: z.object({
+        includes: zToArray(DataHostSupportedReleaseInclude).optional(),
+      }),
+      response: {
+        ...describeErrors([
+          StatusCodes.BAD_REQUEST,
+          StatusCodes.NOT_FOUND,
+          StatusCodes.INTERNAL_SERVER_ERROR,
+        ]),
+        [StatusCodes.OK]: describeSuccess(DataHostSupportedRelease),
+      },
+      summary: 'Get a data host supported release',
+      tags: ['data-host'],
+    },
+    url: '/',
+  });
+
   fastify.route({
     handler: async (request, reply) => {
       const { id, release } = request.params;

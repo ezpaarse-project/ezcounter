@@ -24,6 +24,63 @@ const server = await createTestServer(async (fastify) => {
   });
 });
 
+describe('get /data-hosts/:id/supported-releases/:release', () => {
+  const release: DataHostSupportedRelease = {
+    baseUrl: 'https://example-counter-host.localhost',
+    createdAt: new Date(),
+    dataHostId: 'id',
+    params: {},
+    paramsSeparator: '|',
+    periodFormat: 'yyyy-MM-dd',
+    release: '5.1',
+    updatedAt: null,
+  };
+
+  it('should return release supported by data host', async () => {
+    expect.assertions(2);
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(
+      mockedDataHostModel.findOneReleaseSupported
+    ).mockResolvedValueOnce(release);
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/data-hosts/:id/supported-releases/5.1',
+    });
+
+    const { content } =
+      response.json<SuccessResponse<DataHostSupportedRelease>>();
+
+    expect(response).toHaveProperty('statusCode', 200);
+    expect(content).toMatchObject({
+      ...release,
+      createdAt: release.createdAt.toISOString(),
+    });
+  });
+
+  it('should resolves includes', async () => {
+    expect.assertions(1);
+    vi.mocked(mockedDataHostModel.doesExists).mockResolvedValueOnce(true);
+    vi.mocked(
+      mockedDataHostModel.findOneReleaseSupported
+    ).mockResolvedValueOnce(release);
+
+    await server.inject({
+      method: 'GET',
+      query: {
+        includes: ['supportedReports'],
+      },
+      url: '/data-hosts/:id/supported-releases/5.1',
+    });
+
+    expect(
+      mockedDataHostModel.findOneReleaseSupported
+    ).toHaveBeenCalledExactlyOnceWith({ dataHostId: ':id', release: '5.1' }, [
+      'supportedReports',
+    ]);
+  });
+});
+
 describe('put /data-hosts/:id/supported-releases/:release', () => {
   const body: UpdateDataHostSupportedRelease = {
     baseUrl: 'https://example-counter-host.localhost',
