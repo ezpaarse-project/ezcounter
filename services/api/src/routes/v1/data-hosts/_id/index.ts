@@ -28,17 +28,17 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
   fastify.route({
     handler: async (request, reply) => {
       const { id } = request.params;
-      const { include } = request.query;
+      const { includes } = request.query;
 
       const dataHosts = new DataHostModel();
 
-      return buildResponse(reply, await dataHosts.findOne(id, include));
+      return buildResponse(reply, await dataHosts.findOne(id, includes));
     },
     method: 'GET',
     schema: {
       params: RouterParams,
       querystring: z.object({
-        include: zToArray(DataHostInclude).optional(),
+        includes: zToArray(DataHostInclude).optional(),
       }),
       response: {
         ...describeErrors([

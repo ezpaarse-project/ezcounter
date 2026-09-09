@@ -50,7 +50,7 @@ describe('get /data-hosts/:id', () => {
     await server.inject({
       method: 'GET',
       query: {
-        include: ['supportedReleases.supportedReports'],
+        includes: ['supportedReleases.supportedReports'],
       },
       url: '/data-hosts/:id',
     });

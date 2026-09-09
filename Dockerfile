@@ -1,7 +1,7 @@
 # region Common
 
 # Base image for node, enable usage of pnpm and allow to run apps
-FROM node:24.4.1-alpine3.22 AS base
+FROM node:24.20.0-alpine3.24 AS base
 LABEL maintainer="ezTeam <ezteam@couperin.org>"
 LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
 
@@ -16,13 +16,11 @@ RUN apk update \
 FROM base AS pnpm
 WORKDIR /usr/src
 
-COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml ./
+COPY . .
 
 RUN corepack enable && corepack install
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
-
-COPY . .
 
 # endregion
 # ---
