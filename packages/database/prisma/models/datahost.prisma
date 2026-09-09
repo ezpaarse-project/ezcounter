@@ -65,7 +65,7 @@ model DataHostSupportedReport {
   updatedAt           DateTime? @updatedAt
 
   /// The release supported by data host
-  supportedRelease DataHostSupportedRelease @relation(fields: [dataHostId, release], references: [dataHostId, release])
+  supportedRelease DataHostSupportedRelease @relation(fields: [dataHostId, release], references: [dataHostId, release], onDelete: Cascade)
 
   @@id([dataHostId, release, id])
 }
