@@ -1,6 +1,5 @@
+import type { Logger } from 'pino';
 import { mockDeep } from 'vitest-mock-extended';
-
-import type { Logger } from '@ezcounter/logger';
 
 const appLogger = mockDeep<Logger>();
 // oxlint-disable-next-line vitest/require-hook

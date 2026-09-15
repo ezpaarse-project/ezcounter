@@ -8,60 +8,63 @@ services:
 
   api:
     build:
-      target: api-pnpm
-    working_dir: /usr/build/api/prod
-    command: npm run dev
+      target: pnpm
+    working_dir: /usr/dev/services/api
+    command: pnpm run dev
     ports:
       - 8080:8080
       - 9230:9229 # Debugger port
-    volumes:
-      # Shared TS config
-      - ./tsconfig.json:/usr/build/tsconfig.json:ro
     develop:
       watch:
         - action: sync
+          path: ./packages
+          target: /usr/dev/packages
+          initial_sync: true
+        - action: sync
           path: ./services/api/src
-          target: /usr/build/api/prod/src
+          target: /usr/dev/services/api/src
           initial_sync: true
         - action: rebuild
           path: ./services/api/package.json
 
   enricher:
     build:
-      target: enricher-pnpm
-    working_dir: /usr/build/enricher/prod
-    command: npm run dev
+      target: pnpm
+    working_dir: /usr/dev/services/enricher
+    command: pnpm run dev
     ports:
       - 8081:8080
       - 9231:9229 # Debugger port
-    volumes:
-      # Shared TS config
-      - ./tsconfig.json:/usr/build/tsconfig.json:ro
     develop:
       watch:
         - action: sync
+          path: ./packages
+          target: /usr/dev/packages
+          initial_sync: true
+        - action: sync
           path: ./services/enricher/src
-          target: /usr/build/enricher/prod/src
+          target: /usr/dev/services/enricher/src
           initial_sync: true
         - action: rebuild
           path: ./services/enricher/package.json
 
   harvester:
     build:
-      target: harvester-pnpm
-    working_dir: /usr/build/harvester/prod
-    command: npm run dev
+      target: pnpm
+    working_dir: /usr/dev/services/harvester
+    command: pnpm run dev
     ports:
       - 8082:8080
       - 9232:9229 # Debugger port
-    volumes:
-      # Shared TS config
-      - ./tsconfig.json:/usr/build/tsconfig.json:ro
     develop:
       watch:
         - action: sync
+          path: ./packages
+          target: /usr/dev/packages
+          initial_sync: true
+        - action: sync
           path: ./services/harvester/src
-          target: /usr/build/harvester/prod/src
+          target: /usr/dev/services/harvester/src
           initial_sync: true
         - action: rebuild
           path: ./services/harvester/package.json

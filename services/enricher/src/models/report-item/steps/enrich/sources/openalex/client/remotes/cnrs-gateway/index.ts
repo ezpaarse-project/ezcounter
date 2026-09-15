@@ -4,7 +4,6 @@ import { appLogger } from '~/lib/logger';
 
 // oxlint-disable-next-line import/extensions
 import {
-  dependencies as appDeps,
   homepage as appHomepage,
   version as appVersion,
 } from '~/../package.json' with { type: 'json' };
@@ -53,7 +52,7 @@ export class CNRSGatewayRemote implements IOpenAlexRemote {
     this.$fetch = ofetch.create({
       baseURL: config.baseUrl,
       headers: {
-        'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage}); ofetch/${appDeps.ofetch.slice(1)}`,
+        'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage})`,
         'X-API-Key': config.apiKey,
       },
       method: 'POST',

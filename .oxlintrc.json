@@ -5,6 +5,7 @@
   "plugins": ["node"],
 
   "rules": {
+    "one-var": "off",
     // Project is using Node
     "no-nodejs-modules": "off",
     // Project is using ESM

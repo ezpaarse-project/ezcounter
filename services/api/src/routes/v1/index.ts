@@ -1,7 +1,4 @@
-import { join } from 'node:path';
-
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
-import autoLoad from '@fastify/autoload';
 import {
   hasZodFastifySchemaValidationErrors,
   isResponseSerializationError,
@@ -13,8 +10,27 @@ import { StatusCodes } from 'http-status-codes';
 
 import { openapiPlugin } from '~/plugins/openapi';
 
-import { HTTPError } from './v1/errors';
-import { buildResponse } from './v1/responses';
+import { HTTPError } from './errors';
+import { buildResponse } from './responses';
+
+/**
+ * Utility to register a router
+ *
+ * @param fastify - Fastify instance
+ * @param module - Module
+ * @param prefix - Prefix for routes
+ *
+ * @returns Promise that resolves when router is registered
+ */
+async function registerRouter(
+  fastify: FastifyInstance,
+  module: Promise<{ default: FastifyPluginAsync }>,
+  prefix: string
+): Promise<void> {
+  const { default: router } = await module;
+
+  return fastify.register(router, { prefix });
+}
 
 /**
  * Prepare validation, error handling, etc.
@@ -93,13 +109,13 @@ export const v1: FastifyPluginAsync = async (fastify) => {
   setupResponses(fastify);
 
   // Register openapi and doc
-  fastify.register(openapiPlugin, { transform: jsonSchemaTransform });
+  await fastify.register(openapiPlugin, { transform: jsonSchemaTransform });
 
   // Register routes
-  fastify.register(autoLoad, {
-    dir: join(import.meta.dirname, 'v1'),
-    ignorePattern: /^.*test.ts$/v,
-    maxDepth: 6,
-    routeParams: true,
-  });
+  await Promise.all([
+    registerRouter(fastify, import('./data-hosts'), '/data-hosts'),
+    registerRouter(fastify, import('./harvests'), '/harvests'),
+    registerRouter(fastify, import('./health'), '/health'),
+    registerRouter(fastify, import('./reports'), '/reports'),
+  ]);
 };

@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
 
-import type { Logger } from '@ezcounter/logger';
+import type { Logger } from 'pino';
+
 import { createRabbitConsumer, type rabbitmq } from '@ezcounter/rabbitmq';
 
 import type { HeartbeatListener } from './dto';

@@ -27,6 +27,8 @@ import {
 } from '~/routes/v1/responses';
 import { checkDataHostAuth } from '~/rpc/data-host/auth/check';
 
+import reportsRouter from './supported-reports';
+
 /**
  * Validation for URL params common for this router (based on filepath)
  */
@@ -36,6 +38,8 @@ const RouterParams = z.object({
 });
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.register(reportsRouter, { prefix: '/supported-reports' });
+
   fastify.route({
     handler: async (request, reply) => {
       const { id, release } = request.params;

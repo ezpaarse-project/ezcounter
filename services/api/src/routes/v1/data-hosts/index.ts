@@ -18,8 +18,11 @@ import {
 } from '~/routes/v1/responses';
 
 import { PaginationQuery } from '../query';
+import oneRouter from './_id';
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.register(oneRouter, { prefix: '/:id' });
+
   fastify.route({
     handler: async (request, reply) => {
       const { count, order, page, sort, includes, ...filters } = request.query;

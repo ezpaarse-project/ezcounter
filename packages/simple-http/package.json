@@ -20,13 +20,11 @@
     "lint": "oxlint",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "@ezcounter/logger": "workspace:*",
-    "typescript": "catalog:"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "catalog:",
-    "typescript": "catalog:"
+    "pino": "catalog:",
+    "typescript": "catalog:dev"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

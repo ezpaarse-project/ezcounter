@@ -17,6 +17,8 @@ import {
   describeSuccess,
 } from '~/routes/v1/responses';
 
+import releasesRouter from './supported-releases';
+
 /**
  * Validation for URL params common for this router (based on filepath)
  */
@@ -25,6 +27,8 @@ const RouterParams = z.object({
 });
 
 const router: FastifyPluginAsyncZod = async (fastify) => {
+  fastify.register(releasesRouter, { prefix: '/supported-releases' });
+
   fastify.route({
     handler: async (request, reply) => {
       const { id } = request.params;

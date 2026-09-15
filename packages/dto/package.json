@@ -23,16 +23,12 @@
     "lint": "oxlint",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "zod": "^4.5.4"
-  },
   "devDependencies": {
+    "@ezcounter/counter": "workspace:*",
     "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
-  },
-  "peerDependencies": {
-    "@ezcounter/counter": "workspace:"
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test",
+    "zod": "^4.5.4"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

@@ -1,6 +1,6 @@
 import http from 'node:http';
 
-import type { Logger } from '@ezcounter/logger';
+import type { Logger } from 'pino';
 
 let server: http.Server | null = null;
 

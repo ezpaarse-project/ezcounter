@@ -24,9 +24,14 @@ const logger = appLogger.child(
 async function testConnection(client: Client): Promise<void> {
   try {
     await client.ping();
+
     logger.info({ config, msg: 'Connected to ElasticSearch' });
   } catch (error) {
-    logger.error({ err: error, msg: 'Unable to connect to ElasticSearch' });
+    logger.error({
+      config,
+      err: error,
+      msg: 'Unable to connect to ElasticSearch',
+    });
   }
 }
 

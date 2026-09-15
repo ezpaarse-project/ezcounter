@@ -18,37 +18,40 @@
     "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "start": "tsx src/app.ts",
+    "check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "check": "tsc --noEmit --skipLibCheck"
+    "build": "tsdown",
+    "start": "node --enable-source-maps dist/app.mjs"
   },
   "dependencies": {
+    "pino": "catalog:"
+  },
+  "devDependencies": {
     "@ezcounter/config": "workspace:*",
     "@ezcounter/counter": "workspace:*",
     "@ezcounter/dto": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
-    "@ezcounter/logger": "workspace:*",
     "@ezcounter/rabbitmq": "workspace:*",
+    "@ezcounter/rolldown": "workspace:*",
     "@ezcounter/simple-http": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",
-    "date-fns": "^4.1.0",
-    "http-status-codes": "^2.3.0",
-    "stream-chain": "~3.4.0",
-    "stream-json": "~1.9.1",
-    "tsx": "catalog:",
-    "typescript": "catalog:"
-  },
-  "devDependencies": {
     "@types/node": "catalog:",
     "@types/stream-json": "^1.7.8",
-    "@vitest/coverage-v8": "catalog:",
-    "json5": "^2.2.3",
+    "@vitest/coverage-v8": "catalog:test",
+    "date-fns": "catalog:",
+    "http-status-codes": "catalog:",
+    "json5": "catalog:build",
     "memfs": "^4.57.2",
-    "pino-pretty": "catalog:",
-    "vitest": "catalog:",
-    "vitest-mock-extended": "catalog:"
+    "pino-pretty": "catalog:dev",
+    "stream-chain": "~3.4.0",
+    "stream-json": "~1.9.1",
+    "tsdown": "catalog:build",
+    "tsx": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test",
+    "vitest-mock-extended": "catalog:test"
   },
   "engines": {
     "node": "^24"

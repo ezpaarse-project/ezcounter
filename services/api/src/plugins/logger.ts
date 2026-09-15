@@ -1,8 +1,7 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
+import type { Level } from 'pino';
 import fp from 'fastify-plugin';
 import { StatusCodes } from 'http-status-codes';
-
-import type { Level } from '@ezcounter/logger';
 
 import { accessLogger } from '~/lib/logger';
 

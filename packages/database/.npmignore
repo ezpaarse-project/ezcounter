@@ -14,6 +14,7 @@ coverage/
 
 # Dev tools
 .oxlint*
+CHANGELOG*.md
 *.config.ts
 .turbo
 turbo.json

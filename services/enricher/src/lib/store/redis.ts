@@ -38,9 +38,17 @@ async function testConnection(
 ): Promise<void> {
   try {
     await client.connect();
-    logger.info({ msg: 'Connected to redis', namespace });
+
+    await client.ping();
+
+    logger.info({ config, msg: 'Connected to redis', namespace });
   } catch (error) {
-    logger.error({ err: error, msg: 'Unable to connect to redis', namespace });
+    logger.error({
+      config,
+      err: error,
+      msg: 'Unable to connect to redis',
+      namespace,
+    });
   }
 }
 

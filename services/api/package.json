@@ -13,48 +13,50 @@
     "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
   },
   "type": "module",
-  "main": "src/app.ts",
+  "main": "dist/app.mjs",
   "scripts": {
     "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "start": "tsx src/app.ts",
+    "check": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "check": "tsc --noEmit --skipLibCheck"
+    "build": "tsdown",
+    "start": "node --enable-source-maps dist/app.mjs"
   },
   "dependencies": {
+    "@fastify/swagger-ui": "^6.1.1",
+    "pino": "catalog:"
+  },
+  "devDependencies": {
     "@ezcounter/config": "workspace:*",
     "@ezcounter/counter": "workspace:*",
     "@ezcounter/database": "workspace:*",
     "@ezcounter/dto": "workspace:*",
     "@ezcounter/heartbeats": "workspace:*",
-    "@ezcounter/logger": "workspace:*",
     "@ezcounter/rabbitmq": "workspace:*",
+    "@ezcounter/rolldown": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",
-    "@fastify/autoload": "^6.5.0",
     "@fastify/cors": "^11.3.0",
     "@fastify/helmet": "^13.1.1",
     "@fastify/multipart": "^10.1.1",
     "@fastify/swagger": "^9.8.1",
-    "@fastify/swagger-ui": "^6.1.1",
-    "date-fns": "^4.1.0",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:test",
+    "date-fns": "catalog:",
     "fastify": "^5.12.3",
     "fastify-plugin": "^6.0.0",
     "fastify-type-provider-zod": "^7.0.0",
-    "http-status-codes": "^2.3.0",
-    "ofetch": "^2.0.0-alpha.3",
-    "tsx": "catalog:",
-    "typescript": "catalog:"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "json5": "^2.2.3",
-    "pino-pretty": "catalog:",
-    "vitest": "catalog:",
-    "vitest-mock-extended": "catalog:"
+    "http-status-codes": "catalog:",
+    "json5": "catalog:build",
+    "ofetch": "catalog:",
+    "pino-pretty": "catalog:dev",
+    "tsdown": "catalog:build",
+    "tsx": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test",
+    "vitest-mock-extended": "catalog:test"
   },
   "engines": {
     "node": "^24"

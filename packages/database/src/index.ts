@@ -1,7 +1,7 @@
+import type { Logger } from 'pino';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 import type { Heartbeat } from '@ezcounter/heartbeats/dto';
-import type { Logger } from '@ezcounter/logger';
 
 import { PrismaClient } from '../.prisma/client';
 
@@ -16,17 +16,25 @@ type DatabaseConfig = {
  *
  * @param logger - The app logger
  * @param client - The DB client
+ * @param config - The configuration to setup client
  */
 async function testConnection(
   logger: Logger,
-  client: PrismaClient
+  client: PrismaClient,
+  config: DatabaseConfig
 ): Promise<void> {
   try {
-    await client.$connect();
-    logger.info({ msg: 'Connected to database' });
-    await client.$disconnect();
+    const [{ result }] = await client.$queryRaw<
+      [{ result: number }]
+    >`SELECT 1+1 AS result;`;
+
+    if (result !== 2) {
+      throw new Error("Database can't do maths");
+    }
+
+    logger.info({ config, msg: 'Connected to database' });
   } catch (error) {
-    logger.error({ err: error, msg: 'Unable to connect to database' });
+    logger.error({ config, err: error, msg: 'Unable to connect to database' });
   }
 }
 
@@ -37,7 +45,6 @@ export * from '../.prisma/client';
  *
  * @param logger - The app logger
  * @param config - The configuration to setup client
- * @param config.schema - The PostgreSQL schema to use
  *
  * @returns The DB client
  */
@@ -74,7 +81,7 @@ export function setupDB(logger: Logger, config: DatabaseConfig): PrismaClient {
     logger.error({ ...event, message: undefined, msg: event.message });
   });
 
-  void testConnection(logger, client);
+  void testConnection(logger, client, config);
 
   return client;
 }
@@ -89,7 +96,7 @@ export function setupDB(logger: Logger, config: DatabaseConfig): PrismaClient {
 export async function pingDB(
   client: PrismaClient
 ): Promise<Omit<Heartbeat, 'nextAt' | 'updatedAt'>> {
-  const response = await client.$queryRaw<
+  const [{ hostname, version, usage, db }] = await client.$queryRaw<
     { hostname: string; version: string; db: string; usage: string }[]
   >`
   SELECT inet_server_addr() AS hostname,
@@ -98,7 +105,6 @@ export async function pingDB(
     pg_database_size(current_database())::text AS usage
   `;
 
-  const [{ hostname, version, usage, db }] = response;
   const versionMatch = /^PostgreSQL (?<version>\S+) /v.exec(version);
 
   return {

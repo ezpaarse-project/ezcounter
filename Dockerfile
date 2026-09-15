@@ -5,8 +5,9 @@ FROM node:24.20.0-alpine3.24 AS base
 LABEL maintainer="ezTeam <ezteam@couperin.org>"
 LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PNPM_HOME="/pnpm" \
+    TURBO_CACHE_DIR="/turbo" \
+    PATH="$PNPM_HOME:$PATH"
 
 # Update APK registry
 RUN apk update \
@@ -14,7 +15,7 @@ RUN apk update \
 # ---
 # Base image for dependencies
 FROM base AS pnpm
-WORKDIR /usr/src
+WORKDIR /usr/dev
 
 COPY . .
 
@@ -22,72 +23,47 @@ RUN corepack enable && corepack install
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
 
-# endregion
-# ---
-# region COUNTER
-
-# Prepare dependencies for COUNTER schemas
-FROM pnpm AS counter-pnpm
-WORKDIR /usr/src
-
-RUN pnpm deploy --filter @ezcounter/counter /usr/build/counter/dev
-# ---
-# Generate COUNTER schemas using dev dependencies
-FROM base AS counter-builder
-WORKDIR /usr/build/counter
-
-COPY --from=counter-pnpm /usr/build/counter/dev .
-
-# Shared TS config
-COPY ./tsconfig.json ../../tsconfig.json
-
-# Generate COUNTER schemas
-RUN npm run build:schemas
+# Run check to ensure everything can be bundled safely
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run check
 
 # endregion
 # ---
 # region Database
 
-# Prepare dependencies for DATABASE
+# Prepare dependencies for database client
 FROM pnpm AS database-pnpm
-WORKDIR /usr/src
+WORKDIR /usr/dev
 
-RUN pnpm deploy --filter @ezcounter/database /usr/build/database/dev
-# ---
-# Generate prisma client using dev dependencies
-FROM base AS database-builder
-WORKDIR /usr/build/database
-
-# Install prisma dependencies
-RUN apk add --no-cache --update python3 \
-  && ln -sf python3 /usr/bin/python
-
-COPY --from=database-pnpm /usr/build/database/dev .
-
-# Shared TS config
-COPY ./tsconfig.json ../../tsconfig.json
-
-# Generate prisma-client
-RUN npm run db:generate
+RUN pnpm deploy --filter @ezreeport/database --prod /usr/build/database
 # ---
 # Final image to run migrations
-FROM database-builder AS migrate
+FROM base AS migrate
+ENV NODE_ENV=production
+WORKDIR /usr/build/database
 
-CMD [ "npm", "run", "db:deploy" ]
+COPY --from=database-pnpm /usr/build/database .
+
+CMD [ "npx", "prisma", "migrate", "deploy" ]
 
 # endregion
 # ---
 # region API
 
-# Prepare prod dependencies for API
-FROM pnpm AS api-pnpm
-WORKDIR /usr/src
+# Image to dev API
+FROM pnpm AS api-dev
+WORKDIR /usr/dev/services/api
 
-RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api/prod
+CMD [ "pnpm", "run", "dev" ]
+# ---
+# Bundle API
+FROM pnpm AS api-builder
+WORKDIR /usr/dev
 
-# Copy generated files
-COPY --from=counter-builder /usr/build/counter/dist /usr/build/api/prod/node_modules/@ezcounter/counter/dist
-COPY --from=database-builder /usr/build/database/.prisma /usr/build/api/prod/node_modules/@ezcounter/database/.prisma
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-api#build
+
+# Resolve dependencies and add it to bundle
+RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api && \
+  cp -r /usr/build/api/node_modules /usr/build/api/package.json /usr/build/api/dist
 
 # ---
 # Final image to run API service
@@ -96,25 +72,39 @@ EXPOSE 8080
 ENV NODE_ENV=production
 WORKDIR /usr/build/api
 
-# Shared TS config
-COPY ./tsconfig.json ../../tsconfig.json
-
-COPY --from=api-pnpm /usr/build/api/prod .
+# Grab dependencies and bundled files
+COPY --from=api-builder /usr/build/api/dist .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "--enable-source-maps", "app.cjs" ]
 
 # endregion
 # ---
 # region Enricher
 
-# Prepare prod dependencies for enricher
-FROM pnpm AS enricher-pnpm
-WORKDIR /usr/src
+# Image to dev Enricher
+FROM pnpm AS enricher-dev
+WORKDIR /usr/dev
 
-RUN pnpm deploy --filter ezcounter-enricher --prod /usr/build/enricher/prod
+# Build needed files
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-enricher#check
+
+RUN pnpm deploy --filter ezcounter-enricher /usr/dev/enricher
+
+WORKDIR /usr/dev/enricher
+CMD [ "npm", "run", "dev" ]
+# ---
+# Prepare prod dependencies for enricher
+FROM pnpm AS enricher-builder
+WORKDIR /usr/dev
+
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-enricher#build
+
+# Resolve dependencies and add it to bundle
+RUN pnpm deploy --filter ezcounter-enricher --prod /usr/build/enricher && \
+  cp -r /usr/build/enricher/node_modules /usr/build/enricher/package.json /usr/build/enricher/dist
 
 # ---
 # Final image to run Enricher service
@@ -123,46 +113,53 @@ EXPOSE 8080
 ENV NODE_ENV=production
 WORKDIR /usr/build/enricher
 
-# Shared TS config
-COPY ./tsconfig.json ../../tsconfig.json
-
-COPY --from=enricher-pnpm /usr/build/enricher/prod .
+COPY --from=enricher-builder /usr/build/enricher/dist .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "--enable-source-maps", "app.cjs" ]
 
 # endregion
 # ---
 # region Harvester
 
+# Image to dev Harvester
+FROM pnpm AS harvester-dev
+WORKDIR /usr/dev
+
+# Build needed files
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-harvester#check
+
+RUN pnpm deploy --filter ezcounter-harvester /usr/dev/harvester
+
+WORKDIR /usr/dev/harvester
+CMD [ "npm", "run", "dev" ]
+# ---
 # Prepare prod dependencies for Harvester
-FROM pnpm AS harvester-pnpm
-WORKDIR /usr/src
+FROM pnpm AS harvester-builder
+WORKDIR /usr/dev
 
-RUN pnpm deploy --filter ezcounter-harvester --prod /usr/build/harvester/prod
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-harvester#build
 
-# Copy generated files
-COPY --from=counter-builder /usr/build/counter/dist /usr/build/harvester/prod/node_modules/@ezcounter/counter/dist
+# Resolve dependencies and add it to bundle
+RUN pnpm deploy --filter ezcounter-harvester --prod /usr/build/harvester && \
+  cp -r /usr/build/harvester/node_modules /usr/build/harvester/package.json /usr/build/harvester/dist
 
 # ---
 # Final image to run Harvester service
 FROM base AS harvester
 EXPOSE 8080
-ENV NODE_ENV=production
-ENV NODE_USE_ENV_PROXY=1
+ENV NODE_ENV=production \
+    NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build/harvester
 
-# Shared TS config
-COPY ./tsconfig.json ../../tsconfig.json
-
-COPY --from=harvester-pnpm /usr/build/harvester/prod .
+COPY --from=harvester-builder /usr/build/harvester/dist .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "npm", "run", "start" ]
+CMD [ "node", "--enable-source-maps", "app.cjs" ]
 
 # endregion
 # ---
@@ -171,19 +168,17 @@ CMD [ "npm", "run", "start" ]
 # Final image to run all services
 FROM base AS aio
 EXPOSE 8080
-ENV NODE_ENV=production
-ENV NODE_USE_ENV_PROXY=1
+ENV NODE_ENV=production \
+    NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build
 
+RUN npm install -g pm2@^7.0.3
+
+COPY --from=api-builder /usr/build/api/dist ./api
+COPY --from=enricher-builder /usr/build/enricher/dist ./enricher
+COPY --from=harvester-builder /usr/build/harvester/dist ./harvester
+
 COPY ./services/ecosystem.config.js .
-RUN npm install -g pm2@^7.0.3 tsx@^4.23.1
-
-# Shared TS config
-COPY ./tsconfig.json /usr/tsconfig.json
-
-COPY --from=api /usr/build/api ./api
-COPY --from=enricher /usr/build/enricher ./enricher
-COPY --from=harvester /usr/build/harvester ./harvester
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1

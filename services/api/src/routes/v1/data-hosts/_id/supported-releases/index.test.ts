@@ -12,7 +12,9 @@ import router from '.';
 vi.mock(import('~/models/data-host'));
 
 const server = await createTestServer(async (fastify) => {
-  fastify.register(router, { prefix: '/data-hosts/:id/supported-releases' });
+  fastify.register(router, {
+    prefix: '/data-hosts/:id/supported-releases',
+  });
 });
 
 describe('get /data-hosts/:id/supported-releases', () => {

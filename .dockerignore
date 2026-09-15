@@ -26,6 +26,7 @@ _bak*/
 # Dev tools
 **/.oxlint*
 docker*
+Dockerfile
 **/__mocks__/*
 **/__tests__/*
 **/coverage/

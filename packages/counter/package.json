@@ -30,19 +30,17 @@
     "test:watch": "vitest watch",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1",
-    "date-fns": "^4.1.0",
-    "ofetch": "^2.0.0-alpha.3"
-  },
   "devDependencies": {
     "@types/node": "catalog:",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "date-fns": "catalog:",
     "json-schema-to-typescript": "^15.0.4",
-    "msw": "^2.14.6",
-    "tsx": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "msw": "catalog:test",
+    "ofetch": "catalog:",
+    "tsx": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

@@ -26,15 +26,15 @@
     "test:watch": "vitest watch",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "@ezcounter/dto": "workspace:*",
-    "@ezcounter/logger": "workspace:*",
-    "@ezcounter/rabbitmq": "workspace:*"
-  },
   "devDependencies": {
-    "@vitest/coverage-v8": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@ezcounter/dto": "workspace:*",
+    "@ezcounter/rabbitmq": "workspace:*",
+    "@vitest/coverage-v8": "catalog:test",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test"
+  },
+  "peerDependencies": {
+    "pino": "catalog:"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

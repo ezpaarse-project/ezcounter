@@ -1,3 +1,4 @@
+import type { Logger } from 'pino';
 import {
   type AsyncMessage,
   Connection,
@@ -12,7 +13,6 @@ import {
 } from 'rabbitmq-client';
 
 import type { z } from '@ezcounter/dto';
-import type { Logger } from '@ezcounter/logger';
 
 type RabbitMqConfig = {
   url: string;
@@ -63,7 +63,7 @@ export function setupRabbitMQ(
   });
 
   client.on('error', (err) => {
-    logger.error({ err, msg: 'Failed to connect to RabbitMQ' });
+    logger.error({ config, err, msg: 'Failed to connect to RabbitMQ' });
   });
 
   process.on('SIGINT', onShutdown);

@@ -4,7 +4,16 @@ import { pingDB, setupDB } from '@ezcounter/database';
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
-const logger = appLogger.child({ scope: 'prisma' });
+const logger = appLogger.child(
+  { scope: 'prisma' },
+  {
+    redact: {
+      censor: (value) =>
+        typeof value === 'string' && ''.padStart(value.length, '*'),
+      paths: ['config.password'],
+    },
+  }
+);
 
 /**
  * Prisma parameters related to pagination

@@ -20,16 +20,14 @@
     "lint": "oxlint",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "@ezcounter/logger": "workspace:*",
-    "rabbitmq-client": "^5.0.8",
-    "typescript": "catalog:"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "typescript": "catalog:"
+    "@ezcounter/dto": "workspace:*",
+    "rabbitmq-client": "^5.0.8",
+    "typescript": "catalog:dev"
   },
-  "optionalDependencies": {
-    "@ezcounter/dto": "workspace:*"
+  "peerDependencies": {
+    "pino": "catalog:"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"

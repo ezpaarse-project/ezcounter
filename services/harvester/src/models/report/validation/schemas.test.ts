@@ -20,6 +20,7 @@ describe('counter 5', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for DR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5', 'DR');
@@ -27,6 +28,7 @@ describe('counter 5', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5', 'TR');
@@ -34,6 +36,7 @@ describe('counter 5', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for IR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5', 'IR');
@@ -41,6 +44,7 @@ describe('counter 5', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for unknown', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5', '');
@@ -60,6 +64,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for PR_P1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'PR_P1');
@@ -67,6 +72,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for DR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR');
@@ -74,6 +80,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for DR_D1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR_D1');
@@ -81,6 +88,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for DR_D2', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'DR_D2');
@@ -88,6 +96,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR');
@@ -95,6 +104,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_B1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B1');
@@ -102,6 +112,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_B2', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B2');
@@ -109,6 +120,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_B3', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_B3');
@@ -116,6 +128,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_J1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J1');
@@ -123,6 +136,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_J2', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J2');
@@ -130,6 +144,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_J3', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J3');
@@ -137,6 +152,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for TR_J4', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'TR_J4');
@@ -144,6 +160,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for IR', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR');
@@ -151,6 +168,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for IR_A1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR_A1');
@@ -158,6 +176,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for IR_M1', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', 'IR_M1');
@@ -165,6 +184,7 @@ describe('counter 5.1', () => {
       expect(validation.item).toBeDefined();
       expect(validation.exception).toBeDefined();
     });
+
     it('should have validation for unknown', () => {
       expect.hasAssertions();
       const validation = getCounterValidation('5.1', '');

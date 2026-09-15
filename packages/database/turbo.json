@@ -3,8 +3,8 @@
   "extends": ["//"],
   "tasks": {
     "db:generate": {
-      "cache": false,
-      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"]
+      "env": ["POSTGRES_URL", "POSTGRES_USERNAME", "POSTGRES_PASSWORD"],
+      "outputs": [".prisma"]
     },
     "db:diff": {
       "cache": false,

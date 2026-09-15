@@ -24,13 +24,12 @@
     "test:watch": "vitest watch",
     "check": "tsc --noEmit --skipLibCheck"
   },
-  "dependencies": {
-    "@ezcounter/dto": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@ezcounter/dto": "workspace:*",
     "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test"
   },
   "engines": {
     "node": "^20 || ^22 || ^24"
