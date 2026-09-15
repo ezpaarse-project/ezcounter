@@ -49,18 +49,6 @@ CMD [ "npx", "prisma", "migrate", "deploy" ]
 # ---
 # region API
 
-# Image to dev API
-FROM pnpm AS api-dev
-WORKDIR /usr/dev/services/api
-
-CMD [ "pnpm", "run", "dev" ]
-# ---
-# Bundle API
-FROM pnpm AS api-builder
-WORKDIR /usr/dev
-
-RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-api#build
-
 # Resolve dependencies and add it to bundle
 RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api && \
   cp -r /usr/build/api/node_modules /usr/build/api/package.json /usr/build/api/dist
@@ -84,18 +72,6 @@ CMD [ "node", "--enable-source-maps", "app.cjs" ]
 # ---
 # region Enricher
 
-# Image to dev Enricher
-FROM pnpm AS enricher-dev
-WORKDIR /usr/dev
-
-# Build needed files
-RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-enricher#check
-
-RUN pnpm deploy --filter ezcounter-enricher /usr/dev/enricher
-
-WORKDIR /usr/dev/enricher
-CMD [ "npm", "run", "dev" ]
-# ---
 # Prepare prod dependencies for enricher
 FROM pnpm AS enricher-builder
 WORKDIR /usr/dev
@@ -124,18 +100,6 @@ CMD [ "node", "--enable-source-maps", "app.cjs" ]
 # ---
 # region Harvester
 
-# Image to dev Harvester
-FROM pnpm AS harvester-dev
-WORKDIR /usr/dev
-
-# Build needed files
-RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-harvester#check
-
-RUN pnpm deploy --filter ezcounter-harvester /usr/dev/harvester
-
-WORKDIR /usr/dev/harvester
-CMD [ "npm", "run", "dev" ]
-# ---
 # Prepare prod dependencies for Harvester
 FROM pnpm AS harvester-builder
 WORKDIR /usr/dev

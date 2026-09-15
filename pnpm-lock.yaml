@@ -168,8 +168,8 @@ importers:
         specifier: ^21.2.0
         version: 21.2.2
       '@ezpaarse-project/oxlint-config':
-        specifier: ^0.2.4
-        version: 0.2.4(oxlint@1.82.0)
+        specifier: ^0.3.2
+        version: 0.3.2(oxlint@1.82.0)
       fx:
         specifier: ^39.2.0
         version: 39.2.0
@@ -974,8 +974,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@ezpaarse-project/oxlint-config@0.2.4':
-    resolution: {integrity: sha512-JfS0Yoj2rp76wDQ24OENaFdcvIVj8ZYwKGh9uwyga3jlMsafhogPE2fIiM0xMYFth4MWP712U9vKwUsnK0HyXw==}
+  '@ezpaarse-project/oxlint-config@0.3.2':
+    resolution: {integrity: sha512-tySm3JLoBhETxOYPL8+gEHuKiHKgytHxDsGhICJk1MA4NbiqIrGO3nz+VOGF7rw7l0KXwegS4mQJ7rLGfI3kYQ==}
     peerDependencies:
       oxlint: ^1
 
@@ -4523,7 +4523,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@ezpaarse-project/oxlint-config@0.2.4(oxlint@1.82.0)':
+  '@ezpaarse-project/oxlint-config@0.3.2(oxlint@1.82.0)':
     dependencies:
       oxlint: 1.82.0
 

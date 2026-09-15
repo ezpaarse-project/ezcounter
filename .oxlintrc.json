@@ -1,11 +1,11 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "extends": ["./node_modules/@ezpaarse-project/oxlint-config/ts.jsonc"],
+  "extends": ["./node_modules/@ezpaarse-project/oxlint-config/ts.config.jsonc"],
 
   "plugins": ["node"],
 
   "rules": {
-    "one-var": "off",
+    "jsdoc/require-yields-type": "off",
     // Project is using Node
     "no-nodejs-modules": "off",
     // Project is using ESM
@@ -19,7 +19,9 @@
     "sort-imports": [
       "warn",
       { "ignoreDeclarationSort": true, "allowSeparatedGroups": true }
-    ]
+    ],
+    // Project is using zod and uses redeclartion to avoid duplicate imports
+    "no-redeclare": "off",
   },
 
   "overrides": [
