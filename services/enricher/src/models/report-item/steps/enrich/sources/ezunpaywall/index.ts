@@ -3,6 +3,11 @@ import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
 import type { EzUnpaywallDocument } from './dto';
 import { getDOIOfItem } from '../../identifiers';
+import {
+  type Enricher,
+  type NextEnrich,
+  createEnrichPipeline,
+} from '../../pipeline';
 import { getDocumentByDOI } from './client';
 
 /**
@@ -19,6 +24,11 @@ type EnrichEzUnpaywalData = {
     year?: number;
   };
 };
+
+type EzUnpaywallEnricher = Enricher<
+  EnrichEzUnpaywallOptions,
+  EnrichEzUnpaywalData
+>;
 
 /**
  * Transform document from ezUnpaywall into enrich data added to documents
@@ -42,27 +52,20 @@ const transformDocumentToEnrichData = (
 });
 
 /**
- * Get ezUnpaywall data for a given item
+ * Enrich item using DOI found
  *
- * @param data - The item to enrich
- * @param options - The options to use for ezUnpaywall enrichment
- * @param next - Callback with enriched data
+ * @param job - The OpenAlex enrich job
+ * @param job.content - The item to enrich
+ * @param next - The next enrich part to call
  *
  * @returns Promise that resolves true when further fetch are possible
  */
-export async function enrichItemUsingEzUnpaywall(
-  data: EnrichJobContent,
-  options: EnrichEzUnpaywallOptions,
-  next: (
-    data: EnrichEzUnpaywalData | null,
-    status: 'remote' | 'store' | 'miss' | 'skipped'
-  ) => Promise<void>
-): Promise<true> {
+const enrichWithDoi: EzUnpaywallEnricher = async ({ content }, next) => {
   // If Release is absent, it's a COUNTER 5 Report
-  const release = data.header.Release || '5';
+  const release = content.header.Release || '5';
 
   // Resolve identifiers
-  const doi = getDOIOfItem(data.item, release);
+  const doi = getDOIOfItem(content.item, release);
   if (!doi) {
     // oxlint-disable-next-line node/callback-return - callback and return have 2 different meaning
     await next(null, 'skipped');
@@ -70,12 +73,36 @@ export async function enrichItemUsingEzUnpaywall(
   }
 
   // Fetch item using found identifier
-  await getDocumentByDOI(doi, (doc, status) => {
-    if (!doc) {
-      return next(null, 'miss');
-    }
+  await getDocumentByDOI(doi, (doc, status) =>
+    next(doc && transformDocumentToEnrichData(doc), status)
+  );
 
-    return next(transformDocumentToEnrichData(doc), status);
+  return true;
+};
+
+/**
+ * Get ezUnpaywall data for a given item
+ *
+ * @param content - The item to enrich
+ * @param options - The options to use for ezUnpaywall enrichment
+ * @param next - Callback with enriched data
+ *
+ * @returns Promise that resolves true when further fetch are possible
+ */
+export async function enrichItemUsingEzUnpaywall(
+  content: EnrichJobContent,
+  options: EnrichEzUnpaywallOptions,
+  next: NextEnrich<EnrichEzUnpaywalData>
+): Promise<true> {
+  const resolve: EzUnpaywallEnricher = async ({ result }) => {
+    // oxlint-disable-next-line node/callback-return
+    await next(result.data, result.status);
+    return true;
+  };
+
+  await createEnrichPipeline([enrichWithDoi, resolve], {
+    content,
+    options,
   });
 
   return true;

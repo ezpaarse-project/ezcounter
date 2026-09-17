@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import type { EnrichStatus } from '../../../pipeline';
 import type { OpenAlexWork } from '../dto';
 import { getWorkByDOI } from '.';
 // oxlint-disable-next-line vitest/no-mocks-import - We need to get mockedStore as store is not exported
@@ -11,9 +12,7 @@ vi.mock(import('./remotes'));
 
 describe('get Document by DOI', () => {
   const spy =
-    vi.fn<
-      (doc: OpenAlexWork | null, status: 'remote' | 'store') => Promise<void>
-    >();
+    vi.fn<(doc: OpenAlexWork | null, status: EnrichStatus) => Promise<void>>();
 
   it('should try to get document from store', async () => {
     expect.hasAssertions();
@@ -68,7 +67,7 @@ describe('get Document by DOI', () => {
 
     await getWorkByDOI('10.9999/xxxxxx1', spy);
 
-    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
+    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'miss');
   });
 
   it('should ignore store failures', async () => {
@@ -84,7 +83,7 @@ describe('get Document by DOI', () => {
 
     await getWorkByDOI('10.9999/xxxxxx1', spy);
 
-    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
+    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'miss');
   });
 
   it('should buffer fetch if store is unavailable', async () => {

@@ -1,5 +1,6 @@
 import { appLogger } from '~/lib/logger';
 
+import type { EnrichStatus } from '../../../pipeline';
 import { EzUnpaywallDocument } from '../dto';
 import { bufferedFetchOneDocumentByDOI } from './documents';
 import { createEzUnpaywallRemote, createEzUnpaywallStore } from './remotes';
@@ -21,7 +22,7 @@ export async function getDocumentByDOI(
   doi: string,
   onDocument: (
     doc: EzUnpaywallDocument | null,
-    status: 'remote' | 'store'
+    status: EnrichStatus
   ) => Promise<void>
 ): Promise<true> {
   const cacheKey = `document:doi:${doi}`;
@@ -53,7 +54,7 @@ export async function getDocumentByDOI(
       }
     }
 
-    return onDocument(doc, 'remote');
+    return onDocument(doc, doc ? 'remote' : 'miss');
   });
 
   return true;

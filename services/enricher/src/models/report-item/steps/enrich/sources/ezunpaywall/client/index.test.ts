@@ -54,7 +54,7 @@ describe('get Document by DOI', () => {
 
     await getDocumentByDOI('10.9999/xxxxxx1', spy);
 
-    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
+    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'miss');
   });
 
   it('should ignore store failures', async () => {
@@ -70,7 +70,7 @@ describe('get Document by DOI', () => {
 
     await getDocumentByDOI('10.9999/xxxxxx1', spy);
 
-    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'remote');
+    expect(spy).toHaveBeenCalledExactlyOnceWith(null, 'miss');
   });
 
   it('should buffer fetch if store is unavailable', async () => {

@@ -7,6 +7,7 @@ import { asHarvestError } from '@ezcounter/toolbox/harvest';
 import { queueEnrichJob } from '~/queues/enrich/jobs/pub';
 import { sendEnrichJobStatusEvent } from '~/queues/enrich/status';
 
+import type { NextEnrich } from './pipeline';
 import { enrichItemUsingEzUnpaywall, enrichItemUsingOpenAlex } from './sources';
 
 type EnrichResult = Record<string, z.core.util.JSONType>;
@@ -114,10 +115,7 @@ export async function enrichReportItem(
    *
    * @returns When next step is queued
    */
-  const next = (
-    result: EnrichResult | null,
-    status: 'remote' | 'store' | 'miss' | 'skipped'
-  ): Promise<void> => {
+  const next: NextEnrich<EnrichResult> = (result, status): Promise<void> => {
     void sendEnrichStatus(job.id, source, status);
     return queueEnrichWithResult(job, result);
   };

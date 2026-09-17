@@ -3,6 +3,11 @@ import type { EnrichJobContent } from '@ezcounter/dto/queues';
 
 import type { OpenAlexWork } from './dto';
 import { getDOIOfItem } from '../../identifiers';
+import {
+  type Enricher,
+  type NextEnrich,
+  createEnrichPipeline,
+} from '../../pipeline';
 import { getWorkByDOI } from './client';
 
 /**
@@ -22,13 +27,18 @@ type EnrichOpenAlexData = {
 };
 
 /**
+ * Shorthand for Enricher
+ */
+type OpenAlexEnricher = Enricher<EnrichOpenAlexOptions, EnrichOpenAlexData>;
+
+/**
  * Transform work from OpenAlex into enrich data added to documents
  *
  * @param work - The work from OpenAlex
  *
  * @returns The enrich Data
  */
-const transformWorkToEnrichData = (work: OpenAlexWork): EnrichOpenAlexData => {
+function transformWorkToEnrichData(work: OpenAlexWork): EnrichOpenAlexData {
   // Guess countries of publication by looking at first author
   const countries = [
     ...new Set<string>(
@@ -58,30 +68,23 @@ const transformWorkToEnrichData = (work: OpenAlexWork): EnrichOpenAlexData => {
       title: work.title ?? undefined,
     },
   };
-};
+}
 
 /**
- * Get OpenAlex data for a given item
+ * Enrich item using DOI found
  *
- * @param data - The item to enrich
- * @param options - The options to use for OpenAlex enrichment
- * @param next - Callback with enriched data
+ * @param job - The OpenAlex enrich job
+ * @param job.content - The item to enrich
+ * @param next - The next enrich part to call
  *
  * @returns Promise that resolves true when further fetch are possible
  */
-export async function enrichItemUsingOpenAlex(
-  data: EnrichJobContent,
-  options: EnrichOpenAlexOptions,
-  next: (
-    data: EnrichOpenAlexData | null,
-    status: 'remote' | 'store' | 'miss' | 'skipped'
-  ) => Promise<void>
-): Promise<true> {
+const enrichWithDoi: OpenAlexEnricher = async ({ content }, next) => {
   // If Release is absent, it's a COUNTER 5 Report
-  const release = data.header.Release || '5';
+  const release = content.header.Release || '5';
 
   // Resolve identifiers
-  const doi = getDOIOfItem(data.item, release);
+  const doi = getDOIOfItem(content.item, release);
   if (!doi) {
     // oxlint-disable-next-line node/callback-return - callback and return have 2 different meaning
     await next(null, 'skipped');
@@ -89,12 +92,36 @@ export async function enrichItemUsingOpenAlex(
   }
 
   // Fetch item using found identifier
-  await getWorkByDOI(doi, (work, status) => {
-    if (!work) {
-      return next(null, 'miss');
-    }
+  await getWorkByDOI(doi, (work, status) =>
+    next(work && transformWorkToEnrichData(work), status)
+  );
 
-    return next(transformWorkToEnrichData(work), status);
+  return true;
+};
+
+/**
+ * Get OpenAlex data for a given item
+ *
+ * @param content - The item to enrich
+ * @param options - The options to use for OpenAlex enrichment
+ * @param next - Callback with enriched data
+ *
+ * @returns Promise that resolves true when further fetch are possible
+ */
+export async function enrichItemUsingOpenAlex(
+  content: EnrichJobContent,
+  options: EnrichOpenAlexOptions,
+  next: NextEnrich<EnrichOpenAlexData>
+): Promise<true> {
+  const resolve: OpenAlexEnricher = async ({ result }) => {
+    // oxlint-disable-next-line node/callback-return
+    await next(result.data, result.status);
+    return true;
+  };
+
+  await createEnrichPipeline([enrichWithDoi, resolve], {
+    content,
+    options,
   });
 
   return true;

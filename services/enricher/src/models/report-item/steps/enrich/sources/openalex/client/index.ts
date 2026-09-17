@@ -1,5 +1,6 @@
 import { appLogger } from '~/lib/logger';
 
+import type { EnrichStatus } from '../../../pipeline';
 import { OpenAlexWork } from '../dto';
 import { createOpenAlexRemote, createOpenAlexStore } from './remotes';
 import { bufferedFetchOneWorkByDOI } from './works';
@@ -19,10 +20,7 @@ const remote = createOpenAlexRemote();
  */
 export async function getWorkByDOI(
   doi: string,
-  onWork: (
-    doc: OpenAlexWork | null,
-    status: 'remote' | 'store'
-  ) => Promise<void>
+  onWork: (doc: OpenAlexWork | null, status: EnrichStatus) => Promise<void>
 ): Promise<true> {
   const cacheKey = `work:doi:${doi}`;
 
@@ -53,7 +51,7 @@ export async function getWorkByDOI(
       }
     }
 
-    return onWork(work, 'remote');
+    return onWork(work, work ? 'remote' : 'miss');
   });
 
   return true;

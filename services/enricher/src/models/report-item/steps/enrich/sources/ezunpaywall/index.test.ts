@@ -48,7 +48,7 @@ describe('enrich with Unpaywall', () => {
 
     vi.mocked(getDOIOfItem).mockReturnValueOnce('10.9999/xxxxxx1');
     vi.mocked(getDocumentByDOI).mockImplementationOnce((_doi, next) => {
-      next(null, 'remote');
+      next(null, 'miss');
       return Promise.resolve(true);
     });
 
