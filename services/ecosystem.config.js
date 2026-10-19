@@ -6,11 +6,12 @@
  *
  * @returns {string | Value} The value from env or default
  */
-const env = (key, defValue) => process.env[key] || defValue;
+const env = (key, defValue) =>
+  process.env[`EZCOUNTER_${key}`] || process.env[key] || defValue;
 
 const nodeEnv = {
-  NODE_ENV: env('NODE_ENV'),
-  TZ: env('TZ'),
+  NODE_ENV: process.env['NODE_ENV'],
+  TZ: process.env['TZ'],
 };
 
 const logEnv = {
@@ -32,34 +33,33 @@ const heartbeatEnv = {
 };
 
 const elasticEnv = {
-  ELASTIC_API_KEY: env('ELASTIC_API_KEY', ''),
-  ELASTIC_NODES: env(
-    'ELASTIC_NODES',
-    JSON.stringify([{ url: 'http://elastic:9200' }])
-  ),
-  ELASTIC_PASSWORD: env('ELASTIC_PASSWORD', 'changeme'),
-  ELASTIC_REQUIRED_STATUS: env('ELASTIC_REQUIRED_STATUS', 'green'),
-  ELASTIC_USERNAME: env('ELASTIC_USERNAME', 'elastic'),
+  ELASTIC_API_KEY: env('ELASTICSEARCH_API_KEY', ''),
+  ELASTIC_NODES:
+    process.env['ELASTICSEARCH_NODES'] ||
+    JSON.stringify([{ url: 'http://elastic:9200' }]),
+  ELASTIC_PASSWORD: env('ELASTICSEARCH_PASSWORD', 'changeme'),
+  ELASTIC_REQUIRED_STATUS:
+    process.env['ELASTICSEARCH_REQUIRED_STATUS'] || 'green',
+  ELASTIC_USERNAME: env('ELASTICSEARCH_USERNAME', 'elastic'),
 };
 
 const dbEnv = {
   POSTGRES_PASSWORD: env('POSTGRES_PASSWORD', 'changeme'),
-  POSTGRES_URL: env(
-    'POSTGRES_URL',
-    'postgres://database:5432/ezcounter?schema=default'
-  ),
+  POSTGRES_URL:
+    process.env['POSTGRES_URL'] ||
+    'postgres://database:5432/ezcounter?schema=default',
   POSTGRES_USERNAME: env('POSTGRES_USERNAME', 'postgres'),
 };
 
 const redisEnv = {
   REDIS_PASSWORD: env('REDIS_PASSWORD'),
-  REDIS_URL: env('REDIS_URL', 'redis://redis:6379/'),
+  REDIS_URL: process.env['REDIS_URL'] || 'redis://redis:6379/',
   REDIS_USERNAME: env('REDIS_USERNAME'),
 };
 
 const rabbitmqEnv = {
   RABBITMQ_PASSWORD: env('RABBITMQ_PASSWORD', 'guest'),
-  RABBITMQ_URL: env('RABBITMQ_URL', 'amqp://rabbitmq:5672/'),
+  RABBITMQ_URL: process.env['RABBITMQ_URL'] || 'amqp://rabbitmq:5672/',
   RABBITMQ_USERNAME: env('RABBITMQ_USERNAME', 'guest'),
 };
 
