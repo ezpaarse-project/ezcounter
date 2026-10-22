@@ -1,9 +1,11 @@
-import Filter from 'stream-json/filters/Filter';
-import Ignore from 'stream-json/filters/Ignore';
-import Pick from 'stream-json/filters/Pick';
-import Parser from 'stream-json/Parser';
-import StreamArray from 'stream-json/streamers/StreamArray';
-import StreamValues from 'stream-json/streamers/StreamValues';
+// oxlint-disable import/extensions
+export { filter as jsonFilter } from 'stream-json/filters/filter.js';
+export { ignore as jsonIgnore } from 'stream-json/filters/ignore.js';
+export { pick as jsonPick } from 'stream-json/filters/pick.js';
+export { parser as jsonParser } from 'stream-json/parser.js';
+export { streamArray as jsonStreamArray } from 'stream-json/streamers/stream-array.js';
+export { streamValues as jsonStreamValues } from 'stream-json/streamers/stream-values.js';
+// oxlint-enable import/extensions
 
 export type JSONToken = {
   name: 'startArray' | 'endArray' | 'keyValue';
@@ -14,11 +16,3 @@ export type JSONStreamItem = {
   key: number | string;
   value: unknown;
 };
-
-// Simplify exports
-export const jsonParser = Parser.parser;
-export const jsonPick = Pick.pick;
-export const jsonFilter = Filter.filter;
-export const jsonIgnore = Ignore.ignore;
-export const jsonStreamValues = StreamValues.streamValues;
-export const jsonStreamArray = StreamArray.streamArray;

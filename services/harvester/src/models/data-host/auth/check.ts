@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { dirname, join } from 'node:path';
+import { finished } from 'node:stream/promises';
 
 import { addMonths, formatDate } from 'date-fns';
 import { StatusCodes } from 'http-status-codes';
@@ -17,7 +18,6 @@ import { PERIOD_FORMAT, fetchReportAsStream } from '@ezcounter/counter';
 import { appConfig } from '~/lib/config';
 import { createWriteStream, mkdir, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
-import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { IdleTimeoutController } from '~/models/idle-timeout';
 import {
@@ -94,7 +94,7 @@ async function cacheReport(
   // Cache report
   await mkdir(dirname(reportPath), { recursive: true });
   response.data.pipe(createWriteStream(reportPath, 'utf8'));
-  await waitForStreamEnd(response.data);
+  await finished(response.data);
 
   return response.httpCode;
 }

@@ -1,11 +1,11 @@
-import chain from 'stream-chain';
+import { chainUnchecked as chain } from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { z } from '@ezcounter/dto';
 
 import { createReadStream } from '~/lib/fs';
 import { jsonParser, jsonPick, jsonStreamValues } from '~/lib/stream/json';
-import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
+import { attachAbortSignal } from '~/lib/stream/utils';
 
 import type { COUNTERReportHeader } from '~/models/report/dto';
 import { getCounterValidation } from '~/models/report/validation/schemas';
@@ -42,38 +42,40 @@ export async function extractReportHeader(
     signal
   );
 
-  // Wait for parsing
-  const { value: data } =
-    (await waitForStreamData<{ value: unknown }>(stream)) ?? {};
-  if (!data) {
-    throw new Error('Report_Header was not in downloaded report');
-  }
+  for await (const { value: data } of stream) {
+    // Basic checks
+    const min = MinimalHeader.parse(data);
+    if (min.Release !== options.release) {
+      throw new Error(
+        `Expected Release ${options.release}, got ${min.Release}`
+      );
+    }
+    if (min.Report_ID.toUpperCase() !== options.report.id.toUpperCase()) {
+      throw new Error(
+        `Expected Report_ID ${options.report.id.toUpperCase()}, got ${min.Report_ID}`
+      );
+    }
 
-  // Basic checks
-  const min = MinimalHeader.parse(data);
-  if (min.Release !== options.release) {
-    throw new Error(`Expected Release ${options.release}, got ${min.Release}`);
-  }
-  if (min.Report_ID.toUpperCase() !== options.report.id.toUpperCase()) {
-    throw new Error(
-      `Expected Report_ID ${options.report.id.toUpperCase()}, got ${min.Report_ID}`
+    // Validate header
+    // If no validation exists for this Report_ID, consider it as valid
+    const { header: validate } = getCounterValidation(
+      min.Release,
+      min.Report_ID
     );
-  }
+    if (!validate) {
+      return data as COUNTERReportHeader;
+    }
 
-  // Validate header
-  // If no validation exists for this Report_ID, consider it as valid
-  const { header: validate } = getCounterValidation(min.Release, min.Report_ID);
-  if (!validate) {
-    return data as COUNTERReportHeader;
-  }
+    if (!validate(data)) {
+      throw new Error('Report_Header is invalid', {
+        cause: { validation: validate.errors },
+      });
+    }
 
-  if (validate(data)) {
     return data;
   }
 
-  throw new Error('Report_Header is invalid', {
-    cause: { validation: validate.errors },
-  });
+  throw new Error('Report_Header was not in downloaded report');
 }
 
 /**

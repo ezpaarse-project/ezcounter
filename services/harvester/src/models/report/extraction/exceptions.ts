@@ -1,11 +1,11 @@
-import chain from 'stream-chain';
+import { chainUnchecked as chain } from 'stream-chain';
 
 import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 import { z } from '@ezcounter/dto';
 
 import { createReadStream } from '~/lib/fs';
 import { jsonFilter, jsonParser, jsonStreamValues } from '~/lib/stream/json';
-import { attachAbortSignal, waitForStreamData } from '~/lib/stream/utils';
+import { attachAbortSignal } from '~/lib/stream/utils';
 
 import type { COUNTERReportException } from '~/models/report/dto';
 import { getCounterValidation } from '~/models/report/validation/schemas';
@@ -91,24 +91,23 @@ export async function extractReportExceptions(
     signal
   );
 
-  // Wait for parsing
-  const data = await waitForStreamData<{ value: unknown }>(stream);
-  if (!data?.value) {
-    return [];
-  }
-
-  const exceptions = resolveExceptions(data.value);
-
+  const exceptions: COUNTERReportException[] = [];
   // Getting JSON schema of exceptions
   const { exception: validate } = getCounterValidation(options.release, '');
 
-  return exceptions.map((ex) => {
-    if (validate(ex)) {
-      return ex;
-    }
+  for await (const { value: data } of stream) {
+    const resolved = resolveExceptions(data);
 
-    throw new Error('Exception is invalid', {
-      cause: { validation: validate.errors },
-    });
-  });
+    for (const ex of resolved) {
+      if (!validate(ex)) {
+        throw new Error('Exception is invalid', {
+          cause: { validation: validate.errors },
+        });
+      }
+
+      exceptions.push(ex);
+    }
+  }
+
+  return exceptions;
 }

@@ -129,7 +129,7 @@ describe('counter 5', () => {
       controller.abort();
       const promise = iterator.next();
 
-      await expect(promise).rejects.toThrow('The operation was aborted');
+      await expect(promise).rejects.toThrow('operation was aborted');
     });
 
     it('should be able to be aborted after first item', async () => {
@@ -146,7 +146,7 @@ describe('counter 5', () => {
       const promise = iterator.next();
       controller.abort();
 
-      await expect(promise).rejects.toThrow('The operation was aborted');
+      await expect(promise).rejects.toThrow('operation was aborted');
     });
   });
 });
@@ -313,7 +313,7 @@ describe('counter 5.1', () => {
       controller.abort();
       const promise = iterator.next();
 
-      await expect(promise).rejects.toThrow('The operation was aborted');
+      await expect(promise).rejects.toThrow('operation was aborted');
     });
 
     it('should be able to be aborted after first item', async () => {
@@ -330,7 +330,7 @@ describe('counter 5.1', () => {
       const promise = iterator.next();
       controller.abort();
 
-      await expect(promise).rejects.toThrow('The operation was aborted');
+      await expect(promise).rejects.toThrow('operation was aborted');
     });
   });
 });

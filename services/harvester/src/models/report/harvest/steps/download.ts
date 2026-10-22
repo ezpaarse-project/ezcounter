@@ -1,5 +1,6 @@
 import { dirname } from 'node:path';
 import { PassThrough } from 'node:stream';
+import { finished } from 'node:stream/promises';
 import { createGunzip } from 'node:zlib';
 
 import chain from 'stream-chain';
@@ -15,7 +16,6 @@ import {
   stat,
 } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
-import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { IdleTimeoutController } from '~/models/idle-timeout';
 
@@ -160,7 +160,7 @@ async function downloadReport(
   });
 
   // Wait for download to complete
-  await waitForStreamEnd(stream);
+  await finished(stream);
 
   return { httpCode: response.httpCode, source: 'remote' };
 }
@@ -206,7 +206,7 @@ async function unzipReport(
   });
 
   // Wait for unzip to complete
-  await waitForStreamEnd(stream);
+  await finished(stream);
 
   return { source: 'archive' };
 }

@@ -1,43 +1,4 @@
-import { type Readable, type Stream, addAbortSignal } from 'node:stream';
-
-/**
- * Wait for a stream to emit a `data` event, a `end` event, or a `error` event
- *
- * @param stream - The stream to wait
- *
- * @returns the data emitted by stream
- */
-export const waitForStreamData = <Type>(
-  stream: Readable
-): Promise<Type | null> =>
-  // oxlint-disable-next-line promise/avoid-new
-  new Promise((resolve, reject) => {
-    stream.on('data', (data) => {
-      resolve(data);
-    });
-    stream.on('end', () => {
-      resolve(null);
-    });
-    stream.on('error', (err) => {
-      reject(err);
-    });
-  });
-
-/**
- * Wait for a stream to emit a `end` event, or a `error` event
- *
- * @param stream - The stream to wait
- */
-export const waitForStreamEnd = (stream: Stream): Promise<void> =>
-  // oxlint-disable-next-line promise/avoid-new
-  new Promise((resolve, reject) => {
-    stream.on('end', () => {
-      resolve();
-    });
-    stream.on('error', (err) => {
-      reject(err);
-    });
-  });
+import { addAbortSignal } from 'node:stream';
 
 /**
  * Attach AbortSignal (if provided) to stream
@@ -49,10 +10,13 @@ export const waitForStreamEnd = (stream: Stream): Promise<void> =>
  *
  * @returns The stream
  */
-export function attachAbortSignal<Flow extends Stream>(
-  stream: Flow,
-  signal: AbortSignal | undefined
-): Flow {
+export function attachAbortSignal<
+  Flow extends
+    | NodeJS.ReadableStream
+    | NodeJS.WritableStream
+    | ReadableStream
+    | WritableStream,
+>(stream: Flow, signal: AbortSignal | undefined): Flow {
   if (signal) {
     addAbortSignal(signal, stream);
   }

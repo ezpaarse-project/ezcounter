@@ -1,3 +1,4 @@
+import { finished } from 'node:stream/promises';
 import { createGzip } from 'node:zlib';
 
 import chain from 'stream-chain';
@@ -6,7 +7,6 @@ import type { HarvestDownloadOptions } from '@ezcounter/dto/harvest';
 
 import { createReadStream, createWriteStream, exists, unlink } from '~/lib/fs';
 import { appLogger } from '~/lib/logger';
-import { waitForStreamEnd } from '~/lib/stream/utils';
 
 import type { IdleTimeoutController } from '~/models/idle-timeout';
 
@@ -46,7 +46,7 @@ async function zipReport(
   });
 
   // Wait for unzip to complete
-  await waitForStreamEnd(stream);
+  await finished(stream);
 }
 
 /**

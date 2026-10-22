@@ -1,6 +1,6 @@
 import type { Readable } from 'node:stream';
 
-import { chain } from 'stream-chain';
+import { chainUnchecked as chain } from 'stream-chain';
 
 import { createReadStream } from '~/lib/fs';
 import {

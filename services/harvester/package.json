@@ -38,15 +38,14 @@
     "@ezcounter/simple-http": "workspace:*",
     "@ezcounter/toolbox": "workspace:*",
     "@types/node": "catalog:",
-    "@types/stream-json": "^1.7.8",
     "@vitest/coverage-v8": "catalog:test",
     "date-fns": "catalog:",
     "http-status-codes": "catalog:",
     "json5": "catalog:build",
     "memfs": "^4.57.2",
     "pino-pretty": "catalog:dev",
-    "stream-chain": "~3.4.0",
-    "stream-json": "~1.9.1",
+    "stream-chain": "^4.2.6",
+    "stream-json": "^3.7.0",
     "tsdown": "catalog:build",
     "tsx": "catalog:dev",
     "typescript": "catalog:dev",
@@ -54,6 +53,6 @@
     "vitest-mock-extended": "catalog:test"
   },
   "engines": {
-    "node": "^24"
+    "node": "^24 || ^26"
   }
 }
