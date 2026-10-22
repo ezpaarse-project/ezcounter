@@ -42,7 +42,7 @@ describe('upsert Data Host', () => {
 
 describe('upsert release supported by Data Host', () => {
   const release: DataHostSupportedRelease = {
-    baseUrl: 'https://counter-datahost.example',
+    baseURL: 'https://counter-datahost.example',
     createdAt: new Date(),
     dataHostId: 'id',
     params: {},

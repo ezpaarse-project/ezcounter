@@ -15,7 +15,7 @@ import { CNRSGatewayResponse } from './dto';
 const logger = appLogger.child({ scope: 'enrich', source: 'openalex' });
 
 type CNRSGatewayRemoteConfig = {
-  baseUrl: string;
+  baseURL: string;
   apiKey: string;
   timeout: number;
   retry: number;
@@ -50,7 +50,7 @@ export class CNRSGatewayRemote implements IOpenAlexRemote {
 
   constructor(config: CNRSGatewayRemoteConfig) {
     this.$fetch = ofetch.create({
-      baseURL: config.baseUrl,
+      baseURL: config.baseURL,
       headers: {
         'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage})`,
         'X-API-Key': config.apiKey,

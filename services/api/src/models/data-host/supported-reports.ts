@@ -171,7 +171,7 @@ export async function fetchSupportedReportsOfDataHost(
   const createdAt = new Date();
   const reportList = await fetchReportList(release, {
     auth,
-    baseUrl: supportedRelease.baseUrl,
+    baseURL: supportedRelease.baseURL,
     params: {
       ...dataHost.params,
       ...supportedRelease.params,

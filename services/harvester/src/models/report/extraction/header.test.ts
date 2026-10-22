@@ -9,7 +9,7 @@ import { extractRegistryId, extractReportHeader } from './header';
 describe('counter 5', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: '5',
     report: {
       id: 'ir',
@@ -185,7 +185,7 @@ describe('counter 5', () => {
 describe('counter 5.1', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: '5.1',
     report: {
       id: 'ir',

@@ -400,7 +400,7 @@ describe('find one release supported by Data Host', () => {
     vi.mocked(
       dbClient.dataHostSupportedRelease.findUniqueOrThrow
     ).mockResolvedValueOnce({
-      baseUrl: 'https://counter.localhost/r51',
+      baseURL: 'https://counter.localhost/r51',
       createdAt: new Date(),
       dataHostId: 'id',
       params: {},
@@ -472,7 +472,7 @@ describe('find one Data Host with supported data', () => {
     params: {},
     supportedReleases: [
       {
-        baseUrl: 'https://counter-datahost.com/',
+        baseURL: 'https://counter-datahost.com/',
         createdAt: new Date(),
         dataHostId: '',
         params: {},

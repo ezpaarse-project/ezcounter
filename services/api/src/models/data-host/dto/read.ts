@@ -98,7 +98,7 @@ export type DataHostSupportedReleaseFilters = z.infer<
  * Validation for a release supported by Data Host
  */
 export const DataHostSupportedRelease = z.object({
-  baseUrl: HarvestDataHostOptions.shape.baseUrl,
+  baseURL: HarvestDataHostOptions.shape.baseURL,
 
   createdAt: z.coerce.date().describe('Creation date'),
 

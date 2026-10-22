@@ -197,7 +197,7 @@ export async function queueHarvestJobs(
   // Group jobs per host
   const jobsPerHost = Map.groupBy<string, HarvestJobData>(
     jobs,
-    (job) => new URL(job.download.dataHost.baseUrl).hostname
+    (job) => new URL(job.download.dataHost.baseURL).hostname
   );
 
   const channel = await rabbitClient.acquire();

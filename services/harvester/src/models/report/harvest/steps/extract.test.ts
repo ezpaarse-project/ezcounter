@@ -34,7 +34,7 @@ const OPTIONS: HarvestJobData = {
     cacheKey: '',
     dataHost: {
       auth: {},
-      baseUrl: '',
+      baseURL: '',
     },
     release: '5.1',
     report: {

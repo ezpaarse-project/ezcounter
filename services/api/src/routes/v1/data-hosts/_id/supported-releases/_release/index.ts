@@ -166,7 +166,7 @@ const router: FastifyPluginAsyncZod = async (fastify) => {
           ...options,
           dataHost: {
             auth,
-            baseUrl: supportedRelease.baseUrl,
+            baseURL: supportedRelease.baseURL,
             paramsSeparator: supportedRelease.paramsSeparator,
             periodFormat: supportedRelease.periodFormat,
           },

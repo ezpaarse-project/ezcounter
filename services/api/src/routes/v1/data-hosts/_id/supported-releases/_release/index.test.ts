@@ -26,7 +26,7 @@ const server = await createTestServer(async (fastify) => {
 
 describe('get /data-hosts/:id/supported-releases/:release', () => {
   const release: DataHostSupportedRelease = {
-    baseUrl: 'https://example-counter-host.localhost',
+    baseURL: 'https://example-counter-host.localhost',
     createdAt: new Date(),
     dataHostId: 'id',
     params: {},
@@ -83,7 +83,7 @@ describe('get /data-hosts/:id/supported-releases/:release', () => {
 
 describe('put /data-hosts/:id/supported-releases/:release', () => {
   const body: UpdateDataHostSupportedRelease = {
-    baseUrl: 'https://example-counter-host.localhost',
+    baseURL: 'https://example-counter-host.localhost',
     params: {},
     paramsSeparator: '|',
     periodFormat: 'yyyy-MM-dd',
@@ -276,7 +276,7 @@ describe('post /data-hosts/:id/supported-release/:release/_check-auth', () => {
     vi.mocked(
       mockedDataHostModel.findOneReleaseSupported
     ).mockResolvedValueOnce({
-      baseUrl: 'https://counter.localhost/',
+      baseURL: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHostId: ':id',
       params: {},
@@ -326,7 +326,7 @@ describe('post /data-hosts/:id/supported-release/:release/_check-auth', () => {
     vi.mocked(
       mockedDataHostModel.findOneReleaseSupported
     ).mockResolvedValueOnce({
-      baseUrl: 'https://counter.localhost/',
+      baseURL: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHostId: ':id',
       params: { param0: 'from release', param1: 'from release' },
@@ -427,7 +427,7 @@ describe('post /data-hosts/:id/supported-release/:release/_check-auth', () => {
     vi.mocked(
       mockedDataHostModel.findOneReleaseSupported
     ).mockResolvedValueOnce({
-      baseUrl: 'https://counter.localhost/',
+      baseURL: 'https://counter.localhost/',
       createdAt: new Date(),
       dataHostId: ':id',
       params: {},

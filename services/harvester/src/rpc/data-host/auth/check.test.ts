@@ -21,7 +21,7 @@ describe('handle Credentials check Request', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -54,7 +54,7 @@ describe('handle Credentials check Request', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },

@@ -23,7 +23,7 @@ describe('harvest Process', () => {
       cacheKey: '',
       dataHost: {
         auth: {},
-        baseUrl: 'https://example.com',
+        baseURL: 'https://example.com',
       },
       release: '5.1',
       report: {

@@ -77,7 +77,7 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
     sources: {
       /** EzUnpaywall configuration */
       ezunpaywall: {
-        baseUrl: defineString('EZUNPAYWALL_BASE_URL'),
+        baseURL: defineString('EZUNPAYWALL_BASE_URL'),
         apiKey: defineString('EZUNPAYWALL_API_KEY'),
         /**
          * Retry configuration
@@ -109,12 +109,8 @@ const envDefinition: EnvOfConfig<typeof defaultConfig> = {
       },
       /** OpenAlex configuration */
       openalex: {
-        baseUrl: defineString('OPENALEX_BASE_URL'),
+        baseURL: defineString('OPENALEX_BASE_URL'),
         apiKey: defineString('OPENALEX_API_KEY'),
-        /**
-         * Is `baseUrl` leading to the CNRS Gateway around OpenAlex
-         */
-        isCNRSGateway: defineBoolean('OPENALEX_IS_CNRS_GATEWAY'),
         /**
          * Retry configuration
          */

@@ -39,7 +39,7 @@ describe('resolve context of Harvest Request', () => {
     params: {},
     supportedReleases: [
       {
-        baseUrl: 'https://my-counter.datahost.com/r51',
+        baseURL: 'https://my-counter.datahost.com/r51',
         createdAt: new Date(),
         dataHostId: 'my-counter-datahost',
         params: {},
@@ -94,7 +94,7 @@ describe('resolve context of Harvest Request', () => {
     expect.hasAssertions();
     const request = getRequest();
     const dataHost = getDataHost();
-    dataHost.supportedReleases[0].baseUrl = 'foobar';
+    dataHost.supportedReleases[0].baseURL = 'foobar';
 
     vi.mocked(
       mockedDataHostModel.findOneWithSupportedData
@@ -136,7 +136,7 @@ describe('resolve context of Harvest Request', () => {
     dataHost2.id = 'my-counter-datahost2';
     const dataHost3 = getDataHost();
     dataHost3.id = 'my-counter-datahost3';
-    dataHost3.supportedReleases[0].baseUrl =
+    dataHost3.supportedReleases[0].baseURL =
       'https://my-other.datahost.com/r51';
 
     vi.mocked(

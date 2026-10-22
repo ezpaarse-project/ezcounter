@@ -108,7 +108,7 @@ export type HarvestReportOptions = z.infer<typeof HarvestReportOptions>;
 export const HarvestDataHostOptions = z.object({
   auth: HarvestAuthOptions.describe('Credentials to use to harvest'),
 
-  baseUrl: z.url().describe('URL to use'),
+  baseURL: z.url().describe('URL to use'),
 
   paramsSeparator: z
     .string()

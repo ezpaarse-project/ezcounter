@@ -73,7 +73,7 @@ describe('remote for CNRS OpenAlex', () => {
       expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
-        baseUrl: 'https://mocked-openalex.localhost/',
+        baseURL: 'https://mocked-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -92,7 +92,7 @@ describe('remote for CNRS OpenAlex', () => {
       expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
-        baseUrl: 'https://mocked-openalex.localhost/',
+        baseURL: 'https://mocked-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -108,7 +108,7 @@ describe('remote for CNRS OpenAlex', () => {
       expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
-        baseUrl: 'https://invalid-openalex.localhost/',
+        baseURL: 'https://invalid-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -123,7 +123,7 @@ describe('remote for CNRS OpenAlex', () => {
       expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
-        baseUrl: 'https://error-openalex.localhost/',
+        baseURL: 'https://error-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -138,7 +138,7 @@ describe('remote for CNRS OpenAlex', () => {
       expect.hasAssertions();
       const remote = new CNRSGatewayRemote({
         apiKey: '',
-        baseUrl: 'https://network-openalex.localhost/',
+        baseURL: 'https://network-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,

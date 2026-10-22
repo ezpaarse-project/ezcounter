@@ -21,7 +21,7 @@ describe('create many Harvest Job', () => {
         cacheKey: 'download.cacheKey',
         dataHost: {
           auth: {},
-          baseUrl: 'download.dataHost.baseUrl',
+          baseURL: 'download.dataHost.baseURL',
           paramsSeparator: 'download.dataHost.paramsSeparator',
           periodFormat: 'download.dataHost.periodFormat',
         },
@@ -81,7 +81,7 @@ describe('create many Harvest Job', () => {
         cacheKey: 'download.cacheKey',
         dataHost: {
           auth: {},
-          baseUrl: 'download.dataHost.baseUrl',
+          baseURL: 'download.dataHost.baseURL',
         },
         release: '5.1',
 

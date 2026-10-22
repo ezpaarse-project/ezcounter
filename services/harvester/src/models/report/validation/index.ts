@@ -79,7 +79,7 @@ async function validateHeader(
   // Mapping options into harvest ones, leaving blank unused ones
   const harvestOptions: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: options.release,
     report: { id: options.reportId, period: { end: '', start: '' } },
   };
@@ -108,7 +108,7 @@ async function validateItems(
   // Mapping options into harvest ones, leaving blank unused ones
   const harvestOptions: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: options.release,
     report: { id: options.reportId, period: { end: '', start: '' } },
   };

@@ -23,7 +23,7 @@ export const HarvestRequestContent = z.object({
     // Ask for a registered Data Host
     dataHost: z.object({
       ...HarvestDataHostOptions.omit({
-        baseUrl: true,
+        baseURL: true,
         paramsSeparator: true,
         periodFormat: true,
       }).shape,

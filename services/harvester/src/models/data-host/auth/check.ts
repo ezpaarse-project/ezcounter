@@ -83,7 +83,7 @@ async function cacheReport(
     },
     {
       auth: options.dataHost.auth,
-      baseUrl: options.dataHost.baseUrl,
+      baseURL: options.dataHost.baseURL,
       params: options.report.params,
       paramsSeparator: options.dataHost.paramsSeparator,
       signal: timeout?.signal,
@@ -116,7 +116,7 @@ async function getAuthExceptions(
   // Mapping options into harvest ones, leaving blank unused ones
   const harvestOptions: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: options.release,
     report: { id: options.report.id, period: { end: '', start: '' } },
   };

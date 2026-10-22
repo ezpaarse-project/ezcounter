@@ -16,7 +16,7 @@ vi.mock(import('node:zlib'));
 describe('archive report', () => {
   const OPTIONS: HarvestDownloadOptions = {
     cacheKey: '',
-    dataHost: { auth: {}, baseUrl: '' },
+    dataHost: { auth: {}, baseURL: '' },
     release: '5.1',
     report: {
       id: 'ir',

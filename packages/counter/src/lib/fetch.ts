@@ -36,7 +36,7 @@ function transformCOUNTERQuery(
  */
 export type CreateDataHostFetchOptions = {
   /** Base URL to request API */
-  baseUrl: string;
+  baseURL: string;
   /** User Agent to use when requesting API */
   userAgent: string;
   /** Params to add to every request */
@@ -62,7 +62,7 @@ export type CreateDataHostFetchOptions = {
  */
 export const createDataHostFetch = (opts: CreateDataHostFetchOptions): $Fetch =>
   ofetch.create({
-    baseURL: opts.baseUrl,
+    baseURL: opts.baseURL,
     headers: {
       Accept: 'application/json',
       'User-Agent': opts.userAgent,

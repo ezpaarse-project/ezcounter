@@ -80,7 +80,7 @@ describe('openAlex remote', () => {
       expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
-        baseUrl: 'https://mocked-openalex.localhost/',
+        baseURL: 'https://mocked-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -99,7 +99,7 @@ describe('openAlex remote', () => {
       expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
-        baseUrl: 'https://mocked-openalex.localhost/',
+        baseURL: 'https://mocked-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -115,7 +115,7 @@ describe('openAlex remote', () => {
       expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
-        baseUrl: 'https://invalid-openalex.localhost/',
+        baseURL: 'https://invalid-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -130,7 +130,7 @@ describe('openAlex remote', () => {
       expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
-        baseUrl: 'https://error-openalex.localhost/',
+        baseURL: 'https://error-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -145,7 +145,7 @@ describe('openAlex remote', () => {
       expect.hasAssertions();
       const remote = new OpenAlexRemote({
         apiKey: '',
-        baseUrl: 'https://network-openalex.localhost/',
+        baseURL: 'https://network-openalex.localhost/',
         retry: 0,
         retryDelay: 0,
         timeout: 0,

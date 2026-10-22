@@ -22,7 +22,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: 'https://counter.localhost/',
+        baseURL: 'https://counter.localhost/',
       },
       release: '5',
       report: { id: 'tr', period: { end: '2025-01', start: '2025-01' } },
@@ -35,7 +35,7 @@ describe('credentials check', () => {
       { id: 'tr', period: { end: '2025-01', start: '2025-01' } },
       expect.objectContaining({
         auth: {},
-        baseUrl: 'https://counter.localhost/',
+        baseURL: 'https://counter.localhost/',
       })
     );
 
@@ -50,7 +50,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: 'https://counter.localhost/',
+        baseURL: 'https://counter.localhost/',
       },
       release: '5',
       report: { id: 'pr' },
@@ -63,7 +63,7 @@ describe('credentials check', () => {
       { id: 'pr', period: { end: '2025-03', start: '2025-03' } },
       expect.objectContaining({
         auth: {},
-        baseUrl: 'https://counter.localhost/',
+        baseURL: 'https://counter.localhost/',
       })
     );
 
@@ -77,7 +77,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -107,7 +107,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -142,7 +142,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -170,7 +170,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -195,7 +195,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -218,7 +218,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },
@@ -240,7 +240,7 @@ describe('credentials check', () => {
     const options: DataHostAuthCheckOptions = {
       dataHost: {
         auth: {},
-        baseUrl: '',
+        baseURL: '',
       },
       release: '5',
       report: { id: 'tr' },

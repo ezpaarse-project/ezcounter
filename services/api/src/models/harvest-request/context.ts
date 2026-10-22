@@ -90,6 +90,6 @@ export async function resolveRequestContextPerHostname(
 
   return Map.groupBy(
     resolved,
-    ({ release }) => URL.parse(release?.baseUrl ?? '')?.hostname
+    ({ release }) => URL.parse(release?.baseURL ?? '')?.hostname
   );
 }

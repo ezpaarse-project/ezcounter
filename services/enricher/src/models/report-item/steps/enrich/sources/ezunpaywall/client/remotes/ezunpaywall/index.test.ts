@@ -64,7 +64,7 @@ describe('remote for ezUnpaywall', () => {
       expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
-        baseUrl: 'https://mocked-ezunpaywall.localhost/graphql',
+        baseURL: 'https://mocked-ezunpaywall.localhost/graphql',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -83,7 +83,7 @@ describe('remote for ezUnpaywall', () => {
       expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
-        baseUrl: 'https://invalid-ezunpaywall.localhost/graphql',
+        baseURL: 'https://invalid-ezunpaywall.localhost/graphql',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -98,7 +98,7 @@ describe('remote for ezUnpaywall', () => {
       expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
-        baseUrl: 'https://error-ezunpaywall.localhost/graphql',
+        baseURL: 'https://error-ezunpaywall.localhost/graphql',
         retry: 0,
         retryDelay: 0,
         timeout: 0,
@@ -113,7 +113,7 @@ describe('remote for ezUnpaywall', () => {
       expect.hasAssertions();
       const remote = new EzUnpaywallRemote({
         apiKey: '',
-        baseUrl: 'https://network-ezunpaywall.localhost/graphql',
+        baseURL: 'https://network-ezunpaywall.localhost/graphql',
         retry: 0,
         retryDelay: 0,
         timeout: 0,

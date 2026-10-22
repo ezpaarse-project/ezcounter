@@ -13,7 +13,7 @@ describe('refresh supported reports', () => {
     params: {},
     supportedReleases: [
       {
-        baseUrl: 'https://counter-datahost.com/',
+        baseURL: 'https://counter-datahost.com/',
         createdAt: new Date(),
         dataHostId: '',
         params: {},

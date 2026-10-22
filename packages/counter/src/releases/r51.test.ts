@@ -55,7 +55,7 @@ describe('fetch COUNTER 5 report list (get /reports)', () => {
 
     const data = await fetchR51ReportList({
       auth: {},
-      baseUrl: 'https://valid-response.localhost/r51',
+      baseURL: 'https://valid-response.localhost/r51',
       userAgent: '',
     });
 
@@ -68,7 +68,7 @@ describe('fetch COUNTER 5 report list (get /reports)', () => {
 
     const promise = fetchR51ReportList({
       auth: {},
-      baseUrl: 'https://invalid-response.localhost/r51',
+      baseURL: 'https://invalid-response.localhost/r51',
       userAgent: '',
     });
 
@@ -82,7 +82,7 @@ describe('fetch COUNTER 5 report list (get /reports)', () => {
 
     const promise = fetchR51ReportList({
       auth: {},
-      baseUrl: 'https://object-response.localhost/r51',
+      baseURL: 'https://object-response.localhost/r51',
       userAgent: '',
     });
 
@@ -94,7 +94,7 @@ describe('fetch COUNTER 5 report list (get /reports)', () => {
 
     const promise = fetchR51ReportList({
       auth: {},
-      baseUrl: 'https://empty-response.localhost/r51',
+      baseURL: 'https://empty-response.localhost/r51',
       userAgent: '',
     });
 
@@ -108,7 +108,7 @@ describe('fetch COUNTER 5 report list (get /reports)', () => {
 
     const promise = fetchR51ReportList({
       auth: {},
-      baseUrl: 'https://nok-response.localhost/r51',
+      baseURL: 'https://nok-response.localhost/r51',
       userAgent: '',
     });
 
@@ -159,7 +159,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -180,7 +180,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -202,7 +202,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         params: {
           access_method: ['Regular', 'TDM'],
         },
@@ -227,7 +227,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         params: {
           access_method: ['Regular', 'TDM'],
         },
@@ -253,7 +253,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         params: {
           attributed: false,
         },
@@ -277,7 +277,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -301,7 +301,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -324,7 +324,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -345,7 +345,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://empty-response.localhost/r51',
+        baseURL: 'https://empty-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -366,7 +366,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://empty-response.localhost/r51',
+        baseURL: 'https://empty-response.localhost/r51',
         userAgent: '',
       }
     );
@@ -389,7 +389,7 @@ describe('fetch COUNTER 5.1 report as stream (get /reports/<report>)', () => {
       },
       {
         auth: {},
-        baseUrl: 'https://valid-response.localhost/r51',
+        baseURL: 'https://valid-response.localhost/r51',
         signal: controller.signal,
         userAgent: '',
       }

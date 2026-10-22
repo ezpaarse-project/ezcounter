@@ -75,7 +75,7 @@ describe('process Harvest Request', () => {
 
   const releases: DataHostSupportedRelease[] = [
     {
-      baseUrl: 'https://datahost.localhost/r51',
+      baseURL: 'https://datahost.localhost/r51',
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},
@@ -85,7 +85,7 @@ describe('process Harvest Request', () => {
       updatedAt: null,
     },
     {
-      baseUrl: 'https://datahost.localhost',
+      baseURL: 'https://datahost.localhost',
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},

@@ -51,7 +51,7 @@ describe('prepare harvest jobs per request', () => {
       updatedAt: null,
     },
     release: {
-      baseUrl: 'https://my-counter.datahost.com/r51',
+      baseURL: 'https://my-counter.datahost.com/r51',
       createdAt: new Date(),
       dataHostId: 'my-counter-datahost',
       params: {},

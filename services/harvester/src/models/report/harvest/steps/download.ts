@@ -130,7 +130,7 @@ async function downloadReport(
     },
     {
       auth: options.dataHost.auth,
-      baseUrl: options.dataHost.baseUrl,
+      baseURL: options.dataHost.baseURL,
       params: options.report.params,
       paramsSeparator: options.dataHost.paramsSeparator,
       signal: timeout?.signal,

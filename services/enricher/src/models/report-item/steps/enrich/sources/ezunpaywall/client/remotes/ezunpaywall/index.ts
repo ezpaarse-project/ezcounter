@@ -15,7 +15,7 @@ import { EzUnpaywallResponse } from './dto';
 const logger = appLogger.child({ scope: 'enrich', source: 'ezunpaywall' });
 
 type EzUnpaywallConfig = {
-  baseUrl: string;
+  baseURL: string;
   apiKey: string;
   timeout: number;
   retry: number;
@@ -27,7 +27,7 @@ export class EzUnpaywallRemote implements IEzUnpaywallRemote {
 
   constructor(config: EzUnpaywallConfig) {
     this.$fetch = ofetch.create({
-      baseURL: config.baseUrl,
+      baseURL: config.baseURL,
       headers: {
         'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage})`,
         'X-API-Key': config.apiKey,

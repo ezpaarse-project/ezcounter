@@ -42,7 +42,7 @@ const createJobFromRequest = (
   }: HarvestRequestContent,
   reportOptions: HarvestReportOptions,
   requestOptions: {
-    baseUrl: string;
+    baseURL: string;
     params: Record<string, string | boolean | string[]>;
     paramsSeparator: string;
     periodFormat: string;
@@ -54,7 +54,7 @@ const createJobFromRequest = (
     cacheKey,
     dataHost: {
       ...dataHostOpts,
-      baseUrl: requestOptions.baseUrl,
+      baseURL: requestOptions.baseURL,
       paramsSeparator: requestOptions.paramsSeparator,
       periodFormat: requestOptions.periodFormat,
     },
@@ -100,7 +100,7 @@ function prepareHarvestJobsFromHarvestRequestContent(
           content,
           { ...report, period },
           {
-            baseUrl: release.baseUrl || '',
+            baseURL: release.baseURL || '',
             params: {
               ...dataHost.params,
               ...release.params,

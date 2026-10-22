@@ -36,7 +36,7 @@ const FIELDS = [
 ].join(',');
 
 type OpenAlexRemoteConfig = {
-  baseUrl: string;
+  baseURL: string;
   apiKey: string;
   timeout: number;
   retry: number;
@@ -71,7 +71,7 @@ export class OpenAlexRemote implements IOpenAlexRemote {
 
   constructor(config: OpenAlexRemoteConfig) {
     this.$fetch = ofetch.create({
-      baseURL: config.baseUrl,
+      baseURL: config.baseURL,
       headers: {
         'User-Agent': `Mozilla/5.0 (compatible; ezCOUNTER/enricher:${appVersion}; +${appHomepage})`,
       },

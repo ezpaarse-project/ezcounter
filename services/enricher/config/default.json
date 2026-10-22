@@ -73,7 +73,7 @@
     "sources": {
       /** EzUnpaywall configuration */
       "ezunpaywall": {
-        "baseUrl": "https://unpaywall.inist.fr/api/graphql/",
+        "baseURL": "https://unpaywall.inist.fr/api/graphql/",
         "apiKey": "",
         /**
          * Retry configuration
@@ -105,12 +105,8 @@
       },
       /** OpenAlex configuration */
       "openalex": {
-        "baseUrl": "https://api.openalex.org/",
+        "baseURL": "https://api.openalex.org/",
         "apiKey": "",
-        /**
-         * Is `baseUrl` leading to the CNRS Gateway around OpenAlex
-         */
-        "isCNRSGateway": false,
         /**
          * Retry configuration
          */
