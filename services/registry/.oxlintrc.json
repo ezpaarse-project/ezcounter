@@ -1,0 +1,30 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+
+  "overrides": [
+    {
+      "files": ["config/*.ts"],
+      "rules": {
+        // node-config expect default exports
+        "import/no-default-export": "off",
+        // dont sort keys as we want it to match config
+        "sort-keys": "off"
+      }
+    },
+    {
+      "files": ["src/routes/*.ts", "src/routes/**/*.ts"],
+      "rules": {
+        // Route definitions can be large and are in one function
+        "max-lines": "off",
+        "max-lines-per-function": "off",
+        // Routes must return a `Promise`, to ease readability every route is async (even if no await is used)
+        "require-await": "off",
+        // Auto-load plugin expect routers to be the default export
+        "no-default-export": "off",
+        // Routes are defined using function parameters, allows for 1 more depth
+        "max-nested-calls": ["warn", { "max": 4 }]
+      }
+    }
+  ]
+}

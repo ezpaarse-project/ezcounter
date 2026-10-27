@@ -1,0 +1,94 @@
+{
+  /** HTTP server configuration */
+  "http": {
+    /**
+     * Port that HTTP server will listen
+     */
+    "port": 8080,
+    /** TLS options */
+    "tls": {
+      "key": "",
+      "cert": ""
+    },
+    /** CORS options */
+    "cors": {
+      /**
+       * Origins allowed
+       */
+      "allowedOrigins": "*",
+      /**
+       * Proxies allowed
+       */
+      "allowedProxies": "*"
+    }
+  },
+  /** Log configuration */
+  "log": {
+    /**
+     * Minimum level to write
+     *
+     * Available levels: trace, debug, info, warn, fatal
+     */
+    "level": "debug",
+    /**
+     * Directory to output logs, won't write logs to disk if left empty
+     *
+     * Will still output logs to stdout
+     */
+    "dir": "",
+    /**
+     * Keys to ignore in logs
+     */
+    "ignore": ["hostname"]
+  },
+  /** PostgreSQL configuration */
+  "postgres": {
+    "url": "postgres://database:5432/ezcounter?schema=default",
+    "username": "",
+    "password": ""
+  },
+  /** Source of local registry */
+  "source": {
+    /**
+     * URL to the source, can be another ezCOUNTER API, ezCOUNTER registry instance or COUNTER registry
+     *
+     * Will act as a local-only if left empty
+     */
+    "baseURL": "",
+    /**
+     * API Key used to sync, needed with ezCOUNTER API and registry instance
+     */
+    "apiKey": "",
+    /**
+     * Retry configuration
+     */
+    "retry": 3,
+    "retryDelay": {
+      "minutes": 0,
+      "seconds": 0,
+      "milliseconds": 500
+    },
+    /**
+     * Timeout of the request
+     */
+    "timeout": {
+      "minutes": 0,
+      "seconds": 20,
+      "milliseconds": 0
+    },
+    /**
+     * How long the data fetched will be stored in Redis
+     */
+    "storeTtl": {
+      "months": 0,
+      "weeks": 1,
+      "days": 0,
+      "hours": 0,
+      "minutes": 0
+    },
+    /**
+     * Cron expression describing how often sync should run
+     */
+    "syncSchedule": "0 0 * * *"
+  }
+}

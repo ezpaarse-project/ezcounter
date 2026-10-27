@@ -1,0 +1,57 @@
+/// COUNTER releases supported by data host from source
+model DataHostRelease {
+  /// ID of the data host
+  dataHostId String
+  /// COUNTER Release
+  release    String
+
+  /// URL to access data host
+  baseURL      String
+  /// Whether the release is actually fully COUNTER compliant
+  compliant    Boolean @default(false)
+  /// Auth parameters required to harvest properly
+  requiredAuth Json    @default("{ \"api_key\": false, \"customer_id\": false, \"requestor_id\": false }")
+
+  /// Is the release supported
+  supported       Boolean @default(true)
+  /// Format of the period
+  periodFormat    String  @default("yyyy-MM-dd")
+  /// Separator for multi-valuated params
+  paramsSeparator String  @default("|")
+  /// Additional params of the host for this release
+  params          Json    @default("{}")
+  /// Minimum period where this release can be used. If not provided, version can be used for every period.
+  availableSince  String?
+
+  /// When the info was created
+  createdAt DateTime  @default(now())
+  /// When the info was updated for the last time
+  updatedAt DateTime? @updatedAt
+
+  /// Data Host
+  dataHost         DataHost                @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
+  /// Reports supported by datahost for this release
+  availableReports DataHostReport[]
+  /// Local changes to apply
+  changes          DataHostReleaseChange[]
+
+  @@id([dataHostId, release])
+}
+
+model DataHostReleaseChange {
+  /// ID of the modification
+  id         String @id @default(cuid(2))
+  /// ID of the data host
+  dataHostId String
+  /// COUNTER Release
+  release    String
+
+  /// Modifications to apply to release
+  diff Json[]
+
+  /// When the info was created
+  createdAt DateTime @default(now())
+
+  /// The release supported by data host
+  target DataHostRelease @relation(fields: [dataHostId, release], references: [dataHostId, release], onDelete: Cascade)
+}

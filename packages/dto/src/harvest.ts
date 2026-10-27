@@ -46,12 +46,37 @@ export const HarvestReportPeriod = z.object({
 export type HarvestReportPeriod = z.infer<typeof HarvestReportPeriod>;
 
 /**
+ * Validation for values of non standard params when requesting a report
+ */
+export const HarvestCatchAllParams = z.union([
+  z.string(),
+  z.boolean(),
+  z.array(z.string()),
+]);
+
+/**
  * Validation for additional params when requesting a report
  */
-export const HarvestAdditionalParams = z.record(
-  z.string(),
-  z.union([z.string(), z.boolean(), z.array(z.string())])
-);
+export const HarvestAdditionalParams = z
+  .object({
+    access_method: z.array(z.string()).optional(),
+    access_type: z.array(z.string()).optional(),
+    attributed: z.boolean().optional(),
+    attributes_to_show: z.array(z.string()).optional(),
+    author: z.string().optional(),
+    country_code: z.array(z.string()).optional(),
+    data_type: z.array(z.string()).optional(),
+    database: z.string().optional(),
+    granularity: z.string().optional(),
+    include_components_details: z.boolean().optional(),
+    include_parent_details: z.boolean().optional(),
+    item_id: z.string().optional(),
+    metric_type: z.array(z.string()).optional(),
+    platform: z.string().optional(),
+    subdivision_code: z.string().optional(),
+    yop: z.array(z.string()).optional(),
+  })
+  .catchall(HarvestCatchAllParams);
 
 /**
  * Type for additional params when requesting a report
@@ -69,30 +94,9 @@ export const HarvestReportOptions = z.object({
     .optional()
     .describe('Is report Global (Global Item Report for example)'),
 
-  params: z
-    .intersection(
-      z.object({
-        access_method: z.array(z.string()).optional(),
-        access_type: z.array(z.string()).optional(),
-        attributed: z.boolean().optional(),
-        attributes_to_show: z.array(z.string()).optional(),
-        author: z.string().optional(),
-        country_code: z.array(z.string()).optional(),
-        data_type: z.array(z.string()).optional(),
-        database: z.string().optional(),
-        granularity: z.string().optional(),
-        include_components_details: z.boolean().optional(),
-        include_parent_details: z.boolean().optional(),
-        item_id: z.string().optional(),
-        metric_type: z.array(z.string()).optional(),
-        platform: z.string().optional(),
-        subdivision_code: z.string().optional(),
-        yop: z.array(z.string()).optional(),
-      }),
-      HarvestAdditionalParams
-    )
-    .optional()
-    .describe('Query parameters to use when downloading report'),
+  params: HarvestAdditionalParams.optional().describe(
+    'Query parameters to use when downloading report'
+  ),
 
   period: HarvestReportPeriod.describe('Period of the harvest'),
 });

@@ -1,71 +1,45 @@
-/// Data Host to harvest
+/// Data Host from source
 model DataHost {
   /// ID of the host
-  id        String    @id @default(cuid())
+  id String @id @default(cuid(2))
+
+  /// Name of the host
+  name  String
+  /// Is the host local to this registry
+  local Boolean @default(false)
+
   /// Additional params of the host
-  params    Json      @default("{}")
-  /// When the data host was created
+  params Json @default("{}")
+
+  /// When the data host was created (or seen for the first time)
   createdAt DateTime  @default(now())
   /// When the data host was updated for the last time
   updatedAt DateTime? @updatedAt
 
+  /// COUNTER releases supported by data host
+  availableReleases DataHostRelease[]
+  /// Local changes to apply
+  changes           DataHostChange[]
   /// The jobs that harvested data host
   harvestJobs       HarvestJob[]
-  /// COUNTER releases supported by data host
-  supportedReleases DataHostSupportedRelease[]
+
+  // Actions done by sync
+  actions RegistrySyncHostAction[]
 }
 
-/// COUNTER releases supported by data host
-model DataHostSupportedRelease {
+/// Modification to apply to source data host
+model DataHostChange {
+  /// ID of the modification
+  id         String @id @default(cuid(2))
   /// ID of the data host
-  dataHostId      String
-  /// COUNTER Release
-  release         String
-  /// URL to access data host
-  baseUrl         String
-  /// Format of the period
-  periodFormat    String    @default("yyyy-MM-dd")
-  /// Separator for multi-valuated params
-  paramsSeparator String    @default("|")
-  /// Additional params of the host for this release
-  params          Json      @default("{}")
+  dataHostId String
+
+  /// Modifications to apply to host
+  diff Json[]
+
   /// When the info was created
-  createdAt       DateTime  @default(now())
-  /// When the info was updated for the last time
-  updatedAt       DateTime? @updatedAt
+  createdAt DateTime @default(now())
 
   /// Data Host
-  dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
-
-  /// Reports supported by datahost for this release
-  supportedReports DataHostSupportedReport[]
-
-  @@id([dataHostId, release])
-}
-
-/// Report (un)supported by data host - Overrides endpoint information
-model DataHostSupportedReport {
-  /// ID of the data host
-  dataHostId          String
-  /// COUNTER Release
-  release             String
-  /// COUNTER report ID
-  id                  String
-  /// Additional params of the host for this report
-  params              Json      @default("{}")
-  /// Is the report supported, overrides the datahost's info - null to skip
-  supported           Boolean?
-  /// First month available in report, overrides the datahost's info - empty if no date - null to skip
-  firstMonthAvailable String?
-  /// Last month available in report, overrides the datahost's info - empty if no date - null to skip
-  lastMonthAvailable  String?
-  /// When the info was created
-  createdAt           DateTime  @default(now())
-  /// When the info was updated for the last time
-  updatedAt           DateTime? @updatedAt
-
-  /// The release supported by data host
-  supportedRelease DataHostSupportedRelease @relation(fields: [dataHostId, release], references: [dataHostId, release], onDelete: Cascade)
-
-  @@id([dataHostId, release, id])
+  target DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
 }

@@ -3,11 +3,13 @@ packages:
   - services/*
 
 catalog:
-  '@types/node': ^24
+  '@types/node': ^26
   date-fns: ^4.1.0
   http-status-codes: ^2.3.0
   ofetch: ^2.0.0-alpha.3
   pino: ^10.3.1
+  stream-chain: ^4.2.6
+  stream-json: ^3.7.0
 
 catalogs:
   dev:

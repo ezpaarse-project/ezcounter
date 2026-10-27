@@ -1,0 +1,61 @@
+enum RegistrySyncActivityStatus {
+  pending
+  processing
+  error
+  done
+}
+
+/// Activity about registry sync
+model RegistrySyncActivity {
+  /// ID of the sync
+  id String @id @default(cuid(2))
+
+  /// The URL used to sync
+  sourceUrl String
+
+  /// Status of the sync
+  status RegistrySyncActivityStatus
+  /// Error that occurred while syncing
+  error  Json?
+  /// Time sync took
+  took   Int?
+
+  /// When the sync was created/queued
+  createdAt DateTime  @default(now())
+  /// When the sync was updated for the last time
+  updatedAt DateTime? @updatedAt
+  /// When the sync was started
+  startedAt DateTime?
+
+  // Actions done by sync on data hosts
+  hostActions RegistrySyncHostAction[]
+}
+
+enum RegistrySyncHostActionType {
+  created
+  updated
+  unlinked
+}
+
+/// Action done by a registry sync on data hosts
+model RegistrySyncHostAction {
+  /// ID of the sync
+  syncId     String
+  /// ID of the host affected
+  dataHostId String
+
+  /// Type of action done
+  type RegistrySyncHostActionType
+  /// Diff of the action
+  diff Json[]
+
+  /// Sync
+  sync     RegistrySyncActivity @relation(fields: [syncId], references: [id], onDelete: Cascade)
+  /// Data Host affected
+  dataHost DataHost             @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
+
+  /// When the action was done
+  createdAt DateTime @default(now())
+
+  @@id([syncId, dataHostId])
+}

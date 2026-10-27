@@ -1,0 +1,61 @@
+{
+  "name": "ezcounter-registry",
+  "version": "0.1.0",
+  "private": false,
+  "homepage": "https://github.com/ezpaarse-project/ezcounter#readme",
+  "bugs": {
+    "url": "https://github.com/ezpaarse-project/ezcounter/issues"
+  },
+  "license": "CeCILL",
+  "author": "oxypomme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ezpaarse-project/ezcounter.git"
+  },
+  "type": "module",
+  "main": "dist/app.mjs",
+  "scripts": {
+    "dev": "tsx watch --inspect=0.0.0.0 src/app.ts",
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "check": "tsc --noEmit --skipLibCheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "build": "tsdown",
+    "start": "node --enable-source-maps dist/app.mjs"
+  },
+  "dependencies": {
+    "@fastify/swagger-ui": "^6.1.1",
+    "pino": "catalog:"
+  },
+  "devDependencies": {
+    "@ezcounter/config": "workspace:*",
+    "@ezcounter/database": "workspace:*",
+    "@ezcounter/dto": "workspace:*",
+    "@ezcounter/rolldown": "workspace:*",
+    "@ezcounter/toolbox": "workspace:*",
+    "@paralleldrive/cuid2": "^3.3.0",
+    "@types/node": "catalog:",
+    "@vitest/coverage-v8": "catalog:test",
+    "cron": "^4.4.0",
+    "date-fns": "catalog:",
+    "es-toolkit": "^1.53.0",
+    "http-status-codes": "catalog:",
+    "json5": "catalog:build",
+    "msw": "catalog:test",
+    "ofetch": "catalog:",
+    "ohash": "^2.0.12",
+    "pino-pretty": "catalog:dev",
+    "stream-chain": "catalog:",
+    "stream-json": "catalog:",
+    "tsdown": "catalog:build",
+    "tsx": "catalog:dev",
+    "typescript": "catalog:dev",
+    "vitest": "catalog:test",
+    "vitest-mock-extended": "catalog:test"
+  },
+  "engines": {
+    "node": "^24 || ^26"
+  }
+}

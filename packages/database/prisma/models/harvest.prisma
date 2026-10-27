@@ -10,7 +10,8 @@ enum HarvestJobStatus {
 /// Information about a harvest job
 model HarvestJob {
   /// ID of the job
-  id            String           @id
+  id String @id
+
   /// ID of the request that created the job
   requestId     String
   /// ID of the report harvested
@@ -19,40 +20,43 @@ model HarvestJob {
   period        Json
   /// COUNTER release of the report
   release       String
-  /// Additional params of the report
-  params        Json             @default("{}")
-  /// Hooks related to job
-  hooks         Json             @default("{}")
-  /// Data Host used to harvest
-  dataHost      DataHost         @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
   /// ID of the data host
   dataHostId    String
-  /// Timeout of the job in ms
-  timeout       Int              @default(60000)
-  /// Should force download the report
-  forceDownload Boolean          @default(false)
   /// Target Elastic index
   index         String
   /// Sources to use for enrich
   enrichSources String[]
+  /// Additional params of the report
+  params        Json     @default("{}")
+  /// Hooks related to job
+  hooks         Json     @default("{}")
+  /// Timeout of the job in ms
+  timeout       Int      @default(60000)
+  /// Should force download the report
+  forceDownload Boolean  @default(false)
+
   /// Status of the job
-  status        HarvestJobStatus
+  status   HarvestJobStatus
   /// Error that occurred while harvesting
-  error         Json?
+  error    Json?
   /// Information about download step
-  download      Json             @default("{ \"status\": \"pending\" }")
+  download Json             @default("{ \"status\": \"pending\" }")
   /// Information about extract step
-  extract       Json             @default("{ \"status\": \"pending\" }")
+  extract  Json             @default("{ \"status\": \"pending\" }")
   /// Information about enrich step
-  enrich        Json             @default("{ \"status\": \"pending\" }")
+  enrich   Json             @default("{ \"status\": \"pending\" }")
   /// Information about insert step
-  insert        Json             @default("{ \"status\": \"pending\" }")
+  insert   Json             @default("{ \"status\": \"pending\" }")
   /// Time harvest took
-  took          Int?
+  took     Int?
+
   /// When the harvest job was created/queued
-  createdAt     DateTime         @default(now())
+  createdAt DateTime  @default(now())
   /// When the harvest job was updated for the last time
-  updatedAt     DateTime?        @updatedAt
+  updatedAt DateTime? @updatedAt
   /// When the harvest job was started
-  startedAt     DateTime?
+  startedAt DateTime?
+
+  /// Data Host used to harvest
+  dataHost DataHost @relation(fields: [dataHostId], references: [id], onDelete: Cascade)
 }

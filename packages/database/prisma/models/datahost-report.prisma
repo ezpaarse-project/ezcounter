@@ -1,0 +1,51 @@
+/// Report (un)supported by data host - Overrides information provided by host
+model DataHostReport {
+  /// ID of the data host
+  dataHostId String
+  /// COUNTER Release
+  release    String
+  /// COUNTER report ID
+  reportId   String
+
+  /// Additional params of the host for this report
+  params Json @default("{}")
+
+  /// Is the report supported, overrides the datahost's info - null to skip
+  supported           Boolean?
+  /// First month available in report, overrides the datahost's info - empty if no date - null to skip
+  firstMonthAvailable String?
+  /// Last month available in report, overrides the datahost's info - empty if no date - null to skip
+  lastMonthAvailable  String?
+
+  /// When the info was created
+  createdAt DateTime  @default(now())
+  /// When the info was updated for the last time
+  updatedAt DateTime? @updatedAt
+
+  /// The release supported by data host
+  supportedRelease DataHostRelease        @relation(fields: [dataHostId, release], references: [dataHostId, release], onDelete: Cascade)
+  /// Local changes to apply
+  changes          DataHostReportChange[]
+
+  @@id([dataHostId, release, reportId])
+}
+
+model DataHostReportChange {
+  /// ID of the modification
+  id         String @id @default(cuid(2))
+  /// ID of the data host
+  dataHostId String
+  /// COUNTER Release
+  release    String
+  /// COUNTER report ID
+  reportId   String
+
+  /// Modifications to apply to report
+  diff Json[]
+
+  /// When the info was created
+  createdAt DateTime @default(now())
+
+  /// The report supported by data host
+  target DataHostReport @relation(fields: [dataHostId, release, reportId], references: [dataHostId, release, reportId], onDelete: Cascade)
+}

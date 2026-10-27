@@ -1,6 +1,5 @@
 import {
   type EnvOfConfig,
-  defineBoolean,
   defineDuration,
   defineJSON,
   defineNumber,

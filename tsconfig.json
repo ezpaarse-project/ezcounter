@@ -7,7 +7,7 @@
     "strict": true,
 
     // Used by TypeScript
-    "lib": ["ES2024"],
+    "lib": ["ESNext"],
     "moduleDetection": "force",
     "module": "Preserve",
     "resolveJsonModule": true,

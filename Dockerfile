@@ -1,27 +1,27 @@
 # region Common
 
 # Base image for node, enable usage of pnpm and allow to run apps
-FROM node:24.20.0-alpine3.24 AS base
-LABEL maintainer="ezTeam <ezteam@couperin.org>"
-LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
+FROM ghcr.io/pnpm/pnpm:12-alpine AS base
 
-ENV PNPM_HOME="/pnpm" \
-    TURBO_CACHE_DIR="/turbo" \
-    PATH="$PNPM_HOME:$PATH"
+LABEL maintainer="ezTEAM <ezteam@couperin.org>"
+LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
 
 # Update APK registry
 RUN apk update \
   && apk upgrade -U -a
+
+RUN pnpm runtime set node 26 -g
+
 # ---
 # Base image for dependencies
-FROM base AS pnpm
+FROM base AS builder
 WORKDIR /usr/dev
+
+ENV TURBO_CACHE_DIR="/turbo"
 
 COPY . .
 
-RUN corepack enable && corepack install
-
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm ci
+RUN --mount=type=cache,id=pnpm,target=/var/cache/pnpm pnpm --store-dir /var/cache/pnpm ci
 
 # Run check to ensure everything can be bundled safely
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run check
@@ -31,7 +31,7 @@ RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run check
 # region Database
 
 # Prepare dependencies for database client
-FROM pnpm AS database-pnpm
+FROM builder AS database-builder
 WORKDIR /usr/dev
 
 RUN pnpm deploy --filter @ezreeport/database --prod /usr/build/database
@@ -41,13 +41,16 @@ FROM base AS migrate
 ENV NODE_ENV=production
 WORKDIR /usr/build/database
 
-COPY --from=database-pnpm /usr/build/database .
+COPY --from=database-builder /usr/build/database .
 
-CMD [ "npx", "prisma", "migrate", "deploy" ]
+CMD [ "pnpx", "prisma", "migrate", "deploy" ]
 
 # endregion
 # ---
 # region API
+
+# Prepare prod dependencies for api
+FROM builder AS api-builder
 
 # Resolve dependencies and add it to bundle
 RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api && \
@@ -73,7 +76,7 @@ CMD [ "node", "--enable-source-maps", "app.cjs" ]
 # region Enricher
 
 # Prepare prod dependencies for enricher
-FROM pnpm AS enricher-builder
+FROM builder AS enricher-builder
 WORKDIR /usr/dev
 
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-enricher#build
@@ -101,7 +104,7 @@ CMD [ "node", "--enable-source-maps", "app.cjs" ]
 # region Harvester
 
 # Prepare prod dependencies for Harvester
-FROM pnpm AS harvester-builder
+FROM builder AS harvester-builder
 WORKDIR /usr/dev
 
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-harvester#build
@@ -127,6 +130,35 @@ CMD [ "node", "--enable-source-maps", "app.cjs" ]
 
 # endregion
 # ---
+# region Registry
+
+# Prepare prod dependencies for Registry
+FROM builder AS registry-builder
+WORKDIR /usr/dev
+
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-registry#build
+
+# Resolve dependencies and add it to bundle
+RUN pnpm deploy --filter ezcounter-registry --prod /usr/build/registry && \
+  cp -r /usr/build/registry/node_modules /usr/build/registry/package.json /usr/build/registry/dist
+
+# ---
+# Final image to run Registry service
+FROM base AS registry
+EXPOSE 8080
+ENV NODE_ENV=production \
+    NODE_USE_ENV_PROXY=1
+WORKDIR /usr/build/registry
+
+COPY --from=registry-builder /usr/build/registry/dist .
+
+HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
+  CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
+
+CMD [ "node", "--enable-source-maps", "app.cjs" ]
+
+# endregion
+# ---
 # region All In One
 
 # Final image to run all services
@@ -136,7 +168,7 @@ ENV NODE_ENV=production \
     NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build
 
-RUN npm install -g pm2@^7.0.3
+RUN pnpm install -g pm2@^7.1.0
 
 COPY --from=api-builder /usr/build/api/dist ./api
 COPY --from=enricher-builder /usr/build/enricher/dist ./enricher
