@@ -22,6 +22,12 @@ export async function getWorkByDOI(
   doi: string,
   onWork: (doc: OpenAlexWork | null, status: EnrichStatus) => Promise<void>
 ): Promise<true> {
+  const handler = await remote;
+  if (!handler) {
+    await onWork(null, 'skipped');
+    return true;
+  }
+
   const cacheKey = `work:doi:${doi}`;
 
   try {
@@ -38,7 +44,7 @@ export async function getWorkByDOI(
     });
   }
 
-  await bufferedFetchOneWorkByDOI(remote, doi, async (work) => {
+  await bufferedFetchOneWorkByDOI(handler, doi, async (work) => {
     if (work) {
       try {
         await store.set(cacheKey, work);

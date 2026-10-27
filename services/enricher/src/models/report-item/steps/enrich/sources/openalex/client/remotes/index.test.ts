@@ -1,6 +1,6 @@
+import { ofetch } from 'ofetch';
 import { describe, expect, it, vi } from 'vitest';
 
-import { appConfig } from '~/lib/config';
 import { createStore } from '~/lib/store';
 
 import { createOpenAlexRemote, createOpenAlexStore } from '.';
@@ -9,6 +9,7 @@ import { OpenAlexRemote } from './openalex';
 
 vi.mock(import('./cnrs-gateway'));
 vi.mock(import('./openalex'));
+vi.mock(import('ofetch'));
 
 describe('create store', () => {
   it('should create store', () => {
@@ -27,12 +28,11 @@ describe('create store', () => {
 });
 
 describe('create remote', () => {
-  it('should create OpenAlex remote', () => {
-    expect.hasAssertions();
-    // Spoof config
-    vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = false;
+  it('should create OpenAlex remote', async () => {
+    expect.assertions(1);
+    vi.mocked(ofetch).mockResolvedValueOnce({ name: 'OpenAlex API' });
 
-    createOpenAlexRemote();
+    await createOpenAlexRemote();
 
     expect(OpenAlexRemote).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
@@ -44,12 +44,11 @@ describe('create remote', () => {
     );
   });
 
-  it('should create CNRS OpenAlex remote', () => {
-    expect.hasAssertions();
-    // Spoof config
-    vi.mocked(appConfig).enrich.sources.openalex.isCNRSGateway = true;
+  it('should create CNRS OpenAlex remote', async () => {
+    expect.assertions(1);
+    vi.mocked(ofetch).mockResolvedValueOnce('openalex gateway api service');
 
-    createOpenAlexRemote();
+    await createOpenAlexRemote();
 
     expect(CNRSGatewayRemote).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({

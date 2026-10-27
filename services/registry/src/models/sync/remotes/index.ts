@@ -7,7 +7,7 @@ import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import type { ISyncRemote } from './types';
-import { CounterRegistryRemote } from './counter-registry';
+// import { CounterRegistryRemote } from './counter-registry';
 import { EzCounterRemote } from './ezcounter';
 
 const { source: config } = appConfig;
