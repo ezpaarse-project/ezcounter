@@ -1,7 +1,6 @@
 # region Common
 
-# Base image for node, enable usage of pnpm and allow to run apps
-FROM ghcr.io/pnpm/pnpm:12-alpine AS base
+FROM node:26.12.1-alpine3.24 AS base
 
 LABEL maintainer="ezTEAM <ezteam@couperin.org>"
 LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcounter"
@@ -10,14 +9,15 @@ LABEL org.opencontainers.image.source="https://github.com/ezpaarse-project/ezcou
 RUN apk update \
   && apk upgrade -U -a
 
-RUN pnpm runtime set node 26 -g
-
 # ---
 # Base image for dependencies
 FROM base AS builder
 WORKDIR /usr/dev
 
 ENV TURBO_CACHE_DIR="/turbo"
+
+COPY --from=ghcr.io/pnpm/pnpm:12-alpine /opt/pnpm /opt/pnpm
+RUN for bin in pnpm pn pnpx pnx; do ln -s "/opt/pnpm/$bin" "/usr/local/bin/$bin"; done
 
 COPY . .
 
@@ -43,7 +43,7 @@ WORKDIR /usr/build/database
 
 COPY --from=database-builder /usr/build/database .
 
-CMD [ "pnpx", "prisma", "migrate", "deploy" ]
+CMD [ "npx", "prisma", "migrate", "deploy" ]
 
 # endregion
 # ---
@@ -53,8 +53,14 @@ CMD [ "pnpx", "prisma", "migrate", "deploy" ]
 FROM builder AS api-builder
 
 # Resolve dependencies and add it to bundle
-RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api && \
-  cp -r /usr/build/api/node_modules /usr/build/api/package.json /usr/build/api/dist
+RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api
+
+WORKDIR /usr/build/api
+
+# Prepare for final stage
+RUN mkdir ./out && \
+    cp -r ./node_modules ./package.json ./dist ./out && \
+    mv ./out/dist/config ./out/config
 
 # ---
 # Final image to run API service
@@ -64,12 +70,12 @@ ENV NODE_ENV=production
 WORKDIR /usr/build/api
 
 # Grab dependencies and bundled files
-COPY --from=api-builder /usr/build/api/dist .
+COPY --from=api-builder /usr/build/api/out .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.cjs" ]
+CMD [ "node", "--enable-source-maps", "app.mjs" ]
 
 # endregion
 # ---
@@ -82,22 +88,29 @@ WORKDIR /usr/dev
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-enricher#build
 
 # Resolve dependencies and add it to bundle
-RUN pnpm deploy --filter ezcounter-enricher --prod /usr/build/enricher && \
-  cp -r /usr/build/enricher/node_modules /usr/build/enricher/package.json /usr/build/enricher/dist
+RUN pnpm deploy --filter ezcounter-enricher --prod /usr/build/enricher
+
+WORKDIR /usr/build/enricher
+
+# Prepare for final stage
+RUN mkdir ./out && \
+    cp -r ./node_modules ./package.json ./dist ./out && \
+    mv ./out/dist/config ./out/config
 
 # ---
 # Final image to run Enricher service
 FROM base AS enricher
 EXPOSE 8080
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build/enricher
 
-COPY --from=enricher-builder /usr/build/enricher/dist .
+COPY --from=enricher-builder /usr/build/enricher/out .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.cjs" ]
+CMD [ "node", "--enable-source-maps", "app.mjs" ]
 
 # endregion
 # ---
@@ -110,8 +123,14 @@ WORKDIR /usr/dev
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-harvester#build
 
 # Resolve dependencies and add it to bundle
-RUN pnpm deploy --filter ezcounter-harvester --prod /usr/build/harvester && \
-  cp -r /usr/build/harvester/node_modules /usr/build/harvester/package.json /usr/build/harvester/dist
+RUN pnpm deploy --filter ezcounter-harvester --prod /usr/build/harvester
+
+WORKDIR /usr/build/harvester
+
+# Prepare for final stage
+RUN mkdir ./out && \
+    cp -r ./node_modules ./package.json ./dist ./out && \
+    mv ./out/dist/config ./out/config
 
 # ---
 # Final image to run Harvester service
@@ -121,12 +140,12 @@ ENV NODE_ENV=production \
     NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build/harvester
 
-COPY --from=harvester-builder /usr/build/harvester/dist .
+COPY --from=harvester-builder /usr/build/harvester/out .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.cjs" ]
+CMD [ "node", "--enable-source-maps", "dist/app.mjs" ]
 
 # endregion
 # ---
@@ -138,9 +157,15 @@ WORKDIR /usr/dev
 
 RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-registry#build
 
-# Resolve dependencies and add it to bundle
-RUN pnpm deploy --filter ezcounter-registry --prod /usr/build/registry && \
-  cp -r /usr/build/registry/node_modules /usr/build/registry/package.json /usr/build/registry/dist
+# Resolve dependencies
+RUN pnpm deploy --filter ezcounter-registry --prod /usr/build/registry
+
+WORKDIR /usr/build/registry
+
+# Prepare for final stage
+RUN mkdir ./out && \
+    cp -r ./node_modules ./package.json ./dist ./out && \
+    mv ./out/dist/config ./out/config
 
 # ---
 # Final image to run Registry service
@@ -150,12 +175,12 @@ ENV NODE_ENV=production \
     NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build/registry
 
-COPY --from=registry-builder /usr/build/registry/dist .
+COPY --from=registry-builder /usr/build/registry/out .
 
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.cjs" ]
+CMD [ "node", "--enable-source-maps", "dist/app.mjs" ]
 
 # endregion
 # ---

@@ -8,7 +8,7 @@ services:
 
   api:
     build:
-      target: pnpm
+      target: builder
     working_dir: /usr/dev/services/api
     command: pnpm run dev
     ports:
@@ -29,7 +29,7 @@ services:
 
   enricher:
     build:
-      target: pnpm
+      target: builder
     working_dir: /usr/dev/services/enricher
     command: pnpm run dev
     ports:
@@ -50,7 +50,7 @@ services:
 
   harvester:
     build:
-      target: pnpm
+      target: builder
     working_dir: /usr/dev/services/harvester
     command: pnpm run dev
     ports:
@@ -68,3 +68,24 @@ services:
           initial_sync: true
         - action: rebuild
           path: ./services/harvester/package.json
+
+  registry:
+    build:
+      target: builder
+    working_dir: /usr/dev/services/registry
+    command: pnpm run dev
+    ports:
+      - 8082:8080
+      - 9232:9229 # Debugger port
+    develop:
+      watch:
+        - action: sync
+          path: ./packages
+          target: /usr/dev/packages
+          initial_sync: true
+        - action: sync
+          path: ./services/registry/src
+          target: /usr/dev/services/registry/src
+          initial_sync: true
+        - action: rebuild
+          path: ./services/registry/package.json

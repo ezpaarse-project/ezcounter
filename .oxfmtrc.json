@@ -7,6 +7,7 @@
   "printWidth": 80,
   "ignorePatterns": [],
   "sortPackageJson": true,
+  "vueIndentScriptAndStyle": true,
   "sortImports": {
     "customGroups": [
       {

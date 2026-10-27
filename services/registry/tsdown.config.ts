@@ -2,6 +2,7 @@ import { defineConfig } from 'tsdown';
 
 import { nodeConfigPlugin } from '@ezcounter/rolldown/config';
 
+// Rolldown is only used for the server
 export default defineConfig([
   // App
   {

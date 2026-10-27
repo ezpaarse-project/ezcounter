@@ -2,8 +2,15 @@
   "$schema": "https://v2-9-15.turborepo.dev/schema.json",
   "extends": ["//"],
   "tasks": {
+    "build:server": {
+      "outputs": ["dist/**"]
+    },
+    "build:client": {
+      "dependsOn": ["build:server"],
+      "outputs": ["dist/client/**", "dist/server/**"]
+    },
     "build": {
-      "outputs": ["dist"]
+      "dependsOn": ["build:client"]
     }
   }
 }

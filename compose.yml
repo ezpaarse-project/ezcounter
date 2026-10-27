@@ -89,3 +89,17 @@ services:
       rabbitmq:
         condition: service_healthy
     # Health check is built-in the image
+
+  registry:
+    container_name: ezcounter_registry
+    build:
+      target: registry
+    env_file:
+      - .env
+      - path: .env.local
+        required: false
+    restart: never
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Health check is built-in the image

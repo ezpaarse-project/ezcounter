@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+
+  "plugins": ["vue"],
+
+  "rules": {
+    // Allows to import components and assets
+    "import/extensions": ["error", { "pattern": { "*.vue": "never" } }],
+    // Allow for i18n
+    "id-length": ["warn", { "exceptions": ["t"] }],
+    // Enforce browser rules
+    "no-nodejs-modules": "error",
+    "no-alert": "error",
+    "no-script-url": "error",
+    "import/no-namespace": "error",
+    "unicorn/no-document-cookie": "error",
+    "unicorn/prefer-event-target": "error",
+    "unicorn/prefer-add-event-listener": "error"
+  },
+
+  "overrides": [
+    {
+      "files": ["./**/*.vue"],
+      "rules": {
+        // Vue is always using modules
+        "import/unambiguous": "off",
+        // Vue conventions
+        "unicorn/filename-case": "off"
+      }
+    }
+  ]
+}

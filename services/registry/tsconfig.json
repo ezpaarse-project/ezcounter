@@ -1,5 +1,6 @@
 {
   "include": ["**/*.ts"],
+  "exclude": ["src/client/**/*"],
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "types": ["node"],
