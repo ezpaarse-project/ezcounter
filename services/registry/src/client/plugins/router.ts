@@ -10,5 +10,4 @@ if (import.meta.hot) {
   handleHotUpdate(router);
 }
 
-// oxlint-disable-next-line import/no-default-export
 export default router;

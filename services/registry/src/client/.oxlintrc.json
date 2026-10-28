@@ -16,7 +16,9 @@
     "import/no-namespace": "error",
     "unicorn/no-document-cookie": "error",
     "unicorn/prefer-event-target": "error",
-    "unicorn/prefer-add-event-listener": "error"
+    "unicorn/prefer-add-event-listener": "error",
+    // Vue conventions
+    "import/no-default-export": "allow"
   },
 
   "overrides": [

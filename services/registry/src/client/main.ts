@@ -1,9 +1,18 @@
 import { createApp } from 'vue';
-
 // oxlint-disable-next-line import/no-unassigned-import
-import './style.css';
+import 'unfonts.css';
+
 import App from './App.vue';
+import head from './plugins/head.ts';
+import i18n from './plugins/i18n.ts';
 import router from './plugins/router.ts';
 import vuetify from './plugins/vuetify.ts';
 
-createApp(App).use(router).use(vuetify).mount('#app');
+const app = createApp(App);
+
+app.use(router);
+app.use(head);
+app.use(i18n);
+app.use(vuetify);
+
+app.mount('#app');

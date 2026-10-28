@@ -2,10 +2,9 @@
 import { resolve } from 'node:path';
 
 import fastify from '@fastify/vite/plugin';
+import i18n from '@intlify/unplugin-vue-i18n/vite';
 import vue from '@vitejs/plugin-vue';
-import autoimport from 'unplugin-auto-import/vite';
-import components from 'unplugin-vue-components/vite';
-import devTools from 'vite-plugin-vue-devtools';
+import fonts from 'unplugin-fonts/vite';
 import vuetify from 'vite-plugin-vuetify';
 import { defineConfig } from 'vitest/config';
 import router from 'vue-router/vite';
@@ -22,25 +21,30 @@ export default defineConfig({
 
     router({
       dts: '.vite/routes.d.ts',
+      root: import.meta.dirname,
       routesFolder: ['pages/'],
+    }),
+
+    i18n({
+      include: resolve(import.meta.dirname, 'locales/**'),
+    }),
+
+    fonts({
+      fontsource: {
+        families: [
+          {
+            name: 'Roboto',
+            styles: ['normal', 'italic'],
+            // oxlint-disable-next-line no-magic-numbers
+            weights: [100, 300, 400, 500, 700, 900],
+          },
+        ],
+      },
     }),
 
     vue(),
 
-    components({
-      dirs: ['components/'],
-      dts: '.vite/components.d.ts',
-    }),
-
-    autoimport({
-      dirs: ['composables/'],
-      dts: '.vite/auto-imports.d.ts',
-      imports: ['vue', 'vue-i18n', 'vue-router'],
-    }),
-
     vuetify(),
-
-    devTools(),
   ],
 
   root: import.meta.dirname,
