@@ -18,22 +18,19 @@
     "dev": "tsx watch --inspect=0.0.0.0 src/app.ts --dev",
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "check": "tsc --noEmit --skipLibCheck",
+    "check:client": "vue-tsc --noEmit --skipLibCheck",
+    "check:server": "tsc --noEmit --skipLibCheck",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "build:client": "vite build",
+    "build:client": "vite -c src/client/vite.config.ts build",
     "build:server": "tsdown",
     "start": "node --enable-source-maps dist/app.mjs"
   },
   "dependencies": {
     "@fastify/swagger-ui": "^6.1.1",
     "@fastify/vite": "^10.0.0",
-    "@fastify/vue": "^2.0.1",
-    "@unhead/vue": "^3.4.3",
-    "pino": "catalog:",
-    "vue": "^3.5.44",
-    "vue-router": "^5.4.0"
+    "pino": "catalog:"
   },
   "devDependencies": {
     "@ezcounter/config": "workspace:*",
@@ -65,9 +62,18 @@
     "tsdown": "catalog:build",
     "tsx": "catalog:dev",
     "typescript": "catalog:dev",
+    "unplugin-auto-import": "^21.1.0",
+    "unplugin-vue-components": "^32.1.0",
     "vite": "^8.3.5",
+    "vite-plugin-vue-devtools": "^8.2.1",
+    "vite-plugin-vuetify": "^2.1.3",
     "vitest": "catalog:test",
-    "vitest-mock-extended": "catalog:test"
+    "vitest-mock-extended": "catalog:test",
+    "vue": "^3.5.44",
+    "vue-i18n": "^11.4.16",
+    "vue-router": "^5.4.0",
+    "vue-tsc": "^3.3.13",
+    "vuetify": "^4.3.1"
   },
   "engines": {
     "node": "^24 || ^26"

@@ -6,6 +6,7 @@ import { nodeConfigPlugin } from '@ezcounter/rolldown/config';
 export default defineConfig([
   // App
   {
+    clean: false,
     entry: 'src/app.ts',
     format: 'esm',
     minify: true,
@@ -15,6 +16,7 @@ export default defineConfig([
   },
   // Config - env can be compiled and default is JSON5
   {
+    clean: false,
     entry: ['config/custom-environment-variables.ts', 'config/default.json'],
     format: 'esm',
     outDir: 'dist/config/',

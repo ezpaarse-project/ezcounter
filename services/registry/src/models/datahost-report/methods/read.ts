@@ -49,8 +49,8 @@ export async function countAllDataHostReport(
   query: null,
   tx: Prisma.TransactionClient
 ): Promise<number> {
-  const { id: count } = await tx.dataHostReport.count({
-    select: { id: true },
+  const { reportId: count } = await tx.dataHostReport.count({
+    select: { reportId: true },
     where: {
       dataHostId: releaseId.dataHostId,
       release: releaseId.release,
@@ -72,12 +72,12 @@ export async function doesDataHostReportExists(
   id: DataHostReportID,
   tx: Prisma.TransactionClient
 ): Promise<boolean> {
-  const { id: count } = await tx.dataHostReport.count({
-    select: { id: true },
+  const { reportId: count } = await tx.dataHostReport.count({
+    select: { reportId: true },
     where: {
       dataHostId: id.dataHostId,
-      id: id.reportId,
       release: id.release,
+      reportId: id.reportId,
     },
   });
 

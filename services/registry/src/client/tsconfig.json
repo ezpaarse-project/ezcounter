@@ -2,14 +2,20 @@
   "include": ["**/*.ts", "**/*.vue"],
   "exclude": [],
   "extends": "../../tsconfig.json",
+
   "compilerOptions": {
+    "tsBuildInfoFile": "../../node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+    "target": "es2023",
+    "lib": ["ES2023"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "module": "nodenext",
     "allowImportingTsExtensions": true,
-    "jsx": "preserve",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "target": "ES2023",
-    "types": ["vite/client"]
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true
   }
 }

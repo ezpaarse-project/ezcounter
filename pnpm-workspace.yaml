@@ -27,13 +27,19 @@ catalogs:
 
 injectWorkspacePackages: true
 
-allowBuilds:
-  '@prisma/engines': true
-  lefthook: true
-
-  esbuild: false
-  msw: false
-  prisma: false
+permissions:
+  '@unhead/vue':
+    skills: false
+  '@prisma/engines':
+    build: true
+  lefthook:
+    build: true
+  esbuild:
+    build: false
+  msw:
+    build: false
+  prisma:
+    build: false
 
 minimumReleaseAge: 60
 minimumReleaseAgeExclude:

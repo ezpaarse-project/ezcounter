@@ -3,14 +3,13 @@
   "extends": ["//"],
   "tasks": {
     "build:server": {
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "!dist/client/**", "!dist/server/**"]
     },
     "build:client": {
-      "dependsOn": ["build:server"],
       "outputs": ["dist/client/**", "dist/server/**"]
     },
     "build": {
-      "dependsOn": ["build:client"]
+      "dependsOn": ["build:client", "build:server"]
     }
   }
 }

@@ -75,7 +75,7 @@ COPY --from=api-builder /usr/build/api/out .
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.mjs" ]
+CMD [ "node", "--enable-source-maps", "dist/app.mjs" ]
 
 # endregion
 # ---
@@ -110,7 +110,7 @@ COPY --from=enricher-builder /usr/build/enricher/out .
 HEALTHCHECK --interval=1m --timeout=10s --retries=5 --start-period=20s \
   CMD wget -Y off --no-verbose --tries=1 --spider http://localhost:8080/health/probes/liveness || exit 1
 
-CMD [ "node", "--enable-source-maps", "app.mjs" ]
+CMD [ "node", "--enable-source-maps", "dist/app.mjs" ]
 
 # endregion
 # ---
@@ -195,9 +195,9 @@ WORKDIR /usr/build
 
 RUN pnpm install -g pm2@^7.1.0
 
-COPY --from=api-builder /usr/build/api/dist ./api
-COPY --from=enricher-builder /usr/build/enricher/dist ./enricher
-COPY --from=harvester-builder /usr/build/harvester/dist ./harvester
+COPY --from=api-builder /usr/build/api/out ./api
+COPY --from=enricher-builder /usr/build/enricher/out ./enricher
+COPY --from=harvester-builder /usr/build/harvester/out ./harvester
 
 COPY ./services/ecosystem.config.js .
 

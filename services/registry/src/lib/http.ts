@@ -1,10 +1,8 @@
 import type { SecureServerOptions } from 'node:http2';
 import { readFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
 
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
-import vite from '@fastify/vite';
 import fastifyFactory, {
   type FastifyInstance,
   type FastifyPluginAsync,
@@ -13,6 +11,7 @@ import fastifyFactory, {
 import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
+import { initClient } from '~/client';
 import { loggerPlugin } from '~/plugins/logger';
 
 // oxlint-disable-next-line no-magic-numbers - One day as seconds
@@ -20,8 +19,6 @@ const CACHE_OPTIONS_DURATION = 24 * 60 * 60;
 
 const logger = appLogger.child({ scope: 'http' });
 const { http: config } = appConfig;
-
-const isDev = process.argv.includes('--dev');
 
 /**
  * Transform app config into `trustProxy` for fastify
@@ -90,13 +87,11 @@ async function createFastify(): Promise<FastifyInstance> {
  * Create HTTP server, register plugins and provided routes
  *
  * @param routes - Routes to register
- * @param prefix - Prefix to use for routes
  *
  * @returns The HTTP server
  */
 export async function createServer(
-  routes: FastifyPluginAsync,
-  prefix = '/'
+  routes: FastifyPluginAsync
 ): Promise<FastifyInstance> {
   // Create Fastify instance
   const fastify = await createFastify();
@@ -120,7 +115,7 @@ export async function createServer(
   await fastify.register(loggerPlugin);
 
   // Register routes
-  await fastify.register(routes, { prefix });
+  await fastify.register(routes);
 
   return fastify;
 }
@@ -137,17 +132,11 @@ export async function initHTTPServer(
 ): Promise<FastifyInstance> {
   const start = process.uptime();
 
-  const fastify = await createServer(routes, '/api');
+  const fastify = await createServer(routes);
 
-  // Serve front
-  await fastify.register(vite, {
-    dev: isDev,
-    renderer: '@fastify/vue',
-    root: resolve(import.meta.dirname, isDev ? '../../' : '.'),
-  });
+  await initClient(fastify);
 
   // Start server and wait for it to be ready
-  await fastify.vite.ready();
   const address = await fastify.listen({ host: '::', port: config.port });
   await fastify.ready();
 
