@@ -15,12 +15,13 @@ export const DataHostModel = vi.fn<typeof original.DataHostModel>(
     );
 
     create = mockedDataHostModel.create;
-    createChange = mockedDataHostModel.createChange;
+    createLocal = mockedDataHostModel.createLocal;
     doesExists = mockedDataHostModel.doesExists;
     findAll = mockedDataHostModel.findAll;
     countAll = mockedDataHostModel.countAll;
     findOne = mockedDataHostModel.findOne;
     update = mockedDataHostModel.update;
+    updateLocal = mockedDataHostModel.updateLocal;
     delete = mockedDataHostModel.delete;
   }
 );

@@ -17,8 +17,8 @@ export const syncHostsCron = CronJob.from({
   onTick: async () => {
     logger.debug({ msg: 'Starting sync' });
 
-    const syncModel = new SyncModel();
-    const result = await syncModel.syncHosts();
+    const sync = new SyncModel();
+    const result = await sync.syncHosts();
 
     if (!result) {
       logger.debug({

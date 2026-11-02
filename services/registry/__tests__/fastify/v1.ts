@@ -1,8 +1,16 @@
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
+import type {
+  FastifyInstance,
+  FastifyPluginAsync,
+  LightMyRequestResponse,
+} from 'fastify';
 import { beforeEach, vi } from 'vitest';
 
 import { createServer } from '~/lib/http';
 
+import type {
+  ErrorResponse,
+  SuccessResponse,
+} from '~/routes/v1/shared/responses';
 import { setupResponses } from '~/routes/v1';
 
 /**
@@ -27,4 +35,29 @@ export function createTestServer(
 
     fastify.register(routes);
   });
+}
+
+/**
+ * Wrapper around LightMyRequest to extract response from (fake) HTTP request
+ *
+ * @param response - The response from LightMyRequest
+ *
+ * @throws {Error} If result have error
+ *
+ * @returns The successful result
+ */
+export function deserializeSuccessResponse<Content, Meta = undefined>(
+  response: LightMyRequestResponse
+): SuccessResponse<Content, Meta> {
+  const result = response.json<
+    SuccessResponse<Content, Meta> | ErrorResponse
+  >();
+
+  if ('error' in result) {
+    throw new Error(`Server error: ${result.error.message}`, {
+      cause: result.error,
+    });
+  }
+
+  return result;
 }

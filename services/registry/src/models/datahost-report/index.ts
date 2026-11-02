@@ -1,16 +1,17 @@
+import { merge } from 'es-toolkit';
+
 import type { PaginationParams } from '~/lib/prisma';
 
 import type { DataHostReleaseID } from '~/models/datahost-release/dto';
+import { objectDiff } from '~/models/diff/methods';
 
-import { Model, createModelTransaction } from '../model';
-import {
-  type CreateDataHostReport,
-  type CreateDataHostReportChange,
-  type DataHostReport,
-  DataHostReportChange,
-  type DataHostReportID,
-  type UpdateDataHostReport,
+import type {
+  CreateDataHostReport,
+  DataHostReport,
+  DataHostReportID,
+  UpdateDataHostReport,
 } from './dto';
+import { Model, createModelTransaction } from '../model';
 import {
   applyDataHostReportChanges,
   countAllDataHostReport,
@@ -37,11 +38,11 @@ export class DataHostReportModel extends Model {
   // CREATE
 
   /**
-   * Create data host
+   * Create report for a data host
    *
-   * @param input - The data host
+   * @param input - The report for a data host
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async create(input: CreateDataHostReport): Promise<DataHostReport> {
     const dataHost = await createDataHostReport(input, this.db);
@@ -50,24 +51,48 @@ export class DataHostReportModel extends Model {
   }
 
   /**
-   * Create change on release
+   * Create a local report for a data host
    *
-   * @param input - The change
+   * This create an unsupported report then add a change to support it, allowing for future syncs to add support
+   * This is not needed for local data hosts
    *
-   * @returns The change
+   * @param input - The report for a data host
+   *
+   * @returns The available release
    */
-  async createChange(
-    input: CreateDataHostReportChange
-  ): Promise<DataHostReportChange> {
-    const change = await createDataHostReportChange(input, this.db);
+  async createLocal(input: CreateDataHostReport): Promise<DataHostReport> {
+    const source = await this.create({
+      ...input,
+      supported: false,
+    });
 
-    return DataHostReportChange.parse(change);
+    if (input.supported === false) {
+      return source;
+    }
+
+    const target = merge(source, { supported: true });
+
+    await createDataHostReportChange(
+      {
+        dataHostId: input.dataHostId,
+        diff: objectDiff(source, target),
+        release: input.release,
+        reportId: input.reportId,
+      },
+      this.db
+    );
+
+    return this.findOne({
+      dataHostId: input.dataHostId,
+      release: input.release,
+      reportId: input.reportId,
+    });
   }
 
   // READ
 
   /**
-   * Get all data hosts with pagination options
+   * Get all reports for a data host given a release with pagination options
    *
    * @param releaseId - The id of the host
    * @param query - Filters and pagination to apply (if any)
@@ -84,12 +109,12 @@ export class DataHostReportModel extends Model {
   }
 
   /**
-   * Count all data hosts available
+   * Count all reports available for a data host given a release
    *
    * @param releaseId - The id of the host
    * @param query - Filters to apply (if any)
    *
-   * @returns The count of data hosts matching filters
+   * @returns The count of reports matching filters
    */
   async countAll(releaseId: DataHostReleaseID, query: null): Promise<number> {
     const count = await countAllDataHostReport(releaseId, query, this.db);
@@ -98,11 +123,11 @@ export class DataHostReportModel extends Model {
   }
 
   /**
-   * Check for the existence of a data host
+   * Check for the existence of a report for a data host given a release
    *
-   * @param id - The id of the host
+   * @param id - The id of the report
    *
-   * @returns If the host exists
+   * @returns If the report exists
    */
   async doesExists(id: DataHostReportID): Promise<boolean> {
     const exists = await doesDataHostReportExists(id, this.db);
@@ -111,9 +136,9 @@ export class DataHostReportModel extends Model {
   }
 
   /**
-   * Get one data host
+   * Get one a report for a data host given a release
    *
-   * @param id - The id of the host
+   * @param id - The id of the report
    * @param includes - The relations to include
    *
    * @returns The host
@@ -127,11 +152,11 @@ export class DataHostReportModel extends Model {
   // UPDATE
 
   /**
-   * Update data host
+   * Update a report for a data host given a release
    *
-   * @param input - The data host
+   * @param input - The report
    *
-   * @returns The supported release
+   * @returns The supported report
    */
   async update(input: UpdateDataHostReport): Promise<DataHostReport> {
     const dataHost = await updateDataHostReport(input, this.db);
@@ -139,14 +164,40 @@ export class DataHostReportModel extends Model {
     return applyDataHostReportChanges(dataHost);
   }
 
+  /**
+   * Update report for a data host by creating a local change
+   *
+   * This is not needed for local data host
+   *
+   * @param input - The report for a data host
+   *
+   * @returns The supported report
+   */
+  async updateLocal(input: UpdateDataHostReport): Promise<DataHostReport> {
+    const source = await this.findOne(input);
+    const target = merge(source, input);
+
+    await createDataHostReportChange(
+      {
+        dataHostId: input.dataHostId,
+        diff: objectDiff(source, target),
+        release: input.release,
+        reportId: input.reportId,
+      },
+      this.db
+    );
+
+    return this.findOne(input);
+  }
+
   // DELETE
 
   /**
-   * Delete registered data host
+   * Delete registered report for a data host given a release
    *
-   * @param id - The id of the host
+   * @param id - The id of the report
    *
-   * @returns If release supports was removed
+   * @returns If report support was removed
    */
   async delete(id: DataHostReportID): Promise<boolean> {
     const isDeleted = await deleteDataHostReport(id, this.db);

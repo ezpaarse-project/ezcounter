@@ -116,7 +116,6 @@ async function deleteDataHostRelease(
   release: DataHostRelease,
   tx: Prisma.TransactionClient
 ): Promise<void> {
-  // TODO: when creating "local" release -> set supported to false and add change
   const updated = await unsupportDataHostRelease(
     {
       dataHostId: release.dataHostId,

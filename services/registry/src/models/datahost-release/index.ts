@@ -1,16 +1,17 @@
+import { merge } from 'es-toolkit';
+
 import type { PaginationParams } from '~/lib/prisma';
 
 import type { DataHostID } from '~/models/datahost/dto';
+import { objectDiff } from '~/models/diff/methods';
 
-import { Model, createModelTransaction } from '../model';
-import {
-  type CreateDataHostRelease,
-  type CreateDataHostReleaseChange,
-  type DataHostRelease,
-  DataHostReleaseChange,
-  type DataHostReleaseID,
-  type UpdateDataHostRelease,
+import type {
+  CreateDataHostRelease,
+  DataHostRelease,
+  DataHostReleaseID,
+  UpdateDataHostRelease,
 } from './dto';
+import { Model, createModelTransaction } from '../model';
 import {
   applyDataHostReleaseChanges,
   countAllDataHostRelease,
@@ -41,7 +42,7 @@ export class DataHostReleaseModel extends Model {
    *
    * @param input - The release for a data host
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async create(input: CreateDataHostRelease): Promise<DataHostRelease> {
     const dataHost = await createDataHostRelease(input, this.db);
@@ -50,18 +51,39 @@ export class DataHostReleaseModel extends Model {
   }
 
   /**
-   * Create change on release
+   * Create a local release for a data host
    *
-   * @param input - The change
+   * This create an unavailable release then add a change to support it, allowing for future syncs to add support
    *
-   * @returns The change
+   * @param input - The release for a data host
+   *
+   * @returns The available release
    */
-  async createChange(
-    input: CreateDataHostReleaseChange
-  ): Promise<DataHostReleaseChange> {
-    const change = await createDataHostReleaseChange(input, this.db);
+  async createLocal(input: CreateDataHostRelease): Promise<DataHostRelease> {
+    const source = await this.create({
+      ...input,
+      supported: false,
+    });
 
-    return DataHostReleaseChange.parse(change);
+    if (input.supported === false) {
+      return source;
+    }
+
+    const target = merge(source, { supported: true });
+
+    await createDataHostReleaseChange(
+      {
+        dataHostId: input.dataHostId,
+        diff: objectDiff(source, target),
+        release: input.release,
+      },
+      this.db
+    );
+
+    return this.findOne({
+      dataHostId: input.dataHostId,
+      release: input.release,
+    });
   }
 
   // READ
@@ -131,12 +153,35 @@ export class DataHostReleaseModel extends Model {
    *
    * @param input - The release for a data host
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async update(input: UpdateDataHostRelease): Promise<DataHostRelease> {
     const dataHost = await updateDataHostRelease(input, this.db);
 
     return applyDataHostReleaseChanges(dataHost);
+  }
+
+  /**
+   * Update release for a data host by creating a local change
+   *
+   * @param input - The release for a data host
+   *
+   * @returns The available release
+   */
+  async updateLocal(input: UpdateDataHostRelease): Promise<DataHostRelease> {
+    const source = await this.findOne(input);
+    const target = merge(source, input);
+
+    await createDataHostReleaseChange(
+      {
+        dataHostId: input.dataHostId,
+        diff: objectDiff(source, target),
+        release: input.release,
+      },
+      this.db
+    );
+
+    return this.findOne(input);
   }
 
   // DELETE
@@ -146,7 +191,7 @@ export class DataHostReleaseModel extends Model {
    *
    * @param id - The id of the release
    *
-   * @returns If release supports was removed
+   * @returns If release support was removed
    */
   async delete(id: DataHostReleaseID): Promise<boolean> {
     const isDeleted = await deleteDataHostRelease(id, this.db);

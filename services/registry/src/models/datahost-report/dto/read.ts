@@ -7,7 +7,7 @@ import {
   HarvestReportPeriodDate,
 } from '@ezcounter/dto/harvest';
 
-import { prepareDiffFor } from '~/models/diff/dto';
+import { DiffEntry, prepareDiffFor } from '~/models/diff/dto';
 
 const diff = prepareDiffFor<DataHostReport>();
 
@@ -53,6 +53,28 @@ export const DataHostReport = z.object({
 export type DataHostReport = z.infer<typeof DataHostReport>;
 
 /**
+ * Validation for a change on a release
+ */
+export const DataHostReportChange = z.object({
+  createdAt: z.coerce.date().describe('Creation date'),
+
+  dataHostId: DataHostReport.shape.dataHostId,
+
+  diff: z.array(DiffEntry).min(1).describe('Modifications to apply to release'),
+
+  id: z.string().describe('ID of the change'),
+
+  release: DataHostReport.shape.release,
+
+  reportId: DataHostReport.shape.reportId,
+});
+
+/**
+ * Type for a change on a release
+ */
+export type DataHostReportChange = z.infer<typeof DataHostReportChange>;
+
+/**
  * Validation for a modification part of a Data Host
  */
 export const DataHostReportDiffEntry = z.union([
@@ -69,33 +91,3 @@ export const DataHostReportDiffEntry = z.union([
   ]),
   diff.describeNested('params', HarvestCatchAllParams),
 ]);
-
-/**
- * Type for a modification part of a Data Host
- */
-export type DataHostReportDiffEntry = z.infer<typeof DataHostReportChange>;
-
-/**
- * Validation for a change on a release
- */
-export const DataHostReportChange = z.object({
-  createdAt: z.coerce.date().describe('Creation date'),
-
-  dataHostId: DataHostReport.shape.dataHostId,
-
-  diff: z
-    .array(DataHostReportDiffEntry)
-    .min(1)
-    .describe('Modifications to apply to release'),
-
-  id: z.string().describe('ID of the change'),
-
-  release: DataHostReport.shape.release,
-
-  reportId: DataHostReport.shape.reportId,
-});
-
-/**
- * Type for a change on a release
- */
-export type DataHostReportChange = z.infer<typeof DataHostReportChange>;

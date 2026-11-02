@@ -110,7 +110,7 @@ async function deleteDataHostReport(
   report: DataHostReport,
   tx: Prisma.TransactionClient
 ): Promise<void> {
-  // TODO: when creating "local" release -> set supported to false and add change
+  // TODO: when creating "local" report -> set supported to false and add change
   const updated = await unsupportDataHostReport(
     {
       dataHostId: report.dataHostId,

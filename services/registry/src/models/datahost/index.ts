@@ -1,14 +1,16 @@
+import { merge } from 'es-toolkit';
+
 import type { PaginationParams } from '~/lib/prisma';
 
-import { Model, createModelTransaction } from '../model';
-import {
-  type CreateDataHost,
-  type CreateDataHostChange,
-  type DataHost,
-  DataHostChange,
-  type DataHostID,
-  type UpdateDataHost,
+import { objectDiff } from '~/models/diff/methods';
+
+import type {
+  CreateDataHost,
+  DataHost,
+  DataHostID,
+  UpdateDataHost,
 } from './dto';
+import { Model, createModelTransaction } from '../model';
 import {
   applyDataHostChanges,
   countAllDataHost,
@@ -35,11 +37,11 @@ export class DataHostModel extends Model {
   // CREATE
 
   /**
-   * Create data host
+   * Create a data host
    *
    * @param input - The data host
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async create(input: CreateDataHost): Promise<DataHost> {
     const dataHost = await createDataHost(input, this.db);
@@ -48,16 +50,17 @@ export class DataHostModel extends Model {
   }
 
   /**
-   * Create change on data host
+   * Create a local data host
    *
-   * @param input - The change
+   * @param input - The data host
    *
-   * @returns The change
+   * @returns The available release
    */
-  async createChange(input: CreateDataHostChange): Promise<DataHostChange> {
-    const change = await createDataHostChange(input, this.db);
-
-    return DataHostChange.parse(change);
+  createLocal(input: Omit<CreateDataHost, 'local'>): Promise<DataHost> {
+    return this.create({
+      ...input,
+      local: true,
+    });
   }
 
   // READ
@@ -118,16 +121,38 @@ export class DataHostModel extends Model {
   // UPDATE
 
   /**
-   * Update data host
+   * Update data host by creating a change
    *
    * @param input - The data host
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async update(input: UpdateDataHost): Promise<DataHost> {
     const dataHost = await updateDataHost(input, this.db);
 
     return applyDataHostChanges(dataHost);
+  }
+
+  /**
+   * Update data host by creating a local change
+   *
+   * @param input - The data host
+   *
+   * @returns The available release
+   */
+  async updateLocal(input: Omit<UpdateDataHost, 'local'>): Promise<DataHost> {
+    const source = await this.findOne(input.id);
+    const target = merge(source, input);
+
+    await createDataHostChange(
+      {
+        dataHostId: input.id,
+        diff: objectDiff(source, target),
+      },
+      this.db
+    );
+
+    return this.findOne(input.id);
   }
 
   // DELETE

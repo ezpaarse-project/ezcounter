@@ -15,7 +15,7 @@ describe('delete report supported by Data Host', () => {
 
     // @ts-expect-error Prisma types are complex
     vi.mocked(mockedTx.dataHostReport.count).mockResolvedValueOnce({
-      id: 1,
+      reportId: 1,
     });
 
     await deleteDataHostReport(

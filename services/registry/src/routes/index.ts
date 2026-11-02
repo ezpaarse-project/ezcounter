@@ -1,3 +1,11 @@
 import type { FastifyPluginAsync } from 'fastify';
 
-export const routes: FastifyPluginAsync = async (fastify) => {};
+import { v1 } from './v1';
+
+export const routes: FastifyPluginAsync = async (fastify) => {
+  // Default version
+  await fastify.register(v1, { prefix: '/api' });
+
+  // API versions
+  await fastify.register(v1, { prefix: '/api/v1' });
+};

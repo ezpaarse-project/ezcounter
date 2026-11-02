@@ -17,12 +17,13 @@ export const DataHostReleaseModel = vi.fn<typeof original.DataHostReleaseModel>(
       );
 
     create = mockedDataHostReleaseModel.create;
-    createChange = mockedDataHostReleaseModel.createChange;
+    createLocal = mockedDataHostReleaseModel.createLocal;
     doesExists = mockedDataHostReleaseModel.doesExists;
     findAll = mockedDataHostReleaseModel.findAll;
     countAll = mockedDataHostReleaseModel.countAll;
     findOne = mockedDataHostReleaseModel.findOne;
     update = mockedDataHostReleaseModel.update;
+    updateLocal = mockedDataHostReleaseModel.updateLocal;
     delete = mockedDataHostReleaseModel.delete;
   }
 );

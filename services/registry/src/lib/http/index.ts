@@ -12,7 +12,8 @@ import { appConfig } from '~/lib/config';
 import { appLogger } from '~/lib/logger';
 
 import { initClient } from '~/client';
-import { loggerPlugin } from '~/plugins/logger';
+
+import { loggerPlugin } from './logger-plugin';
 
 // oxlint-disable-next-line no-magic-numbers - One day as seconds
 const CACHE_OPTIONS_DURATION = 24 * 60 * 60;

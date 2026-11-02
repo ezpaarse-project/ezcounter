@@ -1,10 +1,10 @@
 import type { FastifyPluginAsync } from 'fastify';
-import swagget, { type FastifyDynamicSwaggerOptions } from '@fastify/swagger';
+import swagger, { type FastifyDynamicSwaggerOptions } from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import fp from 'fastify-plugin';
 
 // oxlint-disable-next-line import/extensions
-import { version } from '../../package.json' with { type: 'json' };
+import { version } from '../../../package.json' with { type: 'json' };
 
 type PluginOptions = {
   transform?: FastifyDynamicSwaggerOptions['transform'];
@@ -38,11 +38,8 @@ const OPENAPI_TAGS = [
  * @param fastify - The fastify instance
  * @param opts - The plugin options
  */
-const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
-  fastify,
-  opts
-) => {
-  await fastify.register(swagget, {
+const plugin: FastifyPluginAsync<PluginOptions> = async (fastify, opts) => {
+  await fastify.register(swagger, {
     openapi: {
       info: OPENAPI_INFOS,
       servers: [{ description: 'Direct', url: '/' }],
@@ -59,9 +56,9 @@ const openapiBasePlugin: FastifyPluginAsync<PluginOptions> = async (
 };
 
 // Register plugin
-export const openapiPlugin = fp(openapiBasePlugin, {
+export const openapiPlugin = fp(plugin, {
   encapsulate: false,
-  name: 'ezc-openapi',
+  name: 'ezc-v1-openapi',
 });
 
 /*

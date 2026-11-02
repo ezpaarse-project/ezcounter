@@ -43,7 +43,7 @@ export class SyncActivityModel extends Model {
    *
    * @param input - The sync activity
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async create(input: CreateSyncActivity): Promise<SyncActivity> {
     const activity = await createSyncActivity(input, this.db);
@@ -56,7 +56,7 @@ export class SyncActivityModel extends Model {
    *
    * @param input - The sync activity
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async createHostAction(input: CreateSyncHostAction): Promise<SyncHostAction> {
     const activity = await createSyncHostAction(input, this.db);
@@ -126,7 +126,7 @@ export class SyncActivityModel extends Model {
    *
    * @param input - The sync activity
    *
-   * @returns The supported release
+   * @returns The available release
    */
   async update(input: UpdateSyncActivity): Promise<SyncActivity> {
     const activity = await updateSyncActivity(input, this.db);

@@ -62,6 +62,7 @@ describe('create action of sync on host', () => {
   const action: RegistrySyncHostAction = {
     createdAt: new Date(),
     dataHostId: 'id',
+    diff: [],
     syncId: 'sync-id',
     type: 'created',
   };
@@ -75,6 +76,7 @@ describe('create action of sync on host', () => {
     await createSyncHostAction(
       {
         dataHostId: 'id',
+        diff: [],
         syncId: 'sync-id',
         type: 'created',
       },
@@ -93,6 +95,7 @@ describe('create action of sync on host', () => {
     const promise = createSyncHostAction(
       {
         dataHostId: 'id',
+        diff: [],
         syncId: 'sync-id',
         type: 'created',
       },

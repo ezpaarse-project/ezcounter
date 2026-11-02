@@ -36,8 +36,8 @@ export class SyncModel {
     const startedAt = new Date();
     let syncError: SyncError | null = null;
 
-    const activityModel = new SyncActivityModel();
-    const sync = await activityModel.create({
+    const activities = new SyncActivityModel();
+    const sync = await activities.create({
       sourceUrl: handler.sourceURL,
       startedAt,
       status: 'processing',
@@ -58,7 +58,7 @@ export class SyncModel {
       };
     }
 
-    return activityModel.update({
+    return activities.update({
       error: syncError,
       id: sync.id,
       status: syncError ? 'error' : 'done',

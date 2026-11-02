@@ -51,6 +51,9 @@ CMD [ "npx", "prisma", "migrate", "deploy" ]
 
 # Prepare prod dependencies for api
 FROM builder AS api-builder
+WORKDIR /usr/dev
+
+RUN --mount=type=cache,id=turbo,target=/turbo pnpm turbo run ezcounter-api#build
 
 # Resolve dependencies and add it to bundle
 RUN pnpm deploy --filter ezcounter-api --prod /usr/build/api
@@ -193,7 +196,7 @@ ENV NODE_ENV=production \
     NODE_USE_ENV_PROXY=1
 WORKDIR /usr/build
 
-RUN pnpm install -g pm2@^7.1.0
+RUN npm install -g pm2@^7.1.0
 
 COPY --from=api-builder /usr/build/api/out ./api
 COPY --from=enricher-builder /usr/build/enricher/out ./enricher

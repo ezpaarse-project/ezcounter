@@ -52,7 +52,7 @@ function logRequest(request: FastifyRequest, reply?: FastifyReply): void {
  * @param fastify - The fastify instance
  */
 // oxlint-disable require-await
-const loggerBasePlugin: FastifyPluginAsync = async (fastify) => {
+const plugin: FastifyPluginAsync = async (fastify) => {
   // Register request date
   fastify.addHook('onRequest', async (request) => {
     requestDates.set(request.id, process.uptime());
@@ -71,7 +71,7 @@ const loggerBasePlugin: FastifyPluginAsync = async (fastify) => {
 // oxlint-enable require-await
 
 // Register plugin
-export const loggerPlugin = fp(loggerBasePlugin, {
+export const loggerPlugin = fp(plugin, {
   encapsulate: false,
   name: 'ezc-logger',
 });

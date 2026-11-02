@@ -11,10 +11,10 @@ describe('create report of Data Host', () => {
     createdAt: new Date(),
     dataHostId: 'id',
     firstMonthAvailable: null,
-    id: 'tr',
     lastMonthAvailable: null,
     params: {},
     release: '5.1',
+    reportId: 'tr',
     supported: null,
     updatedAt: null,
   };

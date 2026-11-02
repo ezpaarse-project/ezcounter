@@ -15,7 +15,9 @@ describe('does Data Host supports report', () => {
   it('should query DB', async () => {
     expect.hasAssertions();
     // @ts-expect-error Prisma types are complex
-    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({ id: 1 });
+    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({
+      reportId: 1,
+    });
 
     await doesDataHostReportExists(
       { dataHostId: 'id', release: '5', reportId: 'tr' },
@@ -28,7 +30,9 @@ describe('does Data Host supports report', () => {
   it('should return true if found', async () => {
     expect.hasAssertions();
     // @ts-expect-error Prisma types are complex
-    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({ id: 1 });
+    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({
+      reportId: 1,
+    });
 
     const promise = doesDataHostReportExists(
       { dataHostId: 'id', release: '5.1', reportId: 'tr' },
@@ -41,7 +45,9 @@ describe('does Data Host supports report', () => {
   it('should return false if not found', async () => {
     expect.hasAssertions();
     // @ts-expect-error Prisma types are complex
-    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({ id: 0 });
+    vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({
+      reportId: 0,
+    });
 
     const promise = doesDataHostReportExists(
       { dataHostId: 'id', release: '5.1', reportId: 'tr' },
@@ -60,7 +66,7 @@ describe('find all reports supported by Data Host', () => {
     await findAllDataHostReport(
       { dataHostId: 'id', release: '5.1' },
       {
-        orderBy: { id: 'asc' },
+        orderBy: { reportId: 'asc' },
         skip: 50,
         take: 25,
       },
@@ -69,7 +75,7 @@ describe('find all reports supported by Data Host', () => {
 
     expect(dbClient.dataHostReport.findMany).toHaveBeenCalledExactlyOnceWith({
       include: { changes: { orderBy: { createdAt: 'asc' } } },
-      orderBy: { id: 'asc' },
+      orderBy: { reportId: 'asc' },
       skip: 50,
       take: 25,
       where: {
@@ -98,7 +104,7 @@ describe('count all reports supported by Data Host', () => {
     expect.hasAssertions();
     // @ts-expect-error Prisma types are complex
     vi.mocked(dbClient.dataHostReport.count).mockResolvedValueOnce({
-      id: 0,
+      reportId: 0,
     });
 
     await countAllDataHostReport(
@@ -108,7 +114,7 @@ describe('count all reports supported by Data Host', () => {
     );
 
     expect(dbClient.dataHostReport.count).toHaveBeenCalledExactlyOnceWith({
-      select: { id: true },
+      select: { reportId: true },
       where: {
         dataHostId: 'id',
         release: '5',
@@ -122,10 +128,10 @@ describe('find one report supported by Data Host', () => {
     createdAt: new Date(),
     dataHostId: 'id',
     firstMonthAvailable: '',
-    id: 'tr',
     lastMonthAvailable: '',
     params: {},
     release: '5.1',
+    reportId: 'tr',
     supported: true,
     updatedAt: null,
   };

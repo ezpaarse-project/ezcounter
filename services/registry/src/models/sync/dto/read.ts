@@ -13,10 +13,10 @@ import { CreateDataHost, UpdateDataHost } from '~/models/datahost/dto';
 /**
  * Validation for data needed to sync report from host
  */
-export const DataHostReportSync = z.union([
+export const DataHostReportSync = z.intersection(
   CreateDataHostReport,
-  UpdateDataHostReport,
-]);
+  UpdateDataHostReport
+);
 
 /**
  * Type for data needed to sync host

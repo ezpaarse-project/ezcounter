@@ -15,12 +15,13 @@ export const DataHostReportModel = vi.fn<typeof original.DataHostReportModel>(
       vi.fn((executor) => Promise.resolve(executor(mockedDataHostReportModel)));
 
     create = mockedDataHostReportModel.create;
-    createChange = mockedDataHostReportModel.createChange;
+    createLocal = mockedDataHostReportModel.createLocal;
     doesExists = mockedDataHostReportModel.doesExists;
     findAll = mockedDataHostReportModel.findAll;
     countAll = mockedDataHostReportModel.countAll;
     findOne = mockedDataHostReportModel.findOne;
     update = mockedDataHostReportModel.update;
+    updateLocal = mockedDataHostReportModel.updateLocal;
     delete = mockedDataHostReportModel.delete;
   }
 );
